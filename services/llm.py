@@ -21,6 +21,11 @@ DEFAULT_LLM_URLS: List[str] = [
     "http://localhost:8002",
 ]
 
+LEGACY_ENDPOINTS: List[str] = [
+    "/parse",
+    "/api/v1/llm/parse-search-query",
+]
+
 DEFAULT_RETRIES = 2
 
 
@@ -65,78 +70,79 @@ async def parse_search_query(query: str) -> Dict[str, Any]:
     last_error: Exception | None = None
 
     for base_url in _candidate_endpoints():
-        endpoint = f"{base_url}/api/v1/llm/parse-search-query"
-        logger.info(
-            "Calling LLM service",
-            extra={
-                "endpoint": endpoint,
-                "timeout": timeout_value,
-                "retries": retries,
-                "query_preview": query[:120],
-            },
-        )
-        try:
-            async with httpx.AsyncClient(timeout=timeout) as client:
-                for attempt in range(1, retries + 1):
-                    try:
-                        logger.debug(
-                            "LLM HTTP request",
-                            extra={
-                                "endpoint": endpoint,
-                                "attempt": attempt,
-                                "timeout": timeout_value,
-                            },
-                        )
-                        response = await client.post(endpoint, json={"query": query})
-                        response.raise_for_status()
-                        data = response.json()
-                        logger.debug(
-                            "LLM service response",
-                            extra={
-                                "endpoint": endpoint,
-                                "attempt": attempt,
-                                "response": data,
-                            },
-                        )
-                        return data
-                    except httpx.TimeoutException as exc:
-                        logger.warning(
-                            "LLM request timeout",
-                            extra={"endpoint": endpoint, "attempt": attempt},
-                        )
-                        last_error = exc
-                    except httpx.HTTPStatusError as exc:
-                        logger.warning(
-                            "LLM service returned HTTP error",
-                            extra={
-                                "status": exc.response.status_code,
-                                "endpoint": endpoint,
-                                "attempt": attempt,
-                                "body": exc.response.text[:500],
-                            },
-                        )
-                        last_error = exc
-                        break
-                    except httpx.RequestError as exc:
-                        logger.warning(
-                            "LLM request error",
-                            extra={"endpoint": endpoint, "attempt": attempt},
-                            exc_info=exc,
-                        )
-                        last_error = exc
-                    except ValueError as exc:
-                        logger.warning(
-                            "LLM service returned invalid JSON",
-                            extra={"endpoint": endpoint, "attempt": attempt},
-                            exc_info=exc,
-                        )
-                        last_error = exc
-                        break
-        except Exception as exc:
-            last_error = exc
-            logger.exception(
-                "Unexpected LLM client error", extra={"endpoint": endpoint}
+        for path in LEGACY_ENDPOINTS:
+            endpoint = f"{base_url}{path}"
+            logger.info(
+                "Calling LLM service",
+                extra={
+                    "endpoint": endpoint,
+                    "timeout": timeout_value,
+                    "retries": retries,
+                    "query_preview": query[:120],
+                },
             )
+            try:
+                async with httpx.AsyncClient(timeout=timeout) as client:
+                    for attempt in range(1, retries + 1):
+                        try:
+                            logger.debug(
+                                "LLM HTTP request",
+                                extra={
+                                    "endpoint": endpoint,
+                                    "attempt": attempt,
+                                    "timeout": timeout_value,
+                                },
+                            )
+                            response = await client.post(endpoint, json={"query": query})
+                            response.raise_for_status()
+                            data = response.json()
+                            logger.debug(
+                                "LLM service response",
+                                extra={
+                                    "endpoint": endpoint,
+                                    "attempt": attempt,
+                                    "response": data,
+                                },
+                            )
+                            return data
+                        except httpx.TimeoutException as exc:
+                            logger.warning(
+                                "LLM request timeout",
+                                extra={"endpoint": endpoint, "attempt": attempt},
+                            )
+                            last_error = exc
+                        except httpx.HTTPStatusError as exc:
+                            logger.warning(
+                                "LLM service returned HTTP error",
+                                extra={
+                                    "status": exc.response.status_code,
+                                    "endpoint": endpoint,
+                                    "attempt": attempt,
+                                    "body": exc.response.text[:500],
+                                },
+                            )
+                            last_error = exc
+                            break
+                        except httpx.RequestError as exc:
+                            logger.warning(
+                                "LLM request error",
+                                extra={"endpoint": endpoint, "attempt": attempt},
+                                exc_info=exc,
+                            )
+                            last_error = exc
+                        except ValueError as exc:
+                            logger.warning(
+                                "LLM service returned invalid JSON",
+                                extra={"endpoint": endpoint, "attempt": attempt},
+                                exc_info=exc,
+                            )
+                            last_error = exc
+                            break
+            except Exception as exc:
+                last_error = exc
+                logger.exception(
+                    "Unexpected LLM client error", extra={"endpoint": endpoint}
+                )
 
     if last_error:
         raise LLMClientError(f"LLM service unreachable: {last_error}") from last_error
@@ -152,30 +158,31 @@ async def check_llm_health() -> Dict[str, Any]:
     results: Dict[str, Any] = {"endpoints": []}
 
     for base_url in _candidate_endpoints():
-        health_url = f"{base_url}/healthz"
-        try:
-            async with httpx.AsyncClient(timeout=timeout) as client:
-                resp = await client.get(health_url)
-            results["endpoints"].append(
-                {
-                    "url": health_url,
-                    "status": resp.status_code,
-                    "body": resp.json()
-                    if resp.headers.get("content-type", "").startswith(
-                        "application/json"
-                    )
-                    else resp.text,
-                }
-            )
-            if resp.status_code == 200:
-                results["ok"] = True
-                results["active_url"] = health_url
-                return results
-        except Exception as exc:
-            logger.warning(
-                "LLM health check failed", extra={"url": health_url}, exc_info=exc
-            )
-            results["endpoints"].append({"url": health_url, "error": str(exc)})
+        for path in ["/health", "/healthz"]:
+            health_url = f"{base_url}{path}"
+            try:
+                async with httpx.AsyncClient(timeout=timeout) as client:
+                    resp = await client.get(health_url)
+                results["endpoints"].append(
+                    {
+                        "url": health_url,
+                        "status": resp.status_code,
+                        "body": resp.json()
+                        if resp.headers.get("content-type", "").startswith(
+                            "application/json"
+                        )
+                        else resp.text,
+                    }
+                )
+                if resp.status_code == 200:
+                    results["ok"] = True
+                    results["active_url"] = health_url
+                    return results
+            except Exception as exc:
+                logger.warning(
+                    "LLM health check failed", extra={"url": health_url}, exc_info=exc
+                )
+                results["endpoints"].append({"url": health_url, "error": str(exc)})
 
     results["ok"] = False
     return results

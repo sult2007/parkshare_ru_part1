@@ -19,7 +19,8 @@ from database import DB_PATH, get_connection, init_db, generate_synthetic_data
 
 BASE_DIR = Path(__file__).parent
 MODELS_DIR = BASE_DIR / "ai_models"
-MODELS_DIR.mkdir(exist_ok=True)
+# Создаём папку для моделей заранее, чтобы не упасть на сохранении
+MODELS_DIR.mkdir(parents=True, exist_ok=True)
 
 
 # ---------- 1. Модель предсказания загруженности парковок ----------
@@ -27,25 +28,31 @@ MODELS_DIR.mkdir(exist_ok=True)
 
 def load_occupancy_dataframe() -> pd.DataFrame:
     conn = get_connection()
-    query = """
-        SELECT
-            oh.lot_id,
-            oh.ts,
-            oh.occupancy,
-            oh.temperature,
-            oh.is_rain,
-            oh.is_event,
-            pl.near_metro,
-            pl.price_level,
-            pl.has_covered,
-            pl.has_ev_charging
-        FROM occupancy_history oh
-        JOIN parking_lot pl ON pl.id = oh.lot_id
-    """
-    df = pd.read_sql_query(query, conn)
-    conn.close()
+    try:
+        query = """
+            SELECT
+                oh.lot_id,
+                oh.ts,
+                oh.occupancy,
+                oh.temperature,
+                oh.is_rain,
+                oh.is_event,
+                pl.near_metro,
+                pl.price_level,
+                pl.has_covered,
+                pl.has_ev_charging
+            FROM occupancy_history oh
+            JOIN parking_lot pl ON pl.id = oh.lot_id
+        """
+        df = pd.read_sql_query(query, conn)
+    finally:
+        conn.close()
 
-    df["ts"] = pd.to_datetime(df["ts"])
+    if df.empty:
+        return df
+
+    df["ts"] = pd.to_datetime(df["ts"], errors="coerce")
+    df = df.dropna(subset=["ts"])
     df["hour"] = df["ts"].dt.hour
     df["dow"] = df["ts"].dt.weekday
     df["lot_id_str"] = df["lot_id"].astype(str)
@@ -229,19 +236,53 @@ def train_recommender() -> None:
     conn.close()
 
 
+def _dataset_is_empty() -> bool:
+    conn = get_connection()
+    try:
+        cur = conn.cursor()
+        counts = {}
+        for table in ["parking_lot", "occupancy_history", "user_rating"]:
+            try:
+                cur.execute(f"SELECT COUNT(*) FROM {table};")
+                counts[table] = cur.fetchone()[0]
+            except Exception:
+                counts[table] = 0
+        return any(value == 0 for value in counts.values())
+    finally:
+        conn.close()
+
+
+def _safe_call(name: str, fn) -> None:
+    try:
+        fn()
+    except Exception as exc:
+        # Логируем и выбрасываем дальше, чтобы CI увидел сбой
+        print(f"[!] Ошибка во время '{name}': {exc}")
+        raise
+
+
 def main() -> None:
     # На случай чистой установки
     init_db()
-    generate_synthetic_data()
+
+    try:
+        if _dataset_is_empty():
+            print("База пуста — генерируем синтетические данные...")
+            generate_synthetic_data()
+        else:
+            print("Используем существующие данные в БД", DB_PATH)
+    except Exception as exc:
+        print(f"[!] Не удалось подготовить данные: {exc}")
+        raise
 
     print("=== Обучение occupancy-модели ===")
-    train_occupancy_model()
+    _safe_call("occupancy", train_occupancy_model)
 
     print("=== Обучение NLP-модели ===")
-    train_nlp_model()
+    _safe_call("nlp", train_nlp_model)
 
     print("=== Обучение рекомендательной системы ===")
-    train_recommender()
+    _safe_call("recommender", train_recommender)
 
     print("Готово: все модели обучены и сохранены в", MODELS_DIR)
 

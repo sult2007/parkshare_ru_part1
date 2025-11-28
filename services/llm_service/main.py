@@ -1,18 +1,20 @@
 # services/llm_service/main.py
 """
 FastAPI приложение для LLM‑разбора пользовательских запросов на поиск парковки.
-Включает абстрактный клиент LLMClient и реализацию для OpenAI.
+Включает абстрактный клиент LLMClient, OpenAI‑реализацию и rule‑based фолбэк.
 """
 from __future__ import annotations
 
 import json
+import re
 from datetime import datetime
 from functools import lru_cache
 from typing import Any, Dict, Protocol, runtime_checkable
 
 import httpx
 from fastapi import Depends, FastAPI, HTTPException, status
-from pydantic import BaseModel, Field, ValidationError
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -23,13 +25,16 @@ class Settings(BaseSettings):
     openai_base_url: str = "https://api.openai.com/v1"
     openai_model: str = "gpt-3.5-turbo"
     request_timeout: float = 30.0
+    cors_allow_origins: list[str] = []
 
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
-        env_prefix="",  # Добавь эту строку
-        case_sensitive=False
+        env_prefix="",
+        case_sensitive=False,
+        extra="ignore",
     )
+
 
 @runtime_checkable
 class LLMClient(Protocol):
@@ -49,6 +54,12 @@ class OpenAILLMClient:
         self.timeout = settings.request_timeout
 
     async def parse_search_query(self, system_prompt: str, user_query: str) -> Dict[str, Any]:
+        if not self.api_key:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="OpenAI API key is not configured",
+            )
+
         payload = {
             "model": self.model,
             "messages": [
@@ -114,6 +125,61 @@ class OpenAILLMClient:
             ) from exc
 
 
+def _simple_rule_parser(user_query: str) -> Dict[str, Any]:
+    """Простой разбор текста без внешних LLM."""
+
+    lowered = (user_query or "").lower()
+    price_match = re.search(r"(\d{2,5})\s*(?:₽|р|руб)", lowered)
+    city = None
+    for candidate, title in [
+        ("москва", "Москва"),
+        ("москов", "Москва"),
+        ("питер", "Санкт-Петербург"),
+        ("спб", "Санкт-Петербург"),
+    ]:
+        if candidate in lowered:
+            city = title
+            break
+
+    max_price = float(price_match.group(1)) if price_match else None
+    return {
+        "city": city,
+        "start_at": None,
+        "end_at": None,
+        "max_price_per_hour": max_price,
+        "near_metro": "метро" in lowered,
+        "has_ev_charging": any(key in lowered for key in ["ev", "электро", "заряд"]),
+        "covered": "крыт" in lowered or "подзем" in lowered,
+    }
+
+
+class RuleBasedLLMClient:
+    """Фолбэк без внешних зависимостей."""
+
+    async def parse_search_query(self, system_prompt: str, user_query: str) -> Dict[str, Any]:
+        return _simple_rule_parser(user_query)
+
+
+class ResilientLLMClient:
+    """Обёртка: пытаемся OpenAI, при ошибке — rule-based."""
+
+    def __init__(self, primary: LLMClient | None, fallback: LLMClient):
+        self.primary = primary
+        self.fallback = fallback
+
+    async def parse_search_query(self, system_prompt: str, user_query: str) -> Dict[str, Any]:
+        if self.primary:
+            try:
+                return await self.primary.parse_search_query(system_prompt, user_query)
+            except HTTPException:
+                # Прокидываем 5xx наверх, чтобы клиент увидел, но оставим фолбэк
+                pass
+            except Exception:
+                # Любая другая ошибка — пробуем фолбэк
+                pass
+        return await self.fallback.parse_search_query(system_prompt, user_query)
+
+
 PARSER_SYSTEM_PROMPT = """
 You are an assistant that extracts structured parking search intent for ParkShare.
 Return a strict JSON object with the following fields:
@@ -129,8 +195,7 @@ Rules:
 - Never invent unavailable dates or cities; prefer null.
 - Output only the JSON object without explanations, markdown, or comments.
 - Respect the language of the request, but city names should be in nominative form.
-Example output:
-{"city": "Moscow", "start_at": "2024-02-10T08:00:00+03:00", "end_at": null, "max_price_per_hour": 250.0, "near_metro": true, "has_ev_charging": false, "covered": true}
+Example output: {"city": "Moscow", "start_at": "2024-02-10T08:00:00+03:00", "end_at": null, "max_price_per_hour": 250.0, "near_metro": true, "has_ev_charging": false, "covered": true}
 """
 
 
@@ -143,6 +208,8 @@ class SearchQueryRequest(BaseModel):
 
 
 class SearchQueryResponse(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
     city: str | None = Field(None, description="Город, указанный пользователем")
     start_at: datetime | None = Field(
         None, description="ISO 8601 время начала парковки (или null)"
@@ -170,15 +237,64 @@ def get_settings() -> Settings:
 
 
 def get_llm_client(settings: Settings = Depends(get_settings)) -> LLMClient:
-    return OpenAILLMClient(settings)
+    fallback = RuleBasedLLMClient()
+    primary = OpenAILLMClient(settings) if settings.openai_api_key else None
+    if primary:
+        return ResilientLLMClient(primary, fallback)
+    return fallback
 
 
-app = FastAPI(title="ParkShare LLM Service", version="0.1.0")
+app = FastAPI(title="ParkShare LLM Service", version="0.2.0")
+_settings = get_settings()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=_settings.cors_allow_origins or ["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+@app.get("/health", tags=["health"])
+async def health() -> dict[str, Any]:
+    mode = "openai" if _settings.openai_api_key else "fallback"
+    return {"status": "ok", "mode": mode}
 
 
 @app.get("/healthz", tags=["health"])
-async def healthz() -> dict[str, str]:
-    return {"status": "ok"}
+async def healthz() -> dict[str, Any]:
+    return await health()
+
+
+async def _execute_parse(payload: SearchQueryRequest, client: LLMClient) -> SearchQueryResponse:
+    try:
+        data = await client.parse_search_query(PARSER_SYSTEM_PROMPT, payload.query)
+        return SearchQueryResponse.model_validate(data)
+    except ValidationError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=f"LLM returned invalid payload: {exc}",
+        ) from exc
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Unexpected LLM error: {exc}",
+        ) from exc
+
+
+@app.post(
+    "/parse",
+    response_model=SearchQueryResponse,
+    tags=["llm"],
+    summary="Распарсить поисковый запрос пользователя",
+)
+async def parse_endpoint(
+    payload: SearchQueryRequest,
+    client: LLMClient = Depends(get_llm_client),
+) -> SearchQueryResponse:
+    return await _execute_parse(payload, client)
 
 
 @app.post(
@@ -191,17 +307,10 @@ async def parse_search_query_endpoint(
     payload: SearchQueryRequest,
     client: LLMClient = Depends(get_llm_client),
 ) -> SearchQueryResponse:
-    try:
-        data = await client.parse_search_query(PARSER_SYSTEM_PROMPT, payload.query)
-        return SearchQueryResponse.model_validate(data)
-    except ValidationError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_502_BAD_GATEWAY,
-            detail=f"LLM returned invalid payload: {exc}",
-        ) from exc
+    return await _execute_parse(payload, client)
 
-# Добавь эти строки в самый конец файла:
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=8002)
