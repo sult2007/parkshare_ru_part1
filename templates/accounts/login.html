@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Вход — ParkShare RU{% endblock %}
+
+{% block content %}
+<section class="ps-auth">
+    <div class="ps-auth-card ps-card ps-card--elevated ps-animate-fade-up">
+        <h1 class="ps-auth-title">Вход</h1>
+        <p class="ps-auth-subtitle">
+            Войдите, чтобы управлять своими бронированиями и машинами.
+        </p>
+
+        <div class="ps-auth-tabs" data-auth-switcher>
+            <button type="button" class="is-active" data-auth-target="password">Email/Пароль</button>
+            <button type="button" data-auth-target="google">Google</button>
+            <button type="button" data-auth-target="sms">SMS</button>
+            <button type="button" data-auth-target="esia">Госуслуги</button>
+        </div>
+
+        <div class="ps-auth-panels">
+            <div class="ps-auth-panel is-active" data-auth-panel="password">
+                <form method="post" class="ps-form">
+                    {% csrf_token %}
+                    {% if form.non_field_errors %}
+                        <div class="ps-alert ps-alert--danger">
+                            {{ form.non_field_errors }}
+                        </div>
+                    {% endif %}
+
+                    {% for field in form.visible_fields %}
+                        <div class="ps-form-row">
+                            <label class="ps-form-label" for="{{ field.id_for_label }}">
+                                {{ field.label }}
+                            </label>
+
+                            {{ field }}
+
+                            {% if field.help_text %}
+                                <div class="ps-field-help">{{ field.help_text }}</div>
+                            {% endif %}
+                            {% for error in field.errors %}
+                                <div class="ps-field-error">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+
+                    <div class="ps-form-actions">
+                        <button type="submit" class="ps-btn ps-btn-full">
+                            Войти
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="ps-auth-panel" data-auth-panel="google">
+                <div class="ps-auth-placeholder">
+                    <p>Вход через Google скоро появится.</p>
+                    <button type="button" class="ps-btn ps-btn-secondary" disabled>Google</button>
+                </div>
+            </div>
+
+            <div class="ps-auth-panel" data-auth-panel="sms">
+                <div class="ps-auth-placeholder">
+                    <p>Вход по SMS-коду в разработке.</p>
+                    <button type="button" class="ps-btn ps-btn-secondary" disabled>Получить код</button>
+                </div>
+            </div>
+
+            <div class="ps-auth-panel" data-auth-panel="esia">
+                <div class="ps-auth-placeholder">
+                    <p>Поддержка Госуслуг скоро будет доступна.</p>
+                    <button type="button" class="ps-btn ps-btn-secondary" disabled>Перейти в Госуслуги</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="ps-auth-footer">
+            Нет аккаунта?
+            <a href="{% url 'accounts:register' %}">Зарегистрироваться</a>
+            <br>
+            <a href="{% url 'accounts:password_reset' %}">Забыли пароль?</a>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    (function () {
+        const root = document.querySelector('[data-auth-switcher]');
+        if (!root) return;
+        const buttons = Array.from(root.querySelectorAll('[data-auth-target]'));
+        const panels = Array.from(document.querySelectorAll('[data-auth-panel]'));
+        buttons.forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                const target = btn.getAttribute('data-auth-target');
+                buttons.forEach(function (b) { b.classList.toggle('is-active', b === btn); });
+                panels.forEach(function (panel) {
+                    panel.classList.toggle('is-active', panel.getAttribute('data-auth-panel') === target);
+                });
+            });
+        });
+    })();
+</script>
+{% endblock %}

@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}ParkShare RU — кабинет владельца{% endblock %}
+
+{% block content %}
+<section class="ps-section">
+    <div class="ps-section-header">
+        <h1 class="ps-section-title">Кабинет владельца парковок</h1>
+        <p class="ps-section-subtitle">
+            Управляйте своими объектами, местами и бронированиями в одном интерфейсе.
+        </p>
+    </div>
+
+    <div class="ps-grid ps-grid--3col@xl ps-grid--gap-xl">
+        <div class="ps-grid-span-1">
+            <article class="ps-card ps-card--elevated ps-animate-fade-up">
+                <div class="ps-card-header">
+                    <h2 class="ps-card-title">Мои объекты парковки</h2>
+                </div>
+                <ul class="ps-list">
+                    {% for lot in lots %}
+                        <li class="ps-list-item">
+                            <div class="ps-list-main">
+                                <div class="ps-list-title">
+                                    {{ lot.city }}, {{ lot.name }}
+                                </div>
+                                <div class="ps-list-subtitle">
+                                    {{ lot.get_parking_type_display }} · мест: {{ lot.spots.count }}
+                                </div>
+                            </div>
+                            <span class="ps-badge ps-badge--neutral">
+                                {{ lot.created_at|date:"d.m.Y" }}
+                            </span>
+                        </li>
+                    {% empty %}
+                        <li class="ps-list-empty">
+                            Пока нет ни одного объекта. Добавьте парковку через web-интерфейс владельца.
+                        </li>
+                    {% endfor %}
+                </ul>
+            </article>
+
+            <article class="ps-card ps-animate-fade-up ps-animate-delay-1">
+                <div class="ps-card-header">
+                    <h2 class="ps-card-title">Места</h2>
+                </div>
+                <ul class="ps-list ps-list--compact">
+                    {% for spot in spots %}
+                        <li class="ps-list-item">
+                            <div class="ps-list-main">
+                                <div class="ps-list-title">
+                                    {{ spot.lot.city }}, {{ spot.lot.name }} — {{ spot.name }}
+                                </div>
+                                <div class="ps-list-subtitle">
+                                    Тип: {{ spot.get_vehicle_type_display }} · {{ spot.hourly_price }} ₽/ч
+                                </div>
+                            </div>
+                            <span class="ps-badge ps-badge--status-{{ spot.status }}">
+                                {{ spot.get_status_display }}
+                            </span>
+                        </li>
+                    {% empty %}
+                        <li class="ps-list-empty">
+                            Мест пока нет.
+                        </li>
+                    {% endfor %}
+                </ul>
+            </article>
+        </div>
+
+        <div class="ps-grid-span-2">
+            <article class="ps-card ps-card--elevated ps-animate-fade-up">
+                <div class="ps-card-header">
+                    <h2 class="ps-card-title">Бронирования по моим местам</h2>
+                </div>
+                <div class="ps-table-wrapper">
+                    <table class="ps-table">
+                        <thead>
+                        <tr>
+                            <th>Место</th>
+                            <th>Пользователь</th>
+                            <th>Период</th>
+                            <th>Статус</th>
+                            <th>Сумма</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for booking in bookings %}
+                            <tr class="ps-animate-fade-up ps-animate-stagger">
+                                <td data-label="Место">
+                                    {{ booking.spot.lot.city }},
+                                    {{ booking.spot.lot.name }} — {{ booking.spot.name }}
+                                </td>
+                                <td data-label="Пользователь">
+                                    {{ booking.user.username }}
+                                </td>
+                                <td data-label="Период">
+                                    {{ booking.start_at|date:"d.m H:i" }} → {{ booking.end_at|date:"d.m H:i" }}
+                                </td>
+                                <td data-label="Статус">
+                                    <span class="ps-badge ps-badge--status-{{ booking.status }}">
+                                        {{ booking.get_status_display }}
+                                    </span>
+                                </td>
+                                <td data-label="Сумма">
+                                    {{ booking.total_price }} ₽
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="5" class="ps-empty">
+                                    По вашим местам ещё не было бронирований.
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </article>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,26 @@
+# Базовый глобальный профиль ParkShare (по умолчанию для не-RU регионов)
+
+id: "global"
+name: "ParkShare Global"
+
+locale:
+  default_language: "en"
+  supported_languages:
+    - "en"
+    - "ru"
+
+currency:
+  default: "EUR"
+
+maps:
+  default_provider: "openstreetmap"
+  fallback_provider: "none"
+
+payments:
+  gateways:
+    - "stripe"
+    - "paypal"
+
+auth:
+  providers:
+    - "email-password"

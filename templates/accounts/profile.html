@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Профиль — ParkShare RU{% endblock %}
+
+{% block content %}
+<section class="ps-section ps-section--narrow">
+    <div class="ps-section-header">
+        <h1 class="ps-section-title">Профиль</h1>
+        <p class="ps-section-subtitle">
+            Обновите контактные данные, чтобы получать уведомления по бронированиям.
+        </p>
+    </div>
+
+    <div class="ps-card ps-card--elevated ps-animate-fade-up">
+        <form method="post" class="ps-form">
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+                <div class="ps-alert ps-alert--danger">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            {% for field in form.visible_fields %}
+                <div class="ps-form-row">
+                    <label class="ps-form-label" for="{{ field.id_for_label }}">
+                        {{ field.label }}
+                    </label>
+                    {{ field }}
+                    {% if field.help_text %}
+                        <div class="ps-field-help">{{ field.help_text }}</div>
+                    {% endif %}
+                    {% for error in field.errors %}
+                        <div class="ps-field-error">{{ error }}</div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+
+            <div class="ps-form-actions">
+                <button type="submit" class="ps-btn ps-btn-full">
+                    Сохранить изменения
+                </button>
+                <a href="{% url 'user_dashboard' %}" class="ps-btn ps-btn-secondary ps-btn-full">
+                    Вернуться в кабинет
+                </a>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,58 @@
+{
+  "name": "ParkShare — умная парковка",
+  "short_name": "ParkShare",
+  "description": "Поиск, бронирование и оплата парковок рядом с вами. Работает как приложение, даже офлайн.",
+  "start_url": "/?pwa=true",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#020617",
+  "theme_color": "#0f172a",
+  "icons": [
+    {
+      "src": "/static/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/icons/icon-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/static/icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Найти парковку рядом",
+      "short_name": "Найти рядом",
+      "url": "/#search",
+      "icons": [
+        {
+          "src": "/static/icons/shortcut-search.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Мои бронирования",
+      "short_name": "Брони",
+      "url": "/dashboard/#bookings"
+    }
+  ],
+  "categories": ["navigation", "productivity", "travel"],
+  "lang": "ru-RU"
+}

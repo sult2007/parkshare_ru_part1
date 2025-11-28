@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Регистрация — ParkShare RU{% endblock %}
+
+{% block content %}
+<section class="ps-auth">
+    <div class="ps-auth-card ps-card ps-card--elevated ps-animate-fade-up">
+        <h1 class="ps-auth-title">Регистрация</h1>
+        <p class="ps-auth-subtitle">
+            Создайте аккаунт, чтобы бронировать парковки и управлять местами.
+        </p>
+
+        <form method="post" class="ps-form">
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+                <div class="ps-alert ps-alert--danger">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            {% for field in form.visible_fields %}
+                <div class="ps-form-row">
+                    <label class="ps-form-label" for="{{ field.id_for_label }}">
+                        {{ field.label }}
+                    </label>
+                    {{ field }}
+                    {% if field.help_text %}
+                        <div class="ps-field-help">{{ field.help_text }}</div>
+                    {% endif %}
+                    {% for error in field.errors %}
+                        <div class="ps-field-error">{{ error }}</div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+
+            <div class="ps-form-actions">
+                <button type="submit" class="ps-btn ps-btn-full">
+                    Зарегистрироваться
+                </button>
+            </div>
+
+            <div class="ps-auth-alt">
+                <button type="button" class="ps-btn ps-btn-ghost" title="Скоро">Регистрация по коду</button>
+                <button type="button" class="ps-btn ps-btn-ghost" title="Скоро">Госуслуги</button>
+                <button type="button" class="ps-btn ps-btn-ghost" title="Скоро">Google</button>
+                <!-- TODO: подключить быструю регистрацию через code/ESIA/OAuth -->
+            </div>
+        </form>
+
+        <div class="ps-auth-footer">
+            Уже есть аккаунт?
+            <a href="{% url 'accounts:login' %}">Войти</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

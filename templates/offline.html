@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}Оффлайн — ParkShare RU{% endblock %}
+
+{% block content %}
+<section class="ps-section ps-section--center">
+    <div class="ps-offline-icon">☁️</div>
+    <h1 class="ps-section-title">Нет подключения к сети</h1>
+    <p class="ps-section-subtitle">
+        Вы оффлайн. Некоторые данные могут быть устаревшими или недоступными,
+        но базовые страницы и ранее открытые ресурсы всё ещё работают.
+    </p>
+    <div class="ps-offline-actions">
+        <button type="button" class="ps-btn" onclick="location.reload()">
+            Повторить попытку
+        </button>
+        <a href="{% url 'landing' %}" class="ps-btn ps-btn-secondary">
+            На главную
+        </a>
+    </div>
+</section>
+{% endblock %}

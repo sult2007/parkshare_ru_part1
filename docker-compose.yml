@@ -1,0 +1,140 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgis/postgis:16-3.4
+    container_name: parkshare_db
+    restart: always
+    environment:
+      POSTGRES_DB: parkshare
+      POSTGRES_USER: parkshare
+      POSTGRES_PASSWORD: parkshare
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - parkshare_net
+
+  redis:
+    image: redis:7-alpine
+    container_name: parkshare_redis
+    restart: always
+    networks:
+      - parkshare_net
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: parkshare_web
+    restart: always
+    env_file:
+      - .env  # можно потом заменить на .env.prod
+    command: /app/entrypoint.sh
+    volumes:
+      - .:/app
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+    depends_on:
+      - db
+      - redis
+    networks:
+      - parkshare_net
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: parkshare_worker
+    restart: always
+    env_file:
+      - .env
+    command: celery -A backend.config worker -l info
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+      - redis
+    networks:
+      - parkshare_net
+
+  beat:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: parkshare_beat
+    restart: always
+    env_file:
+      - .env
+    command: celery -A backend.config beat -l info
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+      - redis
+    networks:
+      - parkshare_net
+
+  ai_pricing_service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: parkshare_ai_pricing
+    restart: always
+    env_file:
+      - .env
+    command: uvicorn ai_services.ai_pricing_service.main:app --host 0.0.0.0 --port 8100
+    depends_on:
+      - redis
+    networks:
+      - parkshare_net
+
+  llm_service:
+    build:
+      context: .
+      dockerfile: services/llm_service/Dockerfile
+    container_name: parkshare_llm_service
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "8002:8002"
+    networks:
+      - parkshare_net
+
+  cv_service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: parkshare_cv_service
+    restart: always
+    env_file:
+      - .env
+    command: uvicorn ai_services.cv_service.main:app --host 0.0.0.0 --port 8200
+    depends_on:
+      - redis
+    networks:
+      - parkshare_net
+
+  nginx:
+    image: nginx:alpine
+    container_name: parkshare_nginx
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - static_volume:/static
+      - media_volume:/media
+    depends_on:
+      - web
+    networks:
+      - parkshare_net
+
+volumes:
+  postgres_data:
+  static_volume:
+  media_volume:
+
+networks:
+  parkshare_net:
+    driver: bridge

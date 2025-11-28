@@ -1,0 +1,31 @@
+id: "ru"
+name: "ParkShare RU"
+
+locale:
+  default_language: "ru"
+  supported_languages:
+    - "ru"
+    - "en"
+
+картография:
+  основной_провайдер: "Яндекс.Карты API"
+  резервный: "2GIS API"
+
+платежные_системы:
+  обязательные:
+    - "Сбербанк Онлайн"
+    - "Тинькофф"
+    - "ЮMoney"
+    - "Мир Pay"
+    - "QIWI"
+
+аутентификация:
+  - "Госуслуги (ЕСИА)"
+  - "ВК ID"
+  - "Яндекс ID"
+  - "Сбер ID"
+  - "Email/Телефон (native)"
+
+pricing:
+  currency: "RUB"
+  tax_included: true

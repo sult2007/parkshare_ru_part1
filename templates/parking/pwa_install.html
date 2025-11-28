@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Установить ParkShare как приложение{% endblock %}
+
+{% block content %}
+<section class="ps-section ps-section--flush-top">
+    <div class="ps-section-header ps-section-header--stack">
+        <div>
+            <h1 class="ps-section-title">Установите ParkShare RU на главный экран</h1>
+            <p class="ps-section-subtitle">PWA работает оффлайн, даёт быстрый доступ к брони и чату.</p>
+        </div>
+    </div>
+
+    <div class="ps-grid ps-grid--2col@lg ps-grid--gap-lg ps-grid--mobile-stack">
+        <article class="ps-card ps-card--elevated">
+            <div class="ps-card-header">
+                <h3 class="ps-card-title">Android / Chrome</h3>
+            </div>
+            <div class="ps-card-body">
+                <ol class="ps-list-ordered">
+                    <li>Нажмите <strong>⋮</strong> в правом верхнем углу браузера.</li>
+                    <li>Выберите пункт <strong>«Установить приложение»</strong> или <strong>«Добавить на главный экран»</strong>.</li>
+                    <li>Подтвердите установку — ярлык появится рядом с другими приложениями.</li>
+                </ol>
+                <p class="ps-card-line ps-card-line--muted">Если видите баннер установки — нажмите «Установить» прямо в нём.</p>
+            </div>
+        </article>
+
+        <article class="ps-card ps-card--elevated">
+            <div class="ps-card-header">
+                <h3 class="ps-card-title">iOS / Safari</h3>
+            </div>
+            <div class="ps-card-body">
+                <ol class="ps-list-ordered">
+                    <li>Нажмите кнопку «Поделиться» (квадрат со стрелкой вверх).</li>
+                    <li>Прокрутите список и выберите <strong>«На экран “Домой”»</strong>.</li>
+                    <li>Нажмите «Добавить» — появится значок ParkShare.</li>
+                </ol>
+                <p class="ps-card-line ps-card-line--muted">После добавления приложение работает без адресной строки и занимает весь экран.</p>
+            </div>
+        </article>
+    </div>
+</section>
+{% endblock %}

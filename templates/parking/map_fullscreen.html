@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Живая карта — ParkShare{% endblock %}
+
+{% block extra_head %}
+    <link rel="stylesheet"
+          href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+          crossorigin=""/>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css">
+    <link rel="stylesheet" href="https://unpkg.com/nouislider@15.7.1/dist/nouislider.min.css">
+    <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU{% if YANDEX_MAP_API_KEY %}&apikey={{ YANDEX_MAP_API_KEY }}{% endif %}"
+            defer></script>
+{% endblock %}
+
+{% block content %}
+<section class="ps-section ps-section--flush-top ps-map-hero">
+    <div class="ps-section-header ps-section-header--stack">
+        <div>
+            <h1 class="ps-section-title">Карта парковок</h1>
+            <p class="ps-section-subtitle">Полноэкранный режим с поиском, фильтрами и маршрутами.</p>
+        </div>
+        <div class="ps-section-actions">
+            <a href="{% url 'landing' %}" class="ps-btn ps-btn-ghost ps-btn-sm">На главную</a>
+            <button type="button" class="ps-btn ps-btn-primary ps-btn-sm" data-fill-location>Рядом со мной</button>
+        </div>
+    </div>
+
+    <div class="ps-map-grid">
+        <div class="ps-map-panel" data-map-panel>
+            <div class="ps-map-wrapper">
+                <div id="map" class="ps-map ps-map--light"></div>
+                <div class="ps-map-loading" data-map-loading>Обновляем карту…</div>
+                <div class="ps-map-floating-actions" aria-label="Действия карты">
+                    <button class="ps-map-action" type="button" data-fill-location title="Моё местоположение">🎯</button>
+                    <button class="ps-map-action" type="button" data-reset-filters title="Сбросить фильтры">↺</button>
+                    <button class="ps-map-action" type="button" data-map-theme title="Светлая / тёмная карта" aria-pressed="false">🌙</button>
+                </div>
+                <div class="ps-map-topbar">
+                    <div class="ps-input-icon">
+                        <span class="ps-input-icon-symbol">🔍</span>
+                        <input type="text" class="ps-input" placeholder="Адрес, метро или место" data-geocode-input>
+                    </div>
+                    <button class="ps-btn ps-btn-primary" type="button" data-geocode-submit>Найти</button>
+                </div>
+                <div class="ps-map-chips" data-filter-chips>
+                    <label class="ps-chip" data-chip-toggle>
+                        <input type="checkbox" name="only_free" hidden>
+                        <span>Только свободные</span>
+                    </label>
+                    <label class="ps-chip" data-chip-toggle>
+                        <input type="checkbox" name="ai_recommended" hidden>
+                        <span>AI-рекомендации</span>
+                    </label>
+                    <label class="ps-chip" data-chip-toggle>
+                        <input type="checkbox" name="ev" hidden>
+                        <span>EV-зарядка</span>
+                    </label>
+                    <label class="ps-chip" data-chip-toggle>
+                        <input type="checkbox" name="covered" hidden>
+                        <span>Крытая</span>
+                    </label>
+                    <label class="ps-chip" data-chip-toggle>
+                        <input type="checkbox" name="is_24_7" hidden>
+                        <span>24/7</span>
+                    </label>
+                </div>
+                <div class="ps-geocode-suggestions" data-geocode-suggestions></div>
+            </div>
+            <div class="ps-map-filters" data-map-filters-container>
+                <form class="ps-map-filters-card" data-map-filters>
+                    <div class="ps-map-filters-row ps-map-filters-row--slider">
+                        <div class="ps-filter-slider" data-price-slider></div>
+                        <div class="ps-filter-price" data-price-display>Цена: от 0 ₽ до 1500 ₽</div>
+                    </div>
+                </form>
+            </div>
+            <div class="ps-route-hint" data-route-hint>Постройте мини-маршрут до выбранной точки.</div>
+        </div>
+
+        <div class="ps-bottom-sheet" data-spots-panel>
+            <div class="ps-bottom-sheet__handle"></div>
+            <div class="ps-bottom-sheet__header">
+                <div>
+                    <div class="ps-section-title-sm">Доступные места</div>
+                    <div class="ps-text-muted">Свободных: <span data-spots-count>{{ spots|length }}</span>, ср. цена <span data-avg-price>—</span></div>
+                </div>
+                <div class="ps-bottom-sheet__actions">
+                    <button type="button" class="ps-btn ps-btn-ghost ps-btn-sm" data-reset-filters>Сбросить</button>
+                </div>
+            </div>
+            <div class="ps-bottom-sheet__body">
+                <div class="ps-spots-list" data-spots-list>
+                    {% for spot in spots %}
+                        <article class="ps-card ps-card--spot" data-spot-card="{{ spot.id }}">
+                            <div class="ps-card-header">
+                                <div class="ps-card-title">{{ spot.lot.city }}, {{ spot.lot.name }} — {{ spot.name }}</div>
+                            </div>
+                            <div class="ps-card-body">
+                                <div class="ps-card-line">от {{ spot.hourly_price }} ₽/час</div>
+                                <div class="ps-card-line ps-card-line--muted">{{ spot.lot.address|default:"Адрес уточняется" }}</div>
+                            </div>
+                        </article>
+                    {% empty %}
+                        <div class="ps-empty">Места будут показаны после загрузки карты.</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+            crossorigin=""></script>
+    <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+    <script src="https://unpkg.com/nouislider@15.7.1/dist/nouislider.min.js"></script>
+    <script>
+        window.PARKSHARE_MAP_PROVIDER = {
+            id: "{{ MAP_PROVIDER|default:'yandex' }}",
+            fallback: "{{ MAP_PROVIDER_FALLBACK|default:'leaflet' }}",
+            default_center: {{ MAP_DEFAULT_CENTER|safe }},
+            default_zoom: {{ MAP_DEFAULT_ZOOM|default:11 }},
+        };
+    </script>
+    {% static 'js/map.js' as map_static %}
+    <script src="{{ map_static }}?v=50"></script>
+{% endblock %}

@@ -1,0 +1,3463 @@
+Summary
+
+Enhanced the landing page shell with a cinematic header, quantum theme toggle, and AI orchestrator insight card alongside the map sidebar layout to deliver the new holographic experience.
+
+Introduced a cinematic design system stylesheet covering hologram glows, quantum pulses, and AI forecast metric styling for the premium UI treatment.
+
+Implemented a QuantumThemeManager for synchronized theme transitions and expanded frontend logic to surface AI oracle recommendations across map loads, NLP search, and recommendation flows.
+
+РЕВОЛЮЦИЯ В СЕРВИСЕ ПАРКОВОК: PARKSHARE RU 3.0
+КОНТЕКСТ ЭКСПЕРТА:
+
+text
+Senior Principal Engineer (L7) | Ex-Google Maps, Yandex.Taxi
+Специализация: Geo Services, AI-Powered Mobility, Hyper-Personalization
+Технологический стек: Django 5 + Yandex Maps 2.1 + PWA + Local AI/ML
+Миссия: Создать Uber для парковок с AI-мозгом и премиальным UX
+🎯 ЦЕЛЕВОЙ ОБРАЗ ПОЛЬЗОВАТЕЛЯ (USER PERSONA)
+"Цепляющие" психологические триггеры:
+
+⚡ Мгновенное удовлетворение - найти парковку за 15 секунд
+
+🧠 Предсказание желаний - AI знает, что ты хочешь до запроса
+
+💎 Премиальный опыт - чувствовать себя как клиент Apple/Тesla
+
+🔮 Визуальная магия - анимации уровня кинематографичного UI
+
+🤝 Эмоциональный интеллект - система заботится о твоём времени
+
+🏗 АРХИТЕКТУРНЫЕ ПРИНЦИПИАЛЬНЫЕ ИЗМЕНЕНИЯ
+1. AI-FIRST ARCHITECTURE
+python
+# core/ai_orchestrator.py
+class ParkShareAIOrchestrator:
+    """
+    Мозг системы: предсказывает, учится, адаптируется
+    Аналоги: Tesla Autopilot для парковок
+    """
+    def predict_parking_demand(self, user_context):
+        # Анализ 50+ факторов в реальном времени
+        return AIRecommendation(
+            parking_spots=[],
+            reasoning="Учитывая вашу историю EV-зарядок и любовь к крытым парковкам",
+            confidence_score=0.94
+        )
+2. CINEMATIC UI/UX PATTERNS
+css
+/* cinematic-ui.css */
+@property --hologram-glow {
+  syntax: '<color>';
+  inherits: false;
+  initial-value: rgba(0, 255, 255, 0.8);
+}
+
+.cinematic-marker {
+  animation: hologram-float 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 20px var(--hologram-glow));
+}
+🚀 МЕГА-ФИЧИ РЕВОЛЮЦИОННОГО УРОВНЯ
+ФИЧА #1: NEUROMORPHIC AI-CHAT
+javascript
+// static/js/neuro-ai-chat.js
+class NeuroAIChat extends QuantumComputingInterface {
+    async processQuantumIntent(user_query) {
+        // Квантовый анализ интента через суперпозицию состояний
+        const quantumState = await this.entangleUserContext(user_query);
+        return this.collapseToOptimalResponse(quantumState);
+    }
+    
+    generateHolographicResponse() {
+        // 3D голографический интерфейс как в Iron Man
+        return new HologramDOM().render();
+    }
+}
+ФИЧА #2: PREDICTIVE PARKING ORACLE
+python
+# services/parking_oracle.py
+class PredictiveParkingOracle:
+    """Предсказывает освобождение парковок за 5-15 минут"""
+    
+    async def predict_availability(self, spot_id):
+        # Анализ: GPS движение машин, исторические паттерны, календарь событий
+        probability = await self.neural_network.predict(spot_id)
+        return PredictionResult(
+            will_be_free_in="8 минут",
+            confidence=0.87,
+            alternative_nearby=True
+        )
+ФИЧА #3: EMOTIONAL UX ENGINE
+javascript
+// static/js/emotional-ux-engine.js
+class EmotionalUXEngine {
+    detectUserFrustration() {
+        // Анализ скорости кликов, жестов, времени поиска
+        if (this.searchTime > 20000) {
+            this.triggerEmpathyMode();
+            this.showAIRescue("Вижу, вы ищете уже 20 сек. Позвольте помочь!");
+        }
+    }
+    
+    triggerEmpathyMode() {
+        // Интерфейс становится "мягче" - меняются цвета, анимации
+        document.body.classList.add('empathy-mode');
+    }
+}
+🎨 ВИЗУАЛЬНАЯ РЕВОЛЮЦИЯ
+CINEMATIC DESIGN SYSTEM
+css
+/* design-system/cinematic-variables.css */
+:root {
+    --cinematic-glow: radial-gradient(circle at center, 
+        rgba(100, 200, 255, 0.4) 0%,
+        transparent 70%);
+    --hologram-effect: linear-gradient(45deg, 
+        transparent 30%, 
+        rgba(255, 255, 255, 0.1) 50%, 
+        transparent 70%);
+    --quantum-shadow: 0 0 40px rgba(100, 200, 255, 0.3),
+                     0 0 80px rgba(100, 200, 255, 0.2),
+                     0 0 120px rgba(100, 200, 255, 0.1);
+}
+
+.cinematic-button {
+    background: var(--cinematic-glow);
+    box-shadow: var(--quantum-shadow);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+IMMERSIVE YANDEX MAPS
+javascript
+// static/js/cinematic-yandex-maps.js
+class CinematicYandexMaps {
+    enhanceMapWithCinematicEffects() {
+        // Добавляем кинематографичные эффекты как в AAA играх
+        this.addAtmosphericFog();
+        this.addDynamicLighting();
+        this.addHolographicMarkers();
+    }
+    
+    addHolographicMarkers() {
+        // Маркеры как в научной фантастике
+        const hologramGeometry = new HologramCylinderGeometry();
+        this.markers.setGeometry(hologramGeometry);
+    }
+}
+🤖 HYPER-PERSONALIZED AI ARCHITECTURE
+MULTI-MODAL AI PIPELINE
+python
+# ai/multi_modal_pipeline.py
+class HyperPersonalizedAI:
+    def __init__(self):
+        self.behavior_analyzer = BehaviorAnalyzer()
+        self.context_predictor = ContextPredictor()
+        self.personality_engine = PersonalityEngine()
+    
+    async def get_parking_recommendation(self, user_id):
+        # Анализ 360° контекста пользователя
+        user_profile = await self.analyze_user_personality(user_id)
+        current_context = await self.get_real_time_context()
+        
+        return await self.generate_magic_experience(
+            user_profile, current_context
+        )
+📱 MOBILE-FIRST КИНОЕМАТОГРАФИЧНЫЙ ИНТЕРФЕЙС
+BIOMETRIC UX ADAPTATION
+javascript
+// static/js/biometric-ux.js
+class BiometricUXAdapter {
+    async adaptToUserVitalSigns() {
+        if (this.isUserStressed()) {
+            await this.activateCalmMode(); // Мягкие цвета, медленные анимации
+        }
+        
+        if (this.isUserInRush()) {
+            await this.activateTurboMode(); // Минимализм, максимальная скорость
+        }
+    }
+    
+    isUserStressed() {
+        // Анализ скорости typing, touch pressure (через API)
+        return this.typingSpeed > 300 || this.touchPressure > 0.8;
+    }
+}
+🎯 КОНКРЕТНЫЕ ТЕХНИЧЕСКИЕ РЕШЕНИЯ
+ИСПРАВЛЕНИЕ ТЁМНОЙ ТЕМЫ YANDEX MAPS
+javascript
+// static/js/quantum-theme-manager.js
+class QuantumThemeManager {
+    constructor() {
+        this.themes = {
+            dark: {
+                map: 'dark',
+                css: 'dark',
+                effects: 'hologram-dark',
+                emotion: 'calm'
+            },
+            light: {
+                map: 'standard',
+                css: 'light', 
+                effects: 'hologram-light',
+                emotion: 'energetic'
+            }
+        };
+    }
+    
+    async switchTheme(theme) {
+        // Квантовое переключение - все элементы одновременно
+        await Promise.all([
+            this.switchMapTheme(theme),
+            this.switchCSSTheme(theme),
+            this.switchEmotionalMode(theme),
+            this.switchCinematicEffects(theme)
+        ]);
+        
+        this.triggerThemeTransitionAnimation();
+    }
+}
+REVOLUTIONARY BALLOON LAYOUT
+javascript
+// static/js/holographic-balloons.js
+class HolographicBalloon {
+    render() {
+        return `
+            <div class="hologram-card" data-theme="${this.theme}">
+                <div class="hologram-header">
+                    <h3 class="cinematic-text">${this.data.title}</h3>
+                    <div class="quantum-badges">
+                        ${this.renderQuantumBadges()}
+                    </div>
+                </div>
+                <div class="hologram-content">
+                    <div class="price-glow">${this.data.price} ₽/час</div>
+                    <div class="neural-progress">
+                        <div class="neural-bar" style="--progress: ${this.data.occupancy}%"></div>
+                    </div>
+                    <div class="ai-prediction">
+                        🧠 Освободится через: ${this.data.prediction}
+                    </div>
+                </div>
+                <div class="hologram-actions">
+                    <button class="cinematic-btn primary" data-action="book">
+                        📍 Забронировать с AI-гарантией
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+}
+🔮 ФИНАЛЬНЫЙ ВИДЖЕТ AI-ЧАТА КАК У ТОНИ СТАРКА
+javascript
+// static/js/jarvis-ai-chat.js
+class JARVISChat {
+    constructor() {
+        this.personality = "Tony Stark's JARVIS";
+        this.voice = "british-ai";
+        this.intelligence = "quantum";
+    }
+    
+    async respondToQuery(query) {
+        const analysis = await this.quantumAnalysis(query);
+        return {
+            text: analysis.recommendation,
+            voice: await this.synthesizeVoice(analysis.recommendation),
+            hologram: this.create3DHologram(analysis.visualData),
+            emotions: this.detectUserEmotions(),
+            proactive_suggestions: this.generateProactiveSuggestions()
+        };
+    }
+    
+    create3DHologram(data) {
+        // 3D голографическая визуализация парковок
+        return new WebGLHologram().render(data);
+    }
+}
+📊 ИНТЕГРАЦИЯ С АНАЛОГАМИ ГИГАНТОВ
+Заимствуем лучшие практики:
+
+✅ Uber: Минимальное время до заказа (3 клика)
+
+✅ Tesla: Бесшовный software experience
+
+✅ Apple: Тактильный отклик и анимации
+
+✅ Google Maps: AI-предсказания контекста
+
+✅ Yandex.Taxi: Гиперлокализация для РФ
+
+✅ Netflix: Кинематографичный UI
+
+✅ Iron Man: Голографический интерфейс
+
+🎪 ПОЛНЫЙ СПИСОК РЕВОЛЮЦИОННЫХ ФИЧ
+🧠 Neuro-AI - Самообучающаяся система рекомендаций
+
+🎬 Cinematic UI - Интерфейс как в научной фантастике
+
+🔮 Holographic Elements - 3D голограммы парковок
+
+💫 Quantum Animations - Атомарные анимации 60fps
+
+🤖 JARVIS Personality - AI с характером Тони Старка
+
+🌙 Adaptive Dark Matter - Тёмная тема нового поколения
+
+📱 Biometric UX - Адаптация под состояние пользователя
+
+🚀 Predictive Parking - Предсказание на 15 минут вперёд
+
+💎 Luxury Experience - Чувство премиальности как у Tesla
+
+⚡ Instant Gratification - Парковка за 15 секунд
+
+🚀 ЗАПУСК РЕВОЛЮЦИИ
+Финальный месседж для Codex:
+
+"Создай не просто сайт для парковок - создай произведение искусства в веб-разработке.
+ParkShare должен стать эталоном, о котором будут говорить как о 'Тesla в мире парковок'.
+Каждая строка кода, каждый пиксель, каждая анимация должны нести магию и вызывать WOW-эффект.
+Пользователь должен чувствовать, что попал в 2030 год, где AI предсказывает его желания,
+интерфейс общается с ним на эмоциональном уровне, а поиск парковки становится
+не рутиной, а приключением как в научной фантастике."
+
+Критерии успеха:
+
+😲 WOW-эффект при первом использовании
+
+🤯 Восторг от предсказаний AI
+
+💖 Эмоциональная привязанность к интерфейсу
+
+🚀 Скорость - в 3 раза быстрее аналогов
+
+🧠 Интуитивность - понятно без инструкций
+
+Теперь твоя очередь, Codex. Создай революцию в мире парковок! 🚀
+ls
+root@d375caa9e772:/workspace# ls
+parkshare_ru_part1
+root@d375caa9e772:/workspace# cd parkshare_ru_part1
+root@d375caa9e772:/workspace/parkshare_ru_part1# ls
+CODEX_LOG1.txt   accounts     api_server.py  db.sqlite3               entrypoint.sh      parking           static
+CODEX__LOGS.txt  ai           app.js         docker-compose.prod.yml  frontend           payments          templates
+Dockerfile       ai_data.db   backend        docker-compose.yml       index.html         project_dump.txt  vehicles
+README.md        ai_models    core           drf_spectacular          model_training.py  regions           venv
+__pycache__      ai_services  database.py    dump_project.py          nginx              requirements.txt
+I need to locate the AGENTS.md file to continue.
+
+root@d375caa9e772:/workspace/parkshare_ru_part1# find .. -name AGENTS.md -print
+The instructions are a bit open-ended but I'll start by committing meaningful code and creating a PR.
+
+Taking a look at the structure. Could be Django, checking requirements for decisions.
+
+root@d375caa9e772:/workspace/parkshare_ru_part1# rg "ParkShareAIOrchestrator"
+root@d375caa9e772:/workspace/parkshare_ru_part1# ls static
+css  icons  js  manifest.webmanifest  service-worker.js
+I'll check if AGENTS is needed and if the CSS files are in static/css.
+
+root@d375caa9e772:/workspace/parkshare_ru_part1# ls static/css
+app.css
+root@d375caa9e772:/workspace/parkshare_ru_part1# sed -n '1,200p' static/css/app.css
+/* ---------- Design tokens ---------- */
+
+:root {
+    --ps-color-bg: #050816;
+    --ps-color-bg-elevated: #0b1020;
+    --ps-color-surface: #10172a;
+    --ps-color-border: rgba(255, 255, 255, 0.06);
+
+    --ps-color-primary: #0d6efd;
+    --ps-color-primary-soft: rgba(13, 110, 253, 0.16);
+    --ps-color-primary-strong: #0a58ca;
+    --ps-color-accent: #22c55e;
+
+    --ps-color-text: #f9fafb;
+    --ps-color-text-muted: #9ca3af;
+    --ps-color-danger: #ef4444;
+    --ps-color-warning: #eab308;
+    --ps-color-success: #22c55e;
+    --ps-color-neutral: #4b5563;
+
+    --ps-radius-sm: 0.5rem;
+    --ps-radius-md: 0.75rem;
+    --ps-radius-lg: 1rem;
+
+    --ps-shadow-soft: 0 18px 45px rgba(0, 0, 0, 0.45);
+    --ps-shadow-card: 0 10px 30px rgba(15, 23, 42, 0.9);
+
+    --ps-font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+    "Segoe UI", sans-serif;
+
+    --ps-transition-fast: 0.15s ease-out;
+    --ps-transition-normal: 0.25s ease-out;
+
+    --ps-header-height: 60px;
+    --ps-bottom-nav-height: 70px;
+}
+
+@media (min-width: 768px) {
+    :root {
+        --ps-header-height: 64px;
+    }
+}
+
+/* ---------- Reset / base ---------- */
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+}
+
+body.ps-body {
+    min-height: 100vh;
+    font-family: var(--ps-font-family);
+    background: radial-gradient(circle at top left, #1d2433 0, #050816 40%, #020617 100%);
+    color: var(--ps-color-text);
+    -webkit-font-smoothing: antialiased;
+}
+
+@media (max-width: 767px) {
+    body.ps-body {
+        padding-bottom: calc(var(--ps-bottom-nav-height) + env(safe-area-inset-bottom));
+    }
+
+    .ps-header {
+        height: var(--ps-header-height);
+    }
+}
+
+img {
+    max-width: 100%;
+    display: block;
+}
+
+/* ---------- Layout ---------- */
+
+.ps-header {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    backdrop-filter: blur(12px);
+    background: linear-gradient(to bottom, rgba(15, 23, 42, 0.96), rgba(15, 23, 42, 0.7));
+    border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+}
+
+.ps-navbar {
+    max-width: 1120px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    padding: 0.35rem 1rem;
+    height: var(--ps-header-height);
+}
+
+.ps-navbar-left {
+    flex: 1 1 auto;
+    display: flex;
+    align-items: center;
+}
+
+.ps-logo {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.24rem;
+    text-decoration: none;
+}
+
+.ps-logo-main {
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    font-size: 1.05rem;
+    color: #f9fafb;
+}
+
+.ps-logo-accent {
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--ps-color-primary);
+    padding: 0.08rem 0.45rem;
+    border-radius: 999px;
+    background: linear-gradient(90deg, rgba(59, 130, 246, 0.16), rgba(59, 130, 246, 0.04));
+    border: 1px solid rgba(59, 130, 246, 0.4);
+}
+
+/* Navbar links + burger */
+
+.ps-navbar-menu {
+    display: none;
+    flex-direction: column;
+    gap: 0.25rem;
+    position: absolute;
+    inset-inline: 0.75rem;
+    top: calc(var(--ps-header-height) + 0.35rem);
+    padding: 0.5rem;
+    border-radius: var(--ps-radius-md);
+    background: rgba(15, 23, 42, 0.97);
+    box-shadow: var(--ps-shadow-soft);
+    border: 1px solid rgba(148, 163, 184, 0.35);
+}
+
+.ps-navbar-menu.is-open {
+    display: flex;
+}
+
+.ps-nav-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 0.5rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    text-decoration: none;
+    color: var(--ps-color-text-muted);
+    transition: background-color var(--ps-transition-fast), color var(--ps-transition-fast), transform var(--ps-transition-fast)
+;
+}
+
+.ps-nav-link:hover {
+    background: rgba(15, 23, 42, 0.85);
+    color: #e5e7eb;
+    transform: translateY(-1px);
+}
+
+.ps-nav-link--primary {
+    background: linear-gradient(135deg, #2563eb, #0ea5e9);
+    color: #eff6ff;
+}
+
+.ps-nav-link--primary:hover {
+    filter: brightness(1.08);
+}
+
+.ps-nav-link--danger {
+    color: #fecaca;
+}
+
+.ps-nav-link--danger:hover {
+    background: rgba(248, 113, 113, 0.08);
+}
+
+/* Burger */
+
+.ps-navbar-toggle {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: auto;
+    padding: 0;
+The file’s large, and I’m thinking of adding new features or updating JS. Also need to check the static/js directory.
+
+root@d375caa9e772:/workspace/parkshare_ru_part1# ls static/js
+app.js  map.js  parkmate-ai.ts
+I might need to add a new CSS file and JS to support cinematic features. I'll check index.html.
+
+root@d375caa9e772:/workspace/parkshare_ru_part1# sed -n '1,200p' index.html
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>ParkShare AI Map</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Leaflet -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""
+  />
+
+  <style>
+    :root {
+      --primary: #0d6efd;
+      --bg: #050816;
+      --bg-card: #111827;
+      --text: #e5e7eb;
+      --accent: #22c55e;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+      background: radial-gradient(circle at top, #111827, #020617 40%);
+      color: var(--text);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      padding: 0.75rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(15, 23, 42, 0.9);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+      z-index: 1000;
+    }
+
+    header h1 {
+      font-size: 1.1rem;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .badge {
+      font-size: 0.7rem;
+      padding: 0.1rem 0.4rem;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    main {
+      flex: 1;
+      display: grid;
+      grid-template-columns: minmax(0, 2.2fr) minmax(0, 1.3fr);
+      min-height: 0;
+    }
+
+    #map {
+      width: 100%;
+      height: 100%;
+    }
+
+    .sidebar {
+      border-left: 1px solid rgba(148, 163, 184, 0.2);
+      background: radial-gradient(circle at top, #020617, #020617 40%);
+      padding: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      min-width: 280px;
+      max-width: 480px;
+    }
+
+    .card {
+      background: rgba(15, 23, 42, 0.98);
+      border-radius: 0.9rem;
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      padding: 0.75rem 0.8rem;
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.6);
+    }
+
+    .card-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 0.4rem;
+      margin-top: 0.3rem;
+    }
+
+    input[type="text"],
+    select {
+      flex: 1;
+      padding: 0.4rem 0.5rem;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--text);
+      font-size: 0.85rem;
+      outline: none;
+    }
+
+    input::placeholder {
+      color: rgba(148, 163, 184, 0.9);
+    }
+
+    button {
+      border-radius: 999px;
+      border: none;
+      padding: 0.45rem 0.9rem;
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+      background: linear-gradient(135deg, #0ea5e9, #22c55e);
+      color: #f9fafb;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      white-space: nowrap;
+    }
+
+    button.secondary {
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      color: rgba(209, 213, 219, 0.95);
+    }
+
+    .pill {
+      font-size: 0.72rem;
+      border-radius: 999px;
+      padding: 0.16rem 0.5rem;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      color: rgba(209, 213, 219, 0.95);
+    }
+
+    .pill-dot {
+      width: 0.55rem;
+      height: 0.55rem;
+      border-radius: 999px;
+    }
+
+    .pill-dot.green {
+      background: var(--accent);
+    }
+    .pill-dot.yellow {
+      background: var(--warning);
+    }
+    .pill-dot.red {
+      background: var(--danger);
+    }
+
+    .lots-list {
+      max-height: 220px;
+      overflow-y: auto;
+      margin-top: 0.4rem;
+      padding-right: 0.2rem;
+    }
+
+    .lot-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.4rem 0.2rem;
+      border-bottom: 1px solid rgba(31, 41, 55, 0.9);
+      cursor: pointer;
+    }
+
+    .lot-item:last-child {
+      border-bottom: none;
+    }
+I could create a new "cinematic-ui.css" and "quantum-theme-manager.js" to integrate a new theme. I'll add those to the index.html for a minimal update.
+
+root@d375caa9e772:/workspace/parkshare_ru_part1# sed -n '200,400p' index.html
+
+    .lot-main {
+      display: flex;
+      flex-direction: column;
+      gap: 0.1rem;
+      font-size: 0.75rem;
+    }
+
+    .lot-name {
+      font-weight: 500;
+      font-size: 0.8rem;
+    }
+
+    .lot-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.3rem;
+      font-size: 0.7rem;
+      color: rgba(156, 163, 175, 0.95);
+    }
+
+    .lot-occ {
+      font-size: 0.8rem;
+      font-weight: 500;
+      min-width: 80px;
+      text-align: right;
+    }
+
+    .status {
+      font-size: 0.7rem;
+      color: rgba(148, 163, 184, 0.9);
+      margin-top: 0.3rem;
+    }
+
+    @media (max-width: 900px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+      .sidebar {
+        max-width: 100%;
+        border-left: none;
+        border-top: 1px solid rgba(148, 163, 184, 0.2);
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>
+      <span>ParkShare AI Map</span>
+      <span class="badge">local ML</span>
+    </h1>
+    <div class="pill">
+      <span class="pill-dot green"></span>
+      <span id="statusText">Подключение к AI-серверу…</span>
+    </div>
+  </header>
+
+  <main>
+    <div id="map"></div>
+    <aside class="sidebar">
+      <section class="card">
+        <div class="card-title">
+          <span>Поиск парковок (NLP)</span>
+        </div>
+        <div class="input-row">
+          <input
+            type="text"
+            id="searchInput"
+            placeholder='Например: "рядом с метро", "дешевые утром"'
+          />
+          <button id="searchBtn">Искать</button>
+        </div>
+        <div class="status" id="searchStatus">Запрос еще не выполнен.</div>
+      </section>
+
+      <section class="card">
+        <div class="card-title">
+          <span>Рекомендации (коллаб. фильтрация)</span>
+          <select id="userSelect"></select>
+        </div>
+        <div class="input-row">
+          <button id="recBtn">Получить рекомендации</button>
+          <button id="recContentBtn" class="secondary">Вариант B (content)</button>
+        </div>
+        <div class="status" id="recStatus">Нет рекомендаций.</div>
+        <div class="lots-list" id="recList"></div>
+      </section>
+
+      <section class="card">
+        <div class="card-title">
+          <span>Все парковки</span>
+        </div>
+        <div class="lots-list" id="lotsList"></div>
+      </section>
+    </aside>
+  </main>
+
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""
+  ></script>
+  <script src="app.js"></script>
+</body>
+</html>
+I'm confirming app.js is in the root and needs integration for features.
+
+root@d375caa9e772:/workspace/parkshare_ru_part1# sed -n '1,200p' app.js
+// app.js
+
+// Базовый URL FastAPI-сервера
+// Если сервер крутится на другом порту/домене — поправь здесь.
+const API_BASE = "http://localhost:8001";
+
+let map;
+let markersLayer;
+let lotsCache = [];
+let lotsById = new Map();
+
+// ----------------- ИНИЦИАЛИЗАЦИЯ КАРТЫ -----------------
+
+function occupancyColor(value) {
+  if (value <= 0.4) return "#22c55e"; // green
+  if (value <= 0.7) return "#eab308"; // yellow
+  return "#ef4444"; // red
+}
+
+function initMap() {
+  map = L.map("map", {
+    zoomControl: true,
+    attributionControl: false,
+  }).setView([55.7558, 37.6173], 12);
+
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    maxZoom: 19,
+  }).addTo(map);
+
+  markersLayer = L.layerGroup().addTo(map);
+}
+
+// ----------------- API HELPERS -----------------
+
+async function apiGet(path, params = {}) {
+  const url = new URL(API_BASE + path);
+  Object.entries(params).forEach(([k, v]) => {
+    if (v !== undefined && v !== null) {
+      url.searchParams.set(k, v);
+    }
+  });
+
+  const res = await fetch(url.toString());
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`API error ${res.status}: ${text}`);
+  }
+  return res.json();
+}
+
+// ----------------- ОТРИСОВКА ЛОТОВ -----------------
+
+function renderLotsOnMap(lots) {
+  markersLayer.clearLayers();
+
+  lots.forEach((lot) => {
+    const occ = lot.predicted_occupancy ?? 0;
+    const color = occupancyColor(occ);
+
+    const marker = L.circleMarker([lot.latitude, lot.longitude], {
+      radius: 8,
+      fillColor: color,
+      fillOpacity: 0.9,
+      color: "#020617",
+      weight: 1,
+    });
+
+    const occPercent = Math.round(occ * 100);
+
+    const html = `
+      <div style="font-size: 12px;">
+        <strong>${lot.name}</strong><br />
+        Загрузка: <strong>${occPercent}%</strong><br />
+        Метро: ${lot.near_metro ? "рядом" : "нет"}<br />
+        Уровень цены: ${lot.price_level}<br />
+        Крытая: ${lot.has_covered ? "да" : "нет"}<br />
+        Зарядка EV: ${lot.has_ev_charging ? "есть" : "нет"}
+      </div>
+    `;
+
+    marker.bindPopup(html);
+    marker.addTo(markersLayer);
+  });
+
+  if (lots.length > 0) {
+    const bounds = L.latLngBounds(
+      lots.map((lot) => [lot.latitude, lot.longitude])
+    );
+    map.fitBounds(bounds.pad(0.2));
+  }
+}
+
+function renderLotsList(containerId, lots, clickHandler) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = "";
+
+  if (!lots || lots.length === 0) {
+    container.innerHTML =
+      '<div style="font-size: 0.75rem; color: #6b7280;">Нет данных.</div>';
+    return;
+  }
+
+  lots.forEach((lot) => {
+    const occ = lot.predicted_occupancy ?? 0;
+    const occPercent = Math.round(occ * 100);
+
+    const div = document.createElement("div");
+    div.className = "lot-item";
+    div.innerHTML = `
+      <div class="lot-main">
+        <div class="lot-name">${lot.name}</div>
+        <div class="lot-meta">
+          <span>Цена: L${lot.price_level}</span>
+          <span>Метро: ${lot.near_metro ? "рядом" : "нет"}</span>
+          <span>EV: ${lot.has_ev_charging ? "есть" : "нет"}</span>
+          <span>Крытая: ${lot.has_covered ? "да" : "нет"}</span>
+        </div>
+      </div>
+      <div class="lot-occ">${occPercent}%</div>
+    `;
+
+    div.addEventListener("click", () => clickHandler(lot));
+    container.appendChild(div);
+  });
+}
+
+// ----------------- ЛОГИКА UI -----------------
+
+async function loadAllLots() {
+  const status = document.getElementById("statusText");
+  try {
+    const lots = await apiGet("/api/lots");
+    lotsCache = lots;
+    lotsById.clear();
+    lots.forEach((lot) => lotsById.set(lot.id, lot));
+
+    renderLotsOnMap(lots);
+    renderLotsList("lotsList", lots, (lot) => {
+      map.setView([lot.latitude, lot.longitude], 16);
+    });
+
+    status.textContent = "AI-сервер подключён";
+  } catch (err) {
+    console.error(err);
+    status.textContent = "Ошибка подключения к AI-серверу";
+  }
+}
+
+async function handleSearch() {
+  const input = document.getElementById("searchInput");
+  const status = document.getElementById("searchStatus");
+  const text = input.value.trim();
+  if (!text) return;
+
+  status.textContent = "Обрабатываю запрос (локальный NLP)…";
+
+  try {
+    const data = await apiGet("/api/search", { query: text });
+    const lots = data.lots || [];
+
+    renderLotsOnMap(lots);
+    renderLotsList("lotsList", lots, (lot) => {
+      map.setView([lot.latitude, lot.longitude], 16);
+    });
+
+    const parts = [];
+    parts.push(`Интент: ${data.intent}`);
+    if (data.near_metro !== null) {
+      parts.push(`рядом с метро: ${data.near_metro ? "да" : "нет"}`);
+    }
+    if (data.max_price_level !== null) {
+      parts.push(`макс. уровень цены: L${data.max_price_level}`);
+    }
+    if (data.has_ev_charging !== null) {
+      parts.push(`EV: ${data.has_ev_charging ? "нужна" : "не нужна"}`);
+    }
+    if (data.has_covered !== null) {
+      parts.push(`крытая: ${data.has_covered ? "нужна" : "не нужна"}`);
+    }
+    if (data.time_of_day) {
+      parts.push(`время суток: ${data.time_of_day}`);
+    }
+    status.textContent = parts.join(" · ") || "Фильтры не распознаны.";
+  } catch (err) {
+    console.error(err);
+    status.textContent = "Ошибка обработки запроса";
+  }
+}
+
+async function initUsersSelect() {
+  const select = document.getElementById("userSelect");
+  // Пользователи не отдаются API, но user_id есть в тренировочных данных.
+  // Для демо предположим, что есть пользователи с id 1..20.
+  for (let i = 1; i <= 20; i++) {
+    const opt = document.createElement("option");
+    opt.value = String(i);
+    opt.textContent = `Пользователь #${i}`;
+    select.appendChild(opt);
+  }
+}
+root@d375caa9e772:/workspace/parkshare_ru_part1# sed -n '200,400p' app.js
+}
+
+async function handleRecommendations(variant) {
+  const select = document.getElementById("userSelect");
+  const status = document.getElementById("recStatus");
+  const listContainerId = "recList";
+
+  const userId = parseInt(select.value, 10) || undefined;
+
+  status.textContent =
+    variant === "A"
+      ? "Рассчитываю рекомендации (collaborative)…"
+      : "Рассчитываю рекомендации (content-based)…";
+
+  try {
+    const params = { limit: 10, variant };
+    if (variant === "A" && userId) {
+      params.user_id = userId;
+    }
+    const data = await apiGet("/api/recommendations", params);
+    const recs = data.recommendations || [];
+
+    const lots = recs.map((r) => r.lot);
+    renderLotsOnMap(lots);
+    renderLotsList(listContainerId, lots, (lot) => {
+      map.setView([lot.latitude, lot.longitude], 16);
+    });
+
+    status.textContent = `Вариант ${data.variant}, получено ${recs.length} рекомендаций.`;
+  } catch (err) {
+    console.error(err);
+    status.textContent = "Ошибка получения рекомендаций";
+  }
+}
+
+// ----------------- СТАРТ -----------------
+
+window.addEventListener("DOMContentLoaded", async () => {
+  initMap();
+  await initUsersSelect();
+  await loadAllLots();
+
+  document
+    .getElementById("searchBtn")
+    .addEventListener("click", () => handleSearch());
+
+  document
+    .getElementById("searchInput")
+    .addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        handleSearch();
+      }
+    });
+
+  document.getElementById("recBtn").addEventListener("click", () => {
+    handleRecommendations("A");
+  });
+
+  document
+    .getElementById("recContentBtn")
+    .addEventListener("click", () => {
+      handleRecommendations("B");
+    });
+});
+I'll create a new JS and CSS for toggling a "cinematic mode" feature. Adjusting paths and UI layout accordingly.
+
+I'll create a floating "cinematic" overlay and update app.js to manage AI features and theme.
+
+I'll add theme toggle, sidebar card, and update QuantumThemeManager to work with existing code.
+
+I'll add minimal inline styling, create new CSS/JS files, update HTML structure, and integrate functions.
+
+root@d375caa9e772:/workspace/parkshare_ru_part1# cat <<'EOF' > static/css/cinematic-ui.css
+> :root {
+>   --cinematic-glow: radial-gradient(circle at center,
+>       rgba(100, 200, 255, 0.4) 0%,
+>       transparent 70%);
+>   --hologram-effect: linear-gradient(45deg,
+>       transparent 30%,
+>       rgba(255, 255, 255, 0.1) 50%,
+>       transparent 70%);
+>   --quantum-shadow: 0 0 40px rgba(100, 200, 255, 0.3),
+>       0 0 80px rgba(100, 200, 255, 0.2),
+>       0 0 120px rgba(100, 200, 255, 0.1);
+>   --hologram-glow: rgba(0, 255, 255, 0.8);
+> }
+>
+> @property --hologram-glow {
+>   syntax: '<color>';
+>   inherits: false;
+>   initial-value: rgba(0, 255, 255, 0.8);
+> }
+>
+> .cinematic-surface {
+>   position: relative;
+>   overflow: hidden;
+>   background: linear-gradient(135deg, rgba(12, 19, 39, 0.9), rgba(6, 11, 25, 0.9));
+>   border: 1px solid rgba(255, 255, 255, 0.04);
+>   box-shadow: 0 18px 60px rgba(0, 0, 0, 0.55), var(--quantum-shadow);
+> }
+>
+> .cinematic-surface::before {
+>   content: "";
+>   position: absolute;
+>   inset: -1px;
+>   background: var(--cinematic-glow);
+>   filter: blur(38px);
+>   opacity: 0.55;
+>   pointer-events: none;
+> }
+>
+> .cinematic-surface::after {
+>   content: "";
+>   position: absolute;
+>   inset: 0;
+>   background: var(--hologram-effect);
+>   opacity: 0.35;
+>   mix-blend-mode: screen;
+>   pointer-events: none;
+> }
+>
+> .cinematic-button,
+> .quantum-toggle {
+>   background: radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.35), rgba(14, 165, 233, 0.12));
+>   box-shadow: 0 10px 30px rgba(14, 165, 233, 0.35), 0 20px 60px rgba(6, 182, 212, 0.25);
+>   border: 1px solid rgba(255, 255, 255, 0.08);
+>   color: #e0f2fe;
+>   padding: 0.5rem 0.9rem;
+>   border-radius: 999px;
+>   display: inline-flex;
+>   align-items: center;
+>   gap: 0.4rem;
+>   cursor: pointer;
+>   position: relative;
+>   overflow: hidden;
+> }
+>
+> .cinematic-button::after,
+> .quantum-toggle::after {
+>   content: "";
+>   position: absolute;
+>   inset: 0;
+>   background: linear-gradient(120deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0));
+>   opacity: 0;
+>   transition: opacity 0.35s ease;
+> }
+>
+> .cinematic-button:hover::after,
+> .quantum-toggle:hover::after {
+>   opacity: 1;
+> }
+>
+> .cinematic-marker {
+>   animation: hologram-float 3s ease-in-out infinite;
+>   filter: drop-shadow(0 0 20px var(--hologram-glow));
+> }
+>
+> .quantum-pulse {
+>   position: absolute;
+>   inset: 0;
+>   pointer-events: none;
+>   border-radius: inherit;
+>   background: radial-gradient(circle at 50% 45%, rgba(56, 189, 248, 0.15), transparent 60%);
+>   animation: quantum-breathe 6s ease-in-out infinite;
+> }
+>
+> .ai-forecast {
+>   display: grid;
+>   grid-template-columns: repeat(2, minmax(0, 1fr));
+>   gap: 0.5rem;
+>   margin-top: 0.35rem;
+> }
+>
+> .ai-forecast-metric {
+>   padding: 0.55rem 0.65rem;
+>   border-radius: 0.75rem;
+>   border: 1px solid rgba(59, 130, 246, 0.2);
+>   background: rgba(15, 23, 42, 0.8);
+>   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+> }
+>
+> .ai-forecast-label {
+>   font-size: 0.7rem;
+>   color: #cbd5e1;
+>   display: block;
+>   margin-bottom: 0.15rem;
+> }
+>
+> .ai-forecast-value {
+>   font-weight: 700;
+>   font-size: 0.95rem;
+>   letter-spacing: 0.01em;
+> }
+>
+> .ai-reasoning {
+>   margin-top: 0.5rem;
+>   padding: 0.55rem 0.6rem;
+>   border-radius: 0.75rem;
+>   border: 1px dashed rgba(255, 255, 255, 0.16);
+>   color: #e2e8f0;
+>   background: rgba(79, 70, 229, 0.08);
+> }
+>
+> @keyframes hologram-float {
+>   0% { transform: translateY(0); }
+>   50% { transform: translateY(-4px); }
+>   100% { transform: translateY(0); }
+> }
+>
+> @keyframes quantum-breathe {
+>   0% { opacity: 0.2; }
+>   50% { opacity: 0.55; }
+>   100% { opacity: 0.2; }
+> }
+>
+> [data-quantum-theme="dark"] body,
+> body[data-quantum-theme="dark"] {
+>   background: radial-gradient(circle at top left, #0b1224 0%, #030712 45%, #01030a 100%);
+> }
+>
+> [data-quantum-theme="light"] body,
+> body[data-quantum-theme="light"] {
+>   background: radial-gradient(circle at top left, #f8fafc 0%, #e2e8f0 40%, #cbd5e1 100%);
+>   color: #0f172a;
+> }
+>
+> .ai-crest {
+>   display: inline-flex;
+>   align-items: center;
+>   gap: 0.35rem;
+>   padding: 0.35rem 0.8rem;
+>   border-radius: 999px;
+>   border: 1px solid rgba(255, 255, 255, 0.14);
+>   background: linear-gradient(135deg, rgba(59, 130, 246, 0.18), rgba(16, 185, 129, 0.16));
+>   box-shadow: 0 18px 45px rgba(15, 23, 42, 0.5);
+> }
+> EOF
+I’ll check for the JS file I need.
+
+root@d375caa9e772:/workspace/parkshare_ru_part1# cat <<'EOF' > static/js/quantum-theme-manager.js
+> class QuantumThemeManager {
+>   constructor(options = {}) {
+>     this.themes = options.themes || {
+>       dark: {
+>         map: "dark",
+>         css: "dark",
+>         effects: "hologram-dark",
+>         emotion: "calm",
+>       },
+>       light: {
+>         map: "standard",
+>         css: "light",
+>         effects: "hologram-light",
+>         emotion: "energetic",
+>       },
+>     };
+>     this.currentTheme = "dark";
+>     this.root = options.root || document.documentElement;
+>   }
+>
+>   async switchTheme(theme) {
+>     const config = this.themes[theme];
+>     if (!config) return;
+>
+>     this.currentTheme = theme;
+>     const tasks = [
+>       this.switchCSSTheme(config.css),
+>       this.switchEmotionalMode(config.emotion),
+>       this.switchCinematicEffects(config.effects),
+>     ];
+>
+>     await Promise.all(tasks);
+>     this.triggerThemeTransitionAnimation();
+>   }
+>
+>   switchCSSTheme(css) {
+>     this.root.dataset.quantumTheme = css;
+>     document.body.dataset.quantumTheme = css;
+>     return Promise.resolve();
+>   }
+>
+>   switchEmotionalMode(emotion) {
+>     document.body.dataset.emotion = emotion;
+>     return Promise.resolve();
+>   }
+>
+>   switchCinematicEffects(effects) {
+>     document.body.dataset.cinematic = effects;
+>     return Promise.resolve();
+>   }
+>
+>   triggerThemeTransitionAnimation() {
+>     const flash = document.createElement("div");
+>     flash.className = "quantum-pulse";
+>     document.body.appendChild(flash);
+>     setTimeout(() => flash.remove(), 800);
+>   }
+>
+>   bindToggle(buttonId) {
+>     const btn = document.getElementById(buttonId);
+>     if (!btn) return;
+>
+>     btn.addEventListener("click", () => {
+>       const next = this.currentTheme === "dark" ? "light" : "dark";
+>       btn.dataset.theme = next;
+>       btn.querySelector(".quantum-toggle__label").textContent =
+>         next === "dark" ? "Dark Matter" : "Photon";
+>       this.switchTheme(next);
+>     });
+>   }
+> }
+>
+> export function initQuantumThemeManager() {
+>   const manager = new QuantumThemeManager();
+>   manager.bindToggle("themeToggle");
+>   manager.switchTheme("dark");
+>   return manager;
+> }
+> EOF
+Hmm, the script tags aren't using type="module". I think I'll skip modules and set global variables.
+
+root@d375caa9e772:/workspace/parkshare_ru_part1# cat <<'EOF' > static/js/quantum-theme-manager.js
+> class QuantumThemeManager {
+>   constructor(options = {}) {
+>     this.themes = options.themes || {
+>       dark: {
+>         map: "dark",
+>         css: "dark",
+>         effects: "hologram-dark",
+>         emotion: "calm",
+>       },
+>       light: {
+>         map: "standard",
+>         css: "light",
+>         effects: "hologram-light",
+>         emotion: "energetic",
+>       },
+>     };
+>     this.currentTheme = "dark";
+>     this.root = options.root || document.documentElement;
+>   }
+>
+>   async switchTheme(theme) {
+>     const config = this.themes[theme];
+>     if (!config) return;
+>
+>     this.currentTheme = theme;
+>     const tasks = [
+>       this.switchCSSTheme(config.css),
+>       this.switchEmotionalMode(config.emotion),
+>       this.switchCinematicEffects(config.effects),
+>     ];
+>
+>     await Promise.all(tasks);
+>     this.triggerThemeTransitionAnimation();
+>   }
+>
+>   switchCSSTheme(css) {
+>     this.root.dataset.quantumTheme = css;
+>     document.body.dataset.quantumTheme = css;
+>     return Promise.resolve();
+>   }
+>
+>   switchEmotionalMode(emotion) {
+>     document.body.dataset.emotion = emotion;
+>     return Promise.resolve();
+>   }
+>
+>   switchCinematicEffects(effects) {
+>     document.body.dataset.cinematic = effects;
+>     return Promise.resolve();
+>   }
+>
+>   triggerThemeTransitionAnimation() {
+>     const flash = document.createElement("div");
+>     flash.className = "quantum-pulse";
+>     document.body.appendChild(flash);
+>     setTimeout(() => flash.remove(), 800);
+>   }
+>
+>   bindToggle(buttonId) {
+>     const btn = document.getElementById(buttonId);
+>     if (!btn) return;
+>
+>     btn.addEventListener("click", () => {
+>       const next = this.currentTheme === "dark" ? "light" : "dark";
+>       btn.dataset.theme = next;
+>       const label = btn.querySelector(".quantum-toggle__label");
+>       if (label) {
+>         label.textContent = next === "dark" ? "Dark Matter" : "Photon";
+>       }
+>       this.switchTheme(next);
+>     });
+>   }
+> }
+>
+> window.initQuantumThemeManager = function initQuantumThemeManager() {
+>   const manager = new QuantumThemeManager();
+>   manager.bindToggle("themeToggle");
+>   manager.switchTheme("dark");
+>   return manager;
+> };
+> EOF
+I'll update the index to include the external CSS and reorganize the header. I'll add the new sections for the theme toggle and AI card, making sure new styles are applied. Adjustments to the CSS will follow.
+
+I'll add new CSS and script for the theme manager. Need to ensure correct loading order. Script will initialize the theme after the DOM has loaded. I'll modify app.js to implement the new updateAIOracleCard functions.
+
+I'll update functions with const, add new DOM elements, and create necessary CSS for the UI.
+
+root@d375caa9e772:/workspace/parkshare_ru_part1# apply_patch <<'PATCH'
+> *** Begin Patch
+> *** Update File: index.html
+> @@
+>    <meta charset="UTF-8" />
+>    <title>ParkShare AI Map</title>
+>    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+>
+>    <!-- Leaflet -->
+> @@
+>      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+>      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+>      crossorigin=""
+>    />
+> +
+> +  <link rel="stylesheet" href="./static/css/cinematic-ui.css" />
+> @@
+>      header {
+>        padding: 0.75rem 1rem;
+>        display: flex;
+>        align-items: center;
+>        justify-content: space-between;
+>        background: rgba(15, 23, 42, 0.9);
+>        backdrop-filter: blur(12px);
+>        border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+>        z-index: 1000;
+> +      position: sticky;
+> +      top: 0;
+>      }
+> @@
+>        font-size: 1.1rem;
+>        margin: 0;
+>        display: flex;
+>        align-items: center;
+>        gap: 0.4rem;
+> @@
+>      .badge {
+>        font-size: 0.7rem;
+>        padding: 0.1rem 0.4rem;
+>        border-radius: 999px;
+>        border: 1px solid rgba(148, 163, 184, 0.5);
+>        text-transform: uppercase;
+>        letter-spacing: 0.08em;
+>      }
+> +
+> +    .header-meta {
+> +      display: flex;
+> +      align-items: center;
+> +      gap: 0.75rem;
+> +    }
+>
+>      main {
+>        flex: 1;
+>        display: grid;
+> @@
+>      .card-title {
+>        font-size: 0.9rem;
+>        font-weight: 600;
+>        margin-bottom: 0.4rem;
+>        display: flex;
+> @@
+>      .status {
+>        font-size: 0.7rem;
+>        color: rgba(148, 163, 184, 0.9);
+>        margin-top: 0.3rem;
+>      }
+> +
+> +    .ai-oracle-chip {
+> +      display: inline-flex;
+> +      align-items: center;
+> +      gap: 0.4rem;
+> +      padding: 0.18rem 0.65rem;
+> +      border-radius: 999px;
+> +      border: 1px solid rgba(59, 130, 246, 0.45);
+> +      background: linear-gradient(120deg, rgba(37, 99, 235, 0.35), rgba(14, 165, 233, 0.15));
+> +      color: #e5edff;
+> +      font-size: 0.75rem;
+> +      letter-spacing: 0.02em;
+> +      box-shadow: 0 12px 30px rgba(37, 99, 235, 0.25);
+> +    }
+> +
+> +    .ai-orchestrator-card {
+> +      position: relative;
+> +      overflow: hidden;
+> +      background: linear-gradient(135deg, rgba(30, 41, 59, 0.92), rgba(17, 24, 39, 0.94));
+> +    }
+> +
+> +    .ai-orchestrator-card .card-title {
+> +      align-items: center;
+> +    }
+> +
+> +    .ai-orchestrator-card .card-title span {
+> +      display: inline-flex;
+> +      align-items: center;
+> +      gap: 0.4rem;
+> +    }
+> +
+> +    .quantum-toggle {
+> +      border: 1px solid rgba(255, 255, 255, 0.12);
+> +      color: #e2e8f0;
+> +      font-weight: 600;
+> +      letter-spacing: 0.01em;
+> +      min-width: 150px;
+> +      justify-content: space-between;
+> +    }
+> +
+> +    .quantum-toggle__dot {
+> +      width: 18px;
+> +      height: 18px;
+> +      border-radius: 50%;
+> +      border: 2px solid rgba(255, 255, 255, 0.7);
+> +      background: radial-gradient(circle at 35% 35%, #38bdf8, #0ea5e9);
+> +      box-shadow: 0 0 20px rgba(56, 189, 248, 0.45);
+> +    }
+> +
+> +    .quantum-toggle__label {
+> +      flex: 1;
+> +      text-align: right;
+> +      font-size: 0.8rem;
+> +    }
+> *** End Patch
+> PATCH
+Success. Updated the following files:
+M index.html
+I need to update the HTML header and apply changes to the body with apply_patch.
+
+root@d375caa9e772:/workspace/parkshare_ru_part1# apply_patch <<'PATCH'
+> *** Begin Patch
+> *** Update File: index.html
+> @@
+>  <body>
+> -  <header>
+> -    <h1>
+> -      <span>ParkShare AI Map</span>
+> -      <span class="badge">local ML</span>
+> -    </h1>
+> -    <div class="pill">
+> -      <span class="pill-dot green"></span>
+> -      <span id="statusText">Подключение к AI-серверу…</span>
+> -    </div>
+> -  </header>
+> +  <header class="cinematic-surface">
+> +    <h1>
+> +      <span>ParkShare AI Map</span>
+> +      <span class="badge">local ML</span>
+> +    </h1>
+> +    <div class="header-meta">
+> +      <div class="ai-crest">
+> +        <span>🧠</span>
+> +        <span class="quantum-toggle__label">AI Orchestrator</span>
+> +      </div>
+> +      <button id="themeToggle" class="quantum-toggle cinematic-button" data-theme="dark">
+> +        <span class="quantum-toggle__dot"></span>
+> +        <span class="quantum-toggle__label">Dark Matter</span>
+> +      </button>
+> +      <div class="pill">
+> +        <span class="pill-dot green"></span>
+> +        <span id="statusText">Подключение к AI-серверу…</span>
+> +      </div>
+> +    </div>
+> +  </header>
+>
+>    <main>
+>      <div id="map"></div>
+>      <aside class="sidebar">
+> +      <section class="card cinematic-surface ai-orchestrator-card">
+> +        <div class="card-title">
+> +          <span>AI-Оркестратор</span>
+> +          <span class="ai-oracle-chip">Quantum boost</span>
+> +        </div>
+> +        <div class="ai-forecast">
+> +          <div class="ai-forecast-metric">
+> +            <span class="ai-forecast-label">Лучшая ставка</span>
+> +            <span class="ai-forecast-value" id="aiOracleName">—</span>
+> +          </div>
+> +          <div class="ai-forecast-metric">
+> +            <span class="ai-forecast-label">Освободится через</span>
+> +            <span class="ai-forecast-value" id="aiOracleETA">—</span>
+> +          </div>
+> +          <div class="ai-forecast-metric">
+> +            <span class="ai-forecast-label">Уверенность AI</span>
+> +            <span class="ai-forecast-value" id="aiOracleConfidence">—</span>
+> +          </div>
+> +          <div class="ai-forecast-metric">
+> +            <span class="ai-forecast-label">EV/крытая</span>
+> +            <span class="ai-forecast-value" id="aiOracleMeta">—</span>
+> +          </div>
+> +        </div>
+> +        <div class="ai-reasoning" id="aiOracleReason">AI готовит инсайт…</div>
+> +      </section>
+>        <section class="card">
+>          <div class="card-title">
+>            <span>Поиск парковок (NLP)</span>
+>          </div>
+>          <div class="input-row">
+> @@
+>        <section class="card">
+>          <div class="card-title">
+>            <span>Все парковки</span>
+>          </div>
+>          <div class="lots-list" id="lotsList"></div>
+> *** End Patch
+> PATCH
+Success. Updated the following files:
+M index.html
+I should check the indentation for consistency, especially around new sections. I'll review this.
+
+root@d375caa9e772:/workspace/parkshare_ru_part1# sed -n '40,200p' index.html
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      padding: 0.75rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(15, 23, 42, 0.9);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+      z-index: 1000;
+      position: sticky;
+      top: 0;
+    }
+
+    header h1 {
+      font-size: 1.1rem;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .badge {
+      font-size: 0.7rem;
+      padding: 0.1rem 0.4rem;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .header-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    main {
+      flex: 1;
+      display: grid;
+      grid-template-columns: minmax(0, 2.2fr) minmax(0, 1.3fr);
+      min-height: 0;
+    }
+
+    #map {
+      width: 100%;
+      height: 100%;
+    }
+
+    .sidebar {
+      border-left: 1px solid rgba(148, 163, 184, 0.2);
+      background: radial-gradient(circle at top, #020617, #020617 40%);
+      padding: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      min-width: 280px;
+      max-width: 480px;
+    }
+
+    .card {
+      background: rgba(15, 23, 42, 0.98);
+      border-radius: 0.9rem;
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      padding: 0.75rem 0.8rem;
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.6);
+    }
+
+    .card-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 0.4rem;
+      margin-top: 0.3rem;
+    }
+
+    input[type="text"],
+    select {
+      flex: 1;
+      padding: 0.4rem 0.5rem;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--text);
+      font-size: 0.85rem;
+      outline: none;
+    }
+
+    input::placeholder {
+      color: rgba(148, 163, 184, 0.9);
+    }
+
+    button {
+      border-radius: 999px;
+      border: none;
+      padding: 0.45rem 0.9rem;
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+      background: linear-gradient(135deg, #0ea5e9, #22c55e);
+      color: #f9fafb;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      white-space: nowrap;
+    }
+
+    button.secondary {
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      color: rgba(209, 213, 219, 0.95);
+    }
+
+    .pill {
+      font-size: 0.72rem;
+      border-radius: 999px;
+      padding: 0.16rem 0.5rem;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      color: rgba(209, 213, 219, 0.95);
+    }
+
+    .pill-dot {
+      width: 0.55rem;
+      height: 0.55rem;
+      border-radius: 999px;
+    }
+
+    .pill-dot.green {
+      background: var(--accent);
+    }
+    .pill-dot.yellow {
+      background: var(--warning);
+    }
+    .pill-dot.red {
+      background: var(--danger);
+    }
+
+    .lots-list {
+      max-height: 220px;
+      overflow-y: auto;
+      margin-top: 0.4rem;
+      padding-right: 0.2rem;
+    }
+
+    .lot-item {
+      display: flex;
+      justify-content: space-between;
+I'll scroll to the bottom to check out the new CSS.
+
+root@d375caa9e772:/workspace/parkshare_ru_part1# sed -n '200,400p' index.html
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.4rem 0.2rem;
+      border-bottom: 1px solid rgba(31, 41, 55, 0.9);
+      cursor: pointer;
+    }
+
+    .lot-item:last-child {
+      border-bottom: none;
+    }
+
+    .lot-main {
+      display: flex;
+      flex-direction: column;
+      gap: 0.1rem;
+      font-size: 0.75rem;
+    }
+
+    .lot-name {
+      font-weight: 500;
+      font-size: 0.8rem;
+    }
+
+    .lot-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.3rem;
+      font-size: 0.7rem;
+      color: rgba(156, 163, 175, 0.95);
+    }
+
+    .lot-occ {
+      font-size: 0.8rem;
+      font-weight: 500;
+      min-width: 80px;
+      text-align: right;
+    }
+
+    .status {
+      font-size: 0.7rem;
+      color: rgba(148, 163, 184, 0.9);
+      margin-top: 0.3rem;
+    }
+
+    .ai-oracle-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.18rem 0.65rem;
+      border-radius: 999px;
+      border: 1px solid rgba(59, 130, 246, 0.45);
+      background: linear-gradient(120deg, rgba(37, 99, 235, 0.35), rgba(14, 165, 233, 0.15));
+      color: #e5edff;
+      font-size: 0.75rem;
+      letter-spacing: 0.02em;
+      box-shadow: 0 12px 30px rgba(37, 99, 235, 0.25);
+    }
+
+    .ai-orchestrator-card {
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(135deg, rgba(30, 41, 59, 0.92), rgba(17, 24, 39, 0.94));
+    }
+
+    .ai-orchestrator-card .card-title {
+      align-items: center;
+    }
+
+    .ai-orchestrator-card .card-title span {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .quantum-toggle {
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #e2e8f0;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+      min-width: 150px;
+      justify-content: space-between;
+    }
+
+    .quantum-toggle__dot {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.7);
+      background: radial-gradient(circle at 35% 35%, #38bdf8, #0ea5e9);
+      box-shadow: 0 0 20px rgba(56, 189, 248, 0.45);
+    }
+
+    .quantum-toggle__label {
+      flex: 1;
+      text-align: right;
+      font-size: 0.8rem;
+    }
+
+    @media (max-width: 900px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+      .sidebar {
+        max-width: 100%;
+        border-left: none;
+        border-top: 1px solid rgba(148, 163, 184, 0.2);
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="cinematic-surface">
+    <h1>
+      <span>ParkShare AI Map</span>
+      <span class="badge">local ML</span>
+    </h1>
+    <div class="header-meta">
+      <div class="ai-crest">
+        <span>🧠</span>
+        <span class="quantum-toggle__label">AI Orchestrator</span>
+      </div>
+      <button id="themeToggle" class="quantum-toggle cinematic-button" data-theme="dark">
+        <span class="quantum-toggle__dot"></span>
+        <span class="quantum-toggle__label">Dark Matter</span>
+      </button>
+      <div class="pill">
+        <span class="pill-dot green"></span>
+        <span id="statusText">Подключение к AI-серверу…</span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div id="map"></div>
+    <aside class="sidebar">
+      <section class="card cinematic-surface ai-orchestrator-card">
+        <div class="card-title">
+          <span>AI-Оркестратор</span>
+          <span class="ai-oracle-chip">Quantum boost</span>
+        </div>
+        <div class="ai-forecast">
+          <div class="ai-forecast-metric">
+            <span class="ai-forecast-label">Лучшая ставка</span>
+            <span class="ai-forecast-value" id="aiOracleName">—</span>
+          </div>
+          <div class="ai-forecast-metric">
+            <span class="ai-forecast-label">Освободится через</span>
+            <span class="ai-forecast-value" id="aiOracleETA">—</span>
+          </div>
+          <div class="ai-forecast-metric">
+            <span class="ai-forecast-label">Уверенность AI</span>
+            <span class="ai-forecast-value" id="aiOracleConfidence">—</span>
+          </div>
+          <div class="ai-forecast-metric">
+            <span class="ai-forecast-label">EV/крытая</span>
+            <span class="ai-forecast-value" id="aiOracleMeta">—</span>
+          </div>
+        </div>
+        <div class="ai-reasoning" id="aiOracleReason">AI готовит инсайт…</div>
+      </section>
+      <section class="card">
+        <div class="card-title">
+          <span>Поиск парковок (NLP)</span>
+        </div>
+        <div class="input-row">
+          <input
+            type="text"
+            id="searchInput"
+            placeholder='Например: "рядом с метро", "дешевые утром"'
+          />
+          <button id="searchBtn">Искать</button>
+        </div>
+        <div class="status" id="searchStatus">Запрос еще не выполнен.</div>
+      </section>
+
+      <section class="card">
+        <div class="card-title">
+          <span>Рекомендации (коллаб. фильтрация)</span>
+          <select id="userSelect"></select>
+        </div>
+        <div class="input-row">
+          <button id="recBtn">Получить рекомендации</button>
+          <button id="recContentBtn" class="secondary">Вариант B (content)</button>
+        </div>
+        <div class="status" id="recStatus">Нет рекомендаций.</div>
+        <div class="lots-list" id="recList"></div>
+      </section>
+
+      <section class="card">
+        <div class="card-title">
+          <span>Все парковки</span>
+        </div>
+        <div class="lots-list" id="lotsList"></div>
+      </section>
+    </aside>
+  </main>
+
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""
+I'm thinking about where the script should go—before or after app.js. It uses initQuantumThemeManager, which is defined in app.js, so I'll place the inline call after the script.
+
+root@d375caa9e772:/workspace/parkshare_ru_part1# apply_patch <<'PATCH'
+> *** Begin Patch
+> *** Update File: index.html
+> @@
+>    <script
+>      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+>      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+>      crossorigin=""
+>    ></script>
+> +  <script src="./static/js/quantum-theme-manager.js"></script>
+>    <script src="app.js"></script>
+> +  <script>
+> +    // Запускаем квантовый менеджер темы, чтобы анимации и эмоции были синхронизированы.
+> +    window.psThemeManager = window.initQuantumThemeManager();
+> +  </script>
+>  </body>
+>  </html>
+> *** End Patch
+> PATCH
+Success. Updated the following files:
+M index.html
+It's time to update app.js with the AI orchestrator function and apply the patch.
+
+root@d375caa9e772:/workspace/parkshare_ru_part1# apply_patch <<'PATCH'
+> *** Begin Patch
+> *** Update File: app.js
+> @@
+>  let map;
+>  let markersLayer;
+>  let lotsCache = [];
+>  let lotsById = new Map();
+> +
+> +function pickBestLot(lots) {
+> +  if (!lots || lots.length === 0) return null;
+> +  const ranked = [...lots].sort((a, b) => {
+> +    const occA = a.predicted_occupancy ?? 1;
+> +    const occB = b.predicted_occupancy ?? 1;
+> +    return occA - occB;
+> +  });
+> +  return ranked[0];
+> +}
+> +
+> +function updateAIOracleCard(lots) {
+> +  const nameEl = document.getElementById("aiOracleName");
+> +  const etaEl = document.getElementById("aiOracleETA");
+> +  const confEl = document.getElementById("aiOracleConfidence");
+> +  const metaEl = document.getElementById("aiOracleMeta");
+> +  const reasoningEl = document.getElementById("aiOracleReason");
+> +
+> +  if (!nameEl || !etaEl || !confEl || !metaEl || !reasoningEl) return;
+> +
+> +  if (!lots || lots.length === 0) {
+> +    nameEl.textContent = "—";
+> +    etaEl.textContent = "—";
+> +    confEl.textContent = "—";
+> +    metaEl.textContent = "—";
+> +    reasoningEl.textContent = "AI готовит инсайт…";
+> +    return;
+> +  }
+> +
+> +  const bestLot = pickBestLot(lots);
+> +  if (!bestLot) return;
+> +
+> +  const occ = bestLot.predicted_occupancy ?? 0;
+> +  const occPercent = Math.round(occ * 100);
+> +  const eta = Math.max(2, Math.min(15, Math.round((1 - occ) * 12)));
+> +  const confidence = Math.max(68, Math.min(99, 96 - Math.round(occPercent / 2)));
+> +  const ev = bestLot.has_ev_charging ? "EV" : "обычная";
+> +  const covered = bestLot.has_covered ? "крытая" : "открытая";
+> +
+> +  nameEl.textContent = bestLot.name;
+> +  etaEl.textContent = `${eta} мин`;
+> +  confEl.textContent = `${confidence}%`;
+> +  metaEl.textContent = `${ev} · ${covered}`;
+> +  reasoningEl.textContent =
+> +    "Учитывая вашу историю: быстрый выезд, EV и близость к метро — этот слот даст наивысший WOW-эффект.";
+> +}
+> *** End Patch
+> PATCH
+Success. Updated the following files:
+M app.js
+I'll update the AI Oracle Card in loadAllLots, handleSearch, and handleRecommendations.
+
+root@d375caa9e772:/workspace/parkshare_ru_part1# apply_patch <<'PATCH'
+> *** Begin Patch
+> *** Update File: app.js
+> @@
+>      renderLotsOnMap(lots);
+>      renderLotsList("lotsList", lots, (lot) => {
+>        map.setView([lot.latitude, lot.longitude], 16);
+>      });
+> +
+> +    updateAIOracleCard(lots);
+>
+>      status.textContent = "AI-сервер подключён";
+>    } catch (err) {
+>      console.error(err);
+>      status.textContent = "Ошибка подключения к AI-серверу";
+> @@
+>      const lots = data.lots || [];
+>
+>      renderLotsOnMap(lots);
+>      renderLotsList("lotsList", lots, (lot) => {
+>        map.setView([lot.latitude, lot.longitude], 16);
+>      });
+> +
+> +    updateAIOracleCard(lots);
+>
+>      const parts = [];
+>      parts.push(`Интент: ${data.intent}`);
+>      if (data.near_metro !== null) {
+>        parts.push(`рядом с метро: ${data.near_metro ? "да" : "нет"}`);
+> @@
+>
+>      const lots = recs.map((r) => r.lot);
+>      renderLotsOnMap(lots);
+>      renderLotsList(listContainerId, lots, (lot) => {
+>        map.setView([lot.latitude, lot.longitude], 16);
+>      });
+> +
+> +    updateAIOracleCard(lots);
+>
+>      status.textContent = `Вариант ${data.variant}, получено ${recs.length} рекомендаций.`;
+>    } catch (err) {
+>      console.error(err);
+> *** End Patch
+> PATCH
+Success. Updated the following files:
+M app.js
+I noticed an indentation issue, particularly around loadAllLots. I'll align things properly.
+
+root@d375caa9e772:/workspace/parkshare_ru_part1# sed -n '70,170p' app.js
+  }).setView([55.7558, 37.6173], 12);
+
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    maxZoom: 19,
+  }).addTo(map);
+
+  markersLayer = L.layerGroup().addTo(map);
+}
+
+// ----------------- API HELPERS -----------------
+
+async function apiGet(path, params = {}) {
+  const url = new URL(API_BASE + path);
+  Object.entries(params).forEach(([k, v]) => {
+    if (v !== undefined && v !== null) {
+      url.searchParams.set(k, v);
+    }
+  });
+
+  const res = await fetch(url.toString());
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`API error ${res.status}: ${text}`);
+  }
+  return res.json();
+}
+
+// ----------------- ОТРИСОВКА ЛОТОВ -----------------
+
+function renderLotsOnMap(lots) {
+  markersLayer.clearLayers();
+
+  lots.forEach((lot) => {
+    const occ = lot.predicted_occupancy ?? 0;
+    const color = occupancyColor(occ);
+
+    const marker = L.circleMarker([lot.latitude, lot.longitude], {
+      radius: 8,
+      fillColor: color,
+      fillOpacity: 0.9,
+      color: "#020617",
+      weight: 1,
+    });
+
+    const occPercent = Math.round(occ * 100);
+
+    const html = `
+      <div style="font-size: 12px;">
+        <strong>${lot.name}</strong><br />
+        Загрузка: <strong>${occPercent}%</strong><br />
+        Метро: ${lot.near_metro ? "рядом" : "нет"}<br />
+        Уровень цены: ${lot.price_level}<br />
+        Крытая: ${lot.has_covered ? "да" : "нет"}<br />
+        Зарядка EV: ${lot.has_ev_charging ? "есть" : "нет"}
+      </div>
+    `;
+
+    marker.bindPopup(html);
+    marker.addTo(markersLayer);
+  });
+
+  if (lots.length > 0) {
+    const bounds = L.latLngBounds(
+      lots.map((lot) => [lot.latitude, lot.longitude])
+    );
+    map.fitBounds(bounds.pad(0.2));
+  }
+}
+
+function renderLotsList(containerId, lots, clickHandler) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = "";
+
+  if (!lots || lots.length === 0) {
+    container.innerHTML =
+      '<div style="font-size: 0.75rem; color: #6b7280;">Нет данных.</div>';
+    return;
+  }
+
+  lots.forEach((lot) => {
+    const occ = lot.predicted_occupancy ?? 0;
+    const occPercent = Math.round(occ * 100);
+
+    const div = document.createElement("div");
+    div.className = "lot-item";
+    div.innerHTML = `
+      <div class="lot-main">
+        <div class="lot-name">${lot.name}</div>
+        <div class="lot-meta">
+          <span>Цена: L${lot.price_level}</span>
+          <span>Метро: ${lot.near_metro ? "рядом" : "нет"}</span>
+          <span>EV: ${lot.has_ev_charging ? "есть" : "нет"}</span>
+          <span>Крытая: ${lot.has_covered ? "да" : "нет"}</span>
+        </div>
+      </div>
+      <div class="lot-occ">${occPercent}%</div>
+    `;
+
+    div.addEventListener("click", () => clickHandler(lot));
+    container.appendChild(div);
+  });
+I’ll verify the bottom functions to check for proper indentation. Shouldn’t be overlooked!
+
+root@d375caa9e772:/workspace/parkshare_ru_part1# sed -n '170,340p' app.js
+  });
+}
+
+// ----------------- ЛОГИКА UI -----------------
+
+async function loadAllLots() {
+  const status = document.getElementById("statusText");
+  try {
+    const lots = await apiGet("/api/lots");
+    lotsCache = lots;
+    lotsById.clear();
+    lots.forEach((lot) => lotsById.set(lot.id, lot));
+
+    renderLotsOnMap(lots);
+    renderLotsList("lotsList", lots, (lot) => {
+      map.setView([lot.latitude, lot.longitude], 16);
+    });
+
+    updateAIOracleCard(lots);
+
+    status.textContent = "AI-сервер подключён";
+  } catch (err) {
+    console.error(err);
+    status.textContent = "Ошибка подключения к AI-серверу";
+  }
+}
+
+async function handleSearch() {
+  const input = document.getElementById("searchInput");
+  const status = document.getElementById("searchStatus");
+  const text = input.value.trim();
+  if (!text) return;
+
+  status.textContent = "Обрабатываю запрос (локальный NLP)…";
+
+  try {
+    const data = await apiGet("/api/search", { query: text });
+    const lots = data.lots || [];
+
+    renderLotsOnMap(lots);
+    renderLotsList("lotsList", lots, (lot) => {
+      map.setView([lot.latitude, lot.longitude], 16);
+    });
+
+    updateAIOracleCard(lots);
+
+    const parts = [];
+    parts.push(`Интент: ${data.intent}`);
+    if (data.near_metro !== null) {
+      parts.push(`рядом с метро: ${data.near_metro ? "да" : "нет"}`);
+    }
+    if (data.max_price_level !== null) {
+      parts.push(`макс. уровень цены: L${data.max_price_level}`);
+    }
+    if (data.has_ev_charging !== null) {
+      parts.push(`EV: ${data.has_ev_charging ? "нужна" : "не нужна"}`);
+    }
+    if (data.has_covered !== null) {
+      parts.push(`крытая: ${data.has_covered ? "нужна" : "не нужна"}`);
+    }
+    if (data.time_of_day) {
+      parts.push(`время суток: ${data.time_of_day}`);
+    }
+    status.textContent = parts.join(" · ") || "Фильтры не распознаны.";
+  } catch (err) {
+    console.error(err);
+    status.textContent = "Ошибка обработки запроса";
+  }
+}
+
+async function initUsersSelect() {
+  const select = document.getElementById("userSelect");
+  // Пользователи не отдаются API, но user_id есть в тренировочных данных.
+  // Для демо предположим, что есть пользователи с id 1..20.
+  for (let i = 1; i <= 20; i++) {
+    const opt = document.createElement("option");
+    opt.value = String(i);
+    opt.textContent = `Пользователь #${i}`;
+    select.appendChild(opt);
+  }
+}
+
+async function handleRecommendations(variant) {
+  const select = document.getElementById("userSelect");
+  const status = document.getElementById("recStatus");
+  const listContainerId = "recList";
+
+  const userId = parseInt(select.value, 10) || undefined;
+
+  status.textContent =
+    variant === "A"
+      ? "Рассчитываю рекомендации (collaborative)…"
+      : "Рассчитываю рекомендации (content-based)…";
+
+  try {
+    const params = { limit: 10, variant };
+    if (variant === "A" && userId) {
+      params.user_id = userId;
+    }
+    const data = await apiGet("/api/recommendations", params);
+    const recs = data.recommendations || [];
+
+    const lots = recs.map((r) => r.lot);
+    renderLotsOnMap(lots);
+    renderLotsList(listContainerId, lots, (lot) => {
+      map.setView([lot.latitude, lot.longitude], 16);
+    });
+
+    updateAIOracleCard(lots);
+
+    status.textContent = `Вариант ${data.variant}, получено ${recs.length} рекомендаций.`;
+  } catch (err) {
+    console.error(err);
+    status.textContent = "Ошибка получения рекомендаций";
+  }
+}
+
+// ----------------- СТАРТ -----------------
+
+window.addEventListener("DOMContentLoaded", async () => {
+  initMap();
+  await initUsersSelect();
+  await loadAllLots();
+
+  document
+    .getElementById("searchBtn")
+    .addEventListener("click", () => handleSearch());
+
+  document
+    .getElementById("searchInput")
+    .addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        handleSearch();
+      }
+    });
+
+  document.getElementById("recBtn").addEventListener("click", () => {
+    handleRecommendations("A");
+  });
+
+  document
+    .getElementById("recContentBtn")
+    .addEventListener("click", () => {
+      handleRecommendations("B");
+    });
+});
+The indentations look mostly fine, but I’ll check for any inconsistencies with extra spaces.
+
+root@d375caa9e772:/workspace/parkshare_ru_part1# git status -sb
+## work
+ M app.js
+ M index.html
+?? static/css/cinematic-ui.css
+?? static/js/quantum-theme-manager.js
+I'll settle on a commit message: "Add cinematic AI orchestrator UI and quantum theme toggle." I'll confirm my final approach, then include line numbers using nl -ba and reference relevant files for clarity. The PR message will summarize these changes and cite them clearly.
+
+root@d375caa9e772:/workspace/parkshare_ru_part1# nl -ba index.html | sed -n '1,220p'
+     1  <!-- index.html -->
+     2  <!DOCTYPE html>
+     3  <html lang="ru">
+     4  <head>
+     5    <meta charset="UTF-8" />
+     6    <title>ParkShare AI Map</title>
+     7    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+     8
+     9    <!-- Leaflet -->
+    10    <link
+    11      rel="stylesheet"
+    12      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    13      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    14      crossorigin=""
+    15    />
+    16
+    17    <link rel="stylesheet" href="./static/css/cinematic-ui.css" />
+    18
+    19    <style>
+    20      :root {
+    21        --primary: #0d6efd;
+    22        --bg: #050816;
+    23        --bg-card: #111827;
+    24        --text: #e5e7eb;
+    25        --accent: #22c55e;
+    26        --danger: #ef4444;
+    27        --warning: #f59e0b;
+    28      }
+    29
+    30      * {
+    31        box-sizing: border-box;
+    32      }
+    33
+    34      body {
+    35        margin: 0;
+    36        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    37          sans-serif;
+    38        background: radial-gradient(circle at top, #111827, #020617 40%);
+    39        color: var(--text);
+    40        height: 100vh;
+    41        display: flex;
+    42        flex-direction: column;
+    43      }
+    44
+    45      header {
+    46        padding: 0.75rem 1rem;
+    47        display: flex;
+    48        align-items: center;
+    49        justify-content: space-between;
+    50        background: rgba(15, 23, 42, 0.9);
+    51        backdrop-filter: blur(12px);
+    52        border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+    53        z-index: 1000;
+    54        position: sticky;
+    55        top: 0;
+    56      }
+    57
+    58      header h1 {
+    59        font-size: 1.1rem;
+    60        margin: 0;
+    61        display: flex;
+    62        align-items: center;
+    63        gap: 0.4rem;
+    64      }
+    65
+    66      .badge {
+    67        font-size: 0.7rem;
+    68        padding: 0.1rem 0.4rem;
+    69        border-radius: 999px;
+    70        border: 1px solid rgba(148, 163, 184, 0.5);
+    71        text-transform: uppercase;
+    72        letter-spacing: 0.08em;
+    73      }
+    74
+    75      .header-meta {
+    76        display: flex;
+    77        align-items: center;
+    78        gap: 0.75rem;
+    79      }
+    80
+    81      main {
+    82        flex: 1;
+    83        display: grid;
+    84        grid-template-columns: minmax(0, 2.2fr) minmax(0, 1.3fr);
+    85        min-height: 0;
+    86      }
+    87
+    88      #map {
+    89        width: 100%;
+    90        height: 100%;
+    91      }
+    92
+    93      .sidebar {
+    94        border-left: 1px solid rgba(148, 163, 184, 0.2);
+    95        background: radial-gradient(circle at top, #020617, #020617 40%);
+    96        padding: 0.75rem;
+    97        display: flex;
+    98        flex-direction: column;
+    99        gap: 0.75rem;
+   100        min-width: 280px;
+   101        max-width: 480px;
+   102      }
+   103
+   104      .card {
+   105        background: rgba(15, 23, 42, 0.98);
+   106        border-radius: 0.9rem;
+   107        border: 1px solid rgba(148, 163, 184, 0.25);
+   108        padding: 0.75rem 0.8rem;
+   109        box-shadow: 0 18px 45px rgba(15, 23, 42, 0.6);
+   110      }
+   111
+   112      .card-title {
+   113        font-size: 0.9rem;
+   114        font-weight: 600;
+   115        margin-bottom: 0.4rem;
+   116        display: flex;
+   117        align-items: center;
+   118        justify-content: space-between;
+   119      }
+   120
+   121      .input-row {
+   122        display: flex;
+   123        gap: 0.4rem;
+   124        margin-top: 0.3rem;
+   125      }
+   126
+   127      input[type="text"],
+   128      select {
+   129        flex: 1;
+   130        padding: 0.4rem 0.5rem;
+   131        border-radius: 999px;
+   132        border: 1px solid rgba(148, 163, 184, 0.5);
+   133        background: rgba(15, 23, 42, 0.9);
+   134        color: var(--text);
+   135        font-size: 0.85rem;
+   136        outline: none;
+   137      }
+   138
+   139      input::placeholder {
+   140        color: rgba(148, 163, 184, 0.9);
+   141      }
+   142
+   143      button {
+   144        border-radius: 999px;
+   145        border: none;
+   146        padding: 0.45rem 0.9rem;
+   147        font-size: 0.8rem;
+   148        font-weight: 500;
+   149        cursor: pointer;
+   150        background: linear-gradient(135deg, #0ea5e9, #22c55e);
+   151        color: #f9fafb;
+   152        display: inline-flex;
+   153        align-items: center;
+   154        gap: 0.35rem;
+   155        white-space: nowrap;
+   156      }
+   157
+   158      button.secondary {
+   159        background: rgba(15, 23, 42, 0.9);
+   160        border: 1px solid rgba(148, 163, 184, 0.6);
+   161        color: rgba(209, 213, 219, 0.95);
+   162      }
+   163
+   164      .pill {
+   165        font-size: 0.72rem;
+   166        border-radius: 999px;
+   167        padding: 0.16rem 0.5rem;
+   168        border: 1px solid rgba(148, 163, 184, 0.4);
+   169        display: inline-flex;
+   170        align-items: center;
+   171        gap: 0.3rem;
+   172        color: rgba(209, 213, 219, 0.95);
+   173      }
+   174
+   175      .pill-dot {
+   176        width: 0.55rem;
+   177        height: 0.55rem;
+   178        border-radius: 999px;
+   179      }
+   180
+   181      .pill-dot.green {
+   182        background: var(--accent);
+   183      }
+   184      .pill-dot.yellow {
+   185        background: var(--warning);
+   186      }
+   187      .pill-dot.red {
+   188        background: var(--danger);
+   189      }
+   190
+   191      .lots-list {
+   192        max-height: 220px;
+   193        overflow-y: auto;
+   194        margin-top: 0.4rem;
+   195        padding-right: 0.2rem;
+   196      }
+   197
+   198      .lot-item {
+   199        display: flex;
+   200        justify-content: space-between;
+   201        align-items: center;
+   202        padding: 0.4rem 0.2rem;
+   203        border-bottom: 1px solid rgba(31, 41, 55, 0.9);
+   204        cursor: pointer;
+   205      }
+   206
+   207      .lot-item:last-child {
+   208        border-bottom: none;
+   209      }
+   210
+   211      .lot-main {
+   212        display: flex;
+   213        flex-direction: column;
+   214        gap: 0.1rem;
+   215        font-size: 0.75rem;
+   216      }
+   217
+   218      .lot-name {
+   219        font-weight: 500;
+   220        font-size: 0.8rem;
+I need to include lines beyond 220 to capture the new sections.
+
+root@d375caa9e772:/workspace/parkshare_ru_part1# nl -ba index.html | sed -n '220,520p'
+   220        font-size: 0.8rem;
+   221      }
+   222
+   223      .lot-meta {
+   224        display: flex;
+   225        flex-wrap: wrap;
+   226        gap: 0.3rem;
+   227        font-size: 0.7rem;
+   228        color: rgba(156, 163, 175, 0.95);
+   229      }
+   230
+   231      .lot-occ {
+   232        font-size: 0.8rem;
+   233        font-weight: 500;
+   234        min-width: 80px;
+   235        text-align: right;
+   236      }
+   237
+   238      .status {
+   239        font-size: 0.7rem;
+   240        color: rgba(148, 163, 184, 0.9);
+   241        margin-top: 0.3rem;
+   242      }
+   243
+   244      .ai-oracle-chip {
+   245        display: inline-flex;
+   246        align-items: center;
+   247        gap: 0.4rem;
+   248        padding: 0.18rem 0.65rem;
+   249        border-radius: 999px;
+   250        border: 1px solid rgba(59, 130, 246, 0.45);
+   251        background: linear-gradient(120deg, rgba(37, 99, 235, 0.35), rgba(14, 165, 233, 0.15));
+   252        color: #e5edff;
+   253        font-size: 0.75rem;
+   254        letter-spacing: 0.02em;
+   255        box-shadow: 0 12px 30px rgba(37, 99, 235, 0.25);
+   256      }
+   257
+   258      .ai-orchestrator-card {
+   259        position: relative;
+   260        overflow: hidden;
+   261        background: linear-gradient(135deg, rgba(30, 41, 59, 0.92), rgba(17, 24, 39, 0.94));
+   262      }
+   263
+   264      .ai-orchestrator-card .card-title {
+   265        align-items: center;
+   266      }
+   267
+   268      .ai-orchestrator-card .card-title span {
+   269        display: inline-flex;
+   270        align-items: center;
+   271        gap: 0.4rem;
+   272      }
+   273
+   274      .quantum-toggle {
+   275        border: 1px solid rgba(255, 255, 255, 0.12);
+   276        color: #e2e8f0;
+   277        font-weight: 600;
+   278        letter-spacing: 0.01em;
+   279        min-width: 150px;
+   280        justify-content: space-between;
+   281      }
+   282
+   283      .quantum-toggle__dot {
+   284        width: 18px;
+   285        height: 18px;
+   286        border-radius: 50%;
+   287        border: 2px solid rgba(255, 255, 255, 0.7);
+   288        background: radial-gradient(circle at 35% 35%, #38bdf8, #0ea5e9);
+   289        box-shadow: 0 0 20px rgba(56, 189, 248, 0.45);
+   290      }
+   291
+   292      .quantum-toggle__label {
+   293        flex: 1;
+   294        text-align: right;
+   295        font-size: 0.8rem;
+   296      }
+   297
+   298      @media (max-width: 900px) {
+   299        main {
+   300          grid-template-columns: 1fr;
+   301        }
+   302        .sidebar {
+   303          max-width: 100%;
+   304          border-left: none;
+   305          border-top: 1px solid rgba(148, 163, 184, 0.2);
+   306        }
+   307      }
+   308    </style>
+   309  </head>
+   310  <body>
+   311    <header class="cinematic-surface">
+   312      <h1>
+   313        <span>ParkShare AI Map</span>
+   314        <span class="badge">local ML</span>
+   315      </h1>
+   316      <div class="header-meta">
+   317        <div class="ai-crest">
+   318          <span>🧠</span>
+   319          <span class="quantum-toggle__label">AI Orchestrator</span>
+   320        </div>
+   321        <button id="themeToggle" class="quantum-toggle cinematic-button" data-theme="dark">
+   322          <span class="quantum-toggle__dot"></span>
+   323          <span class="quantum-toggle__label">Dark Matter</span>
+   324        </button>
+   325        <div class="pill">
+   326          <span class="pill-dot green"></span>
+   327          <span id="statusText">Подключение к AI-серверу…</span>
+   328        </div>
+   329      </div>
+   330    </header>
+   331
+   332    <main>
+   333      <div id="map"></div>
+   334      <aside class="sidebar">
+   335        <section class="card cinematic-surface ai-orchestrator-card">
+   336          <div class="card-title">
+   337            <span>AI-Оркестратор</span>
+   338            <span class="ai-oracle-chip">Quantum boost</span>
+   339          </div>
+   340          <div class="ai-forecast">
+   341            <div class="ai-forecast-metric">
+   342              <span class="ai-forecast-label">Лучшая ставка</span>
+   343              <span class="ai-forecast-value" id="aiOracleName">—</span>
+   344            </div>
+   345            <div class="ai-forecast-metric">
+   346              <span class="ai-forecast-label">Освободится через</span>
+   347              <span class="ai-forecast-value" id="aiOracleETA">—</span>
+   348            </div>
+   349            <div class="ai-forecast-metric">
+   350              <span class="ai-forecast-label">Уверенность AI</span>
+   351              <span class="ai-forecast-value" id="aiOracleConfidence">—</span>
+   352            </div>
+   353            <div class="ai-forecast-metric">
+   354              <span class="ai-forecast-label">EV/крытая</span>
+   355              <span class="ai-forecast-value" id="aiOracleMeta">—</span>
+   356            </div>
+   357          </div>
+   358          <div class="ai-reasoning" id="aiOracleReason">AI готовит инсайт…</div>
+   359        </section>
+   360        <section class="card">
+   361          <div class="card-title">
+   362            <span>Поиск парковок (NLP)</span>
+   363          </div>
+   364          <div class="input-row">
+   365            <input
+   366              type="text"
+   367              id="searchInput"
+   368              placeholder='Например: "рядом с метро", "дешевые утром"'
+   369            />
+   370            <button id="searchBtn">Искать</button>
+   371          </div>
+   372          <div class="status" id="searchStatus">Запрос еще не выполнен.</div>
+   373        </section>
+   374
+   375        <section class="card">
+   376          <div class="card-title">
+   377            <span>Рекомендации (коллаб. фильтрация)</span>
+   378            <select id="userSelect"></select>
+   379          </div>
+   380          <div class="input-row">
+   381            <button id="recBtn">Получить рекомендации</button>
+   382            <button id="recContentBtn" class="secondary">Вариант B (content)</button>
+   383          </div>
+   384          <div class="status" id="recStatus">Нет рекомендаций.</div>
+   385          <div class="lots-list" id="recList"></div>
+   386        </section>
+   387
+   388        <section class="card">
+   389          <div class="card-title">
+   390            <span>Все парковки</span>
+   391          </div>
+   392          <div class="lots-list" id="lotsList"></div>
+   393        </section>
+   394      </aside>
+   395    </main>
+   396
+   397    <script
+   398      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+   399      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+   400      crossorigin=""
+   401    ></script>
+   402    <script src="./static/js/quantum-theme-manager.js"></script>
+   403    <script src="app.js"></script>
+   404    <script>
+   405      // Запускаем квантовый менеджер темы, чтобы анимации и эмоции были синхронизированы.
+   406      window.psThemeManager = window.initQuantumThemeManager();
+   407    </script>
+   408  </body>
+   409  </html>
+I'll grab the line numbers for the new CSS file using nl -ba.
+
+root@d375caa9e772:/workspace/parkshare_ru_part1# nl -ba static/css/cinematic-ui.css | sed -n '1,220p'
+     1  :root {
+     2    --cinematic-glow: radial-gradient(circle at center,
+     3        rgba(100, 200, 255, 0.4) 0%,
+     4        transparent 70%);
+     5    --hologram-effect: linear-gradient(45deg,
+     6        transparent 30%,
+     7        rgba(255, 255, 255, 0.1) 50%,
+     8        transparent 70%);
+     9    --quantum-shadow: 0 0 40px rgba(100, 200, 255, 0.3),
+    10        0 0 80px rgba(100, 200, 255, 0.2),
+    11        0 0 120px rgba(100, 200, 255, 0.1);
+    12    --hologram-glow: rgba(0, 255, 255, 0.8);
+    13  }
+    14
+    15  @property --hologram-glow {
+    16    syntax: '<color>';
+    17    inherits: false;
+    18    initial-value: rgba(0, 255, 255, 0.8);
+    19  }
+    20
+    21  .cinematic-surface {
+    22    position: relative;
+    23    overflow: hidden;
+    24    background: linear-gradient(135deg, rgba(12, 19, 39, 0.9), rgba(6, 11, 25, 0.9));
+    25    border: 1px solid rgba(255, 255, 255, 0.04);
+    26    box-shadow: 0 18px 60px rgba(0, 0, 0, 0.55), var(--quantum-shadow);
+    27  }
+    28
+    29  .cinematic-surface::before {
+    30    content: "";
+    31    position: absolute;
+    32    inset: -1px;
+    33    background: var(--cinematic-glow);
+    34    filter: blur(38px);
+    35    opacity: 0.55;
+    36    pointer-events: none;
+    37  }
+    38
+    39  .cinematic-surface::after {
+    40    content: "";
+    41    position: absolute;
+    42    inset: 0;
+    43    background: var(--hologram-effect);
+    44    opacity: 0.35;
+    45    mix-blend-mode: screen;
+    46    pointer-events: none;
+    47  }
+    48
+    49  .cinematic-button,
+    50  .quantum-toggle {
+    51    background: radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.35), rgba(14, 165, 233, 0.12));
+    52    box-shadow: 0 10px 30px rgba(14, 165, 233, 0.35), 0 20px 60px rgba(6, 182, 212, 0.25);
+    53    border: 1px solid rgba(255, 255, 255, 0.08);
+    54    color: #e0f2fe;
+    55    padding: 0.5rem 0.9rem;
+    56    border-radius: 999px;
+    57    display: inline-flex;
+    58    align-items: center;
+    59    gap: 0.4rem;
+    60    cursor: pointer;
+    61    position: relative;
+    62    overflow: hidden;
+    63  }
+    64
+    65  .cinematic-button::after,
+    66  .quantum-toggle::after {
+    67    content: "";
+    68    position: absolute;
+    69    inset: 0;
+    70    background: linear-gradient(120deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0));
+    71    opacity: 0;
+    72    transition: opacity 0.35s ease;
+    73  }
+    74
+    75  .cinematic-button:hover::after,
+    76  .quantum-toggle:hover::after {
+    77    opacity: 1;
+    78  }
+    79
+    80  .cinematic-marker {
+    81    animation: hologram-float 3s ease-in-out infinite;
+    82    filter: drop-shadow(0 0 20px var(--hologram-glow));
+    83  }
+    84
+    85  .quantum-pulse {
+    86    position: absolute;
+    87    inset: 0;
+    88    pointer-events: none;
+    89    border-radius: inherit;
+    90    background: radial-gradient(circle at 50% 45%, rgba(56, 189, 248, 0.15), transparent 60%);
+    91    animation: quantum-breathe 6s ease-in-out infinite;
+    92  }
+    93
+    94  .ai-forecast {
+    95    display: grid;
+    96    grid-template-columns: repeat(2, minmax(0, 1fr));
+    97    gap: 0.5rem;
+    98    margin-top: 0.35rem;
+    99  }
+   100
+   101  .ai-forecast-metric {
+   102    padding: 0.55rem 0.65rem;
+   103    border-radius: 0.75rem;
+   104    border: 1px solid rgba(59, 130, 246, 0.2);
+   105    background: rgba(15, 23, 42, 0.8);
+   106    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+   107  }
+   108
+   109  .ai-forecast-label {
+   110    font-size: 0.7rem;
+   111    color: #cbd5e1;
+   112    display: block;
+   113    margin-bottom: 0.15rem;
+   114  }
+   115
+   116  .ai-forecast-value {
+   117    font-weight: 700;
+   118    font-size: 0.95rem;
+   119    letter-spacing: 0.01em;
+   120  }
+   121
+   122  .ai-reasoning {
+   123    margin-top: 0.5rem;
+   124    padding: 0.55rem 0.6rem;
+   125    border-radius: 0.75rem;
+   126    border: 1px dashed rgba(255, 255, 255, 0.16);
+   127    color: #e2e8f0;
+   128    background: rgba(79, 70, 229, 0.08);
+   129  }
+   130
+   131  @keyframes hologram-float {
+   132    0% { transform: translateY(0); }
+   133    50% { transform: translateY(-4px); }
+   134    100% { transform: translateY(0); }
+   135  }
+   136
+   137  @keyframes quantum-breathe {
+   138    0% { opacity: 0.2; }
+   139    50% { opacity: 0.55; }
+   140    100% { opacity: 0.2; }
+   141  }
+   142
+   143  [data-quantum-theme="dark"] body,
+   144  body[data-quantum-theme="dark"] {
+   145    background: radial-gradient(circle at top left, #0b1224 0%, #030712 45%, #01030a 100%);
+   146  }
+   147
+   148  [data-quantum-theme="light"] body,
+   149  body[data-quantum-theme="light"] {
+   150    background: radial-gradient(circle at top left, #f8fafc 0%, #e2e8f0 40%, #cbd5e1 100%);
+   151    color: #0f172a;
+   152  }
+   153
+   154  .ai-crest {
+   155    display: inline-flex;
+   156    align-items: center;
+   157    gap: 0.35rem;
+   158    padding: 0.35rem 0.8rem;
+   159    border-radius: 999px;
+   160    border: 1px solid rgba(255, 255, 255, 0.14);
+   161    background: linear-gradient(135deg, rgba(59, 130, 246, 0.18), rgba(16, 185, 129, 0.16));
+   162    box-shadow: 0 18px 45px rgba(15, 23, 42, 0.5);
+   163  }
+I'll grab the line ranges for the JS quantum theme.
+
+root@d375caa9e772:/workspace/parkshare_ru_part1# nl -ba static/js/quantum-theme-manager.js
+     1  class QuantumThemeManager {
+     2    constructor(options = {}) {
+     3      this.themes = options.themes || {
+     4        dark: {
+     5          map: "dark",
+     6          css: "dark",
+     7          effects: "hologram-dark",
+     8          emotion: "calm",
+     9        },
+    10        light: {
+    11          map: "standard",
+    12          css: "light",
+    13          effects: "hologram-light",
+    14          emotion: "energetic",
+    15        },
+    16      };
+    17      this.currentTheme = "dark";
+    18      this.root = options.root || document.documentElement;
+    19    }
+    20
+    21    async switchTheme(theme) {
+    22      const config = this.themes[theme];
+    23      if (!config) return;
+    24
+    25      this.currentTheme = theme;
+    26      const tasks = [
+    27        this.switchCSSTheme(config.css),
+    28        this.switchEmotionalMode(config.emotion),
+    29        this.switchCinematicEffects(config.effects),
+    30      ];
+    31
+    32      await Promise.all(tasks);
+    33      this.triggerThemeTransitionAnimation();
+    34    }
+    35
+    36    switchCSSTheme(css) {
+    37      this.root.dataset.quantumTheme = css;
+    38      document.body.dataset.quantumTheme = css;
+    39      return Promise.resolve();
+    40    }
+    41
+    42    switchEmotionalMode(emotion) {
+    43      document.body.dataset.emotion = emotion;
+    44      return Promise.resolve();
+    45    }
+    46
+    47    switchCinematicEffects(effects) {
+    48      document.body.dataset.cinematic = effects;
+    49      return Promise.resolve();
+    50    }
+    51
+    52    triggerThemeTransitionAnimation() {
+    53      const flash = document.createElement("div");
+    54      flash.className = "quantum-pulse";
+    55      document.body.appendChild(flash);
+    56      setTimeout(() => flash.remove(), 800);
+    57    }
+    58
+    59    bindToggle(buttonId) {
+    60      const btn = document.getElementById(buttonId);
+    61      if (!btn) return;
+    62
+    63      btn.addEventListener("click", () => {
+    64        const next = this.currentTheme === "dark" ? "light" : "dark";
+    65        btn.dataset.theme = next;
+    66        const label = btn.querySelector(".quantum-toggle__label");
+    67        if (label) {
+    68          label.textContent = next === "dark" ? "Dark Matter" : "Photon";
+    69        }
+    70        this.switchTheme(next);
+    71      });
+    72    }
+    73  }
+    74
+    75  window.initQuantumThemeManager = function initQuantumThemeManager() {
+    76    const manager = new QuantumThemeManager();
+    77    manager.bindToggle("themeToggle");
+    78    manager.switchTheme("dark");
+    79    return manager;
+    80  };
+I'll grab the line numbers for app.js and focus on new functions.
+
+root@d375caa9e772:/workspace/parkshare_ru_part1# nl -ba app.js | sed -n '1,220p'
+     1  // app.js
+     2
+     3  // Базовый URL FastAPI-сервера
+     4  // Если сервер крутится на другом порту/домене — поправь здесь.
+     5  const API_BASE = "http://localhost:8001";
+     6
+     7  let map;
+     8  let markersLayer;
+     9  let lotsCache = [];
+    10  let lotsById = new Map();
+    11
+    12  function pickBestLot(lots) {
+    13    if (!lots || lots.length === 0) return null;
+    14    const ranked = [...lots].sort((a, b) => {
+    15      const occA = a.predicted_occupancy ?? 1;
+    16      const occB = b.predicted_occupancy ?? 1;
+    17      return occA - occB;
+    18    });
+    19    return ranked[0];
+    20  }
+    21
+    22  function updateAIOracleCard(lots) {
+    23    const nameEl = document.getElementById("aiOracleName");
+    24    const etaEl = document.getElementById("aiOracleETA");
+    25    const confEl = document.getElementById("aiOracleConfidence");
+    26    const metaEl = document.getElementById("aiOracleMeta");
+    27    const reasoningEl = document.getElementById("aiOracleReason");
+    28
+    29    if (!nameEl || !etaEl || !confEl || !metaEl || !reasoningEl) return;
+    30
+    31    if (!lots || lots.length === 0) {
+    32      nameEl.textContent = "—";
+    33      etaEl.textContent = "—";
+    34      confEl.textContent = "—";
+    35      metaEl.textContent = "—";
+    36      reasoningEl.textContent = "AI готовит инсайт…";
+    37      return;
+    38    }
+    39
+    40    const bestLot = pickBestLot(lots);
+    41    if (!bestLot) return;
+    42
+    43    const occ = bestLot.predicted_occupancy ?? 0;
+    44    const occPercent = Math.round(occ * 100);
+    45    const eta = Math.max(2, Math.min(15, Math.round((1 - occ) * 12)));
+    46    const confidence = Math.max(68, Math.min(99, 96 - Math.round(occPercent / 2)));
+    47    const ev = bestLot.has_ev_charging ? "EV" : "обычная";
+    48    const covered = bestLot.has_covered ? "крытая" : "открытая";
+    49
+    50    nameEl.textContent = bestLot.name;
+    51    etaEl.textContent = `${eta} мин`;
+    52    confEl.textContent = `${confidence}%`;
+    53    metaEl.textContent = `${ev} · ${covered}`;
+    54    reasoningEl.textContent =
+    55      "Учитывая вашу историю: быстрый выезд, EV и близость к метро — этот слот даст наивысший WOW-эффект.";
+    56  }
+    57
+    58  // ----------------- ИНИЦИАЛИЗАЦИЯ КАРТЫ -----------------
+    59
+    60  function occupancyColor(value) {
+    61    if (value <= 0.4) return "#22c55e"; // green
+    62    if (value <= 0.7) return "#eab308"; // yellow
+    63    return "#ef4444"; // red
+    64  }
+    65
+    66  function initMap() {
+    67    map = L.map("map", {
+    68      zoomControl: true,
+    69      attributionControl: false,
+    70    }).setView([55.7558, 37.6173], 12);
+    71
+    72    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    73      maxZoom: 19,
+    74    }).addTo(map);
+    75
+    76    markersLayer = L.layerGroup().addTo(map);
+    77  }
+    78
+    79  // ----------------- API HELPERS -----------------
+    80
+    81  async function apiGet(path, params = {}) {
+    82    const url = new URL(API_BASE + path);
+    83    Object.entries(params).forEach(([k, v]) => {
+    84      if (v !== undefined && v !== null) {
+    85        url.searchParams.set(k, v);
+    86      }
+    87    });
+    88
+    89    const res = await fetch(url.toString());
+    90    if (!res.ok) {
+    91      const text = await res.text();
+    92      throw new Error(`API error ${res.status}: ${text}`);
+    93    }
+    94    return res.json();
+    95  }
+    96
+    97  // ----------------- ОТРИСОВКА ЛОТОВ -----------------
+    98
+    99  function renderLotsOnMap(lots) {
+   100    markersLayer.clearLayers();
+   101
+   102    lots.forEach((lot) => {
+   103      const occ = lot.predicted_occupancy ?? 0;
+   104      const color = occupancyColor(occ);
+   105
+   106      const marker = L.circleMarker([lot.latitude, lot.longitude], {
+   107        radius: 8,
+   108        fillColor: color,
+   109        fillOpacity: 0.9,
+   110        color: "#020617",
+   111        weight: 1,
+   112      });
+   113
+   114      const occPercent = Math.round(occ * 100);
+   115
+   116      const html = `
+   117        <div style="font-size: 12px;">
+   118          <strong>${lot.name}</strong><br />
+   119          Загрузка: <strong>${occPercent}%</strong><br />
+   120          Метро: ${lot.near_metro ? "рядом" : "нет"}<br />
+   121          Уровень цены: ${lot.price_level}<br />
+   122          Крытая: ${lot.has_covered ? "да" : "нет"}<br />
+   123          Зарядка EV: ${lot.has_ev_charging ? "есть" : "нет"}
+   124        </div>
+   125      `;
+   126
+   127      marker.bindPopup(html);
+   128      marker.addTo(markersLayer);
+   129    });
+   130
+   131    if (lots.length > 0) {
+   132      const bounds = L.latLngBounds(
+   133        lots.map((lot) => [lot.latitude, lot.longitude])
+   134      );
+   135      map.fitBounds(bounds.pad(0.2));
+   136    }
+   137  }
+   138
+   139  function renderLotsList(containerId, lots, clickHandler) {
+   140    const container = document.getElementById(containerId);
+   141    container.innerHTML = "";
+   142
+   143    if (!lots || lots.length === 0) {
+   144      container.innerHTML =
+   145        '<div style="font-size: 0.75rem; color: #6b7280;">Нет данных.</div>';
+   146      return;
+   147    }
+   148
+   149    lots.forEach((lot) => {
+   150      const occ = lot.predicted_occupancy ?? 0;
+   151      const occPercent = Math.round(occ * 100);
+   152
+   153      const div = document.createElement("div");
+   154      div.className = "lot-item";
+   155      div.innerHTML = `
+   156        <div class="lot-main">
+   157          <div class="lot-name">${lot.name}</div>
+   158          <div class="lot-meta">
+   159            <span>Цена: L${lot.price_level}</span>
+   160            <span>Метро: ${lot.near_metro ? "рядом" : "нет"}</span>
+   161            <span>EV: ${lot.has_ev_charging ? "есть" : "нет"}</span>
+   162            <span>Крытая: ${lot.has_covered ? "да" : "нет"}</span>
+   163          </div>
+   164        </div>
+   165        <div class="lot-occ">${occPercent}%</div>
+   166      `;
+   167
+   168      div.addEventListener("click", () => clickHandler(lot));
+   169      container.appendChild(div);
+   170    });
+   171  }
+   172
+   173  // ----------------- ЛОГИКА UI -----------------
+   174
+   175  async function loadAllLots() {
+   176    const status = document.getElementById("statusText");
+   177    try {
+   178      const lots = await apiGet("/api/lots");
+   179      lotsCache = lots;
+   180      lotsById.clear();
+   181      lots.forEach((lot) => lotsById.set(lot.id, lot));
+   182
+   183      renderLotsOnMap(lots);
+   184      renderLotsList("lotsList", lots, (lot) => {
+   185        map.setView([lot.latitude, lot.longitude], 16);
+   186      });
+   187
+   188      updateAIOracleCard(lots);
+   189
+   190      status.textContent = "AI-сервер подключён";
+   191    } catch (err) {
+   192      console.error(err);
+   193      status.textContent = "Ошибка подключения к AI-серверу";
+   194    }
+   195  }
+   196
+   197  async function handleSearch() {
+   198    const input = document.getElementById("searchInput");
+   199    const status = document.getElementById("searchStatus");
+   200    const text = input.value.trim();
+   201    if (!text) return;
+   202
+   203    status.textContent = "Обрабатываю запрос (локальный NLP)…";
+   204
+   205    try {
+   206      const data = await apiGet("/api/search", { query: text });
+   207      const lots = data.lots || [];
+   208
+   209      renderLotsOnMap(lots);
+   210      renderLotsList("lotsList", lots, (lot) => {
+   211        map.setView([lot.latitude, lot.longitude], 16);
+   212      });
+   213
+   214      updateAIOracleCard(lots);
+   215
+   216      const parts = [];
+   217      parts.push(`Интент: ${data.intent}`);
+   218      if (data.near_metro !== null) {
+   219        parts.push(`рядом с метро: ${data.near_metro ? "да" : "нет"}`);
+   220      }
+root@d375caa9e772:/workspace/parkshare_ru_part1# nl -ba app.js | sed -n '220,440p'
+   220      }
+   221      if (data.max_price_level !== null) {
+   222        parts.push(`макс. уровень цены: L${data.max_price_level}`);
+   223      }
+   224      if (data.has_ev_charging !== null) {
+   225        parts.push(`EV: ${data.has_ev_charging ? "нужна" : "не нужна"}`);
+   226      }
+   227      if (data.has_covered !== null) {
+   228        parts.push(`крытая: ${data.has_covered ? "нужна" : "не нужна"}`);
+   229      }
+   230      if (data.time_of_day) {
+   231        parts.push(`время суток: ${data.time_of_day}`);
+   232      }
+   233      status.textContent = parts.join(" · ") || "Фильтры не распознаны.";
+   234    } catch (err) {
+   235      console.error(err);
+   236      status.textContent = "Ошибка обработки запроса";
+   237    }
+   238  }
+   239
+   240  async function initUsersSelect() {
+   241    const select = document.getElementById("userSelect");
+   242    // Пользователи не отдаются API, но user_id есть в тренировочных данных.
+   243    // Для демо предположим, что есть пользователи с id 1..20.
+   244    for (let i = 1; i <= 20; i++) {
+   245      const opt = document.createElement("option");
+   246      opt.value = String(i);
+   247      opt.textContent = `Пользователь #${i}`;
+   248      select.appendChild(opt);
+   249    }
+   250  }
+   251
+   252  async function handleRecommendations(variant) {
+   253    const select = document.getElementById("userSelect");
+   254    const status = document.getElementById("recStatus");
+   255    const listContainerId = "recList";
+   256
+   257    const userId = parseInt(select.value, 10) || undefined;
+   258
+   259    status.textContent =
+   260      variant === "A"
+   261        ? "Рассчитываю рекомендации (collaborative)…"
+   262        : "Рассчитываю рекомендации (content-based)…";
+   263
+   264    try {
+   265      const params = { limit: 10, variant };
+   266      if (variant === "A" && userId) {
+   267        params.user_id = userId;
+   268      }
+   269      const data = await apiGet("/api/recommendations", params);
+   270      const recs = data.recommendations || [];
+   271
+   272      const lots = recs.map((r) => r.lot);
+   273      renderLotsOnMap(lots);
+   274      renderLotsList(listContainerId, lots, (lot) => {
+   275        map.setView([lot.latitude, lot.longitude], 16);
+   276      });
+   277
+   278      updateAIOracleCard(lots);
+   279
+   280      status.textContent = `Вариант ${data.variant}, получено ${recs.length} рекомендаций.`;
+   281    } catch (err) {
+   282      console.error(err);
+   283      status.textContent = "Ошибка получения рекомендаций";
+   284    }
+   285  }
+   286
+   287  // ----------------- СТАРТ -----------------
+   288
+   289  window.addEventListener("DOMContentLoaded", async () => {
+   290    initMap();
+   291    await initUsersSelect();
+   292    await loadAllLots();
+   293
+   294    document
+   295      .getElementById("searchBtn")
+   296      .addEventListener("click", () => handleSearch());
+   297
+   298    document
+   299      .getElementById("searchInput")
+   300      .addEventListener("keydown", (e) => {
+   301        if (e.key === "Enter") {
+   302          handleSearch();
+   303        }
+   304      });
+   305
+   306    document.getElementById("recBtn").addEventListener("click", () => {
+   307      handleRecommendations("A");
+   308    });
+   309
+   310    document
+   311      .getElementById("recContentBtn")
+   312      .addEventListener("click", () => {
+   313        handleRecommendations("B");
+   314      });
+   315  });
+I’ll need to stage new files with 'git add' before committing, and I'll mention skipping tests.
+
+root@d375caa9e772:/workspace/parkshare_ru_part1# git add app.js index.html static/css/cinematic-ui.css static/js/quantum-theme-m
+anager.js
+I'll use a message like "Add cinematic UI and quantum theming," checking status first.
+
+root@d375caa9e772:/workspace/parkshare_ru_part1# git status -sb
+## work
+M  app.js
+M  index.html
+A  static/css/cinematic-ui.css
+A  static/js/quantum-theme-manager.js
+Time to commit the changes with my message, no additional instructions needed.
+
+root@d375caa9e772:/workspace/parkshare_ru_part1# git commit -m "Add cinematic AI orchestrator UI and theme toggle"
+[work f317a935] Add cinematic AI orchestrator UI and theme toggle
+ 4 files changed, 403 insertions(+), 4 deletions(-)
+ create mode 100644 static/css/cinematic-ui.css
+ create mode 100644 static/js/quantum-theme-manager.js
+I'll compose the PR title and body, summarizing the changes. I'll use make_pr.
+
+I need to structure my final summary: overview, testing details, and citations per requested format.
+
+I'll narrow the ranges to 311-407 for the header, card, and script in the index.
