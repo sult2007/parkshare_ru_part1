@@ -102,7 +102,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = "backend.config.urls"
+ROOT_URLCONF = "backend.backend.config.urls"
 
 TEMPLATES = [
     {
@@ -122,8 +122,8 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "backend.config.wsgi.application"
-ASGI_APPLICATION = "backend.config.asgi.application"
+WSGI_APPLICATION = "backend.backend.config.wsgi.application"
+ASGI_APPLICATION = "backend.backend.config.asgi.application"
 
 # ---------------------------------------------------------------------------
 # Базы данных
