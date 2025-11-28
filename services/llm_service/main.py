@@ -19,16 +19,17 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     """Конфигурация сервиса, читаемая из переменных окружения."""
 
-    openai_api_key: str = Field(..., env="OPENAI_API_KEY")
-    openai_base_url: str = Field(
-        "https://api.openai.com/v1",
-        env="OPENAI_BASE_URL",
+    openai_api_key: str = ""
+    openai_base_url: str = "https://api.openai.com/v1"
+    openai_model: str = "gpt-3.5-turbo"
+    request_timeout: float = 30.0
+
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        env_prefix="",  # Добавь эту строку
+        case_sensitive=False
     )
-    openai_model: str = Field("gpt-3.5-turbo", env="OPENAI_MODEL")
-    request_timeout: float = Field(30.0, env="LLM_REQUEST_TIMEOUT")
-
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
-
 
 @runtime_checkable
 class LLMClient(Protocol):
@@ -198,3 +199,9 @@ async def parse_search_query_endpoint(
             status_code=status.HTTP_502_BAD_GATEWAY,
             detail=f"LLM returned invalid payload: {exc}",
         ) from exc
+
+# Добавь эти строки в самый конец файла:
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8002)
