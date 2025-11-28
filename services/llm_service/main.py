@@ -22,13 +22,18 @@ from typing import Any, Dict, List, Optional
 from fastapi import Depends, FastAPI, HTTPException, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, Field, ValidationError, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 try:  # lightweight optional cache backend
     from cachetools import TTLCache
 except Exception:  # pragma: no cover - fallback when dependency is absent
     TTLCache = None  # type: ignore
+
+try:  # optional Redis cache
+    from redis import asyncio as aioredis
+except Exception:  # pragma: no cover - optional dependency already in requirements
+    aioredis = None  # type: ignore
 
 try:
     from aiolimiter import AsyncLimiter
@@ -63,11 +68,14 @@ class Settings(BaseSettings):
     fallback_models: list[str] = ["gpt-4o-mini"]
 
     # Service features
+    cache_enabled: bool = True
+    cache_url: str | None = None
     cache_ttl_seconds: int = 30
     cache_size: int = 128
     max_history_messages: int = 16
     history_ttl_seconds: int = 3600
     requests_per_minute: int = 60
+    rate_limit: str | None = None
     request_timeout: float = 20.0
 
     model_config = SettingsConfigDict(
@@ -77,6 +85,41 @@ class Settings(BaseSettings):
         case_sensitive=False,
         extra="ignore",
     )
+
+    @field_validator("fallback_models", mode="before")
+    @classmethod
+    def _parse_fallbacks(cls, value):
+        """Позволяет передавать список в виде JSON или через запятую."""
+
+        if value is None:
+            return []
+        if isinstance(value, list):
+            return value
+        if isinstance(value, str):
+            text = value.strip()
+            # Попробуем JSON
+            try:
+                parsed = json.loads(text)
+                if isinstance(parsed, list):
+                    return parsed
+            except Exception:
+                pass
+            return [item.strip() for item in text.split(",") if item.strip()]
+        return [str(value)]
+
+    @field_validator("requests_per_minute", mode="before")
+    @classmethod
+    def _parse_rate_limit(cls, value, info):
+        rate_limit_value = info.data.get("rate_limit")
+        if rate_limit_value and isinstance(rate_limit_value, str) and "/" in rate_limit_value:
+            try:
+                count, window = rate_limit_value.split("/", 1)
+                if window.lower() in {"m", "min", "minute", "hour"}:
+                    divisor = 60 if window.lower().startswith("m") else 1
+                    return int(int(count) / divisor)
+            except Exception:
+                pass
+        return value
 
 
 class ChatMessage(BaseModel):
@@ -150,7 +193,15 @@ class RateLimiter:
             self.events.append(now)
 
 
-class MemoryCache:
+class BaseCache:
+    async def get(self, key: str) -> Any:  # pragma: no cover - interface
+        raise NotImplementedError
+
+    async def set(self, key: str, value: Any) -> None:  # pragma: no cover - interface
+        raise NotImplementedError
+
+
+class MemoryCache(BaseCache):
     """TTL cache wrapper with graceful fallback."""
 
     def __init__(self, size: int, ttl: int) -> None:
@@ -160,7 +211,7 @@ class MemoryCache:
             self._cache: Dict[str, tuple[float, Any]] = {}
             self.ttl = ttl
 
-    def get(self, key: str) -> Any:
+    async def get(self, key: str) -> Any:
         if TTLCache:
             return self._cache.get(key)
         value = self._cache.get(key)
@@ -172,11 +223,34 @@ class MemoryCache:
             return None
         return payload
 
-    def set(self, key: str, value: Any) -> None:
+    async def set(self, key: str, value: Any) -> None:
         if TTLCache:
             self._cache[key] = value
         else:
             self._cache[key] = (time.time() + self.ttl, value)
+
+
+class RedisCache(BaseCache):
+    """Redis-based cache for shared workers."""
+
+    def __init__(self, url: str, ttl: int) -> None:
+        if not aioredis:
+            raise RuntimeError("redis asyncio client is required for Redis cache")
+        self.client = aioredis.from_url(url)
+        self.ttl = ttl
+
+    async def get(self, key: str) -> Any:
+        raw = await self.client.get(key)
+        if not raw:
+            return None
+        try:
+            return json.loads(raw)
+        except Exception:
+            return None
+
+    async def set(self, key: str, value: Any) -> None:
+        payload = json.dumps(value, default=str)
+        await self.client.set(key, payload, ex=self.ttl)
 
 
 class ConversationMemory:
@@ -214,7 +288,12 @@ def get_rate_limiter(settings: Settings = Depends(get_settings)) -> RateLimiter:
 
 
 @lru_cache(maxsize=1)
-def get_cache(settings: Settings = Depends(get_settings)) -> MemoryCache:
+def get_cache(settings: Settings = Depends(get_settings)) -> BaseCache:
+    if settings.cache_enabled and settings.cache_url and aioredis:
+        try:
+            return RedisCache(settings.cache_url, settings.cache_ttl_seconds)
+        except Exception:
+            logger.warning("Redis cache недоступен, переключаемся на память")
     return MemoryCache(settings.cache_size, settings.cache_ttl_seconds)
 
 
@@ -354,16 +433,19 @@ async def list_models(settings: Settings = Depends(get_settings)) -> dict[str, A
 async def chat_completions(
     payload: ChatCompletionRequest,
     settings: Settings = Depends(get_settings),
-    cache: MemoryCache = Depends(get_cache),
+    cache: BaseCache = Depends(get_cache),
     history: ConversationMemory = Depends(get_history),
     limiter_dep: RateLimiter = Depends(get_rate_limiter),
 ) -> ChatCompletionResponse:
     await limiter_dep.acquire()
     payload = await _with_history(payload, history)
     cache_key = _cache_key(payload)
-    cached = cache.get(cache_key)
+    cached = await cache.get(cache_key)
     if cached:
-        return cached
+        try:
+            return ChatCompletionResponse.model_validate(cached)
+        except Exception:
+            pass
 
     models_chain = [payload.model or settings.default_model, *settings.fallback_models]
     last_error: Optional[Exception] = None
@@ -371,7 +453,7 @@ async def chat_completions(
         try:
             provider_payload = await _call_litellm(model, payload, settings)
             response = await _make_response(provider_payload, model, payload.conversation_id, history)
-            cache.set(cache_key, response)
+            await cache.set(cache_key, response.model_dump())
             return response
         except HTTPException as exc:
             last_error = exc

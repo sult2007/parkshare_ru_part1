@@ -26,3 +26,4 @@ aiolimiter==1.1.0
 # AI‑микросервисы (ParkMate AI)
 fastapi
 uvicorn[standard]==0.32.1
+colorama==0.4.6

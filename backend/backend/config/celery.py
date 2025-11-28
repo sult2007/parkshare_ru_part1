@@ -9,9 +9,10 @@ from celery import Celery
 
 # Устанавливаем DJANGO_SETTINGS_MODULE до импорта Django.
 settings_module = os.environ.get("DJANGO_SETTINGS_MODULE")
-if not settings_module:
+if not settings_module or settings_module.startswith("backend.settings"):
     # Позволяет запускать Celery локально без эксплицитного экспорта переменной.
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "backend.settings.local")
+    # Путь backend.settings.* больше не существует — используем полный путь пакета.
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "backend.backend.settings.local")
 
 # Создаём Celery-приложение, конфигурацию читаем из Django settings с префиксом CELERY_.
 app = Celery("backend")

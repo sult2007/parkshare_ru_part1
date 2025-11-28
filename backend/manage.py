@@ -24,7 +24,9 @@ def main() -> None:
         sys.path.insert(0, project_root_str)
 
     # Если переменная окружения не задана – по умолчанию используем dev-настройки
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "backend.settings.local")
+    # Обязательно полный путь "backend.backend.settings.*", иначе Celery/uvicorn
+    # падают с ModuleNotFoundError: backend.settings
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "backend.backend.settings.local")
 
     try:
         from django.core.management import execute_from_command_line

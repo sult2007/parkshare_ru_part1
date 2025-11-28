@@ -10,11 +10,28 @@ import subprocess
 import signal
 import threading
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Tuple
+
+try:
+    from colorama import Fore, Style, init as colorama_init
+except ImportError:  # pragma: no cover - dev helper
+    Fore = Style = None
+
+    def colorama_init():
+        return None
+
+
+colorama_init()
 
 # Добавляем корень проекта в Python path
 project_root = Path(__file__).parent
 sys.path.insert(0, str(project_root))
+
+
+def _color(msg: str, color: Optional[str]) -> str:
+    if not color or not Fore:
+        return msg
+    return f"{color}{msg}{Style.RESET_ALL if Style else ''}"
 
 
 def run_command(command, cwd=None, shell=False, env=None):
@@ -22,7 +39,7 @@ def run_command(command, cwd=None, shell=False, env=None):
     if env is None:
         env = os.environ.copy()
 
-    print(f"🚀 Запуск: {command}")
+    print(_color(f"🚀 Запуск: {command}", Fore.CYAN if Fore else None))
     process = subprocess.Popen(
         command,
         cwd=cwd or project_root,
@@ -45,7 +62,7 @@ def log_output(process, name):
             if output == '' and process.poll() is not None:
                 break
             if output:
-                print(f"[{name}] {output.strip()}")
+                print(_color(f"[{name}] {output.strip()}", Fore.WHITE if Fore else None))
         process.poll()
 
     thread = threading.Thread(target=log_thread)
@@ -58,7 +75,7 @@ def setup_environment():
     """Настраивает окружение для разработки"""
     env = os.environ.copy()
     env['PYTHONPATH'] = str(project_root)
-    env['DJANGO_SETTINGS_MODULE'] = env.get('DJANGO_SETTINGS_MODULE', 'backend.settings.local')
+    env['DJANGO_SETTINGS_MODULE'] = env.get('DJANGO_SETTINGS_MODULE', 'backend.backend.settings.local')
     env['DEBUG'] = env.get('DEBUG', '1')
     return env
 
@@ -148,7 +165,7 @@ def start_celery_worker(env: Optional[dict] = None):
 
     return run_command([
         sys.executable, "-m", "celery",
-        "-A", "backend.backend.config",
+        "-A", "backend.backend.config.celery",
         "worker",
         "--loglevel=info",
         "--concurrency=2"
@@ -163,7 +180,7 @@ def start_celery_beat(env: Optional[dict] = None):
 
     return run_command([
         sys.executable, "-m", "celery",
-        "-A", "backend.backend.config",
+        "-A", "backend.backend.config.celery",
         "beat",
         "--loglevel=info"
     ], env=env)
@@ -199,17 +216,35 @@ def check_dependencies():
     print("🔍 Проверка зависимостей...")
 
     try:
-        import django
-        import fastapi
-        import uvicorn
-        import celery
-        import redis
-        print("✅ Все зависимости установлены")
-        return True
+        import django  # noqa: F401
+        import fastapi  # noqa: F401
+        import uvicorn  # noqa: F401
+        import celery  # noqa: F401
+        import redis  # noqa: F401
     except ImportError as e:
         print(f"❌ Отсутствует зависимость: {e}")
         print("Установите зависимости: pip install -r requirements.txt")
         return False
+
+    # Проверяем доступность Redis для Celery/кэшей
+    import socket
+
+    redis_url = os.environ.get("REDIS_URL", "redis://localhost:6379/0")
+    try:
+        host_port = redis_url.split("//", 1)[-1].split("/", 1)[0]
+        host, port = host_port.split(":")
+        with socket.create_connection((host, int(port)), timeout=2):
+            print("✅ Redis доступен")
+    except Exception as exc:
+        print(f"⚠️  Redis недоступен ({redis_url}): {exc}. Продолжаем запуск без гарантии Celery")
+    return True
+
+
+def monitor_process(name: str, starter, max_restarts: int = 2) -> Tuple[subprocess.Popen, int]:
+    """Стартует процесс и возвращает пару (process, оставшиеся рестарты)."""
+
+    process = starter()
+    return process, max_restarts
 
 
 def main():
@@ -226,15 +261,16 @@ def main():
 
     django_port = pick_port(8000, "DJANGO_PORT")
     ai_api_port = pick_port(8001, "AI_API_PORT")
-    llm_port = pick_port(8002, "LLM_SERVICE_PORT")
+    llm_port = pick_port(8002, "LLM_PORT")
 
     env["DJANGO_PORT"] = str(django_port)
     env["AI_API_PORT"] = str(ai_api_port)
     env["LLM_SERVICE_PORT"] = str(llm_port)
+    env["LLM_PORT"] = str(llm_port)
 
     os.environ.update(env)
 
-    processes = []
+    processes: list[tuple[str, subprocess.Popen, int]] = []
 
     try:
         # Запускаем сервисы
@@ -246,21 +282,18 @@ def main():
             ("Django", lambda: start_django(django_port), django_port),
         ]
 
+        threads = []
         for name, starter, port in services:
-            process = starter()
-            processes.append((name, process))
+            process, restarts = monitor_process(name, starter)
+            processes.append((name, process, restarts))
+            thread = log_output(process, name)
+            threads.append(thread)
 
             if port:
                 # Даем время сервису начать запуск
                 time.sleep(2)
                 if not wait_for_service(port, timeout=10):
                     print(f"⚠️  Сервис {name} медленно запускается...")
-
-        # Запускаем логирование для всех процессов
-        threads = []
-        for name, process in processes:
-            thread = log_output(process, name)
-            threads.append(thread)
 
         print("\n" + "🎉 Все сервисы запущены!")
         print("📊 Статус сервисов:")
@@ -275,16 +308,22 @@ def main():
         while True:
             time.sleep(1)
             # Проверяем, что все процессы еще работают
-            for name, process in processes:
+            for idx, (name, process, restarts) in enumerate(list(processes)):
                 if process.poll() is not None:
-                    print(f"❌ Процесс {name} завершился с кодом {process.returncode}")
-                    # Можно перезапустить или завершить все
+                    print(_color(f"❌ Процесс {name} завершился с кодом {process.returncode}", Fore.RED if Fore else None))
+                    if restarts > 0:
+                        print(_color(f"🔁 Перезапуск {name} (осталось {restarts})", Fore.YELLOW if Fore else None))
+                        new_process, _ = monitor_process(name, services[idx][1])
+                        processes[idx] = (name, new_process, restarts - 1)
+                        log_output(new_process, name)
+                    else:
+                        print(_color(f"🛑 Достигнут лимит рестартов для {name}", Fore.RED if Fore else None))
 
     except KeyboardInterrupt:
         print("\n🛑 Остановка сервисов...")
 
         # Останавливаем процессы
-        for name, process in processes:
+        for name, process, _ in processes:
             if process.poll() is None:
                 print(f"⏹️  Останавливаем {name}...")
                 process.terminate()

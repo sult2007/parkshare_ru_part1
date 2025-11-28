@@ -21,7 +21,7 @@ COPY requirements.txt /app/
 RUN pip install --upgrade pip && pip install -r requirements.txt
 COPY . /app/
 
-RUN python backend/manage.py collectstatic --noinput --settings=backend.settings.production || true
+RUN python backend/manage.py collectstatic --noinput --settings=backend.backend.settings.production || true
 
 FROM python:3.12-slim AS runtime
 ENV PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1

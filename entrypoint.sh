@@ -2,7 +2,7 @@
 set -e
 
 # Если DJANGO_SETTINGS_MODULE не задан, по умолчанию считаем, что это прод.
-: "${DJANGO_SETTINGS_MODULE:=backend.settings.production}"
+: "${DJANGO_SETTINGS_MODULE:=backend.backend.settings.production}"
 export DJANGO_SETTINGS_MODULE
 
 echo "Using DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}"
