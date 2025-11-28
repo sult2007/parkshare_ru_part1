@@ -1,8 +1,8 @@
 ################################################################################
 # COMPRESSED PROJECT DUMP
 # Root: C:\Users\Sultan\Downloads\parkshare_ru_part1
-# Generated at: 2025-11-28 19:15:59
-# Files: 160
+# Generated at: 2025-11-28 23:53:11
+# Files: 163
 # Max file size: 500KB
 # Code compression: True
 ################################################################################
@@ -13,7 +13,6 @@ parkshare_ru_part1/
     .env.example
     .env.prod
     .gitattributes
-    .gitignore
     Dockerfile
     README.md
     api_server.py
@@ -25,8 +24,11 @@ parkshare_ru_part1/
     entrypoint.sh
     index.html
     model_training.py
-    project_dump.txt [SKIPPED - TOO LARGE]
+    project_dump.txt
     requirements.txt
+    run_dev.bat
+    run_dev.py
+    run_dev.sh
     accounts/
         __init__.py
         admin.py
@@ -216,7 +218,7 @@ parkshare_ru_part1/
 FILES CONTENT:
 ================================================================================
 
-# File 1/160: .env
+# File 1/163: .env
 ################################################################################
 
 DEBUG=1
@@ -237,8 +239,19 @@ YANDEX_MAP_API_KEY=
 # Старый токен Mapbox (если будешь использовать где-то ещё)
 MAPBOX_TOKEN=your_actual_token_here
 
+# OpenAI
+OPENAI_API_KEY=sk...
+OPENAI_MODEL=gpt-4o-mini
+OPENAI_BASE_URL=https://api.openai.com/v1
 
-# File 2/160: .env.example
+LLM_CLIENT_TIMEOUT=8
+LLM_CLIENT_RETRIES=2
+
+# (опционально) Явный URL сервиса, если хочешь переопределить:
+# LLM_SERVICE_URL=http://llm_service:8002
+
+
+# File 2/163: .env.example
 ################################################################################
 
 # Базовые настройки Django
@@ -298,7 +311,7 @@ MAP_PROVIDER=yandex
 YANDEX_MAP_API_KEY=your_yandex_maps_api_key
 
 
-# File 3/160: .env.prod
+# File 3/163: .env.prod
 ################################################################################
 
 # -----------------------------
@@ -344,22 +357,14 @@ YANDEX_MAP_API_KEY=your_yandex_maps_api_key
 MAPBOX_TOKEN=your_actual_token_here
 
 
-# File 4/160: .gitattributes
+# File 4/163: .gitattributes
 ################################################################################
 
 # Auto detect text files and perform LF normalization
 * text=auto
 
 
-# File 5/160: .gitignore
-################################################################################
-
-project_dump.txt
-db.sqlite3
-project_dump.txt
-
-
-# File 6/160: Dockerfile
+# File 5/163: Dockerfile
 ################################################################################
 
 # Production-ready Dockerfile
@@ -400,7 +405,7 @@ HEALTHCHECK --interval=30s --timeout=10s --retries=3 CMD curl -f http://localhos
 CMD ["gunicorn", "backend.config.wsgi:application", "--bind", "0.0.0.0:8000"]
 
 
-# File 7/160: README.md
+# File 6/163: README.md
 ################################################################################
 
 # ParkShare Global Platform
@@ -443,9 +448,15 @@ docker-compose -f docker-compose.prod.yml up -d --build
 ```
 
 Домен и TLS настраиваются через `nginx/nginx.conf` (добавьте сертификаты Let's Encrypt). ALLOWED_HOSTS и переменные карты/платежей берутся из `.env.prod`.
+#   P a r k S h a r e _ R U 
+ 
+ #   P a r k S h a r e _ R U 
+ 
+ #   P a r k S h a r e _ R U 
+ 
+ 
 
-
-# File 8/160: api_server.py
+# File 7/163: api_server.py
 ################################################################################
 
 # api_server.py
@@ -783,7 +794,7 @@ variant=chosen_variant,
 recommendations=recs,
 )
 
-# File 9/160: app.js
+# File 8/163: app.js
 ################################################################################
 
 const API_BASE = "http:
@@ -1037,7 +1048,7 @@ handleRecommendations("B");
 });
 });
 
-# File 10/160: database.py
+# File 9/163: database.py
 ################################################################################
 
 # database.py
@@ -1240,7 +1251,7 @@ if __name__ == "__main__":
 init_db()
 generate_synthetic_data()
 
-# File 11/160: docker-compose.prod.yml
+# File 10/163: docker-compose.prod.yml
 ################################################################################
 
 version: "3.9"
@@ -1333,7 +1344,7 @@ networks:
     driver: bridge
 
 
-# File 12/160: docker-compose.yml
+# File 11/163: docker-compose.yml
 ################################################################################
 
 version: "3.9"
@@ -1478,7 +1489,7 @@ networks:
     driver: bridge
 
 
-# File 13/160: dump_project.py
+# File 12/163: dump_project.py
 ################################################################################
 
 import os
@@ -1545,7 +1556,7 @@ line = line.split('')[1]
 else:
 line = line.split('
 
-# File 14/160: entrypoint.sh
+# File 13/163: entrypoint.sh
 ################################################################################
 
 #!/bin/sh
@@ -1570,7 +1581,7 @@ exec gunicorn backend.config.wsgi:application \
     --timeout "${GUNICORN_TIMEOUT:-60}"
 
 
-# File 15/160: index.html
+# File 14/163: index.html
 ################################################################################
 
 <!-- index.html -->
@@ -1940,7 +1951,7 @@ window.psThemeManager = window.initQuantumThemeManager();
 </body>
 </html>
 
-# File 16/160: model_training.py
+# File 15/163: model_training.py
 ################################################################################
 
 # model_training.py
@@ -1960,10 +1971,12 @@ from sklearn.svm import LinearSVC
 from database import DB_PATH, get_connection, init_db, generate_synthetic_data
 BASE_DIR = Path(__file__).parent
 MODELS_DIR = BASE_DIR / "ai_models"
-MODELS_DIR.mkdir(exist_ok=True)
+# Создаём папку для моделей заранее, чтобы не упасть на сохранении
+MODELS_DIR.mkdir(parents=True, exist_ok=True)
 # ---------- 1. Модель предсказания загруженности парковок ----------
 def load_occupancy_dataframe() -> pd.DataFrame:
 conn = get_connection()
+try:
 query = """
 SELECT
 oh.lot_id,
@@ -1980,8 +1993,12 @@ FROM occupancy_history oh
 JOIN parking_lot pl ON pl.id = oh.lot_id
 """
 df = pd.read_sql_query(query, conn)
+finally:
 conn.close()
-df["ts"] = pd.to_datetime(df["ts"])
+if df.empty:
+return df
+df["ts"] = pd.to_datetime(df["ts"], errors="coerce")
+df = df.dropna(subset=["ts"])
 df["hour"] = df["ts"].dt.hour
 df["dow"] = df["ts"].dt.weekday
 df["lot_id_str"] = df["lot_id"].astype(str)
@@ -2132,21 +2149,2006 @@ model_path,
 )
 print("recommender.pkl сохранён в", model_path)
 conn.close()
+def _dataset_is_empty() -> bool:
+conn = get_connection()
+try:
+cur = conn.cursor()
+counts = {}
+for table in ["parking_lot", "occupancy_history", "user_rating"]:
+try:
+cur.execute(f"SELECT COUNT(*) FROM {table};")
+counts[table] = cur.fetchone()[0]
+except Exception:
+counts[table] = 0
+return any(value == 0 for value in counts.values())
+finally:
+conn.close()
+def _safe_call(name: str, fn) -> None:
+try:
+fn()
+except Exception as exc:
+# Логируем и выбрасываем дальше, чтобы CI увидел сбой
+print(f"[!] Ошибка во время '{name}': {exc}")
+raise
 def main() -> None:
 # На случай чистой установки
 init_db()
+try:
+if _dataset_is_empty():
+print("База пуста — генерируем синтетические данные...")
 generate_synthetic_data()
+else:
+print("Используем существующие данные в БД", DB_PATH)
+except Exception as exc:
+print(f"[!] Не удалось подготовить данные: {exc}")
+raise
 print("=== Обучение occupancy-модели ===")
-train_occupancy_model()
+_safe_call("occupancy", train_occupancy_model)
 print("=== Обучение NLP-модели ===")
-train_nlp_model()
+_safe_call("nlp", train_nlp_model)
 print("=== Обучение рекомендательной системы ===")
-train_recommender()
+_safe_call("recommender", train_recommender)
 print("Готово: все модели обучены и сохранены в", MODELS_DIR)
 if __name__ == "__main__":
 main()
 
-# File 17/160: requirements.txt
+# File 16/163: project_dump.txt
+################################################################################
+
+################################################################################
+# COMPRESSED PROJECT DUMP
+# Root: C:\Users\Sultan\Downloads\parkshare_ru_part1
+# Generated at: 2025-11-28 23:53:11
+# Files: 163
+# Max file size: 500KB
+# Code compression: True
+################################################################################
+PROJECT TREE:
+--------------------------------------------------------------------------------
+parkshare_ru_part1/
+    .env
+    .env.example
+    .env.prod
+    .gitattributes
+    Dockerfile
+    README.md
+    api_server.py
+    app.js
+    database.py
+    docker-compose.prod.yml
+    docker-compose.yml
+    dump_project.py
+    entrypoint.sh
+    index.html
+    model_training.py
+    project_dump.txt
+    requirements.txt
+    run_dev.bat
+    run_dev.py
+    run_dev.sh
+    accounts/
+        __init__.py
+        admin.py
+        apps.py
+        auth.py
+        forms.py
+        models.py
+        serializers.py
+        urls.py
+        utils.py
+        views.py
+        migrations/
+            0001_initial.py
+            0002_user_email_hash_user_phone_hash_logincode.py
+            0003_userlevel_userbadge_promoreward.py
+            __init__.py
+    ai/
+        __init__.py
+        admin.py
+        apps.py
+        features.py
+        models.py
+        orchestrator.py
+        pricing.py
+        serializers.py
+        tasks.py
+        views.py
+        chat/
+            __init__.py
+            parking_assistant.py
+        management/
+            __init__.py
+            commands/
+                __init__.py
+                train_chat_intents_from_logs.py
+        migrations/
+            0001_initial.py
+            __init__.py
+    ai_services/
+        __init__.py
+        ai_pricing_service/
+            __init__.py
+            main.py
+        cv_service/
+            __init__.py
+            main.py
+    backend/
+        manage.py
+        backend/
+            __init__.py
+            config/
+                __init__.py
+                asgi.py
+                celery.py
+                urls.py
+                wsgi.py
+            settings/
+                __init__.py
+                base.py
+                local.py
+                production.py
+                regions.py
+        rest_framework_simplejwt/
+            __init__.py
+            authentication.py
+            tokens.py
+            views.py
+        tests/
+            __init__.py
+            test_auth_api.py
+            test_booking_model.py
+    core/
+        __init__.py
+        admin.py
+        apps.py
+        context_processors.py
+        integrations.py
+        middleware.py
+        models.py
+        pagination.py
+        permissions.py
+        utils.py
+    drf_spectacular/
+        __init__.py
+        openapi.py
+        views.py
+    frontend/
+        parkmate/
+            parkmate.types.ts
+    nginx/
+        nginx.conf
+    parking/
+        __init__.py
+        admin.py
+        apps.py
+        models.py
+        serializers.py
+        tasks.py
+        urls.py
+        views.py
+        management/
+            commands/
+                seed_demo_parking.py
+        migrations/
+            0001_initial.py
+            0002_parkinglot_stress_index_parkingspot_occupancy_7d.py
+            0003_booking_ai_fields.py
+            0004_favoriteparkingspot_savedplace.py
+            __init__.py
+    payments/
+        __init__.py
+        admin.py
+        apps.py
+        models.py
+        providers.py
+        serializers.py
+        tasks.py
+        views.py
+        migrations/
+            0001_initial.py
+            0002_alter_payment_provider.py
+            0003_paymentmethod.py
+            __init__.py
+        providers/
+            __init__.py
+            base.py
+            registry.py
+            stripe.py
+            yookassa.py
+    regions/
+        global.yml
+        ru.yml
+    services/
+        __init__.py
+        llm.py
+        llm_service/
+            Dockerfile
+            main.py
+            requirements.txt
+    static/
+        manifest.webmanifest
+        service-worker.js
+        css/
+            app.css
+            cinematic-ui.css
+        icons/
+        js/
+            app.js
+            map.js
+            parkmate-ai.ts
+            quantum-theme-manager.js
+    templates/
+        base.html
+        offline.html
+        accounts/
+            login.html
+            password_change.html
+            password_change_done.html
+            password_reset.html
+            password_reset_complete.html
+            password_reset_confirm.html
+            password_reset_done.html
+            password_reset_email.txt
+            password_reset_subject.txt
+            profile.html
+            register.html
+        parking/
+            landing.html
+            map_fullscreen.html
+            owner_dashboard.html
+            pwa_install.html
+            user_dashboard.html
+    vehicles/
+        __init__.py
+        admin.py
+        apps.py
+        models.py
+        serializers.py
+        urls.py
+        views.py
+        migrations/
+            0001_initial.py
+            __init__.py
+
+
+================================================================================
+FILES CONTENT:
+================================================================================
+
+# File 1/163: .env
+################################################################################
+
+DEBUG=1
+SECRET_KEY=django-insecure-test-secret-key-for-dev-only
+ALLOWED_HOSTS=127.0.0.1,localhost
+DATABASE_NAME=db.sqlite3
+
+YOOKASSA_SHOP_ID=
+YOOKASSA_SECRET_KEY=
+
+EMAIL_BACKEND=django.core.mail.backends.console.EmailBackend
+
+# Карты / регион
+REGION_PROFILE=RU
+MAP_PROVIDER=yandex
+YANDEX_MAP_API_KEY=
+
+# Старый токен Mapbox (если будешь использовать где-то ещё)
+MAPBOX_TOKEN=your_actual_token_here
+
+# OpenAI
+OPENAI_API_KEY=sk...
+OPENAI_MODEL=gpt-4o-mini
+OPENAI_BASE_URL=https://api.openai.com/v1
+
+LLM_CLIENT_TIMEOUT=8
+LLM_CLIENT_RETRIES=2
+
+# (опционально) Явный URL сервиса, если хочешь переопределить:
+# LLM_SERVICE_URL=http://llm_service:8002
+
+
+# File 2/163: .env.example
+################################################################################
+
+# Базовые настройки Django
+DEBUG=False
+SECRET_KEY=change_me_to_random_long_secret_key
+ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0
+PLATFORM_MODE=RU
+
+# База данных
+# Для продакшена: postgres://user:password@db:5432/parkshare
+# Django-environ автоматически распарсит URL.
+DATABASE_URL=postgres://parkshare:parkshare@db:5432/parkshare
+
+# Payments
+PAYMENT_PROVIDER=yookassa
+YOOKASSA_SHOP_ID=YOUR_SHOP_ID
+YOOKASSA_SECRET_KEY=YOUR_SECRET
+YOOKASSA_RETURN_URL=https://SERVER_HOST/payments/return/
+YOOKASSA_WEBHOOK_SECRET=YOUR_WEBHOOK_SECRET
+STRIPE_SECRET_KEY=YOUR_STRIPE_KEY
+STRIPE_WEBHOOK_SECRET=YOUR_STRIPE_WEBHOOK_SECRET
+
+# Redis (брокер/кэш)
+REDIS_URL=redis://redis:6379/0
+
+# Таймзона и язык
+TIME_ZONE=Europe/Moscow
+LANGUAGE_CODE=ru-ru
+
+# Соль для хэширования цифр номеров
+VEHICLE_PLATE_SALT=change_me_vehicle_plate_salt
+
+# Настройки CORS (если нужен доступ с другого домена, например, моб. WebView)
+CORS_ALLOWED_ORIGINS=http://localhost:8000
+
+# Настройки Celery
+CELERY_BROKER_URL=${REDIS_URL}
+CELERY_RESULT_BACKEND=${REDIS_URL}
+
+# Настройки YooKassa (пример)
+YOOKASSA_SHOP_ID=your_shop_id_here
+YOOKASSA_SECRET_KEY=your_secret_key_here
+YOOKASSA_RETURN_URL=https://example.com/payments/return/
+YOOKASSA_WEBHOOK_SECRET=change_me_webhook_secret
+
+# Комиссия сервиса (процент, будет использована в бизнес-логике)
+SERVICE_COMMISSION_PERCENT=10
+
+# Безопасность для продакшена
+SECURE_SSL_REDIRECT=False
+SESSION_COOKIE_SECURE=False
+CSRF_COOKIE_SECURE=False
+
+# Регион / карты
+REGION_PROFILE=RU
+MAP_PROVIDER=yandex
+YANDEX_MAP_API_KEY=your_yandex_maps_api_key
+
+
+# File 3/163: .env.prod
+################################################################################
+
+# -----------------------------
+# DJANGO SETTINGS (PROD)
+# -----------------------------
+DEBUG=0
+SECRET_KEY=django-insecure-поставь_сюда_очень_длинную_строку_символов
+ALLOWED_HOSTS=your-domain.ru,your-domain.com,127.0.0.1
+
+DJANGO_SETTINGS_MODULE=backend.settings.production
+
+# -----------------------------
+# DATABASE (PostgreSQL / PostGIS)
+# -----------------------------
+DATABASE_NAME=parkshare
+DATABASE_USER=parkshare
+DATABASE_PASSWORD=сильный_пароль_к_бд
+DATABASE_HOST=db
+DATABASE_PORT=5432
+
+# -----------------------------
+# YOOKASSA PAYMENTS (боевые реквизиты)
+# -----------------------------
+YOOKASSA_SHOP_ID=твой_shop_id
+YOOKASSA_SECRET_KEY=твой_secret_key
+
+# -----------------------------
+# EMAIL SETTINGS
+# -----------------------------
+EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
+EMAIL_HOST=smtp.yandex.ru
+EMAIL_PORT=465
+EMAIL_USE_SSL=1
+EMAIL_HOST_USER=no-reply@your-domain.ru
+EMAIL_HOST_PASSWORD=пароль_от_почты
+
+# -----------------------------
+# MAP / REGION
+# -----------------------------
+REGION_PROFILE=RU
+MAP_PROVIDER=yandex
+YANDEX_MAP_API_KEY=your_yandex_maps_api_key
+MAPBOX_TOKEN=your_actual_token_here
+
+
+# File 4/163: .gitattributes
+################################################################################
+
+# Auto detect text files and perform LF normalization
+* text=auto
+
+
+# File 5/163: Dockerfile
+################################################################################
+
+# Production-ready Dockerfile
+FROM python:3.12-slim AS builder
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    libpq-dev \
+    gdal-bin \
+    libgdal-dev \
+    binutils \
+    libproj-dev \
+    libgeos-dev \
+    libspatialindex-dev \
+    gettext \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+COPY requirements.txt /app/
+RUN pip install --upgrade pip && pip install -r requirements.txt
+COPY . /app/
+
+RUN python backend/manage.py collectstatic --noinput --settings=backend.settings.production || true
+
+FROM python:3.12-slim AS runtime
+ENV PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1
+WORKDIR /app
+
+COPY --from=builder /usr/local/lib/python3.12 /usr/local/lib/python3.12
+COPY --from=builder /usr/local/bin /usr/local/bin
+COPY --from=builder /app /app
+
+EXPOSE 8000
+HEALTHCHECK --interval=30s --timeout=10s --retries=3 CMD curl -f http://localhost:8000/health/ || exit 1
+CMD ["gunicorn", "backend.config.wsgi:application", "--bind", "0.0.0.0:8000"]
+
+
+# File 6/163: README.md
+################################################################################
+
+# ParkShare Global Platform
+
+Унифицированная архитектура для ParkShare с профилями RU/GLOBAL, защищёнными настройками и PWA фронтендом.
+
+## Запуск
+```bash
+docker-compose up --build
+```
+ENVIRONMENT выбирается через переменные окружения и файлы `.env.<profile>`.
+
+Для локальной разработки без зависимостей PostGIS/GDAL установите `USE_GIS=False` и задайте
+`DATABASE_URL=sqlite:///db.sqlite3`, чтобы Django использовал SQLite и не требовал GDAL.
+
+## Контейнеры
+- PostGIS (db)
+- Redis (cache/rate limit/Celery)
+- Gunicorn web (Django)
+- Celery worker/beat
+- Nginx как TLS-терминатор
+
+## Безопасность
+- JWT + refresh токены (`/api/auth/token`, `/api/auth/token/refresh`)
+- Rate limiting, CSP, HSTS, Referrer/Permissions Policy (`core/middleware.py`, `backend/settings`)
+- Provider registry (`providers/`)
+- Транзакционные блокировки бронирований (`parking/views.py`)
+
+## PWA
+- Сервис-воркер с разными стратегиями кэширования (`static/service-worker.js`)
+- Offline fallback (`templates/offline.html`)
+
+## AI
+- Динамическое ценообразование, рекомендации, CV и антифрод (`ai/engines.py`, `services/ai.py`)
+
+## Продакшен-старт (Ubuntu/Debian)
+```bash
+cp .env.example .env.prod  # заполнить секреты/хосты
+docker-compose -f docker-compose.prod.yml up -d --build
+```
+
+Домен и TLS настраиваются через `nginx/nginx.conf` (добавьте сертификаты Let's Encrypt). ALLOWED_HOSTS и переменные карты/платежей берутся из `.env.prod`.
+#   P a r k S h a r e _ R U 
+ 
+ #   P a r k S h a r e _ R U 
+ 
+ #   P a r k S h a r e _ R U 
+ 
+ 
+
+# File 7/163: api_server.py
+################################################################################
+
+# api_server.py
+from __future__ import annotations
+import datetime as dt
+import re
+from pathlib import Path
+from typing import Any, Dict, List, Optional
+import joblib
+import numpy as np
+import pandas as pd
+from fastapi import FastAPI, HTTPException, Query
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+from database import get_connection
+BASE_DIR = Path(__file__).parent
+MODELS_DIR = BASE_DIR / "ai_models"
+# --- Загрузка моделей ---
+occ_bundle: Dict[str, Any] = joblib.load(MODELS_DIR / "occupancy_model.pkl")
+OCC_PIPE = occ_bundle["pipeline"]
+OCC_FEATURE_COLS = occ_bundle["feature_cols"]
+NLP_PIPE = joblib.load(MODELS_DIR / "nlp_intent.pkl")
+rec_bundle: Dict[str, Any] = joblib.load(MODELS_DIR / "recommender.pkl")
+USER_ITEM: pd.DataFrame = rec_bundle["user_item"]
+ITEM_SIM: pd.DataFrame = rec_bundle["item_sim"]
+LOT_FEATURES: pd.DataFrame = rec_bundle["lot_features"]
+# --- FastAPI ---
+app = FastAPI(title="ParkShare Local AI", version="1.0.0")
+app.add_middleware(
+CORSMiddleware,
+allow_origins=["*"],
+allow_credentials=True,
+allow_methods=["*"],
+allow_headers=["*"],
+)
+# ---------- Схемы ----------
+class Lot(BaseModel):
+id: int
+name: str
+latitude: float
+longitude: float
+near_metro: bool
+price_level: int
+has_covered: bool
+has_ev_charging: bool
+predicted_occupancy: float
+class SearchResult(BaseModel):
+query: str
+intent: str
+time_of_day: Optional[str]
+near_metro: Optional[bool]
+max_price_level: Optional[int]
+has_ev_charging: Optional[bool]
+has_covered: Optional[bool]
+lots: List[Lot]
+class OccupancyPredictionResponse(BaseModel):
+lot_id: int
+ts: dt.datetime
+predicted_occupancy: float
+class Recommendation(BaseModel):
+lot: Lot
+score: float
+class RecommendationsResponse(BaseModel):
+user_id: Optional[int]
+variant: str
+recommendations: List[Recommendation]
+# ---------- Утилиты ----------
+def parse_dt_iso(value: Optional[str]) -> dt.datetime:
+if not value:
+return dt.datetime.now()
+try:
+return dt.datetime.fromisoformat(value)
+except Exception as exc:
+raise HTTPException(status_code=400, detail=f"Неверный формат datetime: {value}") from exc
+def nlp_extract_entities(text: str) -> Dict[str, Any]:
+s = text.lower()
+time_of_day = None
+if "утр" in s:
+time_of_day = "morning"
+elif "днем" in s or "днём" in s:
+time_of_day = "day"
+elif "вечер" in s:
+time_of_day = "evening"
+elif "ноч" in s:
+time_of_day = "night"
+near_metro = "метро" in s
+max_price_level: Optional[int] = None
+if "дешев" in s or "недорог" in s:
+max_price_level = 1
+elif "средн" in s:
+max_price_level = 2
+elif "дорог" in s:
+max_price_level = 3
+has_ev = "электро" in s or "зарядк" in s or "ev" in s
+has_covered = "крыт" in s or "подзем" in s or "паркинг" in s
+return {
+"time_of_day": time_of_day,
+"near_metro": near_metro if near_metro else None,
+"max_price_level": max_price_level,
+"has_ev_charging": has_ev if has_ev else None,
+"has_covered": has_covered if has_covered else None,
+}
+def build_occ_feature_df(lot_row: Dict[str, Any], ts: dt.datetime) -> pd.DataFrame:
+return pd.DataFrame(
+[
+{
+"hour": ts.hour,
+"dow": ts.weekday(),
+"temperature": 15.0,
+"is_rain": 0,
+"is_event": 0,
+"near_metro": lot_row["near_metro"],
+"price_level": lot_row["price_level"],
+"has_covered": lot_row["has_covered"],
+"has_ev_charging": lot_row["has_ev_charging"],
+"lot_id_str": str(lot_row["id"]),
+}
+]
+)[OCC_FEATURE_COLS]
+def predict_occupancy_for_lot(lot_row: Dict[str, Any], ts: dt.datetime) -> float:
+df = build_occ_feature_df(lot_row, ts)
+pred = float(OCC_PIPE.predict(df)[0])
+return max(0.0, min(pred, 1.0))
+def fetch_lots(filters: Dict[str, Any] | None = None) -> List[Dict[str, Any]]:
+conn = get_connection()
+cur = conn.cursor()
+base_query = """
+SELECT
+id, name, latitude, longitude,
+near_metro, price_level, has_covered, has_ev_charging
+FROM parking_lot
+WHERE 1=1
+"""
+params: List[Any] = []
+if filters:
+if filters.get("near_metro") is not None:
+base_query += " AND near_metro = ?"
+params.append(1 if filters["near_metro"] else 0)
+if filters.get("max_price_level") is not None:
+base_query += " AND price_level <= ?"
+params.append(int(filters["max_price_level"]))
+if filters.get("has_ev_charging") is not None:
+base_query += " AND has_ev_charging = ?"
+params.append(1 if filters["has_ev_charging"] else 0)
+if filters.get("has_covered") is not None:
+base_query += " AND has_covered = ?"
+params.append(1 if filters["has_covered"] else 0)
+base_query += " ORDER BY price_level ASC, near_metro DESC"
+cur.execute(base_query, params)
+rows = [dict(r) for r in cur.fetchall()]
+conn.close()
+return rows
+# ---------- Эндпоинты ----------
+@app.get("/health")
+def health() -> Dict[str, Any]:
+return {"status": "ok"}
+@app.get("/api/lots", response_model=List[Lot])
+def api_list_lots(
+ts: Optional[str] = Query(default=None, description="ISO datetime, по умолчанию — сейчас"),
+) -> List[Lot]:
+dt_value = parse_dt_iso(ts)
+lots = fetch_lots()
+result: List[Lot] = []
+for row in lots:
+occ = predict_occupancy_for_lot(row, dt_value)
+result.append(
+Lot(
+id=row["id"],
+name=row["name"],
+latitude=row["latitude"],
+longitude=row["longitude"],
+near_metro=bool(row["near_metro"]),
+price_level=row["price_level"],
+has_covered=bool(row["has_covered"]),
+has_ev_charging=bool(row["has_ev_charging"]),
+predicted_occupancy=occ,
+)
+)
+return result
+@app.get("/api/occupancy/predict", response_model=OccupancyPredictionResponse)
+def api_predict_occupancy(
+lot_id: int = Query(...),
+ts: Optional[str] = Query(default=None),
+) -> OccupancyPredictionResponse:
+dt_value = parse_dt_iso(ts)
+conn = get_connection()
+cur = conn.cursor()
+cur.execute(
+"""
+SELECT id, name, latitude, longitude,
+near_metro, price_level, has_covered, has_ev_charging
+FROM parking_lot
+WHERE id = ?
+""",
+(lot_id,),
+)
+row = cur.fetchone()
+conn.close()
+if row is None:
+raise HTTPException(status_code=404, detail="Парковка не найдена")
+d = dict(row)
+occ = predict_occupancy_for_lot(d, dt_value)
+return OccupancyPredictionResponse(
+lot_id=lot_id,
+ts=dt_value,
+predicted_occupancy=occ,
+)
+@app.get("/api/search", response_model=SearchResult)
+def api_search(
+query: str = Query(..., min_length=1),
+ts: Optional[str] = Query(default=None),
+limit: int = Query(default=15, ge=1, le=100),
+) -> SearchResult:
+dt_value = parse_dt_iso(ts)
+intent = NLP_PIPE.predict([query])[0]
+entities = nlp_extract_entities(query)
+filters: Dict[str, Any] = {}
+if entities["near_metro"]:
+filters["near_metro"] = True
+if entities["max_price_level"] is not None:
+filters["max_price_level"] = entities["max_price_level"]
+if entities["has_ev_charging"] is not None:
+filters["has_ev_charging"] = entities["has_ev_charging"]
+if entities["has_covered"] is not None:
+filters["has_covered"] = entities["has_covered"]
+if intent == "near_metro":
+filters["near_metro"] = True
+if intent == "cheap" and "max_price_level" not in filters:
+filters["max_price_level"] = 1
+lots = fetch_lots(filters)
+lots = lots[:limit]
+lot_models: List[Lot] = []
+for row in lots:
+occ = predict_occupancy_for_lot(row, dt_value)
+lot_models.append(
+Lot(
+id=row["id"],
+name=row["name"],
+latitude=row["latitude"],
+longitude=row["longitude"],
+near_metro=bool(row["near_metro"]),
+price_level=row["price_level"],
+has_covered=bool(row["has_covered"]),
+has_ev_charging=bool(row["has_ev_charging"]),
+predicted_occupancy=occ,
+)
+)
+return SearchResult(
+query=query,
+intent=intent,
+time_of_day=entities["time_of_day"],
+near_metro=filters.get("near_metro"),
+max_price_level=filters.get("max_price_level"),
+has_ev_charging=filters.get("has_ev_charging"),
+has_covered=filters.get("has_covered"),
+lots=lot_models,
+)
+def _recommend_item_based(user_id: int, top_n: int = 10) -> List[int]:
+if user_id not in USER_ITEM.index:
+return []
+user_ratings = USER_ITEM.loc[user_id]
+rated_items = user_ratings[user_ratings > 0].index.tolist()
+if not rated_items:
+return []
+scores = pd.Series(0.0, index=USER_ITEM.columns)
+for item_id in rated_items:
+sim_vec = ITEM_SIM.loc[item_id]
+scores += sim_vec * float(user_ratings[item_id])
+scores = scores.drop(rated_items)
+scores = scores.sort_values(ascending=False)
+return scores.head(top_n).index.tolist()
+def _recommend_content_based(top_n: int = 10) -> List[int]:
+df = LOT_FEATURES.copy()
+df["score"] = 0.0
+df["score"] += (1 - (df["price_level"] - 1) / 2)
+df["score"] += df["near_metro"] * 0.5
+df["score"] += df["has_ev_charging"] * 0.3
+df["score"] += df["has_covered"] * 0.2
+df = df.sort_values("score", ascending=False)
+return df.head(top_n).index.tolist()
+@app.get("/api/recommendations", response_model=RecommendationsResponse)
+def api_recommendations(
+user_id: Optional[int] = Query(default=None),
+variant: Optional[str] = Query(
+default=None,
+description="A или B — для A/B тестирования (A=collab, B=content)",
+),
+limit: int = Query(default=10, ge=1, le=50),
+ts: Optional[str] = Query(default=None),
+) -> RecommendationsResponse:
+dt_value = parse_dt_iso(ts)
+chosen_variant = variant or ("A" if user_id else "B")
+if chosen_variant == "A" and user_id is not None:
+item_ids = _recommend_item_based(user_id, top_n=limit)
+if not item_ids:
+chosen_variant = "B"
+if chosen_variant == "B" or user_id is None:
+item_ids = _recommend_content_based(top_n=limit)
+conn = get_connection()
+cur = conn.cursor()
+cur.execute(
+f"""
+SELECT id, name, latitude, longitude,
+near_metro, price_level, has_covered, has_ev_charging
+FROM parking_lot
+WHERE id IN ({",".join(["?"] * len(item_ids))})
+""",
+item_ids,
+)
+rows = {r["id"]: dict(r) for r in cur.fetchall()}
+conn.close()
+recs: List[Recommendation] = []
+for lot_id in item_ids:
+row = rows.get(lot_id)
+if not row:
+continue
+occ = predict_occupancy_for_lot(row, dt_value)
+lot = Lot(
+id=row["id"],
+name=row["name"],
+latitude=row["latitude"],
+longitude=row["longitude"],
+near_metro=bool(row["near_metro"]),
+price_level=row["price_level"],
+has_covered=bool(row["has_covered"]),
+has_ev_charging=bool(row["has_ev_charging"]),
+predicted_occupancy=occ,
+)
+# простая метрика: обратная занятость + бонус за метро и цену
+score = (1.0 - occ) + (1 - (row["price_level"] - 1) / 2) + (0.3 if row["near_metro"] else 0.0)
+recs.append(Recommendation(lot=lot, score=float(score)))
+return RecommendationsResponse(
+user_id=user_id,
+variant=chosen_variant,
+recommendations=recs,
+)
+
+# File 8/163: app.js
+################################################################################
+
+const API_BASE = "http:
+let map;
+let markersLayer;
+let lotsCache = [];
+let lotsById = new Map();
+function pickBestLot(lots) {
+if (!lots || lots.length === 0) return null;
+const ranked = [...lots].sort((a, b) => {
+const occA = a.predicted_occupancy ?? 1;
+const occB = b.predicted_occupancy ?? 1;
+return occA - occB;
+});
+return ranked[0];
+}
+function updateAIOracleCard(lots) {
+const nameEl = document.getElementById("aiOracleName");
+const etaEl = document.getElementById("aiOracleETA");
+const confEl = document.getElementById("aiOracleConfidence");
+const metaEl = document.getElementById("aiOracleMeta");
+const reasoningEl = document.getElementById("aiOracleReason");
+if (!nameEl || !etaEl || !confEl || !metaEl || !reasoningEl) return;
+if (!lots || lots.length === 0) {
+nameEl.textContent = "—";
+etaEl.textContent = "—";
+confEl.textContent = "—";
+metaEl.textContent = "—";
+reasoningEl.textContent = "AI готовит инсайт…";
+return;
+}
+const bestLot = pickBestLot(lots);
+if (!bestLot) return;
+const occ = bestLot.predicted_occupancy ?? 0;
+const occPercent = Math.round(occ * 100);
+const eta = Math.max(2, Math.min(15, Math.round((1 - occ) * 12)));
+const confidence = Math.max(68, Math.min(99, 96 - Math.round(occPercent / 2)));
+const ev = bestLot.has_ev_charging ? "EV" : "обычная";
+const covered = bestLot.has_covered ? "крытая" : "открытая";
+nameEl.textContent = bestLot.name;
+etaEl.textContent = `${eta} мин`;
+confEl.textContent = `${confidence}%`;
+metaEl.textContent = `${ev} · ${covered}`;
+reasoningEl.textContent =
+"Учитывая вашу историю: быстрый выезд, EV и близость к метро — этот слот даст наивысший WOW-эффект.";
+}
+function occupancyColor(value) {
+if (value <= 0.4) return "
+if (value <= 0.7) return "
+return "
+}
+function initMap() {
+map = L.map("map", {
+zoomControl: true,
+attributionControl: false,
+}).setView([55.7558, 37.6173], 12);
+L.tileLayer("https:
+maxZoom: 19,
+}).addTo(map);
+markersLayer = L.layerGroup().addTo(map);
+}
+async function apiGet(path, params = {}) {
+const url = new URL(API_BASE + path);
+Object.entries(params).forEach(([k, v]) => {
+if (v !== undefined && v !== null) {
+url.searchParams.set(k, v);
+}
+});
+const res = await fetch(url.toString());
+if (!res.ok) {
+const text = await res.text();
+throw new Error(`API error ${res.status}: ${text}`);
+}
+return res.json();
+}
+function renderLotsOnMap(lots) {
+markersLayer.clearLayers();
+lots.forEach((lot) => {
+const occ = lot.predicted_occupancy ?? 0;
+const color = occupancyColor(occ);
+const marker = L.circleMarker([lot.latitude, lot.longitude], {
+radius: 8,
+fillColor: color,
+fillOpacity: 0.9,
+color: "
+weight: 1,
+});
+const occPercent = Math.round(occ * 100);
+const html = `
+<div style="font-size: 12px;">
+<strong>${lot.name}</strong><br />
+Загрузка: <strong>${occPercent}%</strong><br />
+Метро: ${lot.near_metro ? "рядом" : "нет"}<br />
+Уровень цены: ${lot.price_level}<br />
+Крытая: ${lot.has_covered ? "да" : "нет"}<br />
+Зарядка EV: ${lot.has_ev_charging ? "есть" : "нет"}
+</div>
+`;
+marker.bindPopup(html);
+marker.addTo(markersLayer);
+});
+if (lots.length > 0) {
+const bounds = L.latLngBounds(
+lots.map((lot) => [lot.latitude, lot.longitude])
+);
+map.fitBounds(bounds.pad(0.2));
+}
+}
+function renderLotsList(containerId, lots, clickHandler) {
+const container = document.getElementById(containerId);
+container.innerHTML = "";
+if (!lots || lots.length === 0) {
+container.innerHTML =
+'<div style="font-size: 0.75rem; color:
+return;
+}
+lots.forEach((lot) => {
+const occ = lot.predicted_occupancy ?? 0;
+const occPercent = Math.round(occ * 100);
+const div = document.createElement("div");
+div.className = "lot-item";
+div.innerHTML = `
+<div class="lot-main">
+<div class="lot-name">${lot.name}</div>
+<div class="lot-meta">
+<span>Цена: L${lot.price_level}</span>
+<span>Метро: ${lot.near_metro ? "рядом" : "нет"}</span>
+<span>EV: ${lot.has_ev_charging ? "есть" : "нет"}</span>
+<span>Крытая: ${lot.has_covered ? "да" : "нет"}</span>
+</div>
+</div>
+<div class="lot-occ">${occPercent}%</div>
+`;
+div.addEventListener("click", () => clickHandler(lot));
+container.appendChild(div);
+});
+}
+async function loadAllLots() {
+const status = document.getElementById("statusText");
+try {
+const lots = await apiGet("/api/lots");
+lotsCache = lots;
+lotsById.clear();
+lots.forEach((lot) => lotsById.set(lot.id, lot));
+renderLotsOnMap(lots);
+renderLotsList("lotsList", lots, (lot) => {
+map.setView([lot.latitude, lot.longitude], 16);
+});
+updateAIOracleCard(lots);
+status.textContent = "AI-сервер подключён";
+} catch (err) {
+console.error(err);
+status.textContent = "Ошибка подключения к AI-серверу";
+}
+}
+async function handleSearch() {
+const input = document.getElementById("searchInput");
+const status = document.getElementById("searchStatus");
+const text = input.value.trim();
+if (!text) return;
+status.textContent = "Обрабатываю запрос (локальный NLP)…";
+try {
+const data = await apiGet("/api/search", { query: text });
+const lots = data.lots || [];
+renderLotsOnMap(lots);
+renderLotsList("lotsList", lots, (lot) => {
+map.setView([lot.latitude, lot.longitude], 16);
+});
+updateAIOracleCard(lots);
+const parts = [];
+parts.push(`Интент: ${data.intent}`);
+if (data.near_metro !== null) {
+parts.push(`рядом с метро: ${data.near_metro ? "да" : "нет"}`);
+}
+if (data.max_price_level !== null) {
+parts.push(`макс. уровень цены: L${data.max_price_level}`);
+}
+if (data.has_ev_charging !== null) {
+parts.push(`EV: ${data.has_ev_charging ? "нужна" : "не нужна"}`);
+}
+if (data.has_covered !== null) {
+parts.push(`крытая: ${data.has_covered ? "нужна" : "не нужна"}`);
+}
+if (data.time_of_day) {
+parts.push(`время суток: ${data.time_of_day}`);
+}
+status.textContent = parts.join(" · ") || "Фильтры не распознаны.";
+} catch (err) {
+console.error(err);
+status.textContent = "Ошибка обработки запроса";
+}
+}
+async function initUsersSelect() {
+const select = document.getElementById("userSelect");
+for (let i = 1; i <= 20; i++) {
+const opt = document.createElement("option");
+opt.value = String(i);
+opt.textContent = `Пользователь
+select.appendChild(opt);
+}
+}
+async function handleRecommendations(variant) {
+const select = document.getElementById("userSelect");
+const status = document.getElementById("recStatus");
+const listContainerId = "recList";
+const userId = parseInt(select.value, 10) || undefined;
+status.textContent =
+variant === "A"
+? "Рассчитываю рекомендации (collaborative)…"
+: "Рассчитываю рекомендации (content-based)…";
+try {
+const params = { limit: 10, variant };
+if (variant === "A" && userId) {
+params.user_id = userId;
+}
+const data = await apiGet("/api/recommendations", params);
+const recs = data.recommendations || [];
+const lots = recs.map((r) => r.lot);
+renderLotsOnMap(lots);
+renderLotsList(listContainerId, lots, (lot) => {
+map.setView([lot.latitude, lot.longitude], 16);
+});
+updateAIOracleCard(lots);
+status.textContent = `Вариант ${data.variant}, получено ${recs.length} рекомендаций.`;
+} catch (err) {
+console.error(err);
+status.textContent = "Ошибка получения рекомендаций";
+}
+}
+window.addEventListener("DOMContentLoaded", async () => {
+initMap();
+await initUsersSelect();
+await loadAllLots();
+document
+.getElementById("searchBtn")
+.addEventListener("click", () => handleSearch());
+document
+.getElementById("searchInput")
+.addEventListener("keydown", (e) => {
+if (e.key === "Enter") {
+handleSearch();
+}
+});
+document.getElementById("recBtn").addEventListener("click", () => {
+handleRecommendations("A");
+});
+document
+.getElementById("recContentBtn")
+.addEventListener("click", () => {
+handleRecommendations("B");
+});
+});
+
+# File 9/163: database.py
+################################################################################
+
+# database.py
+from __future__ import annotations
+import random
+import sqlite3
+from dataclasses import dataclass
+from datetime import datetime, timedelta
+from pathlib import Path
+from typing import List
+DB_PATH = Path(__file__).parent / "ai_data.db"
+def get_connection() -> sqlite3.Connection:
+conn = sqlite3.connect(DB_PATH)
+conn.row_factory = sqlite3.Row
+return conn
+def init_db() -> None:
+conn = get_connection()
+cur = conn.cursor()
+cur.execute(
+"""
+CREATE TABLE IF NOT EXISTS parking_lot (
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+name TEXT NOT NULL,
+latitude REAL NOT NULL,
+longitude REAL NOT NULL,
+near_metro INTEGER NOT NULL,
+price_level INTEGER NOT NULL,
+has_covered INTEGER NOT NULL,
+has_ev_charging INTEGER NOT NULL
+);
+"""
+)
+cur.execute(
+"""
+CREATE TABLE IF NOT EXISTS occupancy_history (
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+lot_id INTEGER NOT NULL,
+ts TEXT NOT NULL,
+occupancy REAL NOT NULL,
+temperature REAL NOT NULL,
+is_rain INTEGER NOT NULL,
+is_event INTEGER NOT NULL,
+FOREIGN KEY (lot_id) REFERENCES parking_lot(id)
+);
+"""
+)
+cur.execute(
+"""
+CREATE TABLE IF NOT EXISTS app_user (
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+name TEXT NOT NULL
+);
+"""
+)
+cur.execute(
+"""
+CREATE TABLE IF NOT EXISTS user_rating (
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+user_id INTEGER NOT NULL,
+lot_id INTEGER NOT NULL,
+rating REAL NOT NULL,
+FOREIGN KEY (user_id) REFERENCES app_user(id),
+FOREIGN KEY (lot_id) REFERENCES parking_lot(id)
+);
+"""
+)
+conn.commit()
+conn.close()
+@dataclass
+class LotSpec:
+name: str
+base_lat: float
+base_lon: float
+near_metro: int
+price_level: int
+has_covered: int
+has_ev_charging: int
+def generate_synthetic_data(
+num_lots: int = 30,
+num_users: int = 50,
+days_back: int = 30,
+) -> None:
+"""
+Генерация синтетических:
+- парковок
+- истории занятости
+- пользователей
+- оценок пользователей
+"""
+random.seed(42)
+conn = get_connection()
+cur = conn.cursor()
+# Чистим старые данные
+cur.execute("DELETE FROM user_rating;")
+cur.execute("DELETE FROM app_user;")
+cur.execute("DELETE FROM occupancy_history;")
+cur.execute("DELETE FROM parking_lot;")
+conn.commit()
+# Базовые точки вокруг Москвы
+center_lat, center_lon = 55.7558, 37.6173
+lots: List[int] = []
+for i in range(num_lots):
+near_metro = 1 if random.random() < 0.5 else 0
+price_level = random.choice([1, 2, 3])
+has_covered = 1 if random.random() < 0.4 else 0
+has_ev = 1 if random.random() < 0.3 else 0
+# Немного раскидываем точки вокруг центра
+lat = center_lat + random.uniform(-0.05, 0.05)
+lon = center_lon + random.uniform(-0.1, 0.1)
+cur.execute(
+"""
+INSERT INTO parking_lot (
+name, latitude, longitude, near_metro,
+price_level, has_covered, has_ev_charging
+) VALUES (?, ?, ?, ?, ?, ?, ?)
+""",
+(
+f"Лот
+lat,
+lon,
+near_metro,
+price_level,
+has_covered,
+has_ev,
+),
+)
+lots.append(cur.lastrowid)
+# История занятости — каждые 2 часа за days_back дней
+now = datetime.now()
+start_ts = now - timedelta(days=days_back)
+weather_states = ["sunny", "cloudy", "rainy"]
+for lot_id in lots:
+ts = start_ts
+while ts < now:
+dow = ts.weekday()
+hour = ts.hour
+is_event = 1 if (dow in (4, 5) and hour >= 18 and random.random() < 0.3) else 0
+weather = random.choice(weather_states)
+is_rain = 1 if weather == "rainy" else 0
+temperature = random.uniform(-10, 30)
+# Базовая занятость зависит от часа и дня недели
+base_occ = 0.2
+if 8 <= hour <= 11:
+base_occ = 0.6
+elif 17 <= hour <= 20:
+base_occ = 0.7
+elif 0 <= hour <= 5:
+base_occ = 0.1
+if dow >= 5:
+base_occ += 0.1
+if is_event:
+base_occ += 0.2
+if is_rain:
+base_occ += 0.1
+base_occ = max(0.0, min(base_occ + random.uniform(-0.1, 0.1), 1.0))
+cur.execute(
+"""
+INSERT INTO occupancy_history (
+lot_id, ts, occupancy, temperature, is_rain, is_event
+) VALUES (?, ?, ?, ?, ?, ?)
+""",
+(
+lot_id,
+ts.isoformat(),
+base_occ,
+temperature,
+is_rain,
+is_event,
+),
+)
+ts += timedelta(hours=2)
+# Пользователи
+users = []
+for i in range(num_users):
+cur.execute(
+"INSERT INTO app_user (name) VALUES (?);",
+(f"user_{i+1}",),
+)
+users.append(cur.lastrowid)
+# Оценки пользователей парковок
+for user_id in users:
+# Каждый пользователь оценит 5–15 парковок
+k = random.randint(5, min(15, len(lots)))
+rated_lots = random.sample(lots, k)
+for lot_id in rated_lots:
+# Рейтинг зависит от price_level и случайности
+base_rating = 4.5 - 0.5 * (random.randint(1, 3) - 1)
+rating = max(1.0, min(5.0, base_rating + random.uniform(-1.0, 1.0)))
+cur.execute(
+"""
+INSERT INTO user_rating (user_id, lot_id, rating)
+VALUES (?, ?, ?)
+""",
+(user_id, lot_id, rating),
+)
+conn.commit()
+conn.close()
+print("Синтетические данные сгенерированы в", DB_PATH)
+if __name__ == "__main__":
+init_db()
+generate_synthetic_data()
+
+# File 10/163: docker-compose.prod.yml
+################################################################################
+
+version: "3.9"
+
+services:
+  db:
+    image: postgis/postgis:16-3.4
+    restart: always
+    environment:
+      POSTGRES_DB: parkshare
+      POSTGRES_USER: parkshare
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-change_me}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - parkshare_net
+
+  redis:
+    image: redis:7-alpine
+    restart: always
+    networks:
+      - parkshare_net
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    env_file:
+      - .env.prod
+    command: gunicorn backend.config.wsgi:application --bind 0.0.0.0:8000
+    volumes:
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+    depends_on:
+      - db
+      - redis
+    networks:
+      - parkshare_net
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    env_file:
+      - .env.prod
+    command: celery -A backend.config worker -l info
+    depends_on:
+      - db
+      - redis
+    networks:
+      - parkshare_net
+
+  beat:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    env_file:
+      - .env.prod
+    command: celery -A backend.config beat -l info
+    depends_on:
+      - db
+      - redis
+    networks:
+      - parkshare_net
+
+  nginx:
+    image: nginx:1.27-alpine
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - static_volume:/static
+      - media_volume:/media
+    depends_on:
+      - web
+    networks:
+      - parkshare_net
+
+volumes:
+  postgres_data:
+  static_volume:
+  media_volume:
+
+networks:
+  parkshare_net:
+    driver: bridge
+
+
+# File 11/163: docker-compose.yml
+################################################################################
+
+version: "3.9"
+
+services:
+  db:
+    image: postgis/postgis:16-3.4
+    container_name: parkshare_db
+    restart: always
+    environment:
+      POSTGRES_DB: parkshare
+      POSTGRES_USER: parkshare
+      POSTGRES_PASSWORD: parkshare
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - parkshare_net
+
+  redis:
+    image: redis:7-alpine
+    container_name: parkshare_redis
+    restart: always
+    networks:
+      - parkshare_net
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: parkshare_web
+    restart: always
+    env_file:
+      - .env  # можно потом заменить на .env.prod
+    command: /app/entrypoint.sh
+    volumes:
+      - .:/app
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+    depends_on:
+      - db
+      - redis
+    networks:
+      - parkshare_net
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: parkshare_worker
+    restart: always
+    env_file:
+      - .env
+    command: celery -A backend.config worker -l info
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+      - redis
+    networks:
+      - parkshare_net
+
+  beat:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: parkshare_beat
+    restart: always
+    env_file:
+      - .env
+    command: celery -A backend.config beat -l info
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+      - redis
+    networks:
+      - parkshare_net
+
+  ai_pricing_service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: parkshare_ai_pricing
+    restart: always
+    env_file:
+      - .env
+    command: uvicorn ai_services.ai_pricing_service.main:app --host 0.0.0.0 --port 8100
+    depends_on:
+      - redis
+    networks:
+      - parkshare_net
+
+  llm_service:
+    build:
+      context: .
+      dockerfile: services/llm_service/Dockerfile
+    container_name: parkshare_llm_service
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "8002:8002"
+    networks:
+      - parkshare_net
+
+  cv_service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: parkshare_cv_service
+    restart: always
+    env_file:
+      - .env
+    command: uvicorn ai_services.cv_service.main:app --host 0.0.0.0 --port 8200
+    depends_on:
+      - redis
+    networks:
+      - parkshare_net
+
+  nginx:
+    image: nginx:alpine
+    container_name: parkshare_nginx
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - static_volume:/static
+      - media_volume:/media
+    depends_on:
+      - web
+    networks:
+      - parkshare_net
+
+volumes:
+  postgres_data:
+  static_volume:
+  media_volume:
+
+networks:
+  parkshare_net:
+    driver: bridge
+
+
+# File 12/163: dump_project.py
+################################################################################
+
+import os
+import re
+from datetime import datetime
+# Какие папки игнорировать (расширенный список)
+EXCLUDED_DIRS = {
+".git", ".venv", "venv", "__pycache__", "node_modules",
+"dist", "build", "staticfiles", "media", ".idea", ".vscode",
+"ai_models",
+"static/icons",
+"logs", "cache", "temp",
+}
+# Какие расширения файлов пропускать (расширенный список)
+IGNORED_EXTENSIONS = {
+".pyc", ".pyo", ".pyd", ".sqlite3", ".sqlite", ".db",
+".png", ".jpg", ".jpeg", ".gif", ".ico", ".svg", ".webp",
+".pdf", ".zip", ".rar", ".7z", ".tar", ".gz",
+".exe", ".dll", ".so", ".pkl", ".h5", ".model", ".pt",
+".mp4", ".mp3", ".wav", ".avi", ".mov",
+".log", ".tmp", ".cache",
+}
+# Файлы, которые нужно полностью игнорировать
+EXCLUDED_FILES = {
+"CODEX_LOG1.txt", "CODEX__LOGS.txt",
+"package-lock.json", "yarn.lock",
+}
+# Максимальный размер файла для включения в дамп (в байтах)
+MAX_FILE_SIZE = 500 * 1024
+# Сжатие кода: удаление лишних пробелов и комментарий
+COMPRESS_CODE = True
+def is_binary_file(filename: str) -> bool:
+_, ext = os.path.splitext(filename.lower())
+return ext in IGNORED_EXTENSIONS
+def should_exclude_file(filename: str) -> bool:
+"""Проверяет, нужно ли исключить файл"""
+return filename in EXCLUDED_FILES
+def compress_content(content: str, filepath: str) -> str:
+"""Сжимает содержимое файла (удаляет лишние пробелы и комментарии)"""
+if not COMPRESS_CODE:
+return content
+_, ext = os.path.splitext(filepath.lower())
+if ext in {'.py', '.js', '.css', '.html', '.ts'}:
+# Удаляем комментарии и лишние пробелы
+lines = []
+in_multiline_comment = False
+for line in content.split('\n'):
+# Обработка многострочных комментариев
+if in_multiline_comment:
+if '*/' in line:
+line = line.split('*/', 1)[1]
+in_multiline_comment = False
+else:
+continue
+# Удаляем однострочные комментарии
+if '
+line = line.split('
+if '
+line = line.split('
+# Обработка многострочных комментариев для CSS/JS
+if '
+' in line:
+line = line.split('')[1]
+else:
+line = line.split('
+
+# File 13/163: entrypoint.sh
+################################################################################
+
+#!/bin/sh
+set -e
+
+# Если DJANGO_SETTINGS_MODULE не задан, по умолчанию считаем, что это прод.
+: "${DJANGO_SETTINGS_MODULE:=backend.settings.production}"
+export DJANGO_SETTINGS_MODULE
+
+echo "Using DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}"
+
+# Миграции
+python backend/manage.py migrate --noinput
+
+# Сбор статики
+python backend/manage.py collectstatic --noinput
+
+# Запуск gunicorn
+exec gunicorn backend.config.wsgi:application \
+    --bind 0.0.0.0:8000 \
+    --workers "${GUNICORN_WORKERS:-3}" \
+    --timeout "${GUNICORN_TIMEOUT:-60}"
+
+
+# File 14/163: index.html
+################################################################################
+
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<title>ParkShare AI Map</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<!-- Leaflet -->
+<link
+rel="stylesheet"
+href="https:
+integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+crossorigin=""
+/>
+<link rel="stylesheet" href="./static/css/cinematic-ui.css" />
+<style>
+:root {
+--primary:
+--bg:
+--bg-card:
+--text:
+--accent:
+--danger:
+--warning:
+}
+* {
+box-sizing: border-box;
+}
+body {
+margin: 0;
+font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+sans-serif;
+background: radial-gradient(circle at top,
+color: var(--text);
+height: 100vh;
+display: flex;
+flex-direction: column;
+}
+header {
+padding: 0.75rem 1rem;
+display: flex;
+align-items: center;
+justify-content: space-between;
+background: rgba(15, 23, 42, 0.9);
+backdrop-filter: blur(12px);
+border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+z-index: 1000;
+position: sticky;
+top: 0;
+}
+header h1 {
+font-size: 1.1rem;
+margin: 0;
+display: flex;
+align-items: center;
+gap: 0.4rem;
+}
+.badge {
+font-size: 0.7rem;
+padding: 0.1rem 0.4rem;
+border-radius: 999px;
+border: 1px solid rgba(148, 163, 184, 0.5);
+text-transform: uppercase;
+letter-spacing: 0.08em;
+}
+.header-meta {
+display: flex;
+align-items: center;
+gap: 0.75rem;
+}
+main {
+flex: 1;
+display: grid;
+grid-template-columns: minmax(0, 2.2fr) minmax(0, 1.3fr);
+min-height: 0;
+}
+#map {
+width: 100%;
+height: 100%;
+}
+.sidebar {
+border-left: 1px solid rgba(148, 163, 184, 0.2);
+background: radial-gradient(circle at top,
+padding: 0.75rem;
+display: flex;
+flex-direction: column;
+gap: 0.75rem;
+min-width: 280px;
+max-width: 480px;
+}
+.card {
+background: rgba(15, 23, 42, 0.98);
+border-radius: 0.9rem;
+border: 1px solid rgba(148, 163, 184, 0.25);
+padding: 0.75rem 0.8rem;
+box-shadow: 0 18px 45px rgba(15, 23, 42, 0.6);
+}
+.card-title {
+font-size: 0.9rem;
+font-weight: 600;
+margin-bottom: 0.4rem;
+display: flex;
+align-items: center;
+justify-content: space-between;
+}
+.input-row {
+display: flex;
+gap: 0.4rem;
+margin-top: 0.3rem;
+}
+input[type="text"],
+select {
+flex: 1;
+padding: 0.4rem 0.5rem;
+border-radius: 999px;
+border: 1px solid rgba(148, 163, 184, 0.5);
+background: rgba(15, 23, 42, 0.9);
+color: var(--text);
+font-size: 0.85rem;
+outline: none;
+}
+input::placeholder {
+color: rgba(148, 163, 184, 0.9);
+}
+button {
+border-radius: 999px;
+border: none;
+padding: 0.45rem 0.9rem;
+font-size: 0.8rem;
+font-weight: 500;
+cursor: pointer;
+background: linear-gradient(135deg,
+color:
+display: inline-flex;
+align-items: center;
+gap: 0.35rem;
+white-space: nowrap;
+}
+button.secondary {
+background: rgba(15, 23, 42, 0.9);
+border: 1px solid rgba(148, 163, 184, 0.6);
+color: rgba(209, 213, 219, 0.95);
+}
+.pill {
+font-size: 0.72rem;
+border-radius: 999px;
+padding: 0.16rem 0.5rem;
+border: 1px solid rgba(148, 163, 184, 0.4);
+display: inline-flex;
+align-items: center;
+gap: 0.3rem;
+color: rgba(209, 213, 219, 0.95);
+}
+.pill-dot {
+width: 0.55rem;
+height: 0.55rem;
+border-radius: 999px;
+}
+.pill-dot.green {
+background: var(--accent);
+}
+.pill-dot.yellow {
+background: var(--warning);
+}
+.pill-dot.red {
+background: var(--danger);
+}
+.lots-list {
+max-height: 220px;
+overflow-y: auto;
+margin-top: 0.4rem;
+padding-right: 0.2rem;
+}
+.lot-item {
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding: 0.4rem 0.2rem;
+border-bottom: 1px solid rgba(31, 41, 55, 0.9);
+cursor: pointer;
+}
+.lot-item:last-child {
+border-bottom: none;
+}
+.lot-main {
+display: flex;
+flex-direction: column;
+gap: 0.1rem;
+font-size: 0.75rem;
+}
+.lot-name {
+font-weight: 500;
+font-size: 0.8rem;
+}
+.lot-meta {
+display: flex;
+flex-wrap: wrap;
+gap: 0.3rem;
+font-size: 0.7rem;
+color: rgba(156, 163, 175, 0.95);
+}
+.lot-occ {
+font-size: 0.8rem;
+font-weight: 500;
+min-width: 80px;
+text-align: right;
+}
+.status {
+font-size: 0.7rem;
+color: rgba(148, 163, 184, 0.9);
+margin-top: 0.3rem;
+}
+.ai-oracle-chip {
+display: inline-flex;
+align-items: center;
+gap: 0.4rem;
+padding: 0.18rem 0.65rem;
+border-radius: 999px;
+border: 1px solid rgba(59, 130, 246, 0.45);
+background: linear-gradient(120deg, rgba(37, 99, 235, 0.35), rgba(14, 165, 233, 0.15));
+color:
+font-size: 0.75rem;
+letter-spacing: 0.02em;
+box-shadow: 0 12px 30px rgba(37, 99, 235, 0.25);
+}
+.ai-orchestrator-card {
+position: relative;
+overflow: hidden;
+background: linear-gradient(135deg, rgba(30, 41, 59, 0.92), rgba(17, 24, 39, 0.94));
+}
+.ai-orchestrator-card .card-title {
+align-items: center;
+}
+.ai-orchestrator-card .card-title span {
+display: inline-flex;
+align-items: center;
+gap: 0.4rem;
+}
+.quantum-toggle {
+border: 1px solid rgba(255, 255, 255, 0.12);
+color:
+font-weight: 600;
+letter-spacing: 0.01em;
+min-width: 150px;
+justify-content: space-between;
+}
+.quantum-toggle__dot {
+width: 18px;
+height: 18px;
+border-radius: 50%;
+border: 2px solid rgba(255, 255, 255, 0.7);
+background: radial-gradient(circle at 35% 35%,
+box-shadow: 0 0 20px rgba(56, 189, 248, 0.45);
+}
+.quantum-toggle__label {
+flex: 1;
+text-align: right;
+font-size: 0.8rem;
+}
+@media (max-width: 900px) {
+main {
+grid-template-columns: 1fr;
+}
+.sidebar {
+max-width: 100%;
+border-left: none;
+border-top: 1px solid rgba(148, 163, 184, 0.2);
+}
+}
+</style>
+</head>
+<body>
+<header class="cinematic-surface">
+<h1>
+<span>ParkShare AI Map</span>
+<span class="badge">local ML</span>
+</h1>
+<div class="header-meta">
+<div class="ai-crest">
+<span>🧠</span>
+<span class="quantum-toggle__label">AI Orchestrator</span>
+</div>
+<button id="themeToggle" class="quantum-toggle cinematic-button" data-theme="dark">
+<span class="quantum-toggle__dot"></span>
+<span class="quantum-toggle__label">Dark Matter</span>
+</button>
+<div class="pill">
+<span class="pill-dot green"></span>
+<span id="statusText">Подключение к AI-серверу…</span>
+</div>
+</div>
+</header>
+<main>
+<div id="map"></div>
+<aside class="sidebar">
+<section class="card cinematic-surface ai-orchestrator-card">
+<div class="card-title">
+<span>AI-Оркестратор</span>
+<span class="ai-oracle-chip">Quantum boost</span>
+</div>
+<div class="ai-forecast">
+<div class="ai-forecast-metric">
+<span class="ai-forecast-label">Лучшая ставка</span>
+<span class="ai-forecast-value" id="aiOracleName">—</span>
+</div>
+<div class="ai-forecast-metric">
+<span class="ai-forecast-label">Освободится через</span>
+<span class="ai-forecast-value" id="aiOracleETA">—</span>
+</div>
+<div class="ai-forecast-metric">
+<span class="ai-forecast-label">Уверенность AI</span>
+<span class="ai-forecast-value" id="aiOracleConfidence">—</span>
+</div>
+<div class="ai-forecast-metric">
+<span class="ai-forecast-label">EV/крытая</span>
+<span class="ai-forecast-value" id="aiOracleMeta">—</span>
+</div>
+</div>
+<div class="ai-reasoning" id="aiOracleReason">AI готовит инсайт…</div>
+</section>
+<section class="card">
+<div class="card-title">
+<span>Поиск парковок (NLP)</span>
+</div>
+<div class="input-row">
+<input
+type="text"
+id="searchInput"
+placeholder='Например: "рядом с метро", "дешевые утром"'
+/>
+<button id="searchBtn">Искать</button>
+</div>
+<div class="status" id="searchStatus">Запрос еще не выполнен.</div>
+</section>
+<section class="card">
+<div class="card-title">
+<span>Рекомендации (коллаб. фильтрация)</span>
+<select id="userSelect"></select>
+</div>
+<div class="input-row">
+<button id="recBtn">Получить рекомендации</button>
+<button id="recContentBtn" class="secondary">Вариант B (content)</button>
+</div>
+<div class="status" id="recStatus">Нет рекомендаций.</div>
+<div class="lots-list" id="recList"></div>
+</section>
+<section class="card">
+<div class="card-title">
+<span>Все парковки</span>
+</div>
+<div class="lots-list" id="lotsList"></div>
+</section>
+</aside>
+</main>
+<script
+src="https:
+integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+crossorigin=""
+></script>
+<script src="./static/js/quantum-theme-manager.js"></script>
+<script src="app.js"></script>
+<script>
+window.psThemeManager = window.initQuantumThemeManager();
+</script>
+</body>
+</html>
+
+# File 17/163: requirements.txt
 ################################################################################
 
 Django==5.2.8
@@ -2174,12 +4176,261 @@ fastapi
 uvicorn[standard]==0.32.1
 
 
-# File 18/160: accounts\__init__.py
+# File 18/163: run_dev.bat
+################################################################################
+
+@echo off
+echo 🎯 ParkShare Development Launcher (Windows)
+
+REM Активируем виртуальное окружение если есть
+if exist venv (
+    echo 🔧 Активация виртуального окружения...
+    call venv\Scripts\activate
+)
+
+REM Запускаем основной скрипт
+python run_dev.py
+pause
+
+# File 19/163: run_dev.py
+################################################################################
+
+#!/usr/bin/env python3
+"""
+Единый скрипт для запуска всей системы ParkShare Development
+Запускает: Django, LLM сервис, AI API сервер, Celery worker
+"""
+import os
+import sys
+import time
+import subprocess
+import signal
+import threading
+from pathlib import Path
+# Добавляем корень проекта в Python path
+project_root = Path(__file__).parent
+sys.path.insert(0, str(project_root))
+def run_command(command, cwd=None, shell=False, env=None):
+"""Запускает команду и возвращает процесс"""
+if env is None:
+env = os.environ.copy()
+print(f"🚀 Запуск: {command}")
+process = subprocess.Popen(
+command,
+cwd=cwd or project_root,
+shell=shell,
+env=env,
+stdout=subprocess.PIPE,
+stderr=subprocess.STDOUT,
+universal_newlines=True,
+bufsize=1
+)
+return process
+def log_output(process, name):
+"""Логирует вывод процесса"""
+def log_thread():
+while True:
+output = process.stdout.readline()
+if output == '' and process.poll() is not None:
+break
+if output:
+print(f"[{name}] {output.strip()}")
+process.poll()
+thread = threading.Thread(target=log_thread)
+thread.daemon = True
+thread.start()
+return thread
+def setup_environment():
+"""Настраивает окружение для разработки"""
+env = os.environ.copy()
+env['PYTHONPATH'] = str(project_root)
+env['DJANGO_SETTINGS_MODULE'] = 'backend.settings.local'
+env['DEBUG'] = '1'
+return env
+def wait_for_service(port, timeout=30):
+"""Ожидает пока сервис на порту станет доступен"""
+import socket
+import time
+start_time = time.time()
+while time.time() - start_time < timeout:
+try:
+with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+sock.settimeout(1)
+result = sock.connect_ex(('localhost', port))
+if result == 0:
+print(f"✅ Сервис на порту {port} готов")
+return True
+except:
+pass
+time.sleep(1)
+print(f"❌ Таймаут ожидания порта {port}")
+return False
+def start_django():
+"""Запускает Django development server"""
+print("\n" + "=" * 50)
+print("🔄 Запуск Django сервера...")
+print("=" * 50)
+# Применяем миграции
+print("📦 Применяем миграции...")
+migrate_process = run_command([
+sys.executable, "backend/manage.py", "migrate"
+])
+migrate_process.wait()
+# Собираем статику
+print("📦 Собираем статику...")
+collectstatic_process = run_command([
+sys.executable, "backend/manage.py", "collectstatic", "--noinput"
+])
+collectstatic_process.wait()
+# Запускаем сервер
+return run_command([
+sys.executable, "backend/manage.py", "runserver", "8000"
+])
+def start_llm_service():
+"""Запускает LLM микросервис"""
+print("\n" + "=" * 50)
+print("🧠 Запуск LLM сервиса...")
+print("=" * 50)
+return run_command([
+sys.executable, "-m", "uvicorn",
+"ai_services.llm_service.main:app",
+"--host", "0.0.0.0",
+"--port", "8002",
+"--reload"
+])
+def start_ai_api():
+"""Запускает AI API сервер"""
+print("\n" + "=" * 50)
+print("🤖 Запуск AI API сервера...")
+print("=" * 50)
+return run_command([
+sys.executable, "api_server.py"
+])
+def start_celery_worker():
+"""Запускает Celery worker"""
+print("\n" + "=" * 50)
+print("🔧 Запуск Celery worker...")
+print("=" * 50)
+return run_command([
+sys.executable, "-m", "celery",
+"-A", "backend.config",
+"worker",
+"--loglevel=info",
+"--concurrency=2"
+])
+def start_celery_beat():
+"""Запускает Celery beat"""
+print("\n" + "=" * 50)
+print("⏰ Запуск Celery beat...")
+print("=" * 50)
+return run_command([
+sys.executable, "-m", "celery",
+"-A", "backend.config",
+"beat",
+"--loglevel=info"
+])
+def check_dependencies():
+"""Проверяет наличие всех зависимостей"""
+print("🔍 Проверка зависимостей...")
+try:
+import django
+import fastapi
+import uvicorn
+import celery
+import redis
+print("✅ Все зависимости установлены")
+return True
+except ImportError as e:
+print(f"❌ Отсутствует зависимость: {e}")
+print("Установите зависимости: pip install -r requirements.txt")
+return False
+def main():
+"""Основная функция запуска"""
+print("🎯 ParkShare Development Launcher")
+print("Запуск всех компонентов системы...")
+# Проверяем зависимости
+if not check_dependencies():
+sys.exit(1)
+# Настраиваем окружение
+env = setup_environment()
+processes = []
+try:
+# Запускаем сервисы
+services = [
+("LLM Service", start_llm_service, 8002),
+("AI API", start_ai_api, 8001),
+("Celery Worker", start_celery_worker, None),
+("Celery Beat", start_celery_beat, None),
+("Django", start_django, 8000),
+]
+for name, starter, port in services:
+process = starter()
+processes.append((name, process))
+if port:
+# Даем время сервису начать запуск
+time.sleep(2)
+if not wait_for_service(port, timeout=10):
+print(f"⚠️  Сервис {name} медленно запускается...")
+# Запускаем логирование для всех процессов
+threads = []
+for name, process in processes:
+thread = log_output(process, name)
+threads.append(thread)
+print("\n" + "🎉 Все сервисы запущены!")
+print("📊 Статус сервисов:")
+print("   • Django: http:
+print("   • LLM Service: http:
+print("   • AI API: http:
+print("   • Celery Worker: ✅")
+print("   • Celery Beat: ✅")
+print("\n🛑 Для остановки нажмите Ctrl+C")
+# Ожидаем завершения
+while True:
+time.sleep(1)
+# Проверяем, что все процессы еще работают
+for name, process in processes:
+if process.poll() is not None:
+print(f"❌ Процесс {name} завершился с кодом {process.returncode}")
+# Можно перезапустить или завершить все
+except KeyboardInterrupt:
+print("\n🛑 Остановка сервисов...")
+# Останавливаем процессы
+for name, process in processes:
+if process.poll() is None:
+print(f"⏹️  Останавливаем {name}...")
+process.terminate()
+try:
+process.wait(timeout=5)
+except subprocess.TimeoutExpired:
+print(f"❌ Принудительная остановка {name}...")
+process.kill()
+print("👋 Все сервисы остановлены")
+if __name__ == "__main__":
+main()
+
+# File 20/163: run_dev.sh
+################################################################################
+
+#!/bin/bash
+# Скрипт запуска для Unix систем
+
+echo "🎯 ParkShare Development Launcher (Unix)"
+
+# Активируем виртуальное окружение если есть
+if [ -d "venv" ]; then
+    echo "🔧 Активация виртуального окружения..."
+    source venv/bin/activate
+fi
+
+# Запускаем основной скрипт
+python run_dev.py
+
+# File 21/163: accounts\__init__.py
 ################################################################################
 
 
 
-# File 19/160: accounts\admin.py
+# File 22/163: accounts\admin.py
 ################################################################################
 
 # accounts/admin.py
@@ -2215,7 +4466,7 @@ list_display = (
 list_filter = ("role", "is_active", "is_staff", "is_superuser")
 search_fields = ("username",)
 
-# File 20/160: accounts\apps.py
+# File 23/163: accounts\apps.py
 ################################################################################
 
 # accounts/apps.py
@@ -2225,7 +4476,7 @@ default_auto_field = "django.db.models.BigAutoField"
 name = "accounts"
 verbose_name = "Пользователи ParkShare"
 
-# File 21/160: accounts\auth.py
+# File 24/163: accounts\auth.py
 ################################################################################
 
 # accounts/auth.py
@@ -2288,7 +4539,7 @@ return None
 except User.MultipleObjectsReturned:
 return _get_first_or_none(qs.filter(phone_hash=phone_hash).order_by("date_joined"))
 
-# File 22/160: accounts\forms.py
+# File 25/163: accounts\forms.py
 ################################################################################
 
 # accounts/forms.py
@@ -2413,7 +4664,7 @@ if commit:
 user.save()
 return user
 
-# File 23/160: accounts\models.py
+# File 26/163: accounts\models.py
 ################################################################################
 
 # accounts/models.py
@@ -2619,7 +4870,7 @@ verbose_name_plural = "Промо/бонусы"
 def __str__(self) -> str:
 return self.code
 
-# File 24/160: accounts\serializers.py
+# File 27/163: accounts\serializers.py
 ################################################################################
 
 # accounts/serializers.py
@@ -2853,7 +5104,7 @@ choices=LoginCode.Purpose.choices,
 default=LoginCode.Purpose.LOGIN,
 )
 
-# File 25/160: accounts\urls.py
+# File 28/163: accounts\urls.py
 ################################################################################
 
 # accounts/urls.py
@@ -2918,7 +5169,7 @@ name="password_reset_complete",
 ),
 ]
 
-# File 26/160: accounts\utils.py
+# File 29/163: accounts\utils.py
 ################################################################################
 
 from __future__ import annotations
@@ -2963,7 +5214,7 @@ if not normalized:
 return ""
 return _hash_value("phone", normalized)
 
-# File 27/160: accounts\views.py
+# File 30/163: accounts\views.py
 ################################################################################
 
 # accounts/views.py
@@ -3278,7 +5529,7 @@ return Response(
 status=status.HTTP_200_OK,
 )
 
-# File 28/160: accounts\migrations\0001_initial.py
+# File 31/163: accounts\migrations\0001_initial.py
 ################################################################################
 
 # Generated by Django 5.2.8 on 2025-11-21 21:34
@@ -3325,7 +5576,7 @@ managers=[
 ),
 ]
 
-# File 29/160: accounts\migrations\0002_user_email_hash_user_phone_hash_logincode.py
+# File 32/163: accounts\migrations\0002_user_email_hash_user_phone_hash_logincode.py
 ################################################################################
 
 # Generated by Django 5.2.8 on 2025-11-23 15:00
@@ -3369,7 +5620,7 @@ options={
 ),
 ]
 
-# File 30/160: accounts\migrations\0003_userlevel_userbadge_promoreward.py
+# File 33/163: accounts\migrations\0003_userlevel_userbadge_promoreward.py
 ################################################################################
 
 import uuid
@@ -3432,17 +5683,17 @@ options={
 ),
 ]
 
-# File 31/160: accounts\migrations\__init__.py
+# File 34/163: accounts\migrations\__init__.py
 ################################################################################
 
 
 
-# File 32/160: ai\__init__.py
+# File 35/163: ai\__init__.py
 ################################################################################
 
 default_app_config = "ai.apps.AiConfig"
 
-# File 33/160: ai\admin.py
+# File 36/163: ai\admin.py
 ################################################################################
 
 from django.contrib import admin
@@ -3469,7 +5720,7 @@ class ChatFeedbackAdmin(admin.ModelAdmin):
 list_display = ("message", "rating", "created_at")
 list_filter = ("rating",)
 
-# File 34/160: ai\apps.py
+# File 37/163: ai\apps.py
 ################################################################################
 
 from django.apps import AppConfig
@@ -3480,7 +5731,7 @@ default_auto_field = "django.db.models.BigAutoField"
 name = "ai"
 verbose_name = "AI и рекомендации ParkShare"
 
-# File 35/160: ai\features.py
+# File 38/163: ai\features.py
 ################################################################################
 
 from __future__ import annotations
@@ -3519,7 +5770,7 @@ df = pd.DataFrame(rows)
 df["is_weekend"] = df["dow"] >= 5
 return df
 
-# File 36/160: ai\models.py
+# File 39/163: ai\models.py
 ################################################################################
 
 # ai/models.py
@@ -3640,7 +5891,7 @@ ordering = ("-created_at",)
 def __str__(self) -> str:
 return f"Feedback({self.rating})"
 
-# File 37/160: ai\orchestrator.py
+# File 40/163: ai\orchestrator.py
 ################################################################################
 
 from __future__ import annotations
@@ -3691,7 +5942,7 @@ booking.ai_snapshot = {
 "availability": forecast,
 }
 
-# File 38/160: ai\pricing.py
+# File 41/163: ai\pricing.py
 ################################################################################
 
 from __future__ import annotations
@@ -3785,12 +6036,12 @@ return {
 "reason": reason,
 }
 
-# File 39/160: ai\serializers.py
+# File 42/163: ai\serializers.py
 ################################################################################
 
 
 
-# File 40/160: ai\tasks.py
+# File 43/163: ai\tasks.py
 ################################################################################
 
 from __future__ import annotations
@@ -3852,7 +6103,7 @@ values = [max(0.0, min(s.occupancy_7d, 1.0)) for s in spots]
 lot.stress_index = sum(values) / len(values)
 lot.save(update_fields=["stress_index"])
 
-# File 41/160: ai\views.py
+# File 44/163: ai\views.py
 ################################################################################
 
 # backend/ai/views.py
@@ -4331,14 +6582,14 @@ data = {
 }
 return Response(data, status=status.HTTP_200_OK)
 
-# File 42/160: ai\chat\__init__.py
+# File 45/163: ai\chat\__init__.py
 ################################################################################
 
 """Chat helpers for local parking assistant."""
 from .parking_assistant import generate_chat_reply
 __all__ = ["generate_chat_reply"]
 
-# File 43/160: ai\chat\parking_assistant.py
+# File 46/163: ai\chat\parking_assistant.py
 ################################################################################
 
 """
@@ -4647,17 +6898,17 @@ logger.exception("LLM flow errored, forcing rule-based fallback", exc_info=exc)
 logger.info("Falling back to rule-based parser")
 return _handle_rule_based_flow(lowered)
 
-# File 44/160: ai\management\__init__.py
+# File 47/163: ai\management\__init__.py
 ################################################################################
 
 
 
-# File 45/160: ai\management\commands\__init__.py
+# File 48/163: ai\management\commands\__init__.py
 ################################################################################
 
 
 
-# File 46/160: ai\management\commands\train_chat_intents_from_logs.py
+# File 49/163: ai\management\commands\train_chat_intents_from_logs.py
 ################################################################################
 
 from django.core.management.base import BaseCommand
@@ -4674,7 +6925,7 @@ self.stdout.write(f"Сообщений пользователей: {user_message
 # TODO: выгружать диалоги и обучать намерения
 self.stdout.write("Подготовка к обучению завершена (заглушка).")
 
-# File 47/160: ai\migrations\0001_initial.py
+# File 50/163: ai\migrations\0001_initial.py
 ################################################################################
 
 # Generated manually to include initial AI models
@@ -4773,12 +7024,12 @@ options={
 ),
 ]
 
-# File 48/160: ai\migrations\__init__.py
+# File 51/163: ai\migrations\__init__.py
 ################################################################################
 
 
 
-# File 49/160: ai_services\__init__.py
+# File 52/163: ai_services\__init__.py
 ################################################################################
 
 """
@@ -4788,14 +7039,14 @@ AI microservices for ParkShare / ParkShare RU.
 - cv_service: Computer Vision (распознавание номеров, заполненность и т.д.).
 """
 
-# File 50/160: ai_services\ai_pricing_service\__init__.py
+# File 53/163: ai_services\ai_pricing_service\__init__.py
 ################################################################################
 
 """
 AI Pricing microservice (FastAPI) for dynamic parking spot pricing.
 """
 
-# File 51/160: ai_services\ai_pricing_service\main.py
+# File 54/163: ai_services\ai_pricing_service\main.py
 ################################################################################
 
 from __future__ import annotations
@@ -4824,8 +7075,13 @@ step_dec = Decimal(str(step))
 scaled = (v / step_dec).quantize(Decimal("1"), rounding=ROUND_HALF_UP)
 result = scaled * step_dec
 return float(result)
+# ai_services/ai_pricing_service/main.py
 class PricingRequest(BaseModel):
-base_price: float = Field(..., gt=0, description="Базовая цена за час, ₽")
+base_price: float = Field(
+...,
+gt=0,
+description="Базовая цена за час, ₽",
+)
 occupancy_7d: float = Field(
 0.0,
 ge=0.0,
@@ -4839,10 +7095,16 @@ le=1.0,
 description="Индекс загруженности парковки (0..1)",
 )
 hour: Optional[int] = Field(
-None, ge=0, le=23, description="Час суток (0–23, локальное время парковки)"
+None,
+ge=0,
+le=23,
+description="Час суток (0–23, локальное время парковки)",
 )
 dow: Optional[int] = Field(
-None, ge=0, le=6, description="День недели (0=понедельник, 6=воскресенье)"
+None,
+ge=0,
+le=6,
+description="День недели (0=понедельник, 6=воскресенье)",
 )
 use_ml: bool = Field(
 False,
@@ -4937,7 +7199,7 @@ is_discount=is_discount,
 reason=reason,
 )
 
-# File 52/160: ai_services\cv_service\__init__.py
+# File 55/163: ai_services\cv_service\__init__.py
 ################################################################################
 
 """
@@ -4946,7 +7208,7 @@ Computer Vision microservice (FastAPI) for ParkShare:
 - оценка заполненности парковок по кадрам камер.
 """
 
-# File 53/160: ai_services\cv_service\main.py
+# File 56/163: ai_services\cv_service\main.py
 ################################################################################
 
 from __future__ import annotations
@@ -5051,7 +7313,7 @@ occupancy_rate=round(occupancy_rate, 3),
 timestamp=datetime.now(timezone.utc),
 )
 
-# File 54/160: backend\manage.py
+# File 57/163: backend\manage.py
 ################################################################################
 
 #!/usr/bin/env python
@@ -5086,18 +7348,18 @@ execute_from_command_line(sys.argv)
 if __name__ == "__main__":
 main()
 
-# File 55/160: backend\backend\__init__.py
+# File 58/163: backend\backend\__init__.py
 ################################################################################
 
 from .config.celery import app as celery_app
 __all__ = ("celery_app",)
 
-# File 56/160: backend\backend\config\__init__.py
+# File 59/163: backend\backend\config\__init__.py
 ################################################################################
 
 # Пустой, но важно наличия для импорта настроек и celery.
 
-# File 57/160: backend\backend\config\asgi.py
+# File 60/163: backend\backend\config\asgi.py
 ################################################################################
 
 import os
@@ -5110,7 +7372,7 @@ raise RuntimeError(
 )
 application = get_asgi_application()
 
-# File 58/160: backend\backend\config\celery.py
+# File 61/163: backend\backend\config\celery.py
 ################################################################################
 
 # backend/backend/config/celery.py
@@ -5135,7 +7397,7 @@ app.autodiscover_tasks()
 def debug_task(self) -> None:
 print(f"Debug task: Request: {self.request!r}")
 
-# File 59/160: backend\backend\config\urls.py
+# File 62/163: backend\backend\config\urls.py
 ################################################################################
 
 from django.conf import settings
@@ -5267,7 +7529,7 @@ if settings.DEBUG:
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
-# File 60/160: backend\backend\config\wsgi.py
+# File 63/163: backend\backend\config\wsgi.py
 ################################################################################
 
 import os
@@ -5280,7 +7542,7 @@ raise RuntimeError(
 )
 application = get_wsgi_application()
 
-# File 61/160: backend\backend\settings\__init__.py
+# File 64/163: backend\backend\settings\__init__.py
 ################################################################################
 
 """
@@ -5293,7 +7555,7 @@ application = get_wsgi_application()
 Это согласовано с проверками в backend.config.wsgi / asgi / celery.
 """
 
-# File 62/160: backend\backend\settings\base.py
+# File 65/163: backend\backend\settings\base.py
 ################################################################################
 
 import os
@@ -5657,7 +7919,7 @@ CACHES = {
 }
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# File 63/160: backend\backend\settings\local.py
+# File 66/163: backend\backend\settings\local.py
 ################################################################################
 
 from .base import *
@@ -5669,7 +7931,7 @@ SECURE_SSL_REDIRECT = False
 SESSION_COOKIE_SECURE = False
 CSRF_COOKIE_SECURE = False
 
-# File 64/160: backend\backend\settings\production.py
+# File 67/163: backend\backend\settings\production.py
 ################################################################################
 
 from django.core.exceptions import ImproperlyConfigured
@@ -5689,7 +7951,7 @@ SECURE_HSTS_SECONDS = env.int("SECURE_HSTS_SECONDS", default=60 * 60 * 24)
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 SECURE_HSTS_PRELOAD = True
 
-# File 65/160: backend\backend\settings\regions.py
+# File 68/163: backend\backend\settings\regions.py
 ################################################################################
 
 from __future__ import annotations
@@ -5774,12 +8036,12 @@ REGION_PROFILES = {
 },
 }
 
-# File 66/160: backend\rest_framework_simplejwt\__init__.py
+# File 69/163: backend\rest_framework_simplejwt\__init__.py
 ################################################################################
 
 """Stub for rest_framework_simplejwt to allow offline checks."""
 
-# File 67/160: backend\rest_framework_simplejwt\authentication.py
+# File 70/163: backend\rest_framework_simplejwt\authentication.py
 ################################################################################
 
 from rest_framework.authentication import BaseAuthentication
@@ -5787,7 +8049,7 @@ class JWTAuthentication(BaseAuthentication):
 def authenticate(self, request):
 return None
 
-# File 68/160: backend\rest_framework_simplejwt\tokens.py
+# File 71/163: backend\rest_framework_simplejwt\tokens.py
 ################################################################################
 
 class RefreshToken:
@@ -5800,7 +8062,7 @@ return "stub-token"
 def access_token(self):
 return "stub-access"
 
-# File 69/160: backend\rest_framework_simplejwt\views.py
+# File 72/163: backend\rest_framework_simplejwt\views.py
 ################################################################################
 
 from rest_framework.response import Response
@@ -5814,12 +8076,12 @@ return Response({"access": "stub"})
 class TokenRefreshSlidingView(TokenRefreshView):
 pass
 
-# File 70/160: backend\tests\__init__.py
+# File 73/163: backend\tests\__init__.py
 ################################################################################
 
 # Пакет с базовыми тестами проекта ParkShare RU.
 
-# File 71/160: backend\tests\test_auth_api.py
+# File 74/163: backend\tests\test_auth_api.py
 ################################################################################
 
 from django.test import TestCase
@@ -5867,7 +8129,7 @@ format="json",
 )
 self.assertEqual(resp.status_code, 200)
 
-# File 72/160: backend\tests\test_booking_model.py
+# File 75/163: backend\tests\test_booking_model.py
 ################################################################################
 
 from datetime import timedelta
@@ -5942,17 +8204,17 @@ existing.end_at + timedelta(hours=1),
 )
 )
 
-# File 73/160: core\__init__.py
+# File 76/163: core\__init__.py
 ################################################################################
 
 
 
-# File 74/160: core\admin.py
+# File 77/163: core\admin.py
 ################################################################################
 
 
 
-# File 75/160: core\apps.py
+# File 78/163: core\apps.py
 ################################################################################
 
 # core/apps.py
@@ -5962,7 +8224,7 @@ default_auto_field = "django.db.models.BigAutoField"
 name = "core"
 verbose_name = "Ядро ParkShare"
 
-# File 76/160: core\context_processors.py
+# File 79/163: core\context_processors.py
 ################################################################################
 
 # core/context_processors.py
@@ -5988,7 +8250,7 @@ settings,
 "MAP_DEFAULT_ZOOM": getattr(settings, "MAP_DEFAULT_ZOOM", 11),
 }
 
-# File 77/160: core\integrations.py
+# File 80/163: core\integrations.py
 ################################################################################
 
 """core/integrations.py
@@ -6103,7 +8365,7 @@ if settings.PLATFORM_MODE == "GLOBAL":
 return GLOBAL_INTEGRATIONS
 return RU_INTEGRATIONS
 
-# File 78/160: core\middleware.py
+# File 81/163: core\middleware.py
 ################################################################################
 
 from __future__ import annotations
@@ -6205,7 +8467,7 @@ current = int(self.cache.get(cache_key) or 0) + 1
 self.cache.set(cache_key, current, timeout=self.window)
 return current > self.limit
 
-# File 79/160: core\models.py
+# File 82/163: core\models.py
 ################################################################################
 
 # backend/core/models.py
@@ -6232,7 +8494,7 @@ class TimeStampedUUIDModel(TimeStampedModel, UUIDModel):
 class Meta:
 abstract = True
 
-# File 80/160: core\pagination.py
+# File 83/163: core\pagination.py
 ################################################################################
 
 # core/pagination.py
@@ -6248,7 +8510,7 @@ page_size = settings.REST_FRAMEWORK.get("PAGE_SIZE", 20)
 page_size_query_param = "page_size"
 max_page_size = 100
 
-# File 81/160: core\permissions.py
+# File 84/163: core\permissions.py
 ################################################################################
 
 # core/permissions.py
@@ -6302,7 +8564,7 @@ return True
 owner = getattr(obj, "owner", None)
 return owner == user
 
-# File 82/160: core\utils.py
+# File 85/163: core\utils.py
 ################################################################################
 
 # backend/core/utils.py
@@ -6407,18 +8669,18 @@ scaled = (v / step_dec).quantize(Decimal("1"), rounding=ROUND_HALF_UP)
 result = scaled * step_dec
 return float(result)
 
-# File 83/160: drf_spectacular\__init__.py
+# File 86/163: drf_spectacular\__init__.py
 ################################################################################
 
 """Локальный заглушечный пакет drf_spectacular для офлайн-среды."""
 
-# File 84/160: drf_spectacular\openapi.py
+# File 87/163: drf_spectacular\openapi.py
 ################################################################################
 
 from rest_framework.schemas.openapi import AutoSchema
 __all__ = ["AutoSchema"]
 
-# File 85/160: drf_spectacular\views.py
+# File 88/163: drf_spectacular\views.py
 ################################################################################
 
 from rest_framework.response import Response
@@ -6440,7 +8702,7 @@ __all__ = [
 "SpectacularRedocView",
 ]
 
-# File 86/160: frontend\parkmate\parkmate.types.ts
+# File 89/163: frontend\parkmate\parkmate.types.ts
 ################################################################################
 
 export interface ParkMateAI {
@@ -6482,7 +8744,7 @@ availability: "/api/ai/predict/availability/",
 },
 };
 
-# File 87/160: nginx\nginx.conf
+# File 90/163: nginx\nginx.conf
 ################################################################################
 
 user  nginx;
@@ -6555,13 +8817,13 @@ http {
 }
 
 
-# File 88/160: parking\__init__.py
+# File 91/163: parking\__init__.py
 ################################################################################
 
 # backend/parking/__init__.py
 default_app_config = "parking.apps.ParkingConfig"
 
-# File 89/160: parking\admin.py
+# File 92/163: parking\admin.py
 ################################################################################
 
 # backend/parking/admin.py
@@ -6622,7 +8884,7 @@ list_filter = ("category", "status", "created_at")
 search_fields = ("author__username", "description")
 autocomplete_fields = ("author", "booking", "spot")
 
-# File 90/160: parking\apps.py
+# File 93/163: parking\apps.py
 ################################################################################
 
 # backend/parking/apps.py
@@ -6632,7 +8894,7 @@ default_auto_field = "django.db.models.BigAutoField"
 name = "parking"
 verbose_name = "Парковки и бронирования"
 
-# File 91/160: parking\models.py
+# File 94/163: parking\models.py
 ################################################################################
 
 # backend/parking/models.py
@@ -7143,7 +9405,7 @@ unique_together = ("user", "title")
 def __str__(self) -> str:
 return f"{self.title} ({self.user})"
 
-# File 92/160: parking\serializers.py
+# File 95/163: parking\serializers.py
 ################################################################################
 
 from __future__ import annotations
@@ -7486,7 +9748,7 @@ if request and request.user.is_authenticated:
 validated_data["user"] = request.user
 return super().create(validated_data)
 
-# File 93/160: parking\tasks.py
+# File 96/163: parking\tasks.py
 ################################################################################
 
 # backend/parking/tasks.py
@@ -7515,7 +9777,7 @@ booking.status = Booking.Status.EXPIRED
 booking.save(update_fields=["status"])
 return f"Expired {count} unpaid bookings"
 
-# File 94/160: parking\urls.py
+# File 97/163: parking\urls.py
 ################################################################################
 
 # backend/parking/urls.py
@@ -7525,7 +9787,7 @@ urlpatterns: list = [
 # На данный момент все HTML‑страницы подключаются напрямую из config.urls.
 ]
 
-# File 95/160: parking\views.py
+# File 98/163: parking\views.py
 ################################################################################
 
 from __future__ import annotations
@@ -7982,7 +10244,7 @@ payload = {"results": results}
 cache.set(cache_key, payload, 60 * 10)
 return Response(payload)
 
-# File 96/160: parking\management\commands\seed_demo_parking.py
+# File 99/163: parking\management\commands\seed_demo_parking.py
 ################################################################################
 
 # parking/management/commands/seed_demo_parking.py
@@ -8114,7 +10376,7 @@ f"(создано за этот запуск {created_count})."
 )
 self.stdout.write(self.style.SUCCESS("seed_demo_parking: демо-данные готовы."))
 
-# File 97/160: parking\migrations\0001_initial.py
+# File 100/163: parking\migrations\0001_initial.py
 ################################################################################
 
 # Generated by Django 5.2.8 on 2025-11-21 21:34
@@ -8250,7 +10512,7 @@ options={
 ),
 ]
 
-# File 98/160: parking\migrations\0002_parkinglot_stress_index_parkingspot_occupancy_7d.py
+# File 101/163: parking\migrations\0002_parkinglot_stress_index_parkingspot_occupancy_7d.py
 ################################################################################
 
 # Generated by Django 5.2.8 on 2025-11-22 11:21
@@ -8272,7 +10534,7 @@ field=models.FloatField(default=0.0, help_text='Доля времени, ког�
 ),
 ]
 
-# File 99/160: parking\migrations\0003_booking_ai_fields.py
+# File 102/163: parking\migrations\0003_booking_ai_fields.py
 ################################################################################
 
 from django.db import migrations, models
@@ -8293,7 +10555,7 @@ field=models.BooleanField(default=False, verbose_name="Динамическое 
 ),
 ]
 
-# File 100/160: parking\migrations\0004_favoriteparkingspot_savedplace.py
+# File 103/163: parking\migrations\0004_favoriteparkingspot_savedplace.py
 ################################################################################
 
 from django.conf import settings
@@ -8343,17 +10605,17 @@ options={
 ),
 ]
 
-# File 101/160: parking\migrations\__init__.py
+# File 104/163: parking\migrations\__init__.py
 ################################################################################
 
 
 
-# File 102/160: payments\__init__.py
+# File 105/163: payments\__init__.py
 ################################################################################
 
 default_app_config = "payments.apps.PaymentsConfig"
 
-# File 103/160: payments\admin.py
+# File 106/163: payments\admin.py
 ################################################################################
 
 from django.contrib import admin
@@ -8383,7 +10645,7 @@ list_filter = (
 search_fields = ("provider_payment_id", "booking__id", "payer__username")
 autocomplete_fields = ("booking", "payer")
 
-# File 104/160: payments\apps.py
+# File 107/163: payments\apps.py
 ################################################################################
 
 from django.apps import AppConfig
@@ -8392,7 +10654,7 @@ default_auto_field = "django.db.models.BigAutoField"
 name = "payments"
 verbose_name = "Платежи"
 
-# File 105/160: payments\models.py
+# File 108/163: payments\models.py
 ################################################################################
 
 from __future__ import annotations
@@ -8598,7 +10860,7 @@ pk=self.pk
 ).update(is_default=False)
 return super().save(*args, **kwargs)
 
-# File 106/160: payments\providers.py
+# File 109/163: payments\providers.py
 ################################################################################
 
 from __future__ import annotations
@@ -8685,7 +10947,7 @@ raw_response = {
 }
 return payment_url, provider_payment_id, raw_response
 
-# File 107/160: payments\serializers.py
+# File 110/163: payments\serializers.py
 ################################################################################
 
 # payments/serializers.py
@@ -8836,7 +11098,7 @@ if request and request.user.is_authenticated:
 validated_data["user"] = request.user
 return super().create(validated_data)
 
-# File 108/160: payments\tasks.py
+# File 111/163: payments\tasks.py
 ################################################################################
 
 from __future__ import annotations
@@ -8854,7 +11116,7 @@ def check_stale_payments() -> str:
 pending_count = Payment.objects.filter(status=Payment.Status.PENDING).count()
 return f"Pending payments count: {pending_count}"
 
-# File 109/160: payments\views.py
+# File 112/163: payments\views.py
 ################################################################################
 
 from __future__ import annotations
@@ -8997,7 +11259,7 @@ if not payment:
 return Response({"detail": "Payment not found"}, status=status.HTTP_404_NOT_FOUND)
 return Response({"detail": "ok"}, status=status.HTTP_200_OK)
 
-# File 110/160: payments\migrations\0001_initial.py
+# File 113/163: payments\migrations\0001_initial.py
 ################################################################################
 
 # Generated by Django 5.2.8 on 2025-11-21 21:34
@@ -9037,7 +11299,7 @@ options={
 ),
 ]
 
-# File 111/160: payments\migrations\0002_alter_payment_provider.py
+# File 114/163: payments\migrations\0002_alter_payment_provider.py
 ################################################################################
 
 # Generated by Django 5.2.8 on 2025-11-23 12:00
@@ -9054,7 +11316,7 @@ field=models.CharField(choices=[('yookassa', 'YooKassa'), ('stripe', 'Stripe')],
 ),
 ]
 
-# File 112/160: payments\migrations\0003_paymentmethod.py
+# File 115/163: payments\migrations\0003_paymentmethod.py
 ################################################################################
 
 from django.conf import settings
@@ -9090,12 +11352,12 @@ options={
 ),
 ]
 
-# File 113/160: payments\migrations\__init__.py
+# File 116/163: payments\migrations\__init__.py
 ################################################################################
 
 
 
-# File 114/160: payments\providers\__init__.py
+# File 117/163: payments\providers\__init__.py
 ################################################################################
 
 # payments/providers/__init__.py
@@ -9134,7 +11396,7 @@ f"Доступные: {', '.join(sorted(_PROVIDER_REGISTRY.keys()))}"
 )
 return provider_cls()
 
-# File 115/160: payments\providers\base.py
+# File 118/163: payments\providers\base.py
 ################################################################################
 
 # payments/providers/base.py
@@ -9186,7 +11448,7 @@ raise NotImplementedError
 # ---------------------------------------------------------
 PaymentProvider = BasePaymentProvider
 
-# File 116/160: payments\providers\registry.py
+# File 119/163: payments\providers\registry.py
 ################################################################################
 
 from __future__ import annotations
@@ -9205,7 +11467,7 @@ if not provider_cls:
 raise ImproperlyConfigured(f"Unknown payment provider: {provider_key}")
 return provider_cls()
 
-# File 117/160: payments\providers\stripe.py
+# File 120/163: payments\providers\stripe.py
 ################################################################################
 
 from __future__ import annotations
@@ -9256,7 +11518,7 @@ def refund(self, payment, amount: Optional[float] = None) -> None:
 # Заглушка — Stripe refund через SDK
 return None
 
-# File 118/160: payments\providers\yookassa.py
+# File 121/163: payments\providers\yookassa.py
 ################################################################################
 
 from __future__ import annotations
@@ -9372,7 +11634,7 @@ def refund(self, payment, amount: Optional[float] = None) -> None:
 # Неполная реализация для MVP
 raise NotImplementedError("YooKassa refunds are not implemented in this stub.")
 
-# File 119/160: regions\global.yml
+# File 122/163: regions\global.yml
 ################################################################################
 
 # Базовый глобальный профиль ParkShare (по умолчанию для не-RU регионов)
@@ -9403,7 +11665,7 @@ auth:
     - "email-password"
 
 
-# File 120/160: regions\ru.yml
+# File 123/163: regions\ru.yml
 ################################################################################
 
 id: "ru"
@@ -9439,14 +11701,15 @@ pricing:
   tax_included: true
 
 
-# File 121/160: services\__init__.py
+# File 124/163: services\__init__.py
 ################################################################################
 
 
 
-# File 122/160: services\llm.py
+# File 125/163: services\llm.py
 ################################################################################
 
+# services/llm.py
 """Async client helpers for communicating with the LLM microservice."""
 from __future__ import annotations
 import logging
@@ -9456,13 +11719,16 @@ import httpx
 logger = logging.getLogger(__name__)
 DEFAULT_TIMEOUT = 8.0
 CONNECT_TIMEOUT = 3.0
-# По умолчанию ожидаем локальный сервис на 8002 (см. README).
-# По умолчанию ожидаем локальный сервис на 8002 (см. README).
+# По умолчанию ожидаем локальный сервис на 8002 (см. docker-compose).
 # 1) внутри docker-сети: llm_service:8002
 # 2) с хоста: localhost:8002
 DEFAULT_LLM_URLS: List[str] = [
 "http:
 "http:
+]
+LEGACY_ENDPOINTS: List[str] = [
+"/parse",
+"/api/v1/llm/parse-search-query",
 ]
 DEFAULT_RETRIES = 2
 class LLMClientError(Exception):
@@ -9494,7 +11760,8 @@ timeout_value = float(os.getenv("LLM_CLIENT_TIMEOUT", DEFAULT_TIMEOUT))
 timeout = httpx.Timeout(timeout_value, connect=CONNECT_TIMEOUT)
 last_error: Exception | None = None
 for base_url in _candidate_endpoints():
-endpoint = f"{base_url}/api/v1/llm/parse-search-query"
+for path in LEGACY_ENDPOINTS:
+endpoint = f"{base_url}{path}"
 logger.info(
 "Calling LLM service",
 extra={
@@ -9521,7 +11788,11 @@ response.raise_for_status()
 data = response.json()
 logger.debug(
 "LLM service response",
-extra={"endpoint": endpoint, "attempt": attempt, "response": data},
+extra={
+"endpoint": endpoint,
+"attempt": attempt,
+"response": data,
+},
 )
 return data
 except httpx.TimeoutException as exc:
@@ -9549,7 +11820,6 @@ extra={"endpoint": endpoint, "attempt": attempt},
 exc_info=exc,
 )
 last_error = exc
-# continue retrying this endpoint
 except ValueError as exc:
 logger.warning(
 "LLM service returned invalid JSON",
@@ -9572,7 +11842,8 @@ timeout_value = float(os.getenv("LLM_CLIENT_TIMEOUT", DEFAULT_TIMEOUT))
 timeout = httpx.Timeout(timeout_value, connect=CONNECT_TIMEOUT)
 results: Dict[str, Any] = {"endpoints": []}
 for base_url in _candidate_endpoints():
-health_url = f"{base_url}/healthz"
+for path in ["/health", "/healthz"]:
+health_url = f"{base_url}{path}"
 try:
 async with httpx.AsyncClient(timeout=timeout) as client:
 resp = await client.get(health_url)
@@ -9599,7 +11870,7 @@ results["endpoints"].append({"url": health_url, "error": str(exc)})
 results["ok"] = False
 return results
 
-# File 123/160: services\llm_service\Dockerfile
+# File 126/163: services\llm_service\Dockerfile
 ################################################################################
 
 FROM python:3.11-slim
@@ -9617,32 +11888,39 @@ COPY services/llm_service /app
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8002"]
 
 
-# File 124/160: services\llm_service\main.py
+# File 127/163: services\llm_service\main.py
 ################################################################################
 
+# services/llm_service/main.py
 """
 FastAPI приложение для LLM‑разбора пользовательских запросов на поиск парковки.
-Включает абстрактный клиент LLMClient и реализацию для OpenAI.
+Включает абстрактный клиент LLMClient, OpenAI‑реализацию и rule‑based фолбэк.
 """
 from __future__ import annotations
 import json
+import re
 from datetime import datetime
 from functools import lru_cache
 from typing import Any, Dict, Protocol, runtime_checkable
 import httpx
 from fastapi import Depends, FastAPI, HTTPException, status
-from pydantic import BaseModel, Field, ValidationError
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
 from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
 """Конфигурация сервиса, читаемая из переменных окружения."""
-openai_api_key: str = Field(..., env="OPENAI_API_KEY")
-openai_base_url: str = Field(
-"https:
-env="OPENAI_BASE_URL",
+openai_api_key: str = ""
+openai_base_url: str = "https:
+openai_model: str = "gpt-3.5-turbo"
+request_timeout: float = 30.0
+cors_allow_origins: list[str] = []
+model_config = SettingsConfigDict(
+env_file=".env",
+env_file_encoding="utf-8",
+env_prefix="",
+case_sensitive=False,
+extra="ignore",
 )
-openai_model: str = Field("gpt-3.5-turbo", env="OPENAI_MODEL")
-request_timeout: float = Field(30.0, env="LLM_REQUEST_TIMEOUT")
-model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 @runtime_checkable
 class LLMClient(Protocol):
 """Простейший протокол для LLM-клиентов."""
@@ -9656,6 +11934,11 @@ self.api_key = settings.openai_api_key
 self.model = settings.openai_model
 self.timeout = settings.request_timeout
 async def parse_search_query(self, system_prompt: str, user_query: str) -> Dict[str, Any]:
+if not self.api_key:
+raise HTTPException(
+status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+detail="OpenAI API key is not configured",
+)
 payload = {
 "model": self.model,
 "messages": [
@@ -9672,26 +11955,41 @@ headers = {
 url = f"{self.base_url}/chat/completions"
 async with httpx.AsyncClient(timeout=self.timeout) as client:
 try:
-response = await client.post(url, headers=headers, json=payload)
+response = await client.post(url, json=payload, headers=headers)
 response.raise_for_status()
-except httpx.RequestError as exc:
-raise HTTPException(
-status_code=status.HTTP_502_BAD_GATEWAY,
-detail=f"LLM upstream request error: {exc}",
-) from exc
 except httpx.HTTPStatusError as exc:
 raise HTTPException(
 status_code=status.HTTP_502_BAD_GATEWAY,
-detail=f"LLM upstream error: {exc.response.text}",
+detail=f"LLM HTTP error: {exc.response.status_code}",
 ) from exc
-data = response.json()
+except httpx.RequestError as exc:
+raise HTTPException(
+status_code=status.HTTP_502_BAD_GATEWAY,
+detail="LLM request error",
+) from exc
 try:
-content = data["choices"][0]["message"]["content"]
+raw = response.json()
+except ValueError as exc:
+raise HTTPException(
+status_code=status.HTTP_502_BAD_GATEWAY,
+detail="LLM returned invalid JSON",
+) from exc
+try:
+content = (
+raw["choices"][0]["message"]["content"]
+if raw.get("choices")
+else None
+)
 except (KeyError, IndexError, TypeError) as exc:
 raise HTTPException(
 status_code=status.HTTP_502_BAD_GATEWAY,
 detail="Unexpected response format from LLM",
 ) from exc
+if not content:
+raise HTTPException(
+status_code=status.HTTP_502_BAD_GATEWAY,
+detail="Empty response from LLM",
+)
 try:
 return json.loads(content)
 except json.JSONDecodeError as exc:
@@ -9699,6 +11997,50 @@ raise HTTPException(
 status_code=status.HTTP_502_BAD_GATEWAY,
 detail="LLM response is not valid JSON",
 ) from exc
+def _simple_rule_parser(user_query: str) -> Dict[str, Any]:
+"""Простой разбор текста без внешних LLM."""
+lowered = (user_query or "").lower()
+price_match = re.search(r"(\d{2,5})\s*(?:₽|р|руб)", lowered)
+city = None
+for candidate, title in [
+("москва", "Москва"),
+("москов", "Москва"),
+("питер", "Санкт-Петербург"),
+("спб", "Санкт-Петербург"),
+]:
+if candidate in lowered:
+city = title
+break
+max_price = float(price_match.group(1)) if price_match else None
+return {
+"city": city,
+"start_at": None,
+"end_at": None,
+"max_price_per_hour": max_price,
+"near_metro": "метро" in lowered,
+"has_ev_charging": any(key in lowered for key in ["ev", "электро", "заряд"]),
+"covered": "крыт" in lowered or "подзем" in lowered,
+}
+class RuleBasedLLMClient:
+"""Фолбэк без внешних зависимостей."""
+async def parse_search_query(self, system_prompt: str, user_query: str) -> Dict[str, Any]:
+return _simple_rule_parser(user_query)
+class ResilientLLMClient:
+"""Обёртка: пытаемся OpenAI, при ошибке — rule-based."""
+def __init__(self, primary: LLMClient | None, fallback: LLMClient):
+self.primary = primary
+self.fallback = fallback
+async def parse_search_query(self, system_prompt: str, user_query: str) -> Dict[str, Any]:
+if self.primary:
+try:
+return await self.primary.parse_search_query(system_prompt, user_query)
+except HTTPException:
+# Прокидываем 5xx наверх, чтобы клиент увидел, но оставим фолбэк
+pass
+except Exception:
+# Любая другая ошибка — пробуем фолбэк
+pass
+return await self.fallback.parse_search_query(system_prompt, user_query)
 PARSER_SYSTEM_PROMPT = """
 You are an assistant that extracts structured parking search intent for ParkShare.
 Return a strict JSON object with the following fields:
@@ -9714,12 +12056,16 @@ Rules:
 - Never invent unavailable dates or cities; prefer null.
 - Output only the JSON object without explanations, markdown, or comments.
 - Respect the language of the request, but city names should be in nominative form.
-Example output:
-{"city": "Moscow", "start_at": "2024-02-10T08:00:00+03:00", "end_at": null, "max_price_per_hour": 250.0, "near_metro": true, "has_ev_charging": false, "covered": true}
+Example output: {"city": "Moscow", "start_at": "2024-02-10T08:00:00+03:00", "end_at": null, "max_price_per_hour": 250.0, "near_metro": true, "has_ev_charging": false, "covered": true}
 """
 class SearchQueryRequest(BaseModel):
-query: str = Field(..., min_length=1, description="Текстовый запрос пользователя")
+query: str = Field(
+...,
+min_length=1,
+description="Текстовый запрос пользователя",
+)
 class SearchQueryResponse(BaseModel):
+model_config = ConfigDict(extra="ignore")
 city: str | None = Field(None, description="Город, указанный пользователем")
 start_at: datetime | None = Field(
 None, description="ISO 8601 время начала парковки (или null)"
@@ -9743,35 +12089,70 @@ None, description="True, если требуется крытая/подземн
 def get_settings() -> Settings:
 return Settings()
 def get_llm_client(settings: Settings = Depends(get_settings)) -> LLMClient:
-return OpenAILLMClient(settings)
-app = FastAPI(title="ParkShare LLM Service", version="0.1.0")
+fallback = RuleBasedLLMClient()
+primary = OpenAILLMClient(settings) if settings.openai_api_key else None
+if primary:
+return ResilientLLMClient(primary, fallback)
+return fallback
+app = FastAPI(title="ParkShare LLM Service", version="0.2.0")
+_settings = get_settings()
+app.add_middleware(
+CORSMiddleware,
+allow_origins=_settings.cors_allow_origins or ["*"],
+allow_credentials=True,
+allow_methods=["*"],
+allow_headers=["*"],
+)
+@app.get("/health", tags=["health"])
+async def health() -> dict[str, Any]:
+mode = "openai" if _settings.openai_api_key else "fallback"
+return {"status": "ok", "mode": mode}
 @app.get("/healthz", tags=["health"])
-async def healthz() -> dict[str, str]:
-return {"status": "ok"}
+async def healthz() -> dict[str, Any]:
+return await health()
+async def _execute_parse(payload: SearchQueryRequest, client: LLMClient) -> SearchQueryResponse:
+try:
+data = await client.parse_search_query(PARSER_SYSTEM_PROMPT, payload.query)
+return SearchQueryResponse.model_validate(data)
+except ValidationError as exc:
+raise HTTPException(
+status_code=status.HTTP_502_BAD_GATEWAY,
+detail=f"LLM returned invalid payload: {exc}",
+) from exc
+except HTTPException:
+raise
+except Exception as exc:
+raise HTTPException(
+status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+detail=f"Unexpected LLM error: {exc}",
+) from exc
+@app.post(
+"/parse",
+response_model=SearchQueryResponse,
+tags=["llm"],
+summary="Распарсить поисковый запрос пользователя",
+)
+async def parse_endpoint(
+payload: SearchQueryRequest,
+client: LLMClient = Depends(get_llm_client),
+) -> SearchQueryResponse:
+return await _execute_parse(payload, client)
 @app.post(
 "/api/v1/llm/parse-search-query",
 response_model=SearchQueryResponse,
 tags=["llm"],
 summary="Распарсить поисковый запрос пользователя через LLM",
 )
-async def parse_search_query(
-payload: SearchQueryRequest, client: LLMClient = Depends(get_llm_client)
+async def parse_search_query_endpoint(
+payload: SearchQueryRequest,
+client: LLMClient = Depends(get_llm_client),
 ) -> SearchQueryResponse:
-raw_response = await client.parse_search_query(
-system_prompt=PARSER_SYSTEM_PROMPT, user_query=payload.query
-)
-try:
-return SearchQueryResponse(**raw_response)
-except ValidationError as exc:
-raise HTTPException(
-status_code=status.HTTP_502_BAD_GATEWAY,
-detail="LLM response failed validation",
-) from exc
+return await _execute_parse(payload, client)
 if __name__ == "__main__":
 import uvicorn
 uvicorn.run(app, host="0.0.0.0", port=8002)
 
-# File 125/160: services\llm_service\requirements.txt
+# File 128/163: services\llm_service\requirements.txt
 ################################################################################
 
 fastapi==0.115.0
@@ -9782,7 +12163,7 @@ pydantic-settings==2.8.0
 python-dotenv==1.2.1
 
 
-# File 126/160: static\manifest.webmanifest
+# File 129/163: static\manifest.webmanifest
 ################################################################################
 
 {
@@ -9845,7 +12226,7 @@ python-dotenv==1.2.1
 }
 
 
-# File 127/160: static\service-worker.js
+# File 130/163: static\service-worker.js
 ################################################################################
 
 const CACHE_VERSION = 'v5';
@@ -9948,7 +12329,7 @@ return response;
 return cached || network;
 }
 
-# File 128/160: static\css\app.css
+# File 131/163: static\css\app.css
 ################################################################################
 
 :root {
@@ -11942,7 +14323,7 @@ border-radius: 8px;
 padding: 0.75rem 1rem;
 }
 
-# File 129/160: static\css\cinematic-ui.css
+# File 132/163: static\css\cinematic-ui.css
 ################################################################################
 
 :root {
@@ -12090,7 +14471,7 @@ background: linear-gradient(135deg, rgba(59, 130, 246, 0.18), rgba(16, 185, 129,
 box-shadow: 0 18px 45px rgba(15, 23, 42, 0.5);
 }
 
-# File 130/160: static\js\app.js
+# File 133/163: static\js\app.js
 ################################################################################
 
 (function () {
@@ -12797,7 +15178,7 @@ window.ParkShare = window.ParkShare || {};
 window.ParkShare.showToast = showToast;
 })();
 
-# File 131/160: static\js\map.js
+# File 134/163: static\js\map.js
 ################################################################################
 
 (function () {
@@ -13365,7 +15746,7 @@ if (match && match.geometry) { var coords = match.geometry.coordinates; var latl
 });
 })();
 
-# File 132/160: static\js\parkmate-ai.ts
+# File 135/163: static\js\parkmate-ai.ts
 ################################################################################
 
 export interface ParkMateVoiceCommands {
@@ -13511,7 +15892,7 @@ stress_index: payload.stress_index,
 );
 }
 
-# File 133/160: static\js\quantum-theme-manager.js
+# File 136/163: static\js\quantum-theme-manager.js
 ################################################################################
 
 class QuantumThemeManager {
@@ -13585,7 +15966,7 @@ manager.switchTheme("dark");
 return manager;
 };
 
-# File 134/160: templates\base.html
+# File 137/163: templates\base.html
 ################################################################################
 
 {% load static %}
@@ -13721,7 +16102,7 @@ return manager;
 </body>
 </html>
 
-# File 135/160: templates\offline.html
+# File 138/163: templates\offline.html
 ################################################################################
 
 {% extends "base.html" %}
@@ -13745,7 +16126,7 @@ return manager;
 </section>
 {% endblock %}
 
-# File 136/160: templates\accounts\login.html
+# File 139/163: templates\accounts\login.html
 ################################################################################
 
 {% extends "base.html" %}
@@ -13842,7 +16223,7 @@ panel.classList.toggle('is-active', panel.getAttribute('data-auth-panel') === ta
 </script>
 {% endblock %}
 
-# File 137/160: templates\accounts\password_change.html
+# File 140/163: templates\accounts\password_change.html
 ################################################################################
 
 {% extends "base.html" %}
@@ -13885,7 +16266,7 @@ panel.classList.toggle('is-active', panel.getAttribute('data-auth-panel') === ta
 </section>
 {% endblock %}
 
-# File 138/160: templates\accounts\password_change_done.html
+# File 141/163: templates\accounts\password_change_done.html
 ################################################################################
 
 {% extends "base.html" %}
@@ -13904,7 +16285,7 @@ panel.classList.toggle('is-active', panel.getAttribute('data-auth-panel') === ta
 </section>
 {% endblock %}
 
-# File 139/160: templates\accounts\password_reset.html
+# File 142/163: templates\accounts\password_reset.html
 ################################################################################
 
 {% extends "base.html" %}
@@ -13949,7 +16330,7 @@ panel.classList.toggle('is-active', panel.getAttribute('data-auth-panel') === ta
 </section>
 {% endblock %}
 
-# File 140/160: templates\accounts\password_reset_complete.html
+# File 143/163: templates\accounts\password_reset_complete.html
 ################################################################################
 
 {% extends "base.html" %}
@@ -13968,7 +16349,7 @@ panel.classList.toggle('is-active', panel.getAttribute('data-auth-panel') === ta
 </section>
 {% endblock %}
 
-# File 141/160: templates\accounts\password_reset_confirm.html
+# File 144/163: templates\accounts\password_reset_confirm.html
 ################################################################################
 
 {% extends "base.html" %}
@@ -14024,7 +16405,7 @@ panel.classList.toggle('is-active', panel.getAttribute('data-auth-panel') === ta
 </section>
 {% endblock %}
 
-# File 142/160: templates\accounts\password_reset_done.html
+# File 145/163: templates\accounts\password_reset_done.html
 ################################################################################
 
 {% extends "base.html" %}
@@ -14044,7 +16425,7 @@ panel.classList.toggle('is-active', panel.getAttribute('data-auth-panel') === ta
 </section>
 {% endblock %}
 
-# File 143/160: templates\accounts\password_reset_email.txt
+# File 146/163: templates\accounts\password_reset_email.txt
 ################################################################################
 
 Вы получили это письмо, потому что на сайте {{ site_name }} был запрошен сброс пароля
@@ -14057,13 +16438,13 @@ panel.classList.toggle('is-active', panel.getAttribute('data-auth-panel') === ta
 Если вы не запрашивали сброс пароля, просто проигнорируйте это письмо.
 
 
-# File 144/160: templates\accounts\password_reset_subject.txt
+# File 147/163: templates\accounts\password_reset_subject.txt
 ################################################################################
 
 Сброс пароля на ParkShare RU
 
 
-# File 145/160: templates\accounts\profile.html
+# File 148/163: templates\accounts\profile.html
 ################################################################################
 
 {% extends "base.html" %}
@@ -14112,7 +16493,7 @@ panel.classList.toggle('is-active', panel.getAttribute('data-auth-panel') === ta
 </section>
 {% endblock %}
 
-# File 146/160: templates\accounts\register.html
+# File 149/163: templates\accounts\register.html
 ################################################################################
 
 {% extends "base.html" %}
@@ -14166,7 +16547,7 @@ panel.classList.toggle('is-active', panel.getAttribute('data-auth-panel') === ta
 </section>
 {% endblock %}
 
-# File 147/160: templates\parking\landing.html
+# File 150/163: templates\parking\landing.html
 ################################################################################
 
 {% extends "base.html" %}
@@ -14421,7 +16802,7 @@ default_zoom: {{ MAP_DEFAULT_ZOOM|default:11 }},
 <script src="{{ map_static }}?v=43"></script>
 {% endblock %}
 
-# File 148/160: templates\parking\map_fullscreen.html
+# File 151/163: templates\parking\map_fullscreen.html
 ################################################################################
 
 {% extends "base.html" %}
@@ -14550,7 +16931,7 @@ default_zoom: {{ MAP_DEFAULT_ZOOM|default:11 }},
 <script src="{{ map_static }}?v=50"></script>
 {% endblock %}
 
-# File 149/160: templates\parking\owner_dashboard.html
+# File 152/163: templates\parking\owner_dashboard.html
 ################################################################################
 
 {% extends "base.html" %}
@@ -14673,7 +17054,7 @@ default_zoom: {{ MAP_DEFAULT_ZOOM|default:11 }},
 </section>
 {% endblock %}
 
-# File 150/160: templates\parking\pwa_install.html
+# File 153/163: templates\parking\pwa_install.html
 ################################################################################
 
 {% extends "base.html" %}
@@ -14718,7 +17099,7 @@ default_zoom: {{ MAP_DEFAULT_ZOOM|default:11 }},
 </section>
 {% endblock %}
 
-# File 151/160: templates\parking\user_dashboard.html
+# File 154/163: templates\parking\user_dashboard.html
 ################################################################################
 
 {% extends "base.html" %}
@@ -14879,12 +17260,12 @@ default_zoom: {{ MAP_DEFAULT_ZOOM|default:11 }},
 </section>
 {% endblock %}
 
-# File 152/160: vehicles\__init__.py
+# File 155/163: vehicles\__init__.py
 ################################################################################
 
 
 
-# File 153/160: vehicles\admin.py
+# File 156/163: vehicles\admin.py
 ################################################################################
 
 # vehicles/admin.py
@@ -14903,7 +17284,7 @@ def has_view_or_change_permission(self, request, obj=None):
 """
 return super().has_view_or_change_permission(request, obj)
 
-# File 154/160: vehicles\apps.py
+# File 157/163: vehicles\apps.py
 ################################################################################
 
 # vehicles/apps.py
@@ -14913,7 +17294,7 @@ default_auto_field = "django.db.models.BigAutoField"
 name = "vehicles"
 verbose_name = "Машины пользователей"
 
-# File 155/160: vehicles\models.py
+# File 158/163: vehicles\models.py
 ################################################################################
 
 import uuid
@@ -14967,7 +17348,7 @@ if self.label:
 return f"{self.label} ({self.owner.username})"
 return f"Машина {self.pk}"
 
-# File 156/160: vehicles\serializers.py
+# File 159/163: vehicles\serializers.py
 ################################################################################
 
 # vehicles/serializers.py
@@ -15027,7 +17408,7 @@ def update(self, instance: Vehicle, validated_data: dict) -> Vehicle:
 validated_data.pop("plate_number", None)
 return super().update(instance, validated_data)
 
-# File 157/160: vehicles\urls.py
+# File 160/163: vehicles\urls.py
 ################################################################################
 
 # vehicles/urls.py
@@ -15046,7 +17427,7 @@ name="my_vehicles",
 ),
 ]
 
-# File 158/160: vehicles\views.py
+# File 161/163: vehicles\views.py
 ################################################################################
 
 # vehicles/views.py
@@ -15073,7 +17454,7 @@ def perform_create(self, serializer: VehicleSerializer) -> None:
 # owner устанавливается в serializer.create()
 serializer.save()
 
-# File 159/160: vehicles\migrations\0001_initial.py
+# File 162/163: vehicles\migrations\0001_initial.py
 ################################################################################
 
 # Generated by Django 5.2.8 on 2025-11-21 21:34
@@ -15107,7 +17488,7 @@ options={
 ),
 ]
 
-# File 160/160: vehicles\migrations\__init__.py
+# File 163/163: vehicles\migrations\__init__.py
 ################################################################################
 
 
