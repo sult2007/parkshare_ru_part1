@@ -10,6 +10,7 @@ import subprocess
 import signal
 import threading
 from pathlib import Path
+from typing import Optional
 
 # Добавляем корень проекта в Python path
 project_root = Path(__file__).parent
@@ -57,8 +58,8 @@ def setup_environment():
     """Настраивает окружение для разработки"""
     env = os.environ.copy()
     env['PYTHONPATH'] = str(project_root)
-    env['DJANGO_SETTINGS_MODULE'] = 'backend.settings.local'
-    env['DEBUG'] = '1'
+    env['DJANGO_SETTINGS_MODULE'] = env.get('DJANGO_SETTINGS_MODULE', 'backend.settings.local')
+    env['DEBUG'] = env.get('DEBUG', '1')
     return env
 
 
@@ -84,7 +85,7 @@ def wait_for_service(port, timeout=30):
     return False
 
 
-def start_django():
+def start_django(port: int):
     """Запускает Django development server"""
     print("\n" + "=" * 50)
     print("🔄 Запуск Django сервера...")
@@ -106,11 +107,11 @@ def start_django():
 
     # Запускаем сервер
     return run_command([
-        sys.executable, "backend/manage.py", "runserver", "8000"
+        sys.executable, "backend/manage.py", "runserver", str(port)
     ])
 
 
-def start_llm_service():
+def start_llm_service(host: str, port: int):
     """Запускает LLM микросервис"""
     print("\n" + "=" * 50)
     print("🧠 Запуск LLM сервиса...")
@@ -118,25 +119,28 @@ def start_llm_service():
 
     return run_command([
         sys.executable, "-m", "uvicorn",
-        "ai_services.llm_service.main:app",
-        "--host", "0.0.0.0",
-        "--port", "8002",
+        "services.llm_service.main:app",
+        "--host", host,
+        "--port", str(port),
         "--reload"
     ])
 
 
-def start_ai_api():
+def start_ai_api(host: str, port: int):
     """Запускает AI API сервер"""
     print("\n" + "=" * 50)
     print("🤖 Запуск AI API сервера...")
     print("=" * 50)
 
+    env = setup_environment()
+    env['AI_API_HOST'] = host
+    env['AI_API_PORT'] = str(port)
     return run_command([
-        sys.executable, "api_server.py"
-    ])
+        sys.executable, "-m", "uvicorn", "api_server:app", "--host", host, "--port", str(port)
+    ], env=env)
 
 
-def start_celery_worker():
+def start_celery_worker(env: Optional[dict] = None):
     """Запускает Celery worker"""
     print("\n" + "=" * 50)
     print("🔧 Запуск Celery worker...")
@@ -144,14 +148,14 @@ def start_celery_worker():
 
     return run_command([
         sys.executable, "-m", "celery",
-        "-A", "backend.config",
+        "-A", "backend.backend.config",
         "worker",
         "--loglevel=info",
         "--concurrency=2"
-    ])
+    ], env=env)
 
 
-def start_celery_beat():
+def start_celery_beat(env: Optional[dict] = None):
     """Запускает Celery beat"""
     print("\n" + "=" * 50)
     print("⏰ Запуск Celery beat...")
@@ -159,10 +163,35 @@ def start_celery_beat():
 
     return run_command([
         sys.executable, "-m", "celery",
-        "-A", "backend.config",
+        "-A", "backend.backend.config",
         "beat",
         "--loglevel=info"
-    ])
+    ], env=env)
+
+
+def pick_port(preferred: int, env_name: str) -> int:
+    """Возвращает доступный порт, если предпочтительный занят."""
+    import socket
+
+    try:
+        override = int(os.environ.get(env_name, preferred))
+    except (TypeError, ValueError):
+        override = preferred
+
+    def is_free(port_value: int) -> bool:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+            return sock.connect_ex(("127.0.0.1", port_value)) != 0
+
+    if is_free(override):
+        return override
+
+    print(f"⚠️ Порт {override} занят. Подбираем свободный...")
+    for candidate in range(override + 1, override + 20):
+        if is_free(candidate):
+            print(f"➡️  Используем альтернативный порт {candidate} для {env_name}")
+            return candidate
+
+    raise RuntimeError(f"Не удалось найти свободный порт рядом с {override}")
 
 
 def check_dependencies():
@@ -195,16 +224,26 @@ def main():
     # Настраиваем окружение
     env = setup_environment()
 
+    django_port = pick_port(8000, "DJANGO_PORT")
+    ai_api_port = pick_port(8001, "AI_API_PORT")
+    llm_port = pick_port(8002, "LLM_SERVICE_PORT")
+
+    env["DJANGO_PORT"] = str(django_port)
+    env["AI_API_PORT"] = str(ai_api_port)
+    env["LLM_SERVICE_PORT"] = str(llm_port)
+
+    os.environ.update(env)
+
     processes = []
 
     try:
         # Запускаем сервисы
         services = [
-            ("LLM Service", start_llm_service, 8002),
-            ("AI API", start_ai_api, 8001),
-            ("Celery Worker", start_celery_worker, None),
-            ("Celery Beat", start_celery_beat, None),
-            ("Django", start_django, 8000),
+            ("LLM Service", lambda: start_llm_service("0.0.0.0", llm_port), llm_port),
+            ("AI API", lambda: start_ai_api("0.0.0.0", ai_api_port), ai_api_port),
+            ("Celery Worker", lambda: start_celery_worker(env), None),
+            ("Celery Beat", lambda: start_celery_beat(env), None),
+            ("Django", lambda: start_django(django_port), django_port),
         ]
 
         for name, starter, port in services:
@@ -225,9 +264,9 @@ def main():
 
         print("\n" + "🎉 Все сервисы запущены!")
         print("📊 Статус сервисов:")
-        print("   • Django: http://localhost:8000")
-        print("   • LLM Service: http://localhost:8002")
-        print("   • AI API: http://localhost:8001")
+        print(f"   • Django: http://localhost:{django_port}")
+        print(f"   • LLM Service: http://localhost:{llm_port}")
+        print(f"   • AI API: http://localhost:{ai_api_port}")
         print("   • Celery Worker: ✅")
         print("   • Celery Beat: ✅")
         print("\n🛑 Для остановки нажмите Ctrl+C")

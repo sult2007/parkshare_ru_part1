@@ -410,3 +410,16 @@ def api_recommendations(
         variant=chosen_variant,
         recommendations=recs,
     )
+
+
+if __name__ == "__main__":
+    import os
+    import uvicorn
+
+    host = os.environ.get("AI_API_HOST", "0.0.0.0")
+    try:
+        port = int(os.environ.get("AI_API_PORT", "8001"))
+    except (TypeError, ValueError):
+        port = 8001
+
+    uvicorn.run("api_server:app", host=host, port=port, reload=True)

@@ -1,251 +1,230 @@
-# services/llm_service/main.py
-"""
-FastAPI приложение для LLM‑разбора пользовательских запросов на поиск парковки.
-Включает абстрактный клиент LLMClient, OpenAI‑реализацию и rule‑based фолбэк.
+"""Modern FastAPI-based LLM gateway for ParkShare.
+
+Highlights
+- OpenAI-compatible /v1/chat/completions endpoint with fallbacks (OpenAI/Anthropic/Groq/local via LiteLLM).
+- In-memory caching and rate limiting to reduce latency and protect upstream APIs.
+- Health probes and lightweight parking-aware helper endpoint for UI chat integrations.
+- Context memory per conversation with TTL to keep replies coherent.
 """
 from __future__ import annotations
 
+import asyncio
+import hashlib
 import json
-import re
-from datetime import datetime
+import logging
+import time
+import uuid
 from functools import lru_cache
-from typing import Any, Dict, Protocol, runtime_checkable
+from collections import deque
+from datetime import datetime, timedelta, timezone
+from typing import Any, Dict, List, Optional
 
-import httpx
-from fastapi import Depends, FastAPI, HTTPException, status
+from fastapi import Depends, FastAPI, HTTPException, Request, status
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, ConfigDict, Field, ValidationError
+from fastapi.responses import JSONResponse
+from pydantic import BaseModel, Field, ValidationError
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+try:  # lightweight optional cache backend
+    from cachetools import TTLCache
+except Exception:  # pragma: no cover - fallback when dependency is absent
+    TTLCache = None  # type: ignore
+
+try:
+    from aiolimiter import AsyncLimiter
+except Exception:  # pragma: no cover
+    AsyncLimiter = None  # type: ignore
+
+try:
+    import litellm
+except Exception as exc:  # pragma: no cover
+    raise RuntimeError(
+        "LiteLLM must be installed (requirements.txt) to start the LLM service"
+    ) from exc
+
+logger = logging.getLogger("parkshare.llm_service")
+logging.basicConfig(level=logging.INFO)
 
 
 class Settings(BaseSettings):
-    """Конфигурация сервиса, читаемая из переменных окружения."""
+    """Service configuration loaded from environment/.env."""
 
+    # Networking
+    host: str = "0.0.0.0"
+    port: int = 8002
+    cors_allow_origins: list[str] = []
+
+    # Provider configuration
     openai_api_key: str = ""
     openai_base_url: str = "https://api.openai.com/v1"
-    openai_model: str = "gpt-3.5-turbo"
-    request_timeout: float = 30.0
-    cors_allow_origins: list[str] = []
+    anthropic_api_key: str = ""
+    groq_api_key: str = ""
+    default_model: str = "gpt-4o-mini"
+    fallback_models: list[str] = ["gpt-4o-mini"]
+
+    # Service features
+    cache_ttl_seconds: int = 30
+    cache_size: int = 128
+    max_history_messages: int = 16
+    history_ttl_seconds: int = 3600
+    requests_per_minute: int = 60
+    request_timeout: float = 20.0
 
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
-        env_prefix="",
+        env_prefix="LLM_",
         case_sensitive=False,
         extra="ignore",
     )
 
 
-@runtime_checkable
-class LLMClient(Protocol):
-    """Простейший протокол для LLM-клиентов."""
-
-    async def parse_search_query(self, system_prompt: str, user_query: str) -> Dict[str, Any]:
-        """Получить структурированные данные по текстовому запросу пользователя."""
+class ChatMessage(BaseModel):
+    role: str = Field(..., description="system|user|assistant")
+    content: str
 
 
-class OpenAILLMClient:
-    """LLM-клиент для работы с OpenAI Chat Completions API."""
+class ChatCompletionRequest(BaseModel):
+    model: Optional[str] = None
+    messages: List[ChatMessage]
+    temperature: float | None = 0.3
+    max_tokens: Optional[int] = None
+    user: Optional[str] = None
+    conversation_id: Optional[str] = Field(
+        default=None,
+        description="Conversation key to keep lightweight context in memory",
+    )
 
-    def __init__(self, settings: Settings):
-        self.base_url = settings.openai_base_url.rstrip("/")
-        self.api_key = settings.openai_api_key
-        self.model = settings.openai_model
-        self.timeout = settings.request_timeout
 
-    async def parse_search_query(self, system_prompt: str, user_query: str) -> Dict[str, Any]:
-        if not self.api_key:
-            raise HTTPException(
-                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                detail="OpenAI API key is not configured",
-            )
+class CompletionChoice(BaseModel):
+    index: int
+    message: ChatMessage
+    finish_reason: str | None = None
 
-        payload = {
-            "model": self.model,
-            "messages": [
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_query},
-            ],
-            "response_format": {"type": "json_object"},
-            "temperature": 0.2,
-        }
-        headers = {
-            "Authorization": f"Bearer {self.api_key}",
-            "Content-Type": "application/json",
-        }
-        url = f"{self.base_url}/chat/completions"
 
-        async with httpx.AsyncClient(timeout=self.timeout) as client:
-            try:
-                response = await client.post(url, json=payload, headers=headers)
-                response.raise_for_status()
-            except httpx.HTTPStatusError as exc:
+class CompletionUsage(BaseModel):
+    prompt_tokens: int | None = None
+    completion_tokens: int | None = None
+    total_tokens: int | None = None
+
+
+class ChatCompletionResponse(BaseModel):
+    id: str
+    object: str = "chat.completion"
+    created: int
+    model: str
+    choices: List[CompletionChoice]
+    usage: CompletionUsage | None = None
+
+
+class ParkingChatRequest(BaseModel):
+    query: str
+    conversation_id: Optional[str] = None
+
+
+class ParkingChatResponse(BaseModel):
+    reply: str
+    conversation_id: str
+    provider: str
+
+
+class RateLimiter:
+    """Simple in-memory sliding window limiter."""
+
+    def __init__(self, max_per_minute: int) -> None:
+        self.max_per_minute = max_per_minute
+        self.events: deque[float] = deque()
+        self._lock = asyncio.Lock()
+
+    async def acquire(self) -> None:
+        async with self._lock:
+            now = time.time()
+            window_start = now - 60
+            while self.events and self.events[0] < window_start:
+                self.events.popleft()
+            if len(self.events) >= self.max_per_minute:
                 raise HTTPException(
-                    status_code=status.HTTP_502_BAD_GATEWAY,
-                    detail=f"LLM HTTP error: {exc.response.status_code}",
-                ) from exc
-            except httpx.RequestError as exc:
-                raise HTTPException(
-                    status_code=status.HTTP_502_BAD_GATEWAY,
-                    detail="LLM request error",
-                ) from exc
-
-        try:
-            raw = response.json()
-        except ValueError as exc:
-            raise HTTPException(
-                status_code=status.HTTP_502_BAD_GATEWAY,
-                detail="LLM returned invalid JSON",
-            ) from exc
-
-        try:
-            content = (
-                raw["choices"][0]["message"]["content"]
-                if raw.get("choices")
-                else None
-            )
-        except (KeyError, IndexError, TypeError) as exc:
-            raise HTTPException(
-                status_code=status.HTTP_502_BAD_GATEWAY,
-                detail="Unexpected response format from LLM",
-            ) from exc
-
-        if not content:
-            raise HTTPException(
-                status_code=status.HTTP_502_BAD_GATEWAY,
-                detail="Empty response from LLM",
-            )
-
-        try:
-            return json.loads(content)
-        except json.JSONDecodeError as exc:
-            raise HTTPException(
-                status_code=status.HTTP_502_BAD_GATEWAY,
-                detail="LLM response is not valid JSON",
-            ) from exc
+                    status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                    detail="LLM rate limit exceeded",
+                )
+            self.events.append(now)
 
 
-def _simple_rule_parser(user_query: str) -> Dict[str, Any]:
-    """Простой разбор текста без внешних LLM."""
+class MemoryCache:
+    """TTL cache wrapper with graceful fallback."""
 
-    lowered = (user_query or "").lower()
-    price_match = re.search(r"(\d{2,5})\s*(?:₽|р|руб)", lowered)
-    city = None
-    for candidate, title in [
-        ("москва", "Москва"),
-        ("москов", "Москва"),
-        ("питер", "Санкт-Петербург"),
-        ("спб", "Санкт-Петербург"),
-    ]:
-        if candidate in lowered:
-            city = title
-            break
+    def __init__(self, size: int, ttl: int) -> None:
+        if TTLCache:
+            self._cache = TTLCache(maxsize=size, ttl=ttl)
+        else:  # pragma: no cover - simplified fallback
+            self._cache: Dict[str, tuple[float, Any]] = {}
+            self.ttl = ttl
 
-    max_price = float(price_match.group(1)) if price_match else None
-    return {
-        "city": city,
-        "start_at": None,
-        "end_at": None,
-        "max_price_per_hour": max_price,
-        "near_metro": "метро" in lowered,
-        "has_ev_charging": any(key in lowered for key in ["ev", "электро", "заряд"]),
-        "covered": "крыт" in lowered or "подзем" in lowered,
-    }
+    def get(self, key: str) -> Any:
+        if TTLCache:
+            return self._cache.get(key)
+        value = self._cache.get(key)
+        if not value:
+            return None
+        expire_at, payload = value
+        if expire_at < time.time():
+            self._cache.pop(key, None)
+            return None
+        return payload
 
-
-class RuleBasedLLMClient:
-    """Фолбэк без внешних зависимостей."""
-
-    async def parse_search_query(self, system_prompt: str, user_query: str) -> Dict[str, Any]:
-        return _simple_rule_parser(user_query)
+    def set(self, key: str, value: Any) -> None:
+        if TTLCache:
+            self._cache[key] = value
+        else:
+            self._cache[key] = (time.time() + self.ttl, value)
 
 
-class ResilientLLMClient:
-    """Обёртка: пытаемся OpenAI, при ошибке — rule-based."""
+class ConversationMemory:
+    """Keeps short-lived message history to provide context continuity."""
 
-    def __init__(self, primary: LLMClient | None, fallback: LLMClient):
-        self.primary = primary
-        self.fallback = fallback
+    def __init__(self, limit: int, ttl: int) -> None:
+        self.limit = limit
+        self.ttl = ttl
+        self.storage: Dict[str, tuple[float, List[ChatMessage]]] = {}
 
-    async def parse_search_query(self, system_prompt: str, user_query: str) -> Dict[str, Any]:
-        if self.primary:
-            try:
-                return await self.primary.parse_search_query(system_prompt, user_query)
-            except HTTPException:
-                # Прокидываем 5xx наверх, чтобы клиент увидел, но оставим фолбэк
-                pass
-            except Exception:
-                # Любая другая ошибка — пробуем фолбэк
-                pass
-        return await self.fallback.parse_search_query(system_prompt, user_query)
+    def get_history(self, conv_id: str) -> List[ChatMessage]:
+        payload = self.storage.get(conv_id)
+        if not payload:
+            return []
+        expires_at, messages = payload
+        if expires_at < time.time():
+            self.storage.pop(conv_id, None)
+            return []
+        return messages
 
-
-PARSER_SYSTEM_PROMPT = """
-You are an assistant that extracts structured parking search intent for ParkShare.
-Return a strict JSON object with the following fields:
-- city: string with the city name in nominative case, or null if unknown.
-- start_at: ISO 8601 datetime with timezone (offset or Z) when parking should start, or null.
-- end_at: ISO 8601 datetime with timezone (offset or Z) when parking should end, or null.
-- max_price_per_hour: number (float) with the hourly price ceiling, or null.
-- near_metro: boolean, true if the user wants parking near metro/public transit, else false or null.
-- has_ev_charging: boolean, true if the user requires EV charging, else false or null.
-- covered: boolean, true if the user prefers indoor/covered parking, else false or null.
-Rules:
-- If the user did not provide a value, set it to null.
-- Never invent unavailable dates or cities; prefer null.
-- Output only the JSON object without explanations, markdown, or comments.
-- Respect the language of the request, but city names should be in nominative form.
-Example output: {"city": "Moscow", "start_at": "2024-02-10T08:00:00+03:00", "end_at": null, "max_price_per_hour": 250.0, "near_metro": true, "has_ev_charging": false, "covered": true}
-"""
+    def append(self, conv_id: str, messages: List[ChatMessage]) -> None:
+        history = self.get_history(conv_id)
+        combined = (history + messages)[-self.limit :]
+        self.storage[conv_id] = (time.time() + self.ttl, combined)
 
 
-class SearchQueryRequest(BaseModel):
-    query: str = Field(
-        ...,
-        min_length=1,
-        description="Текстовый запрос пользователя",
-    )
-
-
-class SearchQueryResponse(BaseModel):
-    model_config = ConfigDict(extra="ignore")
-
-    city: str | None = Field(None, description="Город, указанный пользователем")
-    start_at: datetime | None = Field(
-        None, description="ISO 8601 время начала парковки (или null)"
-    )
-    end_at: datetime | None = Field(
-        None, description="ISO 8601 время завершения парковки (или null)"
-    )
-    max_price_per_hour: float | None = Field(
-        None, description="Максимальная цена в час, если указана"
-    )
-    near_metro: bool | None = Field(
-        None, description="True, если нужно рядом с метро/транспортом"
-    )
-    has_ev_charging: bool | None = Field(
-        None, description="True, если требуется зарядка для электромобиля"
-    )
-    covered: bool | None = Field(
-        None, description="True, если требуется крытая/подземная парковка"
-    )
-
-
-@lru_cache
+@lru_cache(maxsize=1)
 def get_settings() -> Settings:
     return Settings()
 
 
-def get_llm_client(settings: Settings = Depends(get_settings)) -> LLMClient:
-    fallback = RuleBasedLLMClient()
-    primary = OpenAILLMClient(settings) if settings.openai_api_key else None
-    if primary:
-        return ResilientLLMClient(primary, fallback)
-    return fallback
+@lru_cache(maxsize=1)
+def get_rate_limiter(settings: Settings = Depends(get_settings)) -> RateLimiter:
+    return RateLimiter(settings.requests_per_minute)
 
 
-app = FastAPI(title="ParkShare LLM Service", version="0.2.0")
-_settings = get_settings()
+@lru_cache(maxsize=1)
+def get_cache(settings: Settings = Depends(get_settings)) -> MemoryCache:
+    return MemoryCache(settings.cache_size, settings.cache_ttl_seconds)
+
+
+@lru_cache(maxsize=1)
+def get_history(settings: Settings = Depends(get_settings)) -> ConversationMemory:
+    return ConversationMemory(settings.max_history_messages, settings.history_ttl_seconds)
+
+
+app = FastAPI(title="ParkShare LLM Gateway", version="1.0.0")
+_settings = Settings()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=_settings.cors_allow_origins or ["*"],
@@ -254,11 +233,110 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+if AsyncLimiter:
+    limiter = AsyncLimiter(_settings.requests_per_minute, time_period=60)
+else:
+    limiter = None
+
+
+async def _call_litellm(model: str, request: ChatCompletionRequest, settings: Settings) -> Dict[str, Any]:
+    """Invoke LiteLLM with provider-specific credentials."""
+
+    common_kwargs: Dict[str, Any] = {
+        "model": model,
+        "messages": [m.model_dump() for m in request.messages],
+        "timeout": settings.request_timeout,
+    }
+    if request.temperature is not None:
+        common_kwargs["temperature"] = request.temperature
+    if request.max_tokens:
+        common_kwargs["max_tokens"] = request.max_tokens
+    if request.user:
+        common_kwargs["user"] = request.user
+
+    if model.startswith("claude") and settings.anthropic_api_key:
+        common_kwargs["api_key"] = settings.anthropic_api_key
+        common_kwargs["base_url"] = "https://api.anthropic.com"
+    elif model.startswith("gpt") and settings.openai_api_key:
+        common_kwargs["api_key"] = settings.openai_api_key
+        common_kwargs["base_url"] = settings.openai_base_url.rstrip("/")
+    elif settings.groq_api_key and model.startswith("groq"):
+        common_kwargs["api_key"] = settings.groq_api_key
+        common_kwargs["base_url"] = "https://api.groq.com/openai/v1"
+
+    try:
+        response = await litellm.acompletion(**common_kwargs)
+    except litellm.RateLimitError as exc:  # pragma: no cover - network-specific
+        raise HTTPException(status_code=429, detail=str(exc)) from exc
+    except litellm.BadRequestError as exc:  # pragma: no cover
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except Exception as exc:  # pragma: no cover
+        logger.exception("LLM provider error")
+        raise HTTPException(status_code=502, detail="LLM upstream error") from exc
+
+    return response  # type: ignore[no-any-return]
+
+
+async def _make_response(
+    provider_payload: Dict[str, Any],
+    model: str,
+    conversation_id: Optional[str],
+    history: ConversationMemory,
+) -> ChatCompletionResponse:
+    first_choice = provider_payload["choices"][0]
+    message_payload = first_choice["message"]
+    message = ChatMessage(role=message_payload.get("role", "assistant"), content=message_payload.get("content", ""))
+
+    if conversation_id:
+        history.append(conversation_id, [message])
+
+    usage = provider_payload.get("usage") or {}
+    return ChatCompletionResponse(
+        id=provider_payload.get("id") or f"chatcmpl-{uuid.uuid4().hex}",
+        created=int(provider_payload.get("created") or time.time()),
+        model=model,
+        choices=[
+            CompletionChoice(index=0, message=message, finish_reason=first_choice.get("finish_reason")),
+        ],
+        usage=CompletionUsage(
+            prompt_tokens=usage.get("prompt_tokens"),
+            completion_tokens=usage.get("completion_tokens"),
+            total_tokens=usage.get("total_tokens"),
+        ),
+    )
+
+
+def _cache_key(request: ChatCompletionRequest) -> str:
+    payload = json.dumps(request.model_dump(), sort_keys=True, ensure_ascii=False)
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+
+async def _with_history(request: ChatCompletionRequest, history: ConversationMemory) -> ChatCompletionRequest:
+    if not request.conversation_id:
+        return request
+    previous = history.get_history(request.conversation_id)
+    if not previous:
+        return request
+    merged = previous + request.messages
+    return ChatCompletionRequest(**{**request.model_dump(), "messages": merged})
+
+
+@app.middleware("http")
+async def guard_rate_limit(request: Request, call_next):
+    if limiter:
+        async with limiter:
+            return await call_next(request)
+    return await call_next(request)
+
 
 @app.get("/health", tags=["health"])
 async def health() -> dict[str, Any]:
-    mode = "openai" if _settings.openai_api_key else "fallback"
-    return {"status": "ok", "mode": mode}
+    return {
+        "status": "ok",
+        "provider": "litellm",
+        "default_model": _settings.default_model,
+        "fallbacks": _settings.fallback_models,
+    }
 
 
 @app.get("/healthz", tags=["health"])
@@ -266,51 +344,89 @@ async def healthz() -> dict[str, Any]:
     return await health()
 
 
-async def _execute_parse(payload: SearchQueryRequest, client: LLMClient) -> SearchQueryResponse:
-    try:
-        data = await client.parse_search_query(PARSER_SYSTEM_PROMPT, payload.query)
-        return SearchQueryResponse.model_validate(data)
-    except ValidationError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_502_BAD_GATEWAY,
-            detail=f"LLM returned invalid payload: {exc}",
-        ) from exc
-    except HTTPException:
-        raise
-    except Exception as exc:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Unexpected LLM error: {exc}",
-        ) from exc
+@app.get("/v1/models")
+async def list_models(settings: Settings = Depends(get_settings)) -> dict[str, Any]:
+    models = list({settings.default_model, *settings.fallback_models})
+    return {"data": [{"id": m, "object": "model"} for m in models], "object": "list"}
 
 
-@app.post(
-    "/parse",
-    response_model=SearchQueryResponse,
-    tags=["llm"],
-    summary="Распарсить поисковый запрос пользователя",
-)
-async def parse_endpoint(
-    payload: SearchQueryRequest,
-    client: LLMClient = Depends(get_llm_client),
-) -> SearchQueryResponse:
-    return await _execute_parse(payload, client)
+@app.post("/v1/chat/completions", response_model=ChatCompletionResponse)
+async def chat_completions(
+    payload: ChatCompletionRequest,
+    settings: Settings = Depends(get_settings),
+    cache: MemoryCache = Depends(get_cache),
+    history: ConversationMemory = Depends(get_history),
+    limiter_dep: RateLimiter = Depends(get_rate_limiter),
+) -> ChatCompletionResponse:
+    await limiter_dep.acquire()
+    payload = await _with_history(payload, history)
+    cache_key = _cache_key(payload)
+    cached = cache.get(cache_key)
+    if cached:
+        return cached
+
+    models_chain = [payload.model or settings.default_model, *settings.fallback_models]
+    last_error: Optional[Exception] = None
+    for model in models_chain:
+        try:
+            provider_payload = await _call_litellm(model, payload, settings)
+            response = await _make_response(provider_payload, model, payload.conversation_id, history)
+            cache.set(cache_key, response)
+            return response
+        except HTTPException as exc:
+            last_error = exc
+            if exc.status_code < 500:
+                break
+            continue
+        except Exception as exc:  # pragma: no cover - unexpected fallback
+            last_error = exc
+            logger.exception("Unexpected LLM error for model %s", model)
+            continue
+
+    if last_error:
+        raise last_error  # type: ignore[misc]
+    raise HTTPException(status_code=502, detail="LLM provider unavailable")
 
 
-@app.post(
-    "/api/v1/llm/parse-search-query",
-    response_model=SearchQueryResponse,
-    tags=["llm"],
-    summary="Распарсить поисковый запрос пользователя через LLM",
-)
-async def parse_search_query_endpoint(
-    payload: SearchQueryRequest,
-    client: LLMClient = Depends(get_llm_client),
-) -> SearchQueryResponse:
-    return await _execute_parse(payload, client)
+@app.post("/v1/parkshare/chat", response_model=ParkingChatResponse)
+async def parking_chat(
+    payload: ParkingChatRequest,
+    settings: Settings = Depends(get_settings),
+    history: ConversationMemory = Depends(get_history),
+) -> ParkingChatResponse:
+    """Parking-aware helper endpoint to drive the web chat UI."""
+
+    system_prompt = (
+        "You are ParkShare's multilingual assistant. "
+        "You help users book and discover parking spots with contextual hints from their history. "
+        "Answer succinctly in the language of the user."
+    )
+    conversation_id = payload.conversation_id or uuid.uuid4().hex
+    messages: List[ChatMessage] = [ChatMessage(role="system", content=system_prompt)]
+    history_messages = history.get_history(conversation_id)
+    messages.extend(history_messages[-6:])
+    messages.append(ChatMessage(role="user", content=payload.query))
+
+    request_payload = ChatCompletionRequest(
+        model=settings.default_model,
+        messages=messages,
+        conversation_id=conversation_id,
+        temperature=0.4,
+    )
+    response = await chat_completions(request_payload, settings, get_cache(settings), history, get_rate_limiter(settings))
+    reply = response.choices[0].message.content
+    return ParkingChatResponse(reply=reply, conversation_id=conversation_id, provider=response.model)
+
+
+@app.exception_handler(ValidationError)
+async def validation_exception_handler(_: Request, exc: ValidationError):  # pragma: no cover - FastAPI hook
+    return JSONResponse(
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        content={"detail": exc.errors()},
+    )
 
 
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="0.0.0.0", port=8002)
+    uvicorn.run(app, host=_settings.host, port=_settings.port)

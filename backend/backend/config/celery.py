@@ -7,22 +7,17 @@ import os
 from celery import Celery
 
 
-# 1) Проверяем, что DJANGO_SETTINGS_MODULE задан извне
+# Устанавливаем DJANGO_SETTINGS_MODULE до импорта Django.
 settings_module = os.environ.get("DJANGO_SETTINGS_MODULE")
 if not settings_module:
-    raise RuntimeError(
-        "DJANGO_SETTINGS_MODULE не задан. "
-        "Укажи backend.settings.local (dev) или backend.settings.production (prod) "
-        "в переменных окружения (например, в .env или unit-файле systemd)."
-    )
+    # Позволяет запускать Celery локально без эксплицитного экспорта переменной.
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "backend.settings.local")
 
-# 2) Создаём Celery-приложение
+# Создаём Celery-приложение, конфигурацию читаем из Django settings с префиксом CELERY_.
 app = Celery("backend")
-
-# 3) Читаем конфиг из Django settings, все переменные с префиксом CELERY_
 app.config_from_object("django.conf:settings", namespace="CELERY")
 
-# 4) Авто-обнаружение tasks.py во всех django-приложениях
+# Авто-обнаружение tasks.py во всех Django-приложениях.
 app.autodiscover_tasks()
 
 
