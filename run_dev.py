@@ -158,18 +158,27 @@ def start_ai_api(host: str, port: int):
 
 
 def start_celery_worker(env: Optional[dict] = None):
-    """Запускает Celery worker"""
+    """Запускает Celery worker."""
     print("\n" + "=" * 50)
     print("🔧 Запуск Celery worker...")
     print("=" * 50)
 
-    return run_command([
+    # На Windows prefork вызывает PermissionError (WinError 5) из-за семафоров.
+    # Переходим на однопроцессный режим solo, который официально поддерживается на Windows.
+    is_windows = os.name == "nt"
+    command = [
         sys.executable, "-m", "celery",
         "-A", "backend.backend.config.celery",
         "worker",
         "--loglevel=info",
-        "--concurrency=2"
-    ], env=env)
+    ]
+
+    if is_windows:
+        command.extend(["--pool", "solo", "--concurrency", "1"])
+    else:
+        command.extend(["--concurrency", "2"])
+
+    return run_command(command, env=env)
 
 
 def start_celery_beat(env: Optional[dict] = None):
