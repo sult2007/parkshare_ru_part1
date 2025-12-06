@@ -1,7 +1,10 @@
 import { subscribe, toggleFavorite, setMapView } from './state-store.js';
-import { loadSpots, saveFavorite } from './api-client.js';
+import { loadSpots, saveFavorite, loadAiRecommendations } from './api-client.js';
+import { renderSkeletonCards, renderSpotCard } from './ui-kit.js';
 
 let loading = false;
+let aiCacheKey = null;
+let aiHints = new Map();
 
 export function initSpotsView() {
   const list = document.querySelector('[data-spots-list]');
@@ -30,7 +33,8 @@ export function initSpotsView() {
 async function fetchInitial(filters) {
   if (loading) return;
   loading = true;
-  await loadSpots({ filters, page: 1 });
+  renderSkeletonCards(document.querySelector('[data-spots-list]'));
+  await Promise.all([loadSpots({ filters, page: 1 }), primeAiHints(filters)]);
   loading = false;
 }
 
@@ -50,24 +54,14 @@ function renderSpots(container, spots, favorites) {
     return;
   }
   container.innerHTML = '';
-  spots.forEach((spot) => {
-    const card = document.createElement('article');
-    card.className = 'ps-card ps-card--spot';
-    card.dataset.spotId = spot.id;
-    card.innerHTML = `
-      <div class="ps-card-header">
-        <div class="ps-card-title">${spot.lot?.city || ''} ${spot.lot?.name || ''} — ${spot.name}</div>
-        <button class="ps-icon-btn" type="button" aria-label="В избранное" data-fav-toggle>
-          ${favorites?.includes(spot.id) ? '★' : '☆'}
-        </button>
-      </div>
-      <div class="ps-card-body">
-        <div class="ps-card-line">от ${spot.hourly_price} ₽/час</div>
-        <div class="ps-card-line ps-card-line--muted">${spot.lot?.address || 'Адрес уточняется'}</div>
-      </div>
-    `;
-    const favBtn = card.querySelector('[data-fav-toggle]');
-    favBtn.addEventListener('click', () => handleFavorite(spot.id));
+  const scoredSpots = [...spots].sort((a, b) => getAiScore(b.id) - getAiScore(a.id));
+  scoredSpots.forEach((spot) => {
+    const aiHint = aiHints.get(spot.id);
+    const card = renderSpotCard(spot, {
+      favorite: favorites?.includes(spot.id),
+      aiHint,
+      onFavorite: () => handleFavorite(spot.id),
+    });
     container.appendChild(card);
   });
 }
@@ -79,4 +73,31 @@ async function handleFavorite(spotId) {
   } catch (err) {
     console.warn('[PWA] favorite queued', err);
   }
+}
+
+async function primeAiHints(filters) {
+  const key = JSON.stringify(filters || {});
+  if (aiCacheKey === key && aiHints.size) return;
+  aiCacheKey = key;
+  try {
+    const recommendations = await loadAiRecommendations({ city: filters?.city, limit: 40 });
+    aiHints = new Map();
+    recommendations.forEach((rec, index) => {
+      const spotId = Number(rec.spot_id || rec.spotId);
+      if (!spotId) return;
+      aiHints.set(spotId, {
+        label: index < 3 ? 'Рекомендуем' : 'AI',
+        score: 100 - index * 2 + (rec.ai_discount_percent || 0),
+        reason: rec.ai_reason || rec.address || '',
+      });
+    });
+  } catch (err) {
+    aiHints = new Map();
+    console.warn('[PWA] AI hints unavailable', err);
+  }
+}
+
+function getAiScore(spotId) {
+  const hint = aiHints.get(spotId);
+  return hint ? hint.score || 0 : 0;
 }

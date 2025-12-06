@@ -1,4 +1,6 @@
 const STORAGE_KEY = 'ps.pwa.state.v2';
+const OFFLINE_QUEUE_LIMIT = 50;
+const OFFLINE_QUEUE_TTL = 24 * 60 * 60 * 1000;
 
 const initialState = {
   appVersion: '2024.09.0',
@@ -36,12 +38,17 @@ function loadState() {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return { ...initialState };
     const parsed = JSON.parse(raw);
+    const now = Date.now();
+    const hydratedQueue = (parsed.offlineQueue || []).filter((item) =>
+      item && item.created_at && now - item.created_at < OFFLINE_QUEUE_TTL
+    );
     return {
       ...initialState,
       ...parsed,
       filters: { ...initialState.filters, ...(parsed.filters || {}) },
       mapView: { ...initialState.mapView, ...(parsed.mapView || {}) },
       profile: { ...initialState.profile, ...(parsed.profile || {}) },
+      offlineQueue: hydratedQueue.slice(-OFFLINE_QUEUE_LIMIT),
     };
   } catch (err) {
     console.warn('[PWA] failed to load state', err);
@@ -112,13 +119,32 @@ export function setSavedPlaces(items) {
 }
 
 export function queueAction(action) {
-  const offlineQueue = [...state.offlineQueue, action];
+  const now = Date.now();
+  const entry = {
+    id: action.id || `${now}-${Math.random().toString(16).slice(2, 8)}`,
+    type: action.type,
+    payload: action.payload || {},
+    status: 'pending',
+    attempts: action.attempts || 0,
+    created_at: action.created_at || now,
+  };
+  const freshQueue = state.offlineQueue.filter((item) => now - item.created_at < OFFLINE_QUEUE_TTL);
+  const offlineQueue = [...freshQueue.slice(-(OFFLINE_QUEUE_LIMIT - 1)), entry];
   setState({ offlineQueue });
+  return entry.id;
 }
 
 export function flushQueue(predicate) {
-  const kept = state.offlineQueue.filter((item) => !predicate(item));
+  const now = Date.now();
+  const kept = state.offlineQueue
+    .filter((item) => now - item.created_at < OFFLINE_QUEUE_TTL)
+    .filter((item) => !(predicate ? predicate(item) : false));
   setState({ offlineQueue: kept });
+}
+
+export function markQueueItem(id, patch) {
+  const queue = state.offlineQueue.map((item) => (item.id === id ? { ...item, ...patch } : item));
+  setState({ offlineQueue: queue });
 }
 
 export function setProfile(profile) {

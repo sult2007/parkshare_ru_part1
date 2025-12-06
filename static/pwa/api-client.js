@@ -10,10 +10,13 @@ import {
   setSpots,
   setThemeConfig,
   updatePagination,
+  markQueueItem,
 } from './state-store.js';
 
 const API_ROOT = '/api/parking';
+const AI_ROOT = '/api/ai';
 const datasetCache = new Map();
+const aiCache = new Map();
 
 async function apiFetch(path, { method = 'GET', body, params } = {}) {
   const url = new URL(path, window.location.origin);
@@ -86,7 +89,7 @@ export async function loadFavorites() {
 
 export async function saveFavorite(spotId) {
   if (!navigator.onLine) {
-    queueAction({ type: 'favorite', spotId, action: 'toggle' });
+    queueAction({ type: 'favorite:toggle', payload: { spotId } });
     return toggleLocalFavorite(spotId);
   }
   await apiFetch(`${API_ROOT}/favorites/`, {
@@ -122,18 +125,26 @@ export async function loadSavedPlaces() {
 export async function syncOfflineQueue() {
   const { offlineQueue } = getState();
   if (!offlineQueue.length || !navigator.onLine) return;
-  const leftover = [];
   for (const item of offlineQueue) {
     try {
-      if (item.type === 'favorite') {
-        await saveFavorite(item.spotId);
+      if (item.type === 'favorite:toggle') {
+        await saveFavorite(item.payload.spotId);
+        markQueueItem(item.id, { status: 'synced' });
+      }
+      if (item.type === 'saved_place:create') {
+        await createSavedPlace(item.payload.place, { skipQueue: true });
+        markQueueItem(item.id, { status: 'synced' });
       }
     } catch (err) {
-      leftover.push(item);
+      const attempts = (item.attempts || 0) + 1;
+      if (attempts >= 3) {
+        markQueueItem(item.id, { status: 'failed', attempts });
+      } else {
+        markQueueItem(item.id, { attempts });
+      }
     }
   }
-  flushQueue(() => true);
-  leftover.forEach((item) => queueAction(item));
+  flushQueue((item) => item.status === 'synced' || item.status === 'failed');
 }
 
 export async function loadProfile() {
@@ -163,6 +174,50 @@ export async function registerPushSubscription(subscription) {
   await apiFetch('/api/parking/push-subscriptions/', { method: 'POST', body: subscription });
 }
 
+export async function loadAiRecommendations(filters = {}) {
+  const params = {
+    city: filters.city,
+    limit: Math.min(filters.limit || 20, 50),
+  };
+  const cacheKey = `ai:rec:${JSON.stringify(params)}`;
+  try {
+    const payload = await cachedAiFetch(`${AI_ROOT}/recommendations/`, { params }, cacheKey, 300000);
+    return payload?.results || [];
+  } catch (err) {
+    const cached = readDataset(cacheKey) || aiCache.get(cacheKey)?.payload;
+    if (cached) return cached.results || cached;
+    throw err;
+  }
+}
+
+export async function loadAiStressIndex(filters = {}) {
+  const params = { city: filters.city };
+  const cacheKey = `ai:stress:${JSON.stringify(params)}`;
+  try {
+    return await cachedAiFetch(`${AI_ROOT}/stress-index/`, { params }, cacheKey, 180000);
+  } catch (err) {
+    const cached = readDataset(cacheKey) || aiCache.get(cacheKey)?.payload;
+    if (cached) return cached;
+    throw err;
+  }
+}
+
+export async function createSavedPlace(place, { skipQueue = false } = {}) {
+  const body = {
+    title: place.title,
+    place_type: place.place_type || 'custom',
+    latitude: place.latitude,
+    longitude: place.longitude,
+  };
+  if (!navigator.onLine && !skipQueue) {
+    queueAction({ type: 'saved_place:create', payload: { place: body } });
+    setSavedPlaces([...(getState().savedPlaces || []), { ...body, id: `local-${Date.now()}` }]);
+    return;
+  }
+  await apiFetch(`${API_ROOT}/saved-places/`, { method: 'POST', body });
+  await loadSavedPlaces();
+}
+
 async function cachedApiFetch(path, opts, cacheKey, ttlMs = 120000) {
   if (datasetCache.has(cacheKey)) {
     const cached = datasetCache.get(cacheKey);
@@ -189,4 +244,17 @@ function readDataset(name) {
   } catch (_) {
     return null;
   }
+}
+
+async function cachedAiFetch(path, opts, cacheKey, ttlMs = 180000) {
+  if (aiCache.has(cacheKey)) {
+    const cached = aiCache.get(cacheKey);
+    if (cached.expires > Date.now()) {
+      return cached.payload;
+    }
+  }
+  const payload = await apiFetch(path, opts);
+  aiCache.set(cacheKey, { payload, expires: Date.now() + ttlMs });
+  cacheDataset(cacheKey, payload);
+  return payload;
 }

@@ -1,8 +1,6 @@
-import { initRouter, bindConnectionBanner } from './router.js';
-import { initSpotsView } from './spots-view.js';
 import { getState, setConnectionStatus, setMapView, subscribe } from './state-store.js';
 import { loadFavorites, loadMapFeatures, loadProfile, loadSavedPlaces, syncOfflineQueue } from './api-client.js';
-import { initPushUI } from './ui-kit.js';
+import { initPushUI, initLazyMedia } from './ui-kit.js';
 
 const APP_VERSION = '2024.09.0';
 
@@ -46,15 +44,24 @@ function notifyUpdate(worker) {
   });
 }
 
-function hydrateUI() {
-  bindConnectionBanner();
-  initRouter();
-  initSpotsView();
+async function hydrateUI() {
+  initLazyMedia();
   loadFavorites();
   loadSavedPlaces();
   loadProfile();
-  loadMapFeatures();
   initPushUI();
+
+  const needsMap = document.querySelector('[data-spots-list]') || document.querySelector('[data-route="map"]');
+  if (needsMap) {
+    const [{ initRouter, bindConnectionBanner }, { initSpotsView }] = await Promise.all([
+      import('./router.js'),
+      import('./spots-view.js'),
+    ]);
+    bindConnectionBanner();
+    initRouter();
+    initSpotsView();
+    loadMapFeatures();
+  }
 }
 
 function wireConnectivity() {

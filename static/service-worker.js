@@ -1,21 +1,18 @@
 // static/service-worker.js — production-grade PWA cache with app versioning
-const APP_VERSION = '2024.09.0';
+const APP_VERSION = '2024.09.1';
 const CACHE_PREFIX = 'parkshare-';
-const RUNTIME_CACHE = `${CACHE_PREFIX}runtime-${APP_VERSION}`;
-const STATIC_CACHE = `${CACHE_PREFIX}static-${APP_VERSION}`;
-const SHELL_CACHE = `${CACHE_PREFIX}shell-${APP_VERSION}`;
-const API_CACHE = `${CACHE_PREFIX}api-${APP_VERSION}`;
+const PUBLIC_STATIC_CACHE = `${CACHE_PREFIX}static-${APP_VERSION}`;
+const PUBLIC_PAGE_CACHE = `${CACHE_PREFIX}pages-${APP_VERSION}`;
+const PUBLIC_API_CACHE = `${CACHE_PREFIX}api-${APP_VERSION}`;
 const PRIVATE_API_CACHE = `${CACHE_PREFIX}api-private-${APP_VERSION}`;
 const MAP_CACHE = `${CACHE_PREFIX}map-${APP_VERSION}`;
+const RUNTIME_CACHE = `${CACHE_PREFIX}runtime-${APP_VERSION}`;
 const OFFLINE_URL = '/offline/';
-const APP_SHELL = [
-  '/',
-  '/map/',
-  '/личный-кабинет/',
-  '/кабинет-владельца/',
-  OFFLINE_URL,
-  '/manifest.webmanifest',
-];
+
+const PRIVATE_TTL_MS = 5 * 60 * 1000;
+const PRIVATE_MAX_ENTRIES = 30;
+const SHELL_ROUTES = ['/map/', '/app/', '/личный-кабинет/', '/кабинет-владельца/'];
+const APP_SHELL = [...SHELL_ROUTES, OFFLINE_URL, '/manifest.webmanifest'];
 
 const STATIC_ASSETS = [
   '/static/css/app.css',
@@ -36,8 +33,8 @@ const STATIC_ASSETS = [
 self.addEventListener('install', (event) => {
   event.waitUntil(
     Promise.all([
-      caches.open(SHELL_CACHE).then((cache) => cache.addAll(APP_SHELL)),
-      caches.open(STATIC_CACHE).then((cache) => cache.addAll(STATIC_ASSETS)),
+      caches.open(PUBLIC_PAGE_CACHE).then((cache) => cache.addAll(APP_SHELL)),
+      caches.open(PUBLIC_STATIC_CACHE).then((cache) => cache.addAll(STATIC_ASSETS)),
     ]).catch((err) => {
       console.warn('[SW] install cache error', err);
     })
@@ -55,9 +52,9 @@ self.addEventListener('activate', (event) => {
               key.startsWith(CACHE_PREFIX) &&
               ![
                 RUNTIME_CACHE,
-                STATIC_CACHE,
-                SHELL_CACHE,
-                API_CACHE,
+                PUBLIC_STATIC_CACHE,
+                PUBLIC_PAGE_CACHE,
+                PUBLIC_API_CACHE,
                 PRIVATE_API_CACHE,
                 MAP_CACHE,
               ].includes(key)
@@ -88,17 +85,18 @@ self.addEventListener('fetch', (event) => {
 
   if (request.headers.get('accept')?.includes('text/html')) {
     if (isSameOrigin) {
-      event.respondWith(networkFirst(request, SHELL_CACHE, OFFLINE_URL));
+      const targetCache = isPwaShell(url) ? PUBLIC_PAGE_CACHE : null;
+      event.respondWith(handleHtmlRequest(request, targetCache));
       return;
     }
   }
 
   if (isApiRequest(url)) {
-    if (request.headers.get('authorization')) {
-      event.respondWith(networkFirst(request, PRIVATE_API_CACHE));
+    if (isPrivateApi(url)) {
+      event.respondWith(networkFirstPrivate(request, PRIVATE_API_CACHE));
       return;
     }
-    event.respondWith(staleWhileRevalidate(request, API_CACHE));
+    event.respondWith(staleWhileRevalidate(request, PUBLIC_API_CACHE));
     return;
   }
 
@@ -108,7 +106,7 @@ self.addEventListener('fetch', (event) => {
   }
 
   if (isAsset(url)) {
-    event.respondWith(cacheFirst(request, STATIC_CACHE));
+    event.respondWith(cacheFirst(request, PUBLIC_STATIC_CACHE));
     return;
   }
 
@@ -125,12 +123,12 @@ self.addEventListener('push', (event) => {
   const data = event.data ? event.data.json() : {};
   const title = data.title || 'ParkShare';
   const body = data.body || 'Новые события по вашим бронированиям';
-  const url = data.url || '/map/';
+  const url = data.data?.url || data.url || '/map/';
   const actions = data.actions || [];
   event.waitUntil(
     self.registration.showNotification(title, {
       body,
-      data: { url },
+      data: { url, ...data.data },
       icon: '/static/icons/icon-192.png',
       badge: '/static/icons/icon-72.png',
       actions,
@@ -155,12 +153,27 @@ self.addEventListener('notificationclick', (event) => {
 });
 
 async function precacheShell() {
-  const cache = await caches.open(SHELL_CACHE);
+  const cache = await caches.open(PUBLIC_PAGE_CACHE);
   await cache.addAll(APP_SHELL);
 }
 
 function isApiRequest(url) {
   return url.pathname.startsWith('/api/');
+}
+
+function isPrivateApi(url) {
+  if (!isApiRequest(url)) return false;
+  return (
+    url.pathname.includes('/favorites/') ||
+    url.pathname.includes('/saved-places/') ||
+    url.pathname.includes('/push-subscriptions/') ||
+    url.pathname.includes('/accounts/profile') ||
+    url.pathname.includes('/ai/parkmate/config')
+  );
+}
+
+function isPwaShell(url) {
+  return SHELL_ROUTES.some((route) => url.pathname.startsWith(route));
 }
 
 function isMapTile(url) {
@@ -185,21 +198,19 @@ async function cacheFirst(request, cacheName) {
   return response;
 }
 
-async function networkFirst(request, cacheName, fallbackUrl) {
+async function networkFirstPrivate(request, cacheName) {
   const cache = await caches.open(cacheName);
   try {
     const response = await fetch(request);
     if (response && response.ok) {
-      cache.put(request, response.clone());
+      const stamped = stampResponse(response);
+      await cache.put(request, stamped.clone());
+      await trimCache(cacheName, PRIVATE_MAX_ENTRIES);
     }
     return response;
   } catch (err) {
     const cached = await cache.match(request);
-    if (cached) return cached;
-    if (fallbackUrl) {
-      const fallback = await caches.match(fallbackUrl);
-      if (fallback) return fallback;
-    }
+    if (cached && !isExpired(cached, PRIVATE_TTL_MS)) return cached;
     throw err;
   }
 }
@@ -216,6 +227,26 @@ async function staleWhileRevalidate(request, cacheName) {
     })
     .catch(() => cached);
   return cached || network;
+}
+
+async function handleHtmlRequest(request, cacheName) {
+  if (!cacheName) {
+    return fetch(request).catch(async () => (await caches.match(OFFLINE_URL)) || Response.error());
+  }
+  const cache = await caches.open(cacheName);
+  try {
+    const response = await fetch(request);
+    if (response && response.ok) {
+      await cache.put(request, response.clone());
+    }
+    return response;
+  } catch (_) {
+    const cached = await cache.match(request);
+    if (cached) return cached;
+    const fallback = await caches.match(OFFLINE_URL);
+    if (fallback) return fallback;
+    return Response.error();
+  }
 }
 
 async function limitCacheSize(responsePromise, maxEntries = 150) {
@@ -235,7 +266,9 @@ async function flushOfflineQueue() {
     try {
       await fetch(item.url, item.options);
     } catch (err) {
-      stillPending.push(item);
+      if ((item.attempts || 0) < 3) {
+        stillPending.push({ ...item, attempts: (item.attempts || 0) + 1 });
+      }
     }
   }
   await saveQueue(stillPending);
@@ -246,7 +279,9 @@ async function loadQueue() {
     const cache = await caches.open(RUNTIME_CACHE);
     const stored = await cache.match('ps-offline-queue');
     if (!stored) return [];
-    return await stored.json();
+    const payload = await stored.json();
+    const cutoff = Date.now() - 24 * 60 * 60 * 1000;
+    return (payload || []).filter((item) => (item.created_at || 0) > cutoff).slice(-50);
   } catch (_) {
     return [];
   }
@@ -254,5 +289,30 @@ async function loadQueue() {
 
 async function saveQueue(payload) {
   const cache = await caches.open(RUNTIME_CACHE);
-  await cache.put('ps-offline-queue', new Response(JSON.stringify(payload)));
+  const limited = (payload || []).slice(-50);
+  await cache.put('ps-offline-queue', new Response(JSON.stringify(limited)));
+}
+
+function stampResponse(response) {
+  const headers = new Headers(response.headers);
+  headers.set('X-SW-Timestamp', Date.now().toString());
+  return new Response(response.clone().body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  });
+}
+
+function isExpired(response, ttlMs) {
+  const ts = Number(response.headers.get('X-SW-Timestamp') || 0);
+  if (!ts) return true;
+  return Date.now() - ts > ttlMs;
+}
+
+async function trimCache(cacheName, maxEntries) {
+  const cache = await caches.open(cacheName);
+  const keys = await cache.keys();
+  if (keys.length > maxEntries) {
+    await cache.delete(keys[0]);
+  }
 }
