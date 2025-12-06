@@ -1,7 +1,7 @@
 ################################################################################
 # COMPRESSED PROJECT DUMP
 # Root: C:\Users\Sultan\Downloads\parkshare_ru_part1
-# Generated at: 2025-12-06 14:55:34
+# Generated at: 2025-12-06 15:17:37
 # Files: 177
 # Max file size: 500KB
 # Code compression: True
@@ -4828,6 +4828,23 @@ return "в указанное окно времени"
 if "сейчас" in text or "прямо сейчас" in text:
 return "на ближайший час"
 return "скоро"
+def _extract_time_window(text: str) -> tuple[Optional[int], Optional[int], str]:
+"""Парсинг диапазона времени (часы) или быстрых подсказок."""
+match = re.search(r"\b(\d{1,2})\s*[-–]\s*(\d{1,2})\b", text)
+if match:
+start_h, end_h = match.groups()
+try:
+return int(start_h), int(end_h), f"с {start_h}:00 до {end_h}:00"
+except ValueError:
+return None, None, ""
+lowered = text.lower()
+if "сейчас" in lowered or "прямо сейчас" in lowered:
+return None, None, "на ближайший час"
+if "завтра" in lowered:
+return None, None, "на завтра"
+if "ноч" in lowered:
+return None, None, "на ночь"
+return None, None, ""
 INTENT_CORPUS: list[tuple[str, str]] = [
 ("ev", "зарядка для электромобиля ev электромобиль tesla leaf"),
 ("budget", "самая дешёвая дёшево бюджет эконом"),
@@ -5053,9 +5070,12 @@ area_hint = None
 metro_match = re.search(r"метро\s+([\wёЁ\-\s]+)", lowered)
 if metro_match:
 area_hint = f"у метро {metro_match.group(1).strip().title()}"
-time_hint = _extract_time_hint(lowered)
+start_h, end_h, time_hint_parsed = _extract_time_window(lowered)
+time_hint = time_hint_parsed or _extract_time_hint(lowered)
 context = _prepare_context(spots, area_hint, budget, time_hint)
 context["intents"] = list(intents)
+if start_h is not None and end_h is not None:
+context["time_hint"] = f"с {start_h}:00 до {end_h}:00"
 why = []
 if "ev" in intents:
 why.append("учёл наличие EV-зарядки")
@@ -5063,6 +5083,8 @@ if "budget" in intents or budget:
 why.append("отсортировал по цене")
 if "night" in intents:
 why.append("оставил только круглосуточные")
+if time_hint_parsed:
+why.append(f"учёл интервал {time_hint_parsed}")
 reasoning = ", ".join(why) if why else "использовал ближайшие и менее загруженные места"
 return _reply_payload(spots, context, reasoning)
 def generate_chat_reply(message: str, history: Optional[List[dict]], user: Optional[User]) -> dict[str, Any]:
@@ -5078,7 +5100,7 @@ extra={
 if not text:
 logger.info("Empty chat message, returning friendly prompt")
 return {
-"reply": "Опишите время, адрес или метро — подберу парковку.",
+"reply": "Опишите улицу, метро, бюджет и время: например, \"Тверская, с 9 до 11, до 350 ₽/ч, крытая\".",
 "suggestions": [],
 "reason": "empty_message",
 }
@@ -5089,8 +5111,17 @@ if llm_response:
 return llm_response
 except Exception as exc:
 logger.exception("LLM flow errored, forcing rule-based fallback", exc_info=exc)
+fallback = _handle_rule_based_flow(lowered)
+fallback["reason"] = (fallback.get("reason") or "") + " · AI сервис недоступен, используем эвристику"
+fallback["reply"] = fallback.get("reply") or "Работаю в упрощённом режиме без внешнего AI, но покажу подходящие места."
+return fallback
 logger.info("Falling back to rule-based parser")
-return _handle_rule_based_flow(lowered)
+response = _handle_rule_based_flow(lowered)
+if not response.get("suggestions"):
+response["reply"] = (
+"Не очень понял запрос. Попробуйте формат: ‘Курская, парковка с 9 до 11, до 300 ₽/час, с зарядкой EV’."
+)
+return response
 
 # File 50/177: ai\management\__init__.py
 ################################################################################
@@ -11107,9 +11138,9 @@ await cache.delete(keys[0]);
 --ps-color-bg:
 --ps-color-bg-elevated:
 --ps-color-surface:
---ps-color-border: rgba(255, 255, 255, 0.06);
+--ps-color-border: rgba(255, 255, 255, 0.08);
 --ps-color-primary:
---ps-color-primary-soft: rgba(13, 110, 253, 0.16);
+--ps-color-primary-soft: rgba(45, 212, 191, 0.14);
 --ps-color-primary-strong:
 --ps-color-accent:
 --ps-color-text:
@@ -11118,15 +11149,14 @@ await cache.delete(keys[0]);
 --ps-color-warning:
 --ps-color-success:
 --ps-color-neutral:
---ps-radius-sm: 0.5rem;
---ps-radius-md: 0.75rem;
---ps-radius-lg: 1rem;
---ps-shadow-soft: 0 18px 45px rgba(0, 0, 0, 0.45);
---ps-shadow-card: 0 10px 30px rgba(15, 23, 42, 0.9);
---ps-font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
-"Segoe UI", sans-serif;
---ps-transition-fast: 0.15s ease-out;
---ps-transition-normal: 0.25s ease-out;
+--ps-radius-sm: 0.6rem;
+--ps-radius-md: 0.9rem;
+--ps-radius-lg: 1.3rem;
+--ps-shadow-soft: 0 16px 50px rgba(3, 7, 18, 0.36);
+--ps-shadow-card: 0 20px 60px rgba(2, 6, 23, 0.55);
+--ps-font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+--ps-transition-fast: 0.16s ease-out;
+--ps-transition-normal: 0.28s ease-out;
 --ps-header-height: 60px;
 --ps-bottom-nav-height: 70px;
 }
@@ -11148,7 +11178,9 @@ padding: 0;
 body.ps-body {
 min-height: 100vh;
 font-family: var(--ps-font-family);
-background: radial-gradient(circle at top left,
+background: radial-gradient(circle at 15% 20%, rgba(96, 165, 250, 0.14), transparent 35%),
+radial-gradient(circle at 80% 0%, rgba(45, 212, 191, 0.12), transparent 28%),
+linear-gradient(180deg,
 color: var(--ps-color-text);
 -webkit-font-smoothing: antialiased;
 }
@@ -11168,16 +11200,16 @@ display: block;
 position: sticky;
 top: 0;
 z-index: 40;
-backdrop-filter: blur(12px);
-background: linear-gradient(to bottom, rgba(15, 23, 42, 0.96), rgba(15, 23, 42, 0.7));
-border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+backdrop-filter: blur(14px);
+background: linear-gradient(to bottom, rgba(13, 18, 35, 0.95), rgba(13, 18, 35, 0.6));
+border-bottom: 1px solid rgba(148, 163, 184, 0.2);
 }
 .ps-navbar {
-max-width: 1120px;
+max-width: 1200px;
 margin: 0 auto;
 display: flex;
 align-items: center;
-padding: 0.35rem 1rem;
+padding: 0.5rem 1.25rem;
 height: var(--ps-header-height);
 }
 .ps-navbar-left {
@@ -11686,46 +11718,54 @@ justify-content: flex-start;
 }
 .ps-btn {
 border-radius: 999px;
-border: none;
-padding: 0.45rem 0.95rem;
-font-size: 0.88rem;
-font-weight: 500;
+border: 1px solid transparent;
+padding: 0.48rem 1.05rem;
+font-size: 0.92rem;
+font-weight: 600;
 cursor: pointer;
 display: inline-flex;
 align-items: center;
 justify-content: center;
-gap: 0.35rem;
-background: linear-gradient(135deg,
+gap: 0.45rem;
+background: linear-gradient(135deg, var(--ps-color-primary-strong), var(--ps-color-primary));
 color:
 text-decoration: none;
+letter-spacing: 0.01em;
+box-shadow: 0 14px 40px rgba(45, 212, 191, 0.35);
 transition: transform var(--ps-transition-fast), box-shadow var(--ps-transition-fast), filter var(--ps-transition-fast), background var(--ps-transition-fast);
 }
 .ps-btn:hover {
 transform: translateY(-1px);
-filter: brightness(1.06);
-box-shadow: 0 14px 32px rgba(37, 99, 235, 0.6);
+filter: brightness(1.03);
+box-shadow: 0 16px 46px rgba(45, 212, 191, 0.45);
 }
 .ps-btn:active {
 transform: translateY(1px);
-box-shadow: 0 8px 20px rgba(15, 23, 42, 0.8);
+box-shadow: 0 8px 22px rgba(12, 18, 33, 0.7);
 }
 .ps-btn-secondary {
-background: rgba(15, 23, 42, 0.96);
-color:
-border: 1px solid rgba(148, 163, 184, 0.5);
+background: rgba(255, 255, 255, 0.04);
+color: var(--ps-color-text);
+border: 1px solid rgba(148, 163, 184, 0.35);
 box-shadow: none;
 }
 .ps-btn-secondary:hover {
-background: rgba(15, 23, 42, 1);
-border-color: rgba(148, 163, 184, 0.8);
+background: rgba(255, 255, 255, 0.08);
+border-color: rgba(148, 163, 184, 0.65);
 }
 .ps-btn-ghost {
 background: transparent;
-color:
-border: 1px solid rgba(148, 163, 184, 0.35);
+color: var(--ps-color-text-muted);
+border: 1px dashed rgba(148, 163, 184, 0.4);
 }
 .ps-btn-ghost:hover {
-background: rgba(15, 23, 42, 0.8);
+background: rgba(255, 255, 255, 0.05);
+}
+.ps-btn:disabled,
+.ps-btn[aria-disabled="true"] {
+cursor: not-allowed;
+opacity: 0.6;
+box-shadow: none;
 }
 .ps-btn-lg {
 padding-block: 0.55rem;
@@ -12670,6 +12710,34 @@ transform: translateY(-1px);
 .ps-chat-feedback-actions button.is-active {
 border-color: var(--ps-color-primary);
 box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.2);
+}
+.ps-chat-bubble--pending {
+opacity: 0.9;
+background: rgba(255, 255, 255, 0.02);
+border: 1px dashed rgba(148, 163, 184, 0.35);
+}
+.ps-chat-spinner {
+display: inline-flex;
+gap: 4px;
+margin-bottom: 6px;
+}
+.ps-chat-spinner span {
+width: 6px;
+height: 6px;
+border-radius: 50%;
+background: var(--ps-color-primary);
+animation: ps-chat-bounce 1.2s infinite ease-in-out;
+}
+.ps-chat-spinner span:nth-child(2) {
+animation-delay: 0.12s;
+background: var(--ps-color-accent);
+}
+.ps-chat-spinner span:nth-child(3) {
+animation-delay: 0.24s;
+}
+@keyframes ps-chat-bounce {
+0%, 80%, 100% { transform: scale(0); opacity: 0.6; }
+40% { transform: scale(1); opacity: 1; }
 }
 .ps-chat-input {
 padding: 12px 14px;
@@ -13792,6 +13860,29 @@ if (suggestions) item.appendChild(suggestions);
 body.appendChild(item);
 body.scrollTop = body.scrollHeight;
 }
+let pendingBubble = null;
+function showPending(text) {
+if (!body) return;
+removePending();
+pendingBubble = document.createElement("div");
+pendingBubble.className = "ps-chat-bubble ps-chat-bubble--bot ps-chat-bubble--pending";
+const spinner = document.createElement("div");
+spinner.className = "ps-chat-spinner";
+spinner.innerHTML = "<span></span><span></span><span></span>";
+const label = document.createElement("div");
+label.className = "ps-chat-text";
+label.textContent = text || "Ассистент думает…";
+pendingBubble.appendChild(spinner);
+pendingBubble.appendChild(label);
+body.appendChild(pendingBubble);
+body.scrollTop = body.scrollHeight;
+}
+function removePending() {
+if (pendingBubble && pendingBubble.parentNode) {
+pendingBubble.parentNode.removeChild(pendingBubble);
+}
+pendingBubble = null;
+}
 function sendMessage() {
 const text = (input.value || "").trim();
 if (!text || isLoading) return;
@@ -13802,6 +13893,7 @@ input.value = "";
 isLoading = true;
 setStatus("Ассистент печатает…", true);
 sendBtn.disabled = true;
+showPending();
 const history = messages.slice(-6).map(function (msg) {
 return {role: msg.role === "assistant" ? "assistant" : "user", text: msg.text};
 });
@@ -13811,7 +13903,10 @@ credentials: "include",
 headers: {"Content-Type": "application/json"},
 body: JSON.stringify({message: text, history: history}),
 })
-.then(function (resp) { return resp.json(); })
+.then(function (resp) {
+if (!resp.ok) throw new Error("HTTP " + resp.status);
+return resp.json();
+})
 .then(function (data) {
 const botMsg = {
 role: "assistant",
@@ -13823,14 +13918,15 @@ id: data.message_id,
 messages.push(botMsg);
 appendBubble(botMsg);
 })
-.catch(function () {
-const fallback = {role: "assistant", text: "Не удалось обратиться к ассистенту."};
+.catch(function (err) {
+const fallback = {role: "assistant", text: "Не удалось обратиться к ассистенту: " + err.message};
 messages.push(fallback);
 appendBubble(fallback);
 })
 .finally(function () {
 isLoading = false;
 sendBtn.disabled = false;
+removePending();
 setStatus("", false);
 });
 }
@@ -13853,7 +13949,7 @@ try { return localStorage.getItem("psChatState"); } catch (e) { return null; }
 syncState(savedState === "open");
 const welcome = {
 role: "assistant",
-text: "Привет! Напишите адрес, метро или время — подскажу свободные места и тарифы.",
+text: "Я подскажу парковки по адресу, метро, бюджету и времени. Пример: ‘Курская, с 9 до 11, до 300 ₽, крытая’.",
 };
 messages.push(welcome);
 appendBubble(welcome);
@@ -14479,6 +14575,49 @@ qsa("[data-chip-toggle]").forEach(function (chip) { chip.classList.remove("is-ac
 fetchFeatures(provider);
 });
 }
+function getCSRFToken() {
+var match = document.cookie.match(/csrftoken=([^;]+)/);
+return match ? match[1] : "";
+}
+function showToast(message, type) {
+var container = document.querySelector(".ps-toast-container");
+if (!container) return alert(message);
+var toast = document.createElement("div");
+toast.className = "ps-toast ps-toast--" + (type || "info");
+toast.textContent = message;
+container.appendChild(toast);
+setTimeout(function () { toast.remove(); }, 4200);
+}
+function createBooking(spotId) {
+var now = new Date();
+var end = new Date(now.getTime() + 60 * 60 * 1000);
+return fetch("/api/parking/bookings/", {
+method: "POST",
+credentials: "include",
+headers: {
+"Content-Type": "application/json",
+"X-CSRFToken": getCSRFToken(),
+},
+body: JSON.stringify({
+spot: spotId,
+start_at: now.toISOString(),
+end_at: end.toISOString(),
+booking_type: "hourly",
+}),
+}).then(function (resp) {
+if (resp.status === 401 || resp.status === 403) {
+showToast("Войдите, чтобы бронировать места", "error");
+throw new Error("auth_required");
+}
+if (!resp.ok) {
+return resp.json().then(function (data) {
+var detail = typeof data === "object" ? JSON.stringify(data) : data;
+throw new Error(detail || "Ошибка бронирования");
+}).catch(function (err) { throw err; });
+}
+return resp.json();
+});
+}
 qsa("[data-fill-location]").forEach(function (btn) {
 btn.addEventListener("click", function () {
 if (!navigator.geolocation) return; btn.classList.add("ps-map-action--pulse");
@@ -14504,6 +14643,18 @@ if (bookBtn) {
 var targetId = bookBtn.getAttribute("data-spot-id");
 var card = qs("[data-spot-card='" + targetId + "']");
 if (card) card.scrollIntoView({ behavior: "smooth", block: "start" });
+bookBtn.setAttribute("aria-busy", "true");
+createBooking(targetId)
+.then(function (data) {
+var price = data.total_price || "~";
+showToast("Бронь создана в демо-режиме. Оплата не списывается (≈ " + price + " ₽)", "success");
+})
+.catch(function (err) {
+if (err.message !== "auth_required") {
+showToast("Не удалось создать бронь: " + err.message, "error");
+}
+})
+.finally(function () { bookBtn.removeAttribute("aria-busy"); });
 }
 });
 }
@@ -15162,7 +15313,7 @@ loading = false;
 }
 function renderSpots(container, spots, favorites) {
 if (!spots || !spots.length) {
-container.innerHTML = '<div class="ps-empty">Места будут показаны после загрузки карты.</div>';
+container.innerHTML = '<div class="ps-empty">Нет парковок поблизости или вы офлайн. Проверьте соединение или выберите другой район.</div>';
 return;
 }
 container.innerHTML = '';
@@ -15645,7 +15796,7 @@ window.addEventListener('offline', () => setConnectionStatus(false));
 </p>
 <div class="ps-auth-tabs" data-auth-switcher>
 <button type="button" class="is-active" data-auth-target="password">Email/Пароль</button>
-<button type="button" data-auth-target="google">Google</button>
+<button type="button" data-auth-target="google" aria-disabled="true" title="Google появится позже">Google</button>
 <button type="button" data-auth-target="sms">SMS</button>
 <button type="button" data-auth-target="esia">Госуслуги</button>
 </div>
@@ -15681,8 +15832,8 @@ window.addEventListener('offline', () => setConnectionStatus(false));
 </div>
 <div class="ps-auth-panel" data-auth-panel="google">
 <div class="ps-auth-placeholder">
-<p>Вход через Google скоро появится.</p>
-<button type="button" class="ps-btn ps-btn-secondary" disabled>Google</button>
+<p>Вход через Google скоро появится. В дев-режиме используйте email/пароль.</p>
+<button type="button" class="ps-btn ps-btn-secondary" disabled aria-disabled="true">Google</button>
 </div>
 </div>
 <div class="ps-auth-panel" data-auth-panel="sms">
@@ -16080,11 +16231,14 @@ defer></script>
 Бронирование, оплата и навигация — прямо в вашем браузере.
 </p>
 <div class="ps-hero-actions">
-<a href="
-Найти парковку рядом
+<a href="{% url 'map_page' %}" class="ps-btn ps-btn-lg">
+Открыть карту
 </a>
-<button type="button" class="ps-btn ps-btn-ghost ps-btn-lg" data-fill-location>
-Определить моё местоположение
+<button type="button" class="ps-btn ps-btn-secondary ps-btn-lg" data-fill-location>
+Рядом со мной
+</button>
+<button type="button" class="ps-btn ps-btn-ghost ps-btn-lg" data-chat-open-link>
+AI-помощник
 </button>
 </div>
 <div class="ps-hero-meta">
@@ -16181,6 +16335,7 @@ defer></script>
 <div class="ps-spots-panel" data-spots-panel>
 <div class="ps-section-subheader">
 <h3 class="ps-section-title-sm">Доступные места</h3>
+<p class="ps-section-subtitle">Бронирование работает в демо-режиме: оплата не списывается.</p>
 </div>
 <div class="ps-spots-list" data-spots-list>
 <div class="ps-card ps-card--spot ps-card--skeleton">
