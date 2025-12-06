@@ -581,11 +581,57 @@
             resetBtn.addEventListener("click", function () {
                 resetBtn.classList.remove("ps-map-action--spinning"); void resetBtn.offsetWidth; resetBtn.classList.add("ps-map-action--spinning");
                 if (filtersForm) filtersForm.reset(); priceRange = [0, 1500];
-                var slider = qs("[data-price-slider]"); if (slider && slider.noUiSlider) slider.noUiSlider.set(priceRange);
-                qsa("[data-chip-toggle]").forEach(function (chip) { chip.classList.remove("is-active"); });
-                fetchFeatures(provider);
-            });
+        var slider = qs("[data-price-slider]"); if (slider && slider.noUiSlider) slider.noUiSlider.set(priceRange);
+        qsa("[data-chip-toggle]").forEach(function (chip) { chip.classList.remove("is-active"); });
+        fetchFeatures(provider);
+    });
+}
+
+function getCSRFToken() {
+    var match = document.cookie.match(/csrftoken=([^;]+)/);
+    return match ? match[1] : "";
+}
+
+function showToast(message, type) {
+    var container = document.querySelector(".ps-toast-container");
+    if (!container) return alert(message);
+    var toast = document.createElement("div");
+    toast.className = "ps-toast ps-toast--" + (type || "info");
+    toast.textContent = message;
+    container.appendChild(toast);
+    setTimeout(function () { toast.remove(); }, 4200);
+}
+
+function createBooking(spotId) {
+    var now = new Date();
+    var end = new Date(now.getTime() + 60 * 60 * 1000);
+    return fetch("/api/parking/bookings/", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": getCSRFToken(),
+        },
+        body: JSON.stringify({
+            spot: spotId,
+            start_at: now.toISOString(),
+            end_at: end.toISOString(),
+            booking_type: "hourly",
+        }),
+    }).then(function (resp) {
+        if (resp.status === 401 || resp.status === 403) {
+            showToast("Войдите, чтобы бронировать места", "error");
+            throw new Error("auth_required");
         }
+        if (!resp.ok) {
+            return resp.json().then(function (data) {
+                var detail = typeof data === "object" ? JSON.stringify(data) : data;
+                throw new Error(detail || "Ошибка бронирования");
+            }).catch(function (err) { throw err; });
+        }
+        return resp.json();
+    });
+}
 
         qsa("[data-fill-location]").forEach(function (btn) {
             btn.addEventListener("click", function () {
@@ -613,6 +659,18 @@
                     var targetId = bookBtn.getAttribute("data-spot-id");
                     var card = qs("[data-spot-card='" + targetId + "']");
                     if (card) card.scrollIntoView({ behavior: "smooth", block: "start" });
+                    bookBtn.setAttribute("aria-busy", "true");
+                    createBooking(targetId)
+                        .then(function (data) {
+                            var price = data.total_price || "~";
+                            showToast("Бронь создана в демо-режиме. Оплата не списывается (≈ " + price + " ₽)", "success");
+                        })
+                        .catch(function (err) {
+                            if (err.message !== "auth_required") {
+                                showToast("Не удалось создать бронь: " + err.message, "error");
+                            }
+                        })
+                        .finally(function () { bookBtn.removeAttribute("aria-busy"); });
                 }
             });
         }

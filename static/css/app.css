@@ -1,35 +1,34 @@
 /* ---------- Design tokens ---------- */
 
 :root {
-    --ps-color-bg: #050816;
-    --ps-color-bg-elevated: #0b1020;
-    --ps-color-surface: #10172a;
-    --ps-color-border: rgba(255, 255, 255, 0.06);
+    --ps-color-bg: #0c1221;
+    --ps-color-bg-elevated: #111a2d;
+    --ps-color-surface: #152039;
+    --ps-color-border: rgba(255, 255, 255, 0.08);
 
-    --ps-color-primary: #0d6efd;
-    --ps-color-primary-soft: rgba(13, 110, 253, 0.16);
-    --ps-color-primary-strong: #0a58ca;
-    --ps-color-accent: #22c55e;
+    --ps-color-primary: #2dd4bf;
+    --ps-color-primary-soft: rgba(45, 212, 191, 0.14);
+    --ps-color-primary-strong: #14b8a6;
+    --ps-color-accent: #60a5fa;
 
-    --ps-color-text: #f9fafb;
-    --ps-color-text-muted: #9ca3af;
+    --ps-color-text: #f8fafc;
+    --ps-color-text-muted: #a5b4c3;
     --ps-color-danger: #ef4444;
-    --ps-color-warning: #eab308;
+    --ps-color-warning: #fbbf24;
     --ps-color-success: #22c55e;
-    --ps-color-neutral: #4b5563;
+    --ps-color-neutral: #64748b;
 
-    --ps-radius-sm: 0.5rem;
-    --ps-radius-md: 0.75rem;
-    --ps-radius-lg: 1rem;
+    --ps-radius-sm: 0.6rem;
+    --ps-radius-md: 0.9rem;
+    --ps-radius-lg: 1.3rem;
 
-    --ps-shadow-soft: 0 18px 45px rgba(0, 0, 0, 0.45);
-    --ps-shadow-card: 0 10px 30px rgba(15, 23, 42, 0.9);
+    --ps-shadow-soft: 0 16px 50px rgba(3, 7, 18, 0.36);
+    --ps-shadow-card: 0 20px 60px rgba(2, 6, 23, 0.55);
 
-    --ps-font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
-    "Segoe UI", sans-serif;
+    --ps-font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
 
-    --ps-transition-fast: 0.15s ease-out;
-    --ps-transition-normal: 0.25s ease-out;
+    --ps-transition-fast: 0.16s ease-out;
+    --ps-transition-normal: 0.28s ease-out;
 
     --ps-header-height: 60px;
     --ps-bottom-nav-height: 70px;
@@ -58,7 +57,9 @@ body {
 body.ps-body {
     min-height: 100vh;
     font-family: var(--ps-font-family);
-    background: radial-gradient(circle at top left, #1d2433 0, #050816 40%, #020617 100%);
+    background: radial-gradient(circle at 15% 20%, rgba(96, 165, 250, 0.14), transparent 35%),
+    radial-gradient(circle at 80% 0%, rgba(45, 212, 191, 0.12), transparent 28%),
+    linear-gradient(180deg, #0b1220 0%, #050914 60%, #03060f 100%);
     color: var(--ps-color-text);
     -webkit-font-smoothing: antialiased;
 }
@@ -84,17 +85,17 @@ img {
     position: sticky;
     top: 0;
     z-index: 40;
-    backdrop-filter: blur(12px);
-    background: linear-gradient(to bottom, rgba(15, 23, 42, 0.96), rgba(15, 23, 42, 0.7));
-    border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+    backdrop-filter: blur(14px);
+    background: linear-gradient(to bottom, rgba(13, 18, 35, 0.95), rgba(13, 18, 35, 0.6));
+    border-bottom: 1px solid rgba(148, 163, 184, 0.2);
 }
 
 .ps-navbar {
-    max-width: 1120px;
+    max-width: 1200px;
     margin: 0 auto;
     display: flex;
     align-items: center;
-    padding: 0.35rem 1rem;
+    padding: 0.5rem 1.25rem;
     height: var(--ps-header-height);
 }
 
@@ -728,52 +729,61 @@ img {
 
 .ps-btn {
     border-radius: 999px;
-    border: none;
-    padding: 0.45rem 0.95rem;
-    font-size: 0.88rem;
-    font-weight: 500;
+    border: 1px solid transparent;
+    padding: 0.48rem 1.05rem;
+    font-size: 0.92rem;
+    font-weight: 600;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 0.35rem;
-    background: linear-gradient(135deg, #2563eb, #0ea5e9);
-    color: #eff6ff;
+    gap: 0.45rem;
+    background: linear-gradient(135deg, var(--ps-color-primary-strong), var(--ps-color-primary));
+    color: #0b1727;
     text-decoration: none;
+    letter-spacing: 0.01em;
+    box-shadow: 0 14px 40px rgba(45, 212, 191, 0.35);
     transition: transform var(--ps-transition-fast), box-shadow var(--ps-transition-fast), filter var(--ps-transition-fast), background var(--ps-transition-fast);
 }
 
 .ps-btn:hover {
     transform: translateY(-1px);
-    filter: brightness(1.06);
-    box-shadow: 0 14px 32px rgba(37, 99, 235, 0.6);
+    filter: brightness(1.03);
+    box-shadow: 0 16px 46px rgba(45, 212, 191, 0.45);
 }
 
 .ps-btn:active {
     transform: translateY(1px);
-    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.8);
+    box-shadow: 0 8px 22px rgba(12, 18, 33, 0.7);
 }
 
 .ps-btn-secondary {
-    background: rgba(15, 23, 42, 0.96);
-    color: #e5e7eb;
-    border: 1px solid rgba(148, 163, 184, 0.5);
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--ps-color-text);
+    border: 1px solid rgba(148, 163, 184, 0.35);
     box-shadow: none;
 }
 
 .ps-btn-secondary:hover {
-    background: rgba(15, 23, 42, 1);
-    border-color: rgba(148, 163, 184, 0.8);
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(148, 163, 184, 0.65);
 }
 
 .ps-btn-ghost {
     background: transparent;
-    color: #e5e7eb;
-    border: 1px solid rgba(148, 163, 184, 0.35);
+    color: var(--ps-color-text-muted);
+    border: 1px dashed rgba(148, 163, 184, 0.4);
 }
 
 .ps-btn-ghost:hover {
-    background: rgba(15, 23, 42, 0.8);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.ps-btn:disabled,
+.ps-btn[aria-disabled="true"] {
+    cursor: not-allowed;
+    opacity: 0.6;
+    box-shadow: none;
 }
 
 .ps-btn-lg {
@@ -1898,6 +1908,40 @@ body:not(.ps-day-mode) .ps-map-topbar {
 .ps-chat-feedback-actions button.is-active {
     border-color: var(--ps-color-primary);
     box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.2);
+}
+
+.ps-chat-bubble--pending {
+    opacity: 0.9;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px dashed rgba(148, 163, 184, 0.35);
+}
+
+.ps-chat-spinner {
+    display: inline-flex;
+    gap: 4px;
+    margin-bottom: 6px;
+}
+
+.ps-chat-spinner span {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--ps-color-primary);
+    animation: ps-chat-bounce 1.2s infinite ease-in-out;
+}
+
+.ps-chat-spinner span:nth-child(2) {
+    animation-delay: 0.12s;
+    background: var(--ps-color-accent);
+}
+
+.ps-chat-spinner span:nth-child(3) {
+    animation-delay: 0.24s;
+}
+
+@keyframes ps-chat-bounce {
+    0%, 80%, 100% { transform: scale(0); opacity: 0.6; }
+    40% { transform: scale(1); opacity: 1; }
 }
 
 .ps-chat-input {

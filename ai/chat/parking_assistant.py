@@ -51,6 +51,27 @@ def _extract_time_hint(text: str) -> str:
     return "скоро"
 
 
+def _extract_time_window(text: str) -> tuple[Optional[int], Optional[int], str]:
+    """Парсинг диапазона времени (часы) или быстрых подсказок."""
+
+    match = re.search(r"\b(\d{1,2})\s*[-–]\s*(\d{1,2})\b", text)
+    if match:
+        start_h, end_h = match.groups()
+        try:
+            return int(start_h), int(end_h), f"с {start_h}:00 до {end_h}:00"
+        except ValueError:
+            return None, None, ""
+
+    lowered = text.lower()
+    if "сейчас" in lowered or "прямо сейчас" in lowered:
+        return None, None, "на ближайший час"
+    if "завтра" in lowered:
+        return None, None, "на завтра"
+    if "ноч" in lowered:
+        return None, None, "на ночь"
+    return None, None, ""
+
+
 INTENT_CORPUS: list[tuple[str, str]] = [
     ("ev", "зарядка для электромобиля ev электромобиль tesla leaf"),
     ("budget", "самая дешёвая дёшево бюджет эконом"),
@@ -314,9 +335,12 @@ def _handle_rule_based_flow(lowered: str):
     metro_match = re.search(r"метро\s+([\wёЁ\-\s]+)", lowered)
     if metro_match:
         area_hint = f"у метро {metro_match.group(1).strip().title()}"
-    time_hint = _extract_time_hint(lowered)
+    start_h, end_h, time_hint_parsed = _extract_time_window(lowered)
+    time_hint = time_hint_parsed or _extract_time_hint(lowered)
     context = _prepare_context(spots, area_hint, budget, time_hint)
     context["intents"] = list(intents)
+    if start_h is not None and end_h is not None:
+        context["time_hint"] = f"с {start_h}:00 до {end_h}:00"
 
     why = []
     if "ev" in intents:
@@ -325,6 +349,8 @@ def _handle_rule_based_flow(lowered: str):
         why.append("отсортировал по цене")
     if "night" in intents:
         why.append("оставил только круглосуточные")
+    if time_hint_parsed:
+        why.append(f"учёл интервал {time_hint_parsed}")
     reasoning = ", ".join(why) if why else "использовал ближайшие и менее загруженные места"
     return _reply_payload(spots, context, reasoning)
 
@@ -342,7 +368,7 @@ def generate_chat_reply(message: str, history: Optional[List[dict]], user: Optio
     if not text:
         logger.info("Empty chat message, returning friendly prompt")
         return {
-            "reply": "Опишите время, адрес или метро — подберу парковку.",
+            "reply": "Опишите улицу, метро, бюджет и время: например, \"Тверская, с 9 до 11, до 350 ₽/ч, крытая\".",
             "suggestions": [],
             "reason": "empty_message",
         }
@@ -355,6 +381,15 @@ def generate_chat_reply(message: str, history: Optional[List[dict]], user: Optio
             return llm_response
     except Exception as exc:  # pragma: no cover - непредвиденная ошибка
         logger.exception("LLM flow errored, forcing rule-based fallback", exc_info=exc)
+        fallback = _handle_rule_based_flow(lowered)
+        fallback["reason"] = (fallback.get("reason") or "") + " · AI сервис недоступен, используем эвристику"
+        fallback["reply"] = fallback.get("reply") or "Работаю в упрощённом режиме без внешнего AI, но покажу подходящие места."
+        return fallback
 
     logger.info("Falling back to rule-based parser")
-    return _handle_rule_based_flow(lowered)
+    response = _handle_rule_based_flow(lowered)
+    if not response.get("suggestions"):
+        response["reply"] = (
+            "Не очень понял запрос. Попробуйте формат: ‘Курская, парковка с 9 до 11, до 300 ₽/час, с зарядкой EV’."
+        )
+    return response

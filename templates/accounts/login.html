@@ -13,7 +13,7 @@
 
         <div class="ps-auth-tabs" data-auth-switcher>
             <button type="button" class="is-active" data-auth-target="password">Email/Пароль</button>
-            <button type="button" data-auth-target="google">Google</button>
+            <button type="button" data-auth-target="google" aria-disabled="true" title="Google появится позже">Google</button>
             <button type="button" data-auth-target="sms">SMS</button>
             <button type="button" data-auth-target="esia">Госуслуги</button>
         </div>
@@ -55,8 +55,8 @@
 
             <div class="ps-auth-panel" data-auth-panel="google">
                 <div class="ps-auth-placeholder">
-                    <p>Вход через Google скоро появится.</p>
-                    <button type="button" class="ps-btn ps-btn-secondary" disabled>Google</button>
+                    <p>Вход через Google скоро появится. В дев-режиме используйте email/пароль.</p>
+                    <button type="button" class="ps-btn ps-btn-secondary" disabled aria-disabled="true">Google</button>
                 </div>
             </div>
 

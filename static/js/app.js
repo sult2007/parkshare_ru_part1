@@ -652,6 +652,32 @@ function initAdaptiveProbe() {
             body.scrollTop = body.scrollHeight;
         }
 
+        let pendingBubble = null;
+
+        function showPending(text) {
+            if (!body) return;
+            removePending();
+            pendingBubble = document.createElement("div");
+            pendingBubble.className = "ps-chat-bubble ps-chat-bubble--bot ps-chat-bubble--pending";
+            const spinner = document.createElement("div");
+            spinner.className = "ps-chat-spinner";
+            spinner.innerHTML = "<span></span><span></span><span></span>";
+            const label = document.createElement("div");
+            label.className = "ps-chat-text";
+            label.textContent = text || "Ассистент думает…";
+            pendingBubble.appendChild(spinner);
+            pendingBubble.appendChild(label);
+            body.appendChild(pendingBubble);
+            body.scrollTop = body.scrollHeight;
+        }
+
+        function removePending() {
+            if (pendingBubble && pendingBubble.parentNode) {
+                pendingBubble.parentNode.removeChild(pendingBubble);
+            }
+            pendingBubble = null;
+        }
+
         function sendMessage() {
             const text = (input.value || "").trim();
             if (!text || isLoading) return;
@@ -662,6 +688,7 @@ function initAdaptiveProbe() {
             isLoading = true;
             setStatus("Ассистент печатает…", true);
             sendBtn.disabled = true;
+            showPending();
             const history = messages.slice(-6).map(function (msg) {
                 return {role: msg.role === "assistant" ? "assistant" : "user", text: msg.text};
             });
@@ -671,7 +698,10 @@ function initAdaptiveProbe() {
                 headers: {"Content-Type": "application/json"},
                 body: JSON.stringify({message: text, history: history}),
             })
-                .then(function (resp) { return resp.json(); })
+                .then(function (resp) {
+                    if (!resp.ok) throw new Error("HTTP " + resp.status);
+                    return resp.json();
+                })
                 .then(function (data) {
                     const botMsg = {
                         role: "assistant",
@@ -683,14 +713,15 @@ function initAdaptiveProbe() {
                     messages.push(botMsg);
                     appendBubble(botMsg);
                 })
-                .catch(function () {
-                    const fallback = {role: "assistant", text: "Не удалось обратиться к ассистенту."};
+                .catch(function (err) {
+                    const fallback = {role: "assistant", text: "Не удалось обратиться к ассистенту: " + err.message};
                     messages.push(fallback);
                     appendBubble(fallback);
                 })
                 .finally(function () {
                     isLoading = false;
                     sendBtn.disabled = false;
+                    removePending();
                     setStatus("", false);
                 });
         }
@@ -717,7 +748,7 @@ function initAdaptiveProbe() {
 
             const welcome = {
                 role: "assistant",
-                text: "Привет! Напишите адрес, метро или время — подскажу свободные места и тарифы.",
+                text: "Я подскажу парковки по адресу, метро, бюджету и времени. Пример: ‘Курская, с 9 до 11, до 300 ₽, крытая’.",
             };
             messages.push(welcome);
             appendBubble(welcome);

@@ -50,7 +50,7 @@ async function fetchMore() {
 
 function renderSpots(container, spots, favorites) {
   if (!spots || !spots.length) {
-    container.innerHTML = '<div class="ps-empty">Места будут показаны после загрузки карты.</div>';
+    container.innerHTML = '<div class="ps-empty">Нет парковок поблизости или вы офлайн. Проверьте соединение или выберите другой район.</div>';
     return;
   }
   container.innerHTML = '';

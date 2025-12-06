@@ -27,11 +27,14 @@
                 Бронирование, оплата и навигация — прямо в вашем браузере.
             </p>
             <div class="ps-hero-actions">
-                <a href="#search" class="ps-btn ps-btn-lg" data-scroll-to>
-                    Найти парковку рядом
+                <a href="{% url 'map_page' %}" class="ps-btn ps-btn-lg">
+                    Открыть карту
                 </a>
-                <button type="button" class="ps-btn ps-btn-ghost ps-btn-lg" data-fill-location>
-                    Определить моё местоположение
+                <button type="button" class="ps-btn ps-btn-secondary ps-btn-lg" data-fill-location>
+                    Рядом со мной
+                </button>
+                <button type="button" class="ps-btn ps-btn-ghost ps-btn-lg" data-chat-open-link>
+                    AI-помощник
                 </button>
             </div>
             <div class="ps-hero-meta">
@@ -131,6 +134,7 @@
         <div class="ps-spots-panel" data-spots-panel>
             <div class="ps-section-subheader">
                 <h3 class="ps-section-title-sm">Доступные места</h3>
+                <p class="ps-section-subtitle">Бронирование работает в демо-режиме: оплата не списывается.</p>
             </div>
 
             <div class="ps-spots-list" data-spots-list>
