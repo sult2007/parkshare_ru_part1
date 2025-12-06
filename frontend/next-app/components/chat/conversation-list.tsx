@@ -31,15 +31,15 @@ export function ConversationList({ conversations, activeId, onSelect, onCreate, 
     <aside className="flex h-full flex-col rounded-3xl border border-slate-200/80 bg-white/70 p-4 shadow-md backdrop-blur dark:border-slate-800/60 dark:bg-slate-900/70">
       <div className="mb-4 flex items-center justify-between gap-3">
         <div>
-          <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">Conversations</p>
-          <p className="text-xs text-slate-500 dark:text-slate-400">Jump back into previous threads</p>
+          <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">Диалоги</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">Возвращайтесь к предыдущим веткам</p>
         </div>
         <button
           onClick={onCreate}
           className="flex items-center gap-1 rounded-full bg-gradient-to-r from-indigo-500 to-blue-500 px-3 py-2 text-xs font-semibold text-white shadow-sm transition hover:shadow-md"
         >
           <PlusIcon className="h-4 w-4" />
-          New
+          Новый
         </button>
       </div>
       <div className="flex-1 space-y-2 overflow-y-auto pr-1">
@@ -67,7 +67,7 @@ export function ConversationList({ conversations, activeId, onSelect, onCreate, 
                   <span className="text-[11px] text-slate-500 dark:text-slate-400">{formatTimestamp(conversation.updatedAt)}</span>
                 </div>
                 <p className="line-clamp-2 text-xs text-slate-500 dark:text-slate-400">
-                  {lastMessage?.content || 'Empty conversation'}
+                  {lastMessage?.content || 'Ветка пустая'}
                 </p>
               </button>
               <div className="absolute right-2 top-2 flex gap-1 opacity-0 transition group-hover:opacity-100">
@@ -86,7 +86,7 @@ export function ConversationList({ conversations, activeId, onSelect, onCreate, 
                 <button
                   aria-label="Delete conversation"
                   onClick={() => {
-                    const confirmed = confirm('Delete this conversation? This cannot be undone.');
+                    const confirmed = confirm('Удалить этот диалог? Действие необратимо.');
                     if (confirmed) {
                       onDelete(conversation.id);
                     }
@@ -101,7 +101,7 @@ export function ConversationList({ conversations, activeId, onSelect, onCreate, 
         })}
         {sorted.length === 0 && (
           <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50/70 p-4 text-center text-sm text-slate-500 dark:border-slate-700 dark:bg-slate-800/40 dark:text-slate-400">
-            No conversations yet.
+            Пока нет диалогов.
           </div>
         )}
       </div>

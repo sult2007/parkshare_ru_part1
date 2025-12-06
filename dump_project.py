@@ -1,12 +1,11 @@
 import os
-import re
 from datetime import datetime
 
 # Какие папки игнорировать (расширенный список)
 EXCLUDED_DIRS = {
     ".git", ".venv", "venv", "__pycache__", "node_modules",
     "dist", "build", "staticfiles", "media", ".idea", ".vscode",
-    "static/icons",  # иконки не нужны в дампе
+    "static/icons",      # иконки не нужны в дампе
     "logs", "cache", "temp",  # временные файлы и логи
 }
 
@@ -22,15 +21,16 @@ IGNORED_EXTENSIONS = {
 
 # Файлы, которые нужно полностью игнорировать
 EXCLUDED_FILES = {
-    "CODEX_LOG1.txt", "CODEX__LOGS.txt",  # ваши логи
-    "package-lock.json", "yarn.lock",  # большие lock-файлы
+    "CODEX_LOG1.txt", "CODEX__LOGS.txt",
+    "package-lock.json", "yarn.lock",
 }
 
-# Максимальный размер файла для включения в дамп (в байтах)
-MAX_FILE_SIZE = 500 * 1024  # 500KB
+# Никакого лимита на размер файла и дампа
+MAX_FILE_SIZE = None  # не используется
+MAX_TOTAL_DUMP_SIZE = None  # не используется
 
-# Сжатие кода: удаление лишних пробелов и комментарий
-COMPRESS_CODE = True
+# Сжатие кода выключено, содержимое пишется как есть
+COMPRESS_CODE = False
 
 
 def is_binary_file(filename: str) -> bool:
@@ -39,63 +39,55 @@ def is_binary_file(filename: str) -> bool:
 
 
 def should_exclude_file(filename: str) -> bool:
-    """Проверяет, нужно ли исключить файл"""
     return filename in EXCLUDED_FILES
 
 
 def compress_content(content: str, filepath: str) -> str:
-    """Сжимает содержимое файла (удаляет лишние пробелы и комментарии)"""
+    # Оставлено для совместимости, по факту возвращает исходный контент
     if not COMPRESS_CODE:
         return content
-
-    _, ext = os.path.splitext(filepath.lower())
-
-    if ext in {'.py', '.js', '.css', '.html', '.ts'}:
-        # Удаляем комментарии и лишние пробелы
-        lines = []
-        in_multiline_comment = False
-
-        for line in content.split('\n'):
-            # Обработка многострочных комментариев
-            if in_multiline_comment:
-                if '*/' in line:
-                    line = line.split('*/', 1)[1]
-                    in_multiline_comment = False
-                else:
-                    continue
-
-            # Удаляем однострочные комментарии
-            if '//' in line:
-                line = line.split('//')[0]
-            if '#' in line and not line.strip().startswith('#'):
-                line = line.split('#')[0]
-
-            # Обработка многострочных комментариев для CSS/JS
-            if '/*' in line:
-                if '*/' in line:
-                    line = line.split('/*')[0] + line.split('*/')[1]
-                else:
-                    line = line.split('/*')[0]
-                    in_multiline_comment = True
-
-            # Удаляем начальные и конечные пробелы
-            line = line.strip()
-            if line:
-                lines.append(line)
-
-        return '\n'.join(lines)
-
     return content
 
 
-def get_file_size_kb(filepath: str) -> float:
-    """Возвращает размер файла в КБ"""
-    return os.path.getsize(filepath) / 1024
+def detect_language(filepath: str) -> str:
+    """
+    Определение "языка" для ИИ по расширению файла,
+    чтобы он лучше понимал, что за содержимое перед ним.
+    """
+    _, ext = os.path.splitext(filepath.lower())
+    mapping = {
+        ".py": "python",
+        ".js": "javascript",
+        ".ts": "typescript",
+        ".tsx": "tsx",
+        ".jsx": "jsx",
+        ".html": "html",
+        ".htm": "html",
+        ".css": "css",
+        ".scss": "scss",
+        ".sass": "sass",
+        ".json": "json",
+        ".yml": "yaml",
+        ".yaml": "yaml",
+        ".md": "markdown",
+        ".sh": "bash",
+        ".bat": "batch",
+        ".ps1": "powershell",
+        ".toml": "toml",
+        ".ini": "ini",
+        ".cfg": "ini",
+        ".txt": "text",
+        ".sql": "sql",
+        ".csv": "csv",
+        ".xml": "xml",
+    }
+    return mapping.get(ext, "text")
 
 
 def build_tree_and_collect_files(root: str):
     """
-    Обходит проект, строит дерево директорий и собирает список файлов
+    Обходит проект, строит дерево директорий и собирает список файлов.
+    Фильтр только по директориям/расширениям/именам.
     """
     tree_lines = []
     file_paths = []
@@ -106,7 +98,7 @@ def build_tree_and_collect_files(root: str):
     tree_lines.append(f"{root_name}/")
 
     for current_root, dirs, files in os.walk(root):
-        # Отбрасываем ненужные директории
+        # Фильтр директорий
         dirs[:] = [
             d for d in dirs
             if d not in EXCLUDED_DIRS and not d.startswith(".")
@@ -123,21 +115,12 @@ def build_tree_and_collect_files(root: str):
         if rel_root != ".":
             tree_lines.append(f"{indent}{os.path.basename(current_root)}/")
 
-        # Файлы
         for name in sorted(files):
             if is_binary_file(name) or should_exclude_file(name):
                 continue
 
             file_rel_path = os.path.join(rel_root, name) if rel_root != "." else name
             file_abs_path = os.path.join(current_root, name)
-
-            # Пропускаем слишком большие файлы
-            try:
-                if get_file_size_kb(file_abs_path) > MAX_FILE_SIZE / 1024:
-                    tree_lines.append(f"{indent}    {name} [SKIPPED - TOO LARGE]")
-                    continue
-            except OSError:
-                continue
 
             tree_lines.append(f"{indent}    {name}")
             file_paths.append((file_rel_path, file_abs_path))
@@ -149,14 +132,38 @@ def dump_project(root: str, output_filename: str = "project_dump.txt"):
     tree_lines, file_paths = build_tree_and_collect_files(root)
 
     root = os.path.abspath(root)
+
+    # Индекс файлов для ИИ, чтобы он мог быстро увидеть структуру и прыгать по пути
+    files_index_lines = []
+    for idx, (rel_path, abs_path) in enumerate(file_paths, 1):
+        lang = detect_language(abs_path)
+        files_index_lines.append(
+            f"{idx}. PATH={rel_path} | LANG={lang}"
+        )
+
     header = [
         "#" * 80,
-        "# COMPRESSED PROJECT DUMP",
+        "# FULL PROJECT DUMP (NO TRUNCATION)",
+        "# FORMAT FOR LLM:",
+        "#   1) PROJECT TREE — общая структура проекта.",
+        "#   2) FILES INDEX — плоский список файлов с путём и языком.",
+        "#   3) FILES CONTENT — для каждого файла:",
+        "#        ===== FILE START =====",
+        "#        FILE_INDEX: <N>",
+        "#        PATH: <relative/path>",
+        "#        LANG: <language>",
+        "#        ===== CONTENT START =====",
+        "#        <raw file content>",
+        "#        ===== CONTENT END =====",
+        "#        ===== FILE END =====",
+        "#   Файлы идут в том же порядке, что и в индексе.",
+        "#" * 80,
         f"# Root: {root}",
         f"# Generated at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
-        f"# Files: {len(file_paths)}",
-        f"# Max file size: {MAX_FILE_SIZE / 1024:.0f}KB",
-        f"# Code compression: {COMPRESS_CODE}",
+        f"# Files listed: {len(file_paths)}",
+        f"# Max single file size: NONE",
+        f"# Max total dump size: NONE",
+        f"# Code compression enabled: {COMPRESS_CODE}",
         "#" * 80,
         "",
     ]
@@ -171,38 +178,54 @@ def dump_project(root: str, output_filename: str = "project_dump.txt"):
         for line in tree_lines:
             f.write(line + "\n")
 
+        # Индекс файлов
+        f.write("\n\n")
+        f.write("FILES INDEX:\n")
+        f.write("-" * 80 + "\n")
+        for line in files_index_lines:
+            f.write(line + "\n")
+
         # Разделитель
         f.write("\n\n")
         f.write("=" * 80 + "\n")
         f.write("FILES CONTENT:\n")
         f.write("=" * 80 + "\n\n")
 
-        # Содержимое файлов
+        total_files = len(file_paths)
+
         for i, (rel_path, abs_path) in enumerate(file_paths, 1):
-            f.write(f"# File {i}/{len(file_paths)}: {rel_path}\n")
-            f.write("#" * 80 + "\n\n")
+            lang = detect_language(abs_path)
+
+            # Явные маркеры для ИИ
+            f.write("===== FILE START =====\n")
+            f.write(f"FILE_INDEX: {i}\n")
+            f.write(f"PATH: {rel_path}\n")
+            f.write(f"LANG: {lang}\n")
+            f.write("===== CONTENT START =====\n")
 
             try:
                 with open(abs_path, "r", encoding="utf-8", errors="replace") as src:
                     content = src.read()
 
-                    # Сжимаем содержимое
-                    compressed_content = compress_content(content, abs_path)
-                    f.write(compressed_content)
+                content = compress_content(content, abs_path)
+                f.write(content)
 
             except Exception as e:
                 f.write(f"<< ERROR READING FILE: {e} >>\n")
 
-            f.write("\n\n")
+            f.write("\n===== CONTENT END =====\n")
+            f.write("===== FILE END =====\n\n")
 
-            # Прогресс для больших проектов
             if i % 10 == 0:
-                print(f"Processed {i}/{len(file_paths)} files...")
+                print(f"Processed {i}/{total_files} files...")
 
-    file_size_kb = os.path.getsize(output_filename) / 1024
+    file_size_bytes = os.path.getsize(output_filename)
+    file_size_kb = file_size_bytes / 1024
+    file_size_mb = file_size_bytes / (1024 * 1024)
+
     print(f"Готово! Файл с дампом проекта: {output_filename}")
-    print(f"Размер дампа: {file_size_kb:.0f}KB")
-    print(f"Обработано файлов: {len(file_paths)}")
+    print(f"Размер дампа: {file_size_kb:.0f}KB (~{file_size_mb:.2f}MB)")
+    print(f"Файлов в обходе (включено в дамп): {len(file_paths)}")
 
 
 if __name__ == "__main__":

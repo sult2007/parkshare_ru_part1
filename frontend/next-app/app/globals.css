@@ -2,26 +2,82 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  color-scheme: light;
-}
+@layer base {
+  :root {
+    color-scheme: light;
+    --font-sans: 'SF Pro Display', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-mono: 'SFMono-Regular', 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+    --bg-surface: #f4f7fb;
+    --bg-elevated: #ffffff;
+    --bg-soft: #eef2f8;
+    --text-primary: #0f172a;
+    --text-muted: #5f6a7a;
+    --accent: #3f7df4;
+    --accent-strong: #335edc;
+    --border-subtle: #e5e7eb;
+    --radius-lg: 20px;
+    --shadow-soft: 0 18px 38px rgba(15, 23, 42, 0.08);
+  }
 
-:root.dark {
-  color-scheme: dark;
-}
+  :root.dark {
+    color-scheme: dark;
+    --bg-surface: #0b1220;
+    --bg-elevated: #0f172a;
+    --bg-soft: #0c1424;
+    --text-primary: #e5e7eb;
+    --text-muted: #94a3b8;
+    --accent: #6ca8ff;
+    --accent-strong: #8b9eff;
+    --border-subtle: #1f2937;
+    --radius-lg: 20px;
+    --shadow-soft: 0 18px 38px rgba(0, 0, 0, 0.45);
+  }
 
-body {
-  @apply bg-surface text-slate-900 dark:bg-surface-dark dark:text-slate-100 min-h-screen;
-}
+  * {
+    @apply antialiased;
+  }
 
-a {
-  @apply text-blue-600 dark:text-blue-400 underline;
-}
+  body {
+    @apply min-h-screen text-[var(--text-primary)];
+    font-family: var(--font-sans);
+    background: radial-gradient(circle at 20% 20%, rgba(51, 94, 220, 0.05), transparent 28%),
+      radial-gradient(circle at 80% 0%, rgba(63, 125, 244, 0.06), transparent 25%),
+      linear-gradient(180deg, #f7f9fc 0%, #f1f5f9 60%, #eef2f8 100%);
+    color: var(--text-primary);
+  }
 
-input, textarea {
-  @apply bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-slate-100;
-}
+  .dark body {
+    background: radial-gradient(circle at 20% 20%, rgba(140, 158, 255, 0.07), transparent 25%),
+      radial-gradient(circle at 80% 10%, rgba(108, 168, 255, 0.08), transparent 24%),
+      linear-gradient(180deg, #0c1222 0%, #0b1020 50%, #0b1324 100%);
+  }
 
-button {
-  @apply rounded-lg px-4 py-2 text-sm font-medium;
-}
+  a {
+    @apply underline decoration-2 underline-offset-4 transition-colors;
+    color: var(--accent-strong);
+  }
+
+  input,
+  textarea {
+    @apply w-full rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-4 py-3 text-sm text-[var(--text-primary)] shadow-sm outline-none transition focus:-translate-y-[1px] focus:border-[var(--accent)] focus:shadow-[0_10px_30px_rgba(79,70,229,0.06)];
+    font-family: var(--font-sans);
+  }
+
+  button {
+    @apply rounded-2xl px-4 py-2 text-sm font-medium transition duration-200 ease-out;
+  }
+
+  h1, h2, h3, h4, h5 {
+    font-family: var(--font-sans);
+    @apply tracking-tight text-[var(--text-primary)];
+  }
+
+  code, pre {
+    font-family: var(--font-mono);
+  }
+
+  ::selection {
+    background: rgba(63, 125, 244, 0.15);
+  }
+  }
+

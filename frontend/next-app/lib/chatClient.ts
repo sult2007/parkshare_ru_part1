@@ -3,6 +3,7 @@ import { ChatMessage } from './aiProvider';
 type StreamChatOptions = {
   fetcher?: typeof fetch;
   onChunk?: (chunk: string) => void;
+  signal?: AbortSignal;
 };
 
 export async function streamChatFromApi(messages: ChatMessage[], options: StreamChatOptions = {}) {
@@ -12,11 +13,13 @@ export async function streamChatFromApi(messages: ChatMessage[], options: Stream
     headers: {
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({ messages })
+    body: JSON.stringify({ messages, stream: true }),
+    signal: options.signal
   });
 
   if (!response.ok || !response.body) {
-    throw new Error('Failed to reach chat API');
+    const errorText = await response.text();
+    throw new Error(errorText || 'Failed to reach chat API');
   }
 
   const reader = response.body.getReader();

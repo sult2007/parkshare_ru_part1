@@ -2,25 +2,43 @@
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
-import { PaperAirplaneIcon, SparklesIcon, ClockIcon, ArrowPathIcon, Bars3Icon } from '@heroicons/react/24/outline';
+import {
+  PaperAirplaneIcon,
+  SparklesIcon,
+  ClockIcon,
+  ArrowPathIcon,
+  Bars3Icon,
+  ClipboardIcon,
+  StopCircleIcon,
+  ExclamationTriangleIcon
+} from '@heroicons/react/24/outline';
 import { ChatMessage } from '@/lib/aiProvider';
 import { Conversation, MessageWithId } from './types';
 import { ConversationList } from './conversation-list';
 import { SuggestedPrompts } from './suggested-prompts';
 import { streamChatFromApi } from '@/lib/chatClient';
+import { useAuth } from '@/hooks/useAuth';
 
 const MarkdownMessage = dynamic(() => import('./markdown-message'), {
   ssr: false,
   loading: () => <div className="h-4 w-24 animate-pulse rounded-full bg-slate-200 dark:bg-slate-700" />
 });
 
-const STORAGE_KEY = 'parkshare_conversations_v1';
+const STORAGE_KEY_BASE = 'parkshare_conversations_v2';
+const ONBOARDING_KEY = 'parkshare_onboarding_seen';
 const MAX_HISTORY = 14;
+const FAVORITE_PROMPTS = [
+  'Сформируй чат-скрипт для диспетчера парковки с VIP-клиентами.',
+  'Собери сводку по пиковым часам и дай рекомендации по динамическим тарифам.',
+  'Сценарий поддержки: клиент не может найти въезд. Какие шаги предложить?',
+  'Что добавить в онбординг партнёра, чтобы повысить NPS?',
+  'Сделай контрольный чек-лист для запуска новой парковки на выходные.'
+];
 
 const createWelcomeMessage = (): MessageWithId => ({
   id: crypto.randomUUID(),
   role: 'assistant',
-  content: 'Hi! I am your ParkShare AI concierge. Ask me about occupancy, pricing, or customer journeys.',
+  content: 'Привет! Я ParkShare AI Concierge. Спроси про загрузку, цены, сценарии для гостей или подготовку персонала.',
   createdAt: Date.now()
 });
 
@@ -31,21 +49,29 @@ const createConversation = (title = 'New conversation'): Conversation => ({
   updatedAt: Date.now()
 });
 
+const storageKeyForUser = (userId?: string | null) => `${STORAGE_KEY_BASE}:${userId ?? 'guest'}`;
+
 export function ChatPanel() {
+  const { user, isAuthenticated } = useAuth();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isStreaming, setIsStreaming] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const chatEndRef = useRef<HTMLDivElement | null>(null);
-  const hasBootstrapped = useRef(false);
+  const lastStorageKey = useRef<string | null>(null);
+  const abortRef = useRef<AbortController | null>(null);
+
+  const storageKey = useMemo(() => storageKeyForUser(user?.id), [user?.id]);
 
   useEffect(() => {
-    if (typeof window === 'undefined' || hasBootstrapped.current) return;
-    hasBootstrapped.current = true;
+    if (typeof window === 'undefined' || lastStorageKey.current === storageKey) return;
+    lastStorageKey.current = storageKey;
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
+      const stored = localStorage.getItem(storageKey);
       if (stored) {
         const parsed: Conversation[] = JSON.parse(stored);
         setConversations(parsed);
@@ -59,12 +85,21 @@ export function ChatPanel() {
     const starter = createConversation('Welcome thread');
     setConversations([starter]);
     setActiveConversationId(starter.id);
-  }, []);
+  }, [storageKey]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(conversations));
-  }, [conversations]);
+    localStorage.setItem(storageKey, JSON.stringify(conversations));
+  }, [conversations, storageKey]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const seen = localStorage.getItem(ONBOARDING_KEY);
+    if (!seen) {
+      setShowOnboarding(true);
+      localStorage.setItem(ONBOARDING_KEY, 'true');
+    }
+  }, []);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
@@ -113,6 +148,9 @@ export function ChatPanel() {
   const handleSend = useCallback(async () => {
     if (!currentConversation || !input.trim() || isLoading) return;
 
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
     const userMessage: MessageWithId = {
       id: crypto.randomUUID(),
       role: 'user',
@@ -122,6 +160,7 @@ export function ChatPanel() {
 
     setInput('');
     setIsLoading(true);
+    setIsStreaming(true);
     setErrorMessage(null);
 
     const payloadMessages: ChatMessage[] = currentConversation.messages
@@ -143,6 +182,7 @@ export function ChatPanel() {
 
     try {
       await streamChatFromApi(payloadMessages, {
+        signal: controller.signal,
         onChunk: (textChunk: string) =>
           updateConversation(currentConversation.id, (conv) => ({
             ...conv,
@@ -169,6 +209,8 @@ export function ChatPanel() {
       }));
     } finally {
       setIsLoading(false);
+      setIsStreaming(false);
+      abortRef.current = null;
     }
   }, [currentConversation, input, isLoading, updateConversation]);
 
@@ -179,49 +221,169 @@ export function ChatPanel() {
     }
   };
 
+  const handleAbort = useCallback(() => {
+    abortRef.current?.abort();
+    setIsLoading(false);
+    setIsStreaming(false);
+  }, []);
+
+  const handleClear = useCallback(() => {
+    if (!currentConversation) return;
+    updateConversation(currentConversation.id, (conv) => ({
+      ...conv,
+      messages: [createWelcomeMessage()],
+      updatedAt: Date.now()
+    }));
+    setInput('');
+    setErrorMessage(null);
+  }, [currentConversation, updateConversation]);
+
+  const handleRegenerate = useCallback(
+    async (assistantMessageId: string) => {
+      if (!currentConversation || isLoading) return;
+      const targetIndex = currentConversation.messages.findIndex((msg) => msg.id === assistantMessageId);
+      if (targetIndex <= 0) return;
+      const historyBefore = currentConversation.messages.slice(0, targetIndex);
+      const lastUserIndex = [...historyBefore].reverse().findIndex((msg) => msg.role === 'user');
+      if (lastUserIndex === -1) return;
+      const userIndex = historyBefore.length - 1 - lastUserIndex;
+      const historyToSend = currentConversation.messages.slice(0, userIndex + 1);
+
+      abortRef.current?.abort();
+      const controller = new AbortController();
+      abortRef.current = controller;
+      setIsLoading(true);
+      setIsStreaming(true);
+      setErrorMessage(null);
+
+      const assistantMessage: MessageWithId = { id: crypto.randomUUID(), role: 'assistant', content: '', createdAt: Date.now() };
+      updateConversation(currentConversation.id, (conv) => ({
+        ...conv,
+        messages: [...historyToSend, assistantMessage].slice(-MAX_HISTORY),
+        updatedAt: Date.now()
+      }));
+
+      const payloadMessages: ChatMessage[] = historyToSend.map(({ id, createdAt, ...rest }) => rest as ChatMessage);
+
+      try {
+        await streamChatFromApi(payloadMessages, {
+          signal: controller.signal,
+          onChunk: (chunk) =>
+            updateConversation(currentConversation.id, (conv) => ({
+              ...conv,
+              messages: conv.messages.map((msg) =>
+                msg.id === assistantMessage.id ? { ...msg, content: msg.content + chunk } : msg
+              ),
+              updatedAt: Date.now()
+            }))
+        });
+      } catch (error) {
+        console.error(error);
+        setErrorMessage('Не удалось перегенерировать ответ. Попробуйте снова.');
+      } finally {
+        setIsLoading(false);
+        setIsStreaming(false);
+        abortRef.current = null;
+      }
+    },
+    [currentConversation, isLoading, updateConversation]
+  );
+
   const handlePrefill = useCallback((prompt: string) => {
     setInput(prompt);
   }, []);
 
-  const sendDisabled = isLoading || !input.trim();
+  const sendDisabled = isLoading || isStreaming || !input.trim();
 
   return (
-    <div className="relative flex min-h-[70vh] flex-1 flex-col overflow-hidden rounded-3xl border border-slate-200/80 bg-gradient-to-br from-slate-50 via-white to-indigo-50 p-4 shadow-lg dark:border-slate-800/80 dark:from-slate-950 dark:via-slate-900 dark:to-indigo-950/40">
-      <div className="mb-4 flex flex-col gap-3 rounded-3xl border border-slate-200/60 bg-white/70 p-4 backdrop-blur dark:border-slate-800/70 dark:bg-slate-900/60">
-        <div className="flex items-center justify-between gap-4">
+    <div className="relative flex min-h-[70vh] flex-1 flex-col overflow-hidden rounded-[28px] border border-[var(--border-subtle)]/80 bg-gradient-to-br from-white via-[var(--bg-surface)] to-white p-4 shadow-[0_18px_42px_rgba(15,23,42,0.08)] dark:border-slate-800/80 dark:from-slate-950 dark:via-slate-900 dark:to-indigo-950/40">
+      <div className="mb-4 flex flex-col gap-4 rounded-3xl border border-slate-200/60 bg-white/70 p-4 backdrop-blur dark:border-slate-800/70 dark:bg-slate-900/60">
+        <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-md">
               <SparklesIcon className="h-6 w-6" />
             </div>
-            <div>
+            <div className="space-y-0.5">
               <p className="text-lg font-semibold text-slate-900 dark:text-slate-50">AI Concierge</p>
-              <p className="text-sm text-slate-600 dark:text-slate-400">
-                Smarter conversations with memory, suggestions, and offline-ready polish.
+              <p className="text-sm text-slate-600 dark:text-slate-400">Потоковые ответы, готовые пресеты и офлайн-поведение.</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                Статус: {isAuthenticated ? 'Личный профиль' : 'Гостевой режим'} • История хранится локально
               </p>
             </div>
           </div>
-          <button
-            className="flex items-center gap-2 rounded-full border border-slate-200 bg-white/60 px-3 py-2 text-xs font-medium text-slate-700 shadow-sm transition hover:border-indigo-300 hover:text-indigo-700 dark:border-slate-800 dark:bg-slate-800/80 dark:text-slate-200 dark:hover:border-indigo-500/60"
-            onClick={handleCreate}
-          >
-            <ArrowPathIcon className="h-4 w-4" />
-            Reset thread
-          </button>
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              className="flex items-center gap-2 rounded-full border border-slate-200 bg-white/60 px-3 py-2 text-xs font-medium text-slate-700 shadow-sm transition hover:border-indigo-300 hover:text-indigo-700 dark:border-slate-800 dark:bg-slate-800/80 dark:text-slate-200 dark:hover:border-indigo-500/60"
+              onClick={handleCreate}
+            >
+              <ArrowPathIcon className="h-4 w-4" />
+              Новый диалог
+            </button>
+            <button
+              onClick={handleClear}
+              className="flex items-center gap-2 rounded-full border border-slate-200 bg-white/60 px-3 py-2 text-xs font-medium text-slate-700 shadow-sm transition hover:border-red-200 hover:text-red-600 dark:border-slate-800 dark:bg-slate-800/80 dark:text-slate-200"
+            >
+              <StopCircleIcon className="h-4 w-4" />
+              Очистить
+            </button>
+            <button
+              className="inline-flex items-center gap-2 rounded-full border border-indigo-200/80 bg-indigo-50 px-3 py-2 text-xs font-semibold text-indigo-700 shadow-sm transition hover:-translate-y-[1px] hover:shadow-md dark:border-indigo-500/50 dark:bg-indigo-900/40 dark:text-indigo-100"
+              onClick={() => setShowSidebar(true)}
+            >
+              <Bars3Icon className="h-4 w-4" />
+              Диалоги
+            </button>
+          </div>
         </div>
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
             <ClockIcon className="h-4 w-4" />
-            <span>Sessions persist locally. Rename, delete, or pick up where you left off.</span>
+            <span>Контекст до 14 сообщений. Профиль влияет на подсказки и историю.</span>
           </div>
-          <button
-            className="inline-flex items-center gap-2 rounded-full border border-indigo-200/80 bg-indigo-50 px-3 py-2 text-xs font-semibold text-indigo-700 shadow-sm transition hover:-translate-y-[1px] hover:shadow-md dark:border-indigo-500/50 dark:bg-indigo-900/40 dark:text-indigo-100"
-            onClick={() => setShowSidebar(true)}
-          >
-            <Bars3Icon className="h-4 w-4" />
-            Conversations
-          </button>
+          {isStreaming && (
+            <div className="inline-flex items-center gap-2 rounded-full bg-indigo-50 px-3 py-1 text-[11px] font-semibold text-indigo-700 shadow-sm dark:bg-indigo-900/50 dark:text-indigo-100">
+              <span className="h-2 w-2 animate-pulse rounded-full bg-indigo-500" />
+              Генерируем ответ
+            </div>
+          )}
         </div>
         <SuggestedPrompts onSelect={handlePrefill} />
+        <div className="flex flex-wrap items-center gap-2">
+          {FAVORITE_PROMPTS.map((prompt) => (
+            <button
+              key={prompt}
+              onClick={() => handlePrefill(prompt)}
+              className="group rounded-full border border-slate-200/70 bg-white/70 px-3 py-2 text-xs text-slate-700 shadow-sm transition hover:-translate-y-[1px] hover:border-slate-300 hover:bg-white dark:border-slate-800 dark:bg-slate-800/80 dark:text-slate-200"
+            >
+              <span className="mr-2 inline-block h-2 w-2 rounded-full bg-gradient-to-r from-indigo-500 to-blue-500 transition group-hover:scale-110" />
+              {prompt}
+            </button>
+          ))}
+        </div>
+        {showOnboarding && (
+          <div className="rounded-2xl border border-indigo-200 bg-indigo-50/80 px-4 py-3 text-xs text-indigo-800 shadow-sm dark:border-indigo-800/70 dark:bg-indigo-900/40 dark:text-indigo-100">
+            <div className="flex items-center justify-between gap-2">
+              <p>Подсказки и история сохраняются локально. Нажмите «Диалоги» для быстрого переключения веток.</p>
+              <button
+                onClick={() => setShowOnboarding(false)}
+                className="rounded-full bg-white/70 px-3 py-1 text-[11px] font-semibold text-indigo-700 shadow-sm transition hover:-translate-y-[1px] dark:bg-indigo-800/60 dark:text-indigo-100"
+              >
+                Понятно
+              </button>
+            </div>
+          </div>
+        )}
+        {!isAuthenticated && (
+          <div className="flex items-center justify-between gap-2 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs text-amber-800 shadow-sm dark:border-amber-800 dark:bg-amber-950/50 dark:text-amber-100">
+            <p>Войдите, чтобы закрепить историю за аккаунтом и продолжать с любого устройства.</p>
+            <a
+              href="/auth"
+              className="rounded-full bg-white/70 px-3 py-1 text-[11px] font-semibold text-amber-800 shadow-sm transition hover:-translate-y-[1px] dark:bg-amber-900 dark:text-amber-50"
+            >
+              Войти
+            </a>
+          </div>
+        )}
       </div>
 
       <div className="grid h-full grid-cols-1 gap-4 lg:grid-cols-[320px,1fr]">
@@ -235,21 +397,49 @@ export function ChatPanel() {
             onDelete={handleDelete}
           />
         </div>
-        <div className="flex flex-col overflow-hidden rounded-3xl border border-slate-200/80 bg-white/80 shadow-md backdrop-blur dark:border-slate-800/70 dark:bg-slate-900/70">
+        <div className="flex flex-col overflow-hidden rounded-[22px] border border-[var(--border-subtle)]/80 bg-[var(--bg-elevated)] shadow-[0_16px_36px_rgba(15,23,42,0.08)] backdrop-blur dark:border-slate-800/70 dark:bg-slate-900/70">
           <div className="flex-1 space-y-4 overflow-y-auto px-4 py-6">
-            {currentConversation?.messages.map((message) => (
-              <MessageBubble key={message.id} message={message} isLoading={isLoading} />
-            ))}
+            {currentConversation && currentConversation.messages.length <= 1 ? (
+              <div className="flex flex-col gap-3 rounded-2xl border border-dashed border-slate-200 bg-white/60 p-4 text-sm text-slate-700 shadow-sm dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-200">
+                <p className="font-semibold text-slate-900 dark:text-slate-50">Начните новый диалог</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  Добавьте первый запрос или выберите одну из заготовок. История сохранится локально и привяжется к вашему профилю.
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {FAVORITE_PROMPTS.slice(0, 3).map((prompt) => (
+                    <button
+                      key={prompt}
+                      onClick={() => handlePrefill(prompt)}
+                      className="rounded-full border border-slate-200/70 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm transition hover:-translate-y-[1px] hover:border-indigo-300 hover:text-indigo-700 dark:border-slate-800 dark:bg-slate-800/80 dark:text-slate-200"
+                    >
+                      {prompt}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              currentConversation?.messages.map((message) => (
+                <MessageBubble key={message.id} message={message} isLoading={isLoading} onRegenerate={handleRegenerate} />
+              ))
+            )}
             <div ref={chatEndRef} />
           </div>
-          <div className="border-t border-slate-200 bg-gradient-to-r from-slate-50/90 via-white to-slate-50/90 p-4 dark:border-slate-800 dark:from-slate-900/80 dark:via-slate-900 dark:to-slate-900/80">
+          <div className="sticky bottom-0 border-t border-[var(--border-subtle)]/80 bg-gradient-to-r from-white/95 via-[var(--bg-elevated)] to-white/95 p-4 backdrop-blur dark:border-slate-800 dark:from-slate-900/90 dark:via-slate-900 dark:to-slate-900/90">
             <div className="flex flex-col gap-2">
               <label htmlFor="chat-input" className="text-sm font-medium text-slate-700 dark:text-slate-200">
-                Ask the concierge
+                Спросить ассистента
               </label>
+              {!isAuthenticated && (
+                <p className="text-[11px] text-amber-700 dark:text-amber-200">
+                  Гостевой режим: история сохраняется только в этом браузере. Войдите, чтобы привязать её к профилю.
+                </p>
+              )}
               {errorMessage && (
                 <div className="flex items-start justify-between gap-3 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700 shadow-sm dark:border-red-900 dark:bg-red-950/40 dark:text-red-100">
-                  <p>{errorMessage}</p>
+                  <div className="flex items-start gap-2">
+                    <ExclamationTriangleIcon className="mt-0.5 h-4 w-4" />
+                    <p>{errorMessage}</p>
+                  </div>
                   <button
                     onClick={() => setErrorMessage(null)}
                     className="rounded-md px-2 py-1 text-[11px] font-semibold text-red-700 transition hover:bg-red-100 dark:text-red-50 dark:hover:bg-red-900/60"
@@ -267,21 +457,44 @@ export function ChatPanel() {
                   onKeyDown={handleKeyDown}
                   rows={3}
                   className="flex-1 resize-none border-none bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-400 dark:text-slate-100"
-                  placeholder="How can I optimize pricing for weekend events?"
+                  placeholder="Как оптимизировать тарифы на выходные или при событиях?"
                 />
-                <div className="flex items-center justify-between gap-3">
-                  <p className="text-xs text-slate-500 dark:text-slate-400">Enter to send • Shift + Enter for new line</p>
-                  <button
-                    onClick={() => void handleSend()}
-                    disabled={sendDisabled}
-                    className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-indigo-500 to-blue-500 px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:-translate-y-[1px] hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-60"
-                  >
-                    <PaperAirplaneIcon className="h-5 w-5" />
-                    Send
-                  </button>
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 dark:text-slate-400">
+                    <span>Enter — отправить • Shift+Enter — перенос строки</span>
+                    {isStreaming && (
+                      <button
+                        onClick={handleAbort}
+                        className="inline-flex items-center gap-1 rounded-full border border-slate-200 px-3 py-1 text-[11px] font-semibold text-slate-700 transition hover:-translate-y-[1px] hover:border-red-200 hover:text-red-600 dark:border-slate-700 dark:text-slate-200"
+                      >
+                        <StopCircleIcon className="h-3.5 w-3.5" />
+                        Остановить
+                      </button>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={handleClear}
+                      className="rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm transition hover:-translate-y-[1px] hover:border-indigo-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
+                    >
+                      Очистить
+                    </button>
+                    <button
+                      onClick={() => void handleSend()}
+                      disabled={sendDisabled}
+                      className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-indigo-500 to-blue-500 px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:-translate-y-[1px] hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      <PaperAirplaneIcon className="h-5 w-5" />
+                      Отправить
+                    </button>
+                  </div>
                 </div>
               </div>
-              {isLoading && <p className="text-xs text-slate-500">Streaming response…</p>}
+              {isLoading && (
+                <p className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+                  <span className="h-2 w-2 animate-pulse rounded-full bg-indigo-500" /> Потоковый ответ…
+                </p>
+              )}
             </div>
           </div>
         </div>
@@ -317,10 +530,12 @@ export function ChatPanel() {
 
 const MessageBubble = React.memo(function MessageBubble({
   message,
-  isLoading
+  isLoading,
+  onRegenerate
 }: {
   message: MessageWithId;
   isLoading: boolean;
+  onRegenerate?: (id: string) => void;
 }) {
   const isUser = message.role === 'user';
   const timestamp = useMemo(() => new Date(message.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), [message.createdAt]);
@@ -333,6 +548,18 @@ const MessageBubble = React.memo(function MessageBubble({
       }`,
     [isUser]
   );
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = useCallback(() => {
+    if (!message.content) return;
+    navigator.clipboard
+      ?.writeText(message.content)
+      .then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 1500);
+      })
+      .catch(() => setCopied(false));
+  }, [message.content]);
 
   return (
     <div className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
@@ -343,6 +570,28 @@ const MessageBubble = React.memo(function MessageBubble({
           </span>
           <span className="text-[10px] text-slate-500 dark:text-slate-400">{timestamp}</span>
         </div>
+        {!isUser && message.content && (
+          <div className="absolute -right-3 -top-3 flex items-center gap-1">
+            <button
+              onClick={handleCopy}
+              className="flex items-center gap-1 rounded-full border border-[var(--border-subtle)]/70 bg-white px-2 py-1 text-[11px] font-semibold text-[var(--text-muted)] shadow-sm transition hover:-translate-y-[1px] hover:text-[var(--text-primary)] dark:bg-slate-900"
+              aria-label="Copy message"
+            >
+              <ClipboardIcon className="h-3.5 w-3.5" />
+              {copied ? 'Скопировано' : 'Копия'}
+            </button>
+            {onRegenerate && (
+              <button
+                onClick={() => onRegenerate(message.id)}
+                className="flex items-center gap-1 rounded-full border border-[var(--border-subtle)]/70 bg-white px-2 py-1 text-[11px] font-semibold text-[var(--text-muted)] shadow-sm transition hover:-translate-y-[1px] hover:text-[var(--text-primary)] dark:bg-slate-900"
+                aria-label="Regenerate"
+              >
+                <ArrowPathIcon className="h-3.5 w-3.5" />
+                Повторить
+              </button>
+            )}
+          </div>
+        )}
         {isUser ? (
           <p className="whitespace-pre-line leading-relaxed">{message.content}</p>
         ) : message.content ? (

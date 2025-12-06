@@ -51,7 +51,7 @@ describe('ConversationList', () => {
     await userEvent.click(screen.getByText('First thread'));
     expect(onSelect).toHaveBeenCalledWith('one');
 
-    await userEvent.click(screen.getByText('New'));
+    await userEvent.click(screen.getByText('Новый'));
     expect(onCreate).toHaveBeenCalled();
 
     const renameButton = screen.getAllByLabelText('Rename conversation')[0];
