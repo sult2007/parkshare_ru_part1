@@ -6,6 +6,7 @@ import logging
 from typing import Any
 
 from asgiref.sync import async_to_sync
+from django.http import StreamingHttpResponse
 from django.utils import timezone
 from rest_framework import status
 from rest_framework.permissions import AllowAny
@@ -16,6 +17,7 @@ from parking.models import ParkingLot, ParkingSpot
 from ai.pricing import recommend_price_for_spot
 from ai.models import DeviceProfile, UiEvent
 from services.llm import check_llm_health
+from ai.chat.parking_assistant import generate_chat_reply
 
 logger = logging.getLogger(__name__)
 
@@ -218,6 +220,33 @@ class LLMServiceHealthAPIView(APIView):
                 status=status.HTTP_503_SERVICE_UNAVAILABLE,
             )
         return Response(health, status=status.HTTP_200_OK if health.get("ok") else status.HTTP_503_SERVICE_UNAVAILABLE)
+
+
+class ChatStreamAPIView(APIView):
+    """
+    Минимальный чат‑эндпоинт для AI concierge на Django-страницах.
+    Принимает список сообщений в формате [{role, content}] и возвращает потоковый текстовый ответ.
+    """
+
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        data = request.data or {}
+        messages = data.get("messages") or []
+        if not isinstance(messages, list) or not messages:
+            return Response({"detail": "messages is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        last = messages[-1] if isinstance(messages[-1], dict) else {}
+        user_text = (last.get("content") or "").strip()
+        history = [m for m in messages[:-1] if isinstance(m, dict)]
+        reply_payload = generate_chat_reply(user_text, history, request.user if request.user.is_authenticated else None)
+        reply_text = (reply_payload.get("reply") or "").strip() or "Сервис временно недоступен. Попробуйте позже."
+
+        def stream():
+            for token in reply_text.split():
+                yield (token + " ").encode("utf-8")
+
+        return StreamingHttpResponse(stream(), content_type="text/plain; charset=utf-8")
 
 
 # ===== ParkMate AI — конфиг и предсказания (price/availability) =====

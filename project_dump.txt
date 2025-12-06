@@ -15,8 +15,8 @@
 #   Файлы идут в том же порядке, что и в индексе.
 ################################################################################
 # Root: C:\Users\Sultan\Downloads\parkshare_ru_part1
-# Generated at: 2025-12-07 01:21:28
-# Files listed: 221
+# Generated at: 2025-12-07 01:52:48
+# Files listed: 223
 # Max single file size: NONE
 # Max total dump size: NONE
 # Code compression enabled: False
@@ -121,6 +121,7 @@ parkshare_ru_part1/
             __init__.py
             test_auth_api.py
             test_booking_model.py
+            test_ui_theme_chat.py
     core/
         __init__.py
         admin.py
@@ -265,6 +266,7 @@ parkshare_ru_part1/
             map.js
             parkmate-ai.ts
             quantum-theme-manager.js
+            theme.js
         pwa/
             api-client.js
             app.js
@@ -390,147 +392,149 @@ FILES INDEX:
 78. PATH=backend\tests\__init__.py | LANG=python
 79. PATH=backend\tests\test_auth_api.py | LANG=python
 80. PATH=backend\tests\test_booking_model.py | LANG=python
-81. PATH=core\__init__.py | LANG=python
-82. PATH=core\admin.py | LANG=python
-83. PATH=core\apps.py | LANG=python
-84. PATH=core\context_processors.py | LANG=python
-85. PATH=core\integrations.py | LANG=python
-86. PATH=core\middleware.py | LANG=python
-87. PATH=core\models.py | LANG=python
-88. PATH=core\pagination.py | LANG=python
-89. PATH=core\permissions.py | LANG=python
-90. PATH=core\utils.py | LANG=python
-91. PATH=drf_spectacular\__init__.py | LANG=python
-92. PATH=drf_spectacular\openapi.py | LANG=python
-93. PATH=drf_spectacular\views.py | LANG=python
-94. PATH=frontend\next-app\.env.local | LANG=text
-95. PATH=frontend\next-app\.eslintrc.json | LANG=json
-96. PATH=frontend\next-app\Dockerfile | LANG=text
-97. PATH=frontend\next-app\jest.config.js | LANG=javascript
-98. PATH=frontend\next-app\jest.setup.ts | LANG=typescript
-99. PATH=frontend\next-app\next-env.d.ts | LANG=typescript
-100. PATH=frontend\next-app\next.config.mjs | LANG=text
-101. PATH=frontend\next-app\package.json | LANG=json
-102. PATH=frontend\next-app\postcss.config.js | LANG=javascript
-103. PATH=frontend\next-app\tailwind.config.ts | LANG=typescript
-104. PATH=frontend\next-app\tsconfig.json | LANG=json
-105. PATH=frontend\next-app\app\globals.css | LANG=css
-106. PATH=frontend\next-app\app\layout.tsx | LANG=tsx
-107. PATH=frontend\next-app\app\(site)\layout.tsx | LANG=tsx
-108. PATH=frontend\next-app\app\(site)\page.tsx | LANG=tsx
-109. PATH=frontend\next-app\app\(site)\auth\page.tsx | LANG=tsx
-110. PATH=frontend\next-app\app\api\chat\route.ts | LANG=typescript
-111. PATH=frontend\next-app\app\embed\page.tsx | LANG=tsx
-112. PATH=frontend\next-app\components\header.tsx | LANG=tsx
-113. PATH=frontend\next-app\components\providers.tsx | LANG=tsx
-114. PATH=frontend\next-app\components\theme-provider.tsx | LANG=tsx
-115. PATH=frontend\next-app\components\theme-toggle.tsx | LANG=tsx
-116. PATH=frontend\next-app\components\chat\chat-panel.tsx | LANG=tsx
-117. PATH=frontend\next-app\components\chat\compact-chat-panel.tsx | LANG=tsx
-118. PATH=frontend\next-app\components\chat\conversation-list.tsx | LANG=tsx
-119. PATH=frontend\next-app\components\chat\markdown-message.tsx | LANG=tsx
-120. PATH=frontend\next-app\components\chat\suggested-prompts.tsx | LANG=tsx
-121. PATH=frontend\next-app\components\chat\types.ts | LANG=typescript
-122. PATH=frontend\next-app\components\pwa\register-service-worker.tsx | LANG=tsx
-123. PATH=frontend\next-app\components\widget\chat-widget.tsx | LANG=tsx
-124. PATH=frontend\next-app\context\AuthContext.tsx | LANG=tsx
-125. PATH=frontend\next-app\hooks\useAuth.ts | LANG=typescript
-126. PATH=frontend\next-app\lib\aiProvider.ts | LANG=typescript
-127. PATH=frontend\next-app\lib\authClient.ts | LANG=typescript
-128. PATH=frontend\next-app\lib\chatClient.ts | LANG=typescript
-129. PATH=frontend\next-app\lib\llmClient.ts | LANG=typescript
-130. PATH=frontend\next-app\public\manifest.webmanifest | LANG=text
-131. PATH=frontend\next-app\public\offline.html | LANG=html
-132. PATH=frontend\next-app\public\service-worker.js | LANG=javascript
-133. PATH=frontend\next-app\__tests__\chat-client.test.ts | LANG=typescript
-134. PATH=frontend\next-app\__tests__\conversation-list.test.tsx | LANG=tsx
-135. PATH=frontend\parkmate\parkmate.types.ts | LANG=typescript
-136. PATH=nginx\nginx.conf | LANG=text
-137. PATH=parking\__init__.py | LANG=python
-138. PATH=parking\admin.py | LANG=python
-139. PATH=parking\apps.py | LANG=python
-140. PATH=parking\models.py | LANG=python
-141. PATH=parking\push.py | LANG=python
-142. PATH=parking\serializers.py | LANG=python
-143. PATH=parking\tasks.py | LANG=python
-144. PATH=parking\urls.py | LANG=python
-145. PATH=parking\views.py | LANG=python
-146. PATH=parking\management\commands\seed_demo_parking.py | LANG=python
-147. PATH=parking\migrations\0001_initial.py | LANG=python
-148. PATH=parking\migrations\0002_parkinglot_stress_index_parkingspot_occupancy_7d.py | LANG=python
-149. PATH=parking\migrations\0003_booking_ai_fields.py | LANG=python
-150. PATH=parking\migrations\0004_favoriteparkingspot_savedplace.py | LANG=python
-151. PATH=parking\migrations\0005_pushsubscription.py | LANG=python
-152. PATH=parking\migrations\__init__.py | LANG=python
-153. PATH=parking\tests\__init__.py | LANG=python
-154. PATH=parking\tests\test_pwa_endpoints.py | LANG=python
-155. PATH=payments\__init__.py | LANG=python
-156. PATH=payments\admin.py | LANG=python
-157. PATH=payments\apps.py | LANG=python
-158. PATH=payments\models.py | LANG=python
-159. PATH=payments\providers.py | LANG=python
-160. PATH=payments\serializers.py | LANG=python
-161. PATH=payments\tasks.py | LANG=python
-162. PATH=payments\views.py | LANG=python
-163. PATH=payments\migrations\0001_initial.py | LANG=python
-164. PATH=payments\migrations\0002_alter_payment_provider.py | LANG=python
-165. PATH=payments\migrations\0003_paymentmethod.py | LANG=python
-166. PATH=payments\migrations\__init__.py | LANG=python
-167. PATH=payments\providers\__init__.py | LANG=python
-168. PATH=payments\providers\base.py | LANG=python
-169. PATH=payments\providers\registry.py | LANG=python
-170. PATH=payments\providers\stripe.py | LANG=python
-171. PATH=payments\providers\yookassa.py | LANG=python
-172. PATH=regions\global.yml | LANG=yaml
-173. PATH=regions\ru.yml | LANG=yaml
-174. PATH=services\__init__.py | LANG=python
-175. PATH=services\llm.py | LANG=python
-176. PATH=services\llm_service\Dockerfile | LANG=text
-177. PATH=services\llm_service\main.py | LANG=python
-178. PATH=services\llm_service\requirements.txt | LANG=text
-179. PATH=static\manifest.webmanifest | LANG=text
-180. PATH=static\service-worker.js | LANG=javascript
-181. PATH=static\css\app.css | LANG=css
-182. PATH=static\css\cinematic-ui.css | LANG=css
-183. PATH=static\js\app.js | LANG=javascript
-184. PATH=static\js\chat.js | LANG=javascript
-185. PATH=static\js\map.js | LANG=javascript
-186. PATH=static\js\parkmate-ai.ts | LANG=typescript
-187. PATH=static\js\quantum-theme-manager.js | LANG=javascript
-188. PATH=static\pwa\api-client.js | LANG=javascript
-189. PATH=static\pwa\app.js | LANG=javascript
-190. PATH=static\pwa\router.js | LANG=javascript
-191. PATH=static\pwa\spots-view.js | LANG=javascript
-192. PATH=static\pwa\state-store.js | LANG=javascript
-193. PATH=static\pwa\ui-kit.js | LANG=javascript
-194. PATH=templates\base.html | LANG=html
-195. PATH=templates\offline.html | LANG=html
-196. PATH=templates\accounts\login.html | LANG=html
-197. PATH=templates\accounts\password_change.html | LANG=html
-198. PATH=templates\accounts\password_change_done.html | LANG=html
-199. PATH=templates\accounts\password_reset.html | LANG=html
-200. PATH=templates\accounts\password_reset_complete.html | LANG=html
-201. PATH=templates\accounts\password_reset_confirm.html | LANG=html
-202. PATH=templates\accounts\password_reset_done.html | LANG=html
-203. PATH=templates\accounts\password_reset_email.txt | LANG=text
-204. PATH=templates\accounts\password_reset_subject.txt | LANG=text
-205. PATH=templates\accounts\profile.html | LANG=html
-206. PATH=templates\accounts\register.html | LANG=html
-207. PATH=templates\ai\concierge.html | LANG=html
-208. PATH=templates\parking\landing.html | LANG=html
-209. PATH=templates\parking\map_fullscreen.html | LANG=html
-210. PATH=templates\parking\owner_dashboard.html | LANG=html
-211. PATH=templates\parking\pwa_install.html | LANG=html
-212. PATH=templates\parking\user_dashboard.html | LANG=html
-213. PATH=vehicles\__init__.py | LANG=python
-214. PATH=vehicles\admin.py | LANG=python
-215. PATH=vehicles\apps.py | LANG=python
-216. PATH=vehicles\models.py | LANG=python
-217. PATH=vehicles\serializers.py | LANG=python
-218. PATH=vehicles\urls.py | LANG=python
-219. PATH=vehicles\views.py | LANG=python
-220. PATH=vehicles\migrations\0001_initial.py | LANG=python
-221. PATH=vehicles\migrations\__init__.py | LANG=python
+81. PATH=backend\tests\test_ui_theme_chat.py | LANG=python
+82. PATH=core\__init__.py | LANG=python
+83. PATH=core\admin.py | LANG=python
+84. PATH=core\apps.py | LANG=python
+85. PATH=core\context_processors.py | LANG=python
+86. PATH=core\integrations.py | LANG=python
+87. PATH=core\middleware.py | LANG=python
+88. PATH=core\models.py | LANG=python
+89. PATH=core\pagination.py | LANG=python
+90. PATH=core\permissions.py | LANG=python
+91. PATH=core\utils.py | LANG=python
+92. PATH=drf_spectacular\__init__.py | LANG=python
+93. PATH=drf_spectacular\openapi.py | LANG=python
+94. PATH=drf_spectacular\views.py | LANG=python
+95. PATH=frontend\next-app\.env.local | LANG=text
+96. PATH=frontend\next-app\.eslintrc.json | LANG=json
+97. PATH=frontend\next-app\Dockerfile | LANG=text
+98. PATH=frontend\next-app\jest.config.js | LANG=javascript
+99. PATH=frontend\next-app\jest.setup.ts | LANG=typescript
+100. PATH=frontend\next-app\next-env.d.ts | LANG=typescript
+101. PATH=frontend\next-app\next.config.mjs | LANG=text
+102. PATH=frontend\next-app\package.json | LANG=json
+103. PATH=frontend\next-app\postcss.config.js | LANG=javascript
+104. PATH=frontend\next-app\tailwind.config.ts | LANG=typescript
+105. PATH=frontend\next-app\tsconfig.json | LANG=json
+106. PATH=frontend\next-app\app\globals.css | LANG=css
+107. PATH=frontend\next-app\app\layout.tsx | LANG=tsx
+108. PATH=frontend\next-app\app\(site)\layout.tsx | LANG=tsx
+109. PATH=frontend\next-app\app\(site)\page.tsx | LANG=tsx
+110. PATH=frontend\next-app\app\(site)\auth\page.tsx | LANG=tsx
+111. PATH=frontend\next-app\app\api\chat\route.ts | LANG=typescript
+112. PATH=frontend\next-app\app\embed\page.tsx | LANG=tsx
+113. PATH=frontend\next-app\components\header.tsx | LANG=tsx
+114. PATH=frontend\next-app\components\providers.tsx | LANG=tsx
+115. PATH=frontend\next-app\components\theme-provider.tsx | LANG=tsx
+116. PATH=frontend\next-app\components\theme-toggle.tsx | LANG=tsx
+117. PATH=frontend\next-app\components\chat\chat-panel.tsx | LANG=tsx
+118. PATH=frontend\next-app\components\chat\compact-chat-panel.tsx | LANG=tsx
+119. PATH=frontend\next-app\components\chat\conversation-list.tsx | LANG=tsx
+120. PATH=frontend\next-app\components\chat\markdown-message.tsx | LANG=tsx
+121. PATH=frontend\next-app\components\chat\suggested-prompts.tsx | LANG=tsx
+122. PATH=frontend\next-app\components\chat\types.ts | LANG=typescript
+123. PATH=frontend\next-app\components\pwa\register-service-worker.tsx | LANG=tsx
+124. PATH=frontend\next-app\components\widget\chat-widget.tsx | LANG=tsx
+125. PATH=frontend\next-app\context\AuthContext.tsx | LANG=tsx
+126. PATH=frontend\next-app\hooks\useAuth.ts | LANG=typescript
+127. PATH=frontend\next-app\lib\aiProvider.ts | LANG=typescript
+128. PATH=frontend\next-app\lib\authClient.ts | LANG=typescript
+129. PATH=frontend\next-app\lib\chatClient.ts | LANG=typescript
+130. PATH=frontend\next-app\lib\llmClient.ts | LANG=typescript
+131. PATH=frontend\next-app\public\manifest.webmanifest | LANG=text
+132. PATH=frontend\next-app\public\offline.html | LANG=html
+133. PATH=frontend\next-app\public\service-worker.js | LANG=javascript
+134. PATH=frontend\next-app\__tests__\chat-client.test.ts | LANG=typescript
+135. PATH=frontend\next-app\__tests__\conversation-list.test.tsx | LANG=tsx
+136. PATH=frontend\parkmate\parkmate.types.ts | LANG=typescript
+137. PATH=nginx\nginx.conf | LANG=text
+138. PATH=parking\__init__.py | LANG=python
+139. PATH=parking\admin.py | LANG=python
+140. PATH=parking\apps.py | LANG=python
+141. PATH=parking\models.py | LANG=python
+142. PATH=parking\push.py | LANG=python
+143. PATH=parking\serializers.py | LANG=python
+144. PATH=parking\tasks.py | LANG=python
+145. PATH=parking\urls.py | LANG=python
+146. PATH=parking\views.py | LANG=python
+147. PATH=parking\management\commands\seed_demo_parking.py | LANG=python
+148. PATH=parking\migrations\0001_initial.py | LANG=python
+149. PATH=parking\migrations\0002_parkinglot_stress_index_parkingspot_occupancy_7d.py | LANG=python
+150. PATH=parking\migrations\0003_booking_ai_fields.py | LANG=python
+151. PATH=parking\migrations\0004_favoriteparkingspot_savedplace.py | LANG=python
+152. PATH=parking\migrations\0005_pushsubscription.py | LANG=python
+153. PATH=parking\migrations\__init__.py | LANG=python
+154. PATH=parking\tests\__init__.py | LANG=python
+155. PATH=parking\tests\test_pwa_endpoints.py | LANG=python
+156. PATH=payments\__init__.py | LANG=python
+157. PATH=payments\admin.py | LANG=python
+158. PATH=payments\apps.py | LANG=python
+159. PATH=payments\models.py | LANG=python
+160. PATH=payments\providers.py | LANG=python
+161. PATH=payments\serializers.py | LANG=python
+162. PATH=payments\tasks.py | LANG=python
+163. PATH=payments\views.py | LANG=python
+164. PATH=payments\migrations\0001_initial.py | LANG=python
+165. PATH=payments\migrations\0002_alter_payment_provider.py | LANG=python
+166. PATH=payments\migrations\0003_paymentmethod.py | LANG=python
+167. PATH=payments\migrations\__init__.py | LANG=python
+168. PATH=payments\providers\__init__.py | LANG=python
+169. PATH=payments\providers\base.py | LANG=python
+170. PATH=payments\providers\registry.py | LANG=python
+171. PATH=payments\providers\stripe.py | LANG=python
+172. PATH=payments\providers\yookassa.py | LANG=python
+173. PATH=regions\global.yml | LANG=yaml
+174. PATH=regions\ru.yml | LANG=yaml
+175. PATH=services\__init__.py | LANG=python
+176. PATH=services\llm.py | LANG=python
+177. PATH=services\llm_service\Dockerfile | LANG=text
+178. PATH=services\llm_service\main.py | LANG=python
+179. PATH=services\llm_service\requirements.txt | LANG=text
+180. PATH=static\manifest.webmanifest | LANG=text
+181. PATH=static\service-worker.js | LANG=javascript
+182. PATH=static\css\app.css | LANG=css
+183. PATH=static\css\cinematic-ui.css | LANG=css
+184. PATH=static\js\app.js | LANG=javascript
+185. PATH=static\js\chat.js | LANG=javascript
+186. PATH=static\js\map.js | LANG=javascript
+187. PATH=static\js\parkmate-ai.ts | LANG=typescript
+188. PATH=static\js\quantum-theme-manager.js | LANG=javascript
+189. PATH=static\js\theme.js | LANG=javascript
+190. PATH=static\pwa\api-client.js | LANG=javascript
+191. PATH=static\pwa\app.js | LANG=javascript
+192. PATH=static\pwa\router.js | LANG=javascript
+193. PATH=static\pwa\spots-view.js | LANG=javascript
+194. PATH=static\pwa\state-store.js | LANG=javascript
+195. PATH=static\pwa\ui-kit.js | LANG=javascript
+196. PATH=templates\base.html | LANG=html
+197. PATH=templates\offline.html | LANG=html
+198. PATH=templates\accounts\login.html | LANG=html
+199. PATH=templates\accounts\password_change.html | LANG=html
+200. PATH=templates\accounts\password_change_done.html | LANG=html
+201. PATH=templates\accounts\password_reset.html | LANG=html
+202. PATH=templates\accounts\password_reset_complete.html | LANG=html
+203. PATH=templates\accounts\password_reset_confirm.html | LANG=html
+204. PATH=templates\accounts\password_reset_done.html | LANG=html
+205. PATH=templates\accounts\password_reset_email.txt | LANG=text
+206. PATH=templates\accounts\password_reset_subject.txt | LANG=text
+207. PATH=templates\accounts\profile.html | LANG=html
+208. PATH=templates\accounts\register.html | LANG=html
+209. PATH=templates\ai\concierge.html | LANG=html
+210. PATH=templates\parking\landing.html | LANG=html
+211. PATH=templates\parking\map_fullscreen.html | LANG=html
+212. PATH=templates\parking\owner_dashboard.html | LANG=html
+213. PATH=templates\parking\pwa_install.html | LANG=html
+214. PATH=templates\parking\user_dashboard.html | LANG=html
+215. PATH=vehicles\__init__.py | LANG=python
+216. PATH=vehicles\admin.py | LANG=python
+217. PATH=vehicles\apps.py | LANG=python
+218. PATH=vehicles\models.py | LANG=python
+219. PATH=vehicles\serializers.py | LANG=python
+220. PATH=vehicles\urls.py | LANG=python
+221. PATH=vehicles\views.py | LANG=python
+222. PATH=vehicles\migrations\0001_initial.py | LANG=python
+223. PATH=vehicles\migrations\__init__.py | LANG=python
 
 
 ================================================================================
@@ -3216,8 +3220,8 @@ LANG: text
 #   Файлы идут в том же порядке, что и в индексе.
 ################################################################################
 # Root: C:\Users\Sultan\Downloads\parkshare_ru_part1
-# Generated at: 2025-12-07 01:21:28
-# Files listed: 221
+# Generated at: 2025-12-07 01:52:48
+# Files listed: 223
 # Max single file size: NONE
 # Max total dump size: NONE
 # Code compression enabled: False
@@ -3322,6 +3326,7 @@ parkshare_ru_part1/
             __init__.py
             test_auth_api.py
             test_booking_model.py
+            test_ui_theme_chat.py
     core/
         __init__.py
         admin.py
@@ -3466,6 +3471,7 @@ parkshare_ru_part1/
             map.js
             parkmate-ai.ts
             quantum-theme-manager.js
+            theme.js
         pwa/
             api-client.js
             app.js
@@ -3591,147 +3597,149 @@ FILES INDEX:
 78. PATH=backend\tests\__init__.py | LANG=python
 79. PATH=backend\tests\test_auth_api.py | LANG=python
 80. PATH=backend\tests\test_booking_model.py | LANG=python
-81. PATH=core\__init__.py | LANG=python
-82. PATH=core\admin.py | LANG=python
-83. PATH=core\apps.py | LANG=python
-84. PATH=core\context_processors.py | LANG=python
-85. PATH=core\integrations.py | LANG=python
-86. PATH=core\middleware.py | LANG=python
-87. PATH=core\models.py | LANG=python
-88. PATH=core\pagination.py | LANG=python
-89. PATH=core\permissions.py | LANG=python
-90. PATH=core\utils.py | LANG=python
-91. PATH=drf_spectacular\__init__.py | LANG=python
-92. PATH=drf_spectacular\openapi.py | LANG=python
-93. PATH=drf_spectacular\views.py | LANG=python
-94. PATH=frontend\next-app\.env.local | LANG=text
-95. PATH=frontend\next-app\.eslintrc.json | LANG=json
-96. PATH=frontend\next-app\Dockerfile | LANG=text
-97. PATH=frontend\next-app\jest.config.js | LANG=javascript
-98. PATH=frontend\next-app\jest.setup.ts | LANG=typescript
-99. PATH=frontend\next-app\next-env.d.ts | LANG=typescript
-100. PATH=frontend\next-app\next.config.mjs | LANG=text
-101. PATH=frontend\next-app\package.json | LANG=json
-102. PATH=frontend\next-app\postcss.config.js | LANG=javascript
-103. PATH=frontend\next-app\tailwind.config.ts | LANG=typescript
-104. PATH=frontend\next-app\tsconfig.json | LANG=json
-105. PATH=frontend\next-app\app\globals.css | LANG=css
-106. PATH=frontend\next-app\app\layout.tsx | LANG=tsx
-107. PATH=frontend\next-app\app\(site)\layout.tsx | LANG=tsx
-108. PATH=frontend\next-app\app\(site)\page.tsx | LANG=tsx
-109. PATH=frontend\next-app\app\(site)\auth\page.tsx | LANG=tsx
-110. PATH=frontend\next-app\app\api\chat\route.ts | LANG=typescript
-111. PATH=frontend\next-app\app\embed\page.tsx | LANG=tsx
-112. PATH=frontend\next-app\components\header.tsx | LANG=tsx
-113. PATH=frontend\next-app\components\providers.tsx | LANG=tsx
-114. PATH=frontend\next-app\components\theme-provider.tsx | LANG=tsx
-115. PATH=frontend\next-app\components\theme-toggle.tsx | LANG=tsx
-116. PATH=frontend\next-app\components\chat\chat-panel.tsx | LANG=tsx
-117. PATH=frontend\next-app\components\chat\compact-chat-panel.tsx | LANG=tsx
-118. PATH=frontend\next-app\components\chat\conversation-list.tsx | LANG=tsx
-119. PATH=frontend\next-app\components\chat\markdown-message.tsx | LANG=tsx
-120. PATH=frontend\next-app\components\chat\suggested-prompts.tsx | LANG=tsx
-121. PATH=frontend\next-app\components\chat\types.ts | LANG=typescript
-122. PATH=frontend\next-app\components\pwa\register-service-worker.tsx | LANG=tsx
-123. PATH=frontend\next-app\components\widget\chat-widget.tsx | LANG=tsx
-124. PATH=frontend\next-app\context\AuthContext.tsx | LANG=tsx
-125. PATH=frontend\next-app\hooks\useAuth.ts | LANG=typescript
-126. PATH=frontend\next-app\lib\aiProvider.ts | LANG=typescript
-127. PATH=frontend\next-app\lib\authClient.ts | LANG=typescript
-128. PATH=frontend\next-app\lib\chatClient.ts | LANG=typescript
-129. PATH=frontend\next-app\lib\llmClient.ts | LANG=typescript
-130. PATH=frontend\next-app\public\manifest.webmanifest | LANG=text
-131. PATH=frontend\next-app\public\offline.html | LANG=html
-132. PATH=frontend\next-app\public\service-worker.js | LANG=javascript
-133. PATH=frontend\next-app\__tests__\chat-client.test.ts | LANG=typescript
-134. PATH=frontend\next-app\__tests__\conversation-list.test.tsx | LANG=tsx
-135. PATH=frontend\parkmate\parkmate.types.ts | LANG=typescript
-136. PATH=nginx\nginx.conf | LANG=text
-137. PATH=parking\__init__.py | LANG=python
-138. PATH=parking\admin.py | LANG=python
-139. PATH=parking\apps.py | LANG=python
-140. PATH=parking\models.py | LANG=python
-141. PATH=parking\push.py | LANG=python
-142. PATH=parking\serializers.py | LANG=python
-143. PATH=parking\tasks.py | LANG=python
-144. PATH=parking\urls.py | LANG=python
-145. PATH=parking\views.py | LANG=python
-146. PATH=parking\management\commands\seed_demo_parking.py | LANG=python
-147. PATH=parking\migrations\0001_initial.py | LANG=python
-148. PATH=parking\migrations\0002_parkinglot_stress_index_parkingspot_occupancy_7d.py | LANG=python
-149. PATH=parking\migrations\0003_booking_ai_fields.py | LANG=python
-150. PATH=parking\migrations\0004_favoriteparkingspot_savedplace.py | LANG=python
-151. PATH=parking\migrations\0005_pushsubscription.py | LANG=python
-152. PATH=parking\migrations\__init__.py | LANG=python
-153. PATH=parking\tests\__init__.py | LANG=python
-154. PATH=parking\tests\test_pwa_endpoints.py | LANG=python
-155. PATH=payments\__init__.py | LANG=python
-156. PATH=payments\admin.py | LANG=python
-157. PATH=payments\apps.py | LANG=python
-158. PATH=payments\models.py | LANG=python
-159. PATH=payments\providers.py | LANG=python
-160. PATH=payments\serializers.py | LANG=python
-161. PATH=payments\tasks.py | LANG=python
-162. PATH=payments\views.py | LANG=python
-163. PATH=payments\migrations\0001_initial.py | LANG=python
-164. PATH=payments\migrations\0002_alter_payment_provider.py | LANG=python
-165. PATH=payments\migrations\0003_paymentmethod.py | LANG=python
-166. PATH=payments\migrations\__init__.py | LANG=python
-167. PATH=payments\providers\__init__.py | LANG=python
-168. PATH=payments\providers\base.py | LANG=python
-169. PATH=payments\providers\registry.py | LANG=python
-170. PATH=payments\providers\stripe.py | LANG=python
-171. PATH=payments\providers\yookassa.py | LANG=python
-172. PATH=regions\global.yml | LANG=yaml
-173. PATH=regions\ru.yml | LANG=yaml
-174. PATH=services\__init__.py | LANG=python
-175. PATH=services\llm.py | LANG=python
-176. PATH=services\llm_service\Dockerfile | LANG=text
-177. PATH=services\llm_service\main.py | LANG=python
-178. PATH=services\llm_service\requirements.txt | LANG=text
-179. PATH=static\manifest.webmanifest | LANG=text
-180. PATH=static\service-worker.js | LANG=javascript
-181. PATH=static\css\app.css | LANG=css
-182. PATH=static\css\cinematic-ui.css | LANG=css
-183. PATH=static\js\app.js | LANG=javascript
-184. PATH=static\js\chat.js | LANG=javascript
-185. PATH=static\js\map.js | LANG=javascript
-186. PATH=static\js\parkmate-ai.ts | LANG=typescript
-187. PATH=static\js\quantum-theme-manager.js | LANG=javascript
-188. PATH=static\pwa\api-client.js | LANG=javascript
-189. PATH=static\pwa\app.js | LANG=javascript
-190. PATH=static\pwa\router.js | LANG=javascript
-191. PATH=static\pwa\spots-view.js | LANG=javascript
-192. PATH=static\pwa\state-store.js | LANG=javascript
-193. PATH=static\pwa\ui-kit.js | LANG=javascript
-194. PATH=templates\base.html | LANG=html
-195. PATH=templates\offline.html | LANG=html
-196. PATH=templates\accounts\login.html | LANG=html
-197. PATH=templates\accounts\password_change.html | LANG=html
-198. PATH=templates\accounts\password_change_done.html | LANG=html
-199. PATH=templates\accounts\password_reset.html | LANG=html
-200. PATH=templates\accounts\password_reset_complete.html | LANG=html
-201. PATH=templates\accounts\password_reset_confirm.html | LANG=html
-202. PATH=templates\accounts\password_reset_done.html | LANG=html
-203. PATH=templates\accounts\password_reset_email.txt | LANG=text
-204. PATH=templates\accounts\password_reset_subject.txt | LANG=text
-205. PATH=templates\accounts\profile.html | LANG=html
-206. PATH=templates\accounts\register.html | LANG=html
-207. PATH=templates\ai\concierge.html | LANG=html
-208. PATH=templates\parking\landing.html | LANG=html
-209. PATH=templates\parking\map_fullscreen.html | LANG=html
-210. PATH=templates\parking\owner_dashboard.html | LANG=html
-211. PATH=templates\parking\pwa_install.html | LANG=html
-212. PATH=templates\parking\user_dashboard.html | LANG=html
-213. PATH=vehicles\__init__.py | LANG=python
-214. PATH=vehicles\admin.py | LANG=python
-215. PATH=vehicles\apps.py | LANG=python
-216. PATH=vehicles\models.py | LANG=python
-217. PATH=vehicles\serializers.py | LANG=python
-218. PATH=vehicles\urls.py | LANG=python
-219. PATH=vehicles\views.py | LANG=python
-220. PATH=vehicles\migrations\0001_initial.py | LANG=python
-221. PATH=vehicles\migrations\__init__.py | LANG=python
+81. PATH=backend\tests\test_ui_theme_chat.py | LANG=python
+82. PATH=core\__init__.py | LANG=python
+83. PATH=core\admin.py | LANG=python
+84. PATH=core\apps.py | LANG=python
+85. PATH=core\context_processors.py | LANG=python
+86. PATH=core\integrations.py | LANG=python
+87. PATH=core\middleware.py | LANG=python
+88. PATH=core\models.py | LANG=python
+89. PATH=core\pagination.py | LANG=python
+90. PATH=core\permissions.py | LANG=python
+91. PATH=core\utils.py | LANG=python
+92. PATH=drf_spectacular\__init__.py | LANG=python
+93. PATH=drf_spectacular\openapi.py | LANG=python
+94. PATH=drf_spectacular\views.py | LANG=python
+95. PATH=frontend\next-app\.env.local | LANG=text
+96. PATH=frontend\next-app\.eslintrc.json | LANG=json
+97. PATH=frontend\next-app\Dockerfile | LANG=text
+98. PATH=frontend\next-app\jest.config.js | LANG=javascript
+99. PATH=frontend\next-app\jest.setup.ts | LANG=typescript
+100. PATH=frontend\next-app\next-env.d.ts | LANG=typescript
+101. PATH=frontend\next-app\next.config.mjs | LANG=text
+102. PATH=frontend\next-app\package.json | LANG=json
+103. PATH=frontend\next-app\postcss.config.js | LANG=javascript
+104. PATH=frontend\next-app\tailwind.config.ts | LANG=typescript
+105. PATH=frontend\next-app\tsconfig.json | LANG=json
+106. PATH=frontend\next-app\app\globals.css | LANG=css
+107. PATH=frontend\next-app\app\layout.tsx | LANG=tsx
+108. PATH=frontend\next-app\app\(site)\layout.tsx | LANG=tsx
+109. PATH=frontend\next-app\app\(site)\page.tsx | LANG=tsx
+110. PATH=frontend\next-app\app\(site)\auth\page.tsx | LANG=tsx
+111. PATH=frontend\next-app\app\api\chat\route.ts | LANG=typescript
+112. PATH=frontend\next-app\app\embed\page.tsx | LANG=tsx
+113. PATH=frontend\next-app\components\header.tsx | LANG=tsx
+114. PATH=frontend\next-app\components\providers.tsx | LANG=tsx
+115. PATH=frontend\next-app\components\theme-provider.tsx | LANG=tsx
+116. PATH=frontend\next-app\components\theme-toggle.tsx | LANG=tsx
+117. PATH=frontend\next-app\components\chat\chat-panel.tsx | LANG=tsx
+118. PATH=frontend\next-app\components\chat\compact-chat-panel.tsx | LANG=tsx
+119. PATH=frontend\next-app\components\chat\conversation-list.tsx | LANG=tsx
+120. PATH=frontend\next-app\components\chat\markdown-message.tsx | LANG=tsx
+121. PATH=frontend\next-app\components\chat\suggested-prompts.tsx | LANG=tsx
+122. PATH=frontend\next-app\components\chat\types.ts | LANG=typescript
+123. PATH=frontend\next-app\components\pwa\register-service-worker.tsx | LANG=tsx
+124. PATH=frontend\next-app\components\widget\chat-widget.tsx | LANG=tsx
+125. PATH=frontend\next-app\context\AuthContext.tsx | LANG=tsx
+126. PATH=frontend\next-app\hooks\useAuth.ts | LANG=typescript
+127. PATH=frontend\next-app\lib\aiProvider.ts | LANG=typescript
+128. PATH=frontend\next-app\lib\authClient.ts | LANG=typescript
+129. PATH=frontend\next-app\lib\chatClient.ts | LANG=typescript
+130. PATH=frontend\next-app\lib\llmClient.ts | LANG=typescript
+131. PATH=frontend\next-app\public\manifest.webmanifest | LANG=text
+132. PATH=frontend\next-app\public\offline.html | LANG=html
+133. PATH=frontend\next-app\public\service-worker.js | LANG=javascript
+134. PATH=frontend\next-app\__tests__\chat-client.test.ts | LANG=typescript
+135. PATH=frontend\next-app\__tests__\conversation-list.test.tsx | LANG=tsx
+136. PATH=frontend\parkmate\parkmate.types.ts | LANG=typescript
+137. PATH=nginx\nginx.conf | LANG=text
+138. PATH=parking\__init__.py | LANG=python
+139. PATH=parking\admin.py | LANG=python
+140. PATH=parking\apps.py | LANG=python
+141. PATH=parking\models.py | LANG=python
+142. PATH=parking\push.py | LANG=python
+143. PATH=parking\serializers.py | LANG=python
+144. PATH=parking\tasks.py | LANG=python
+145. PATH=parking\urls.py | LANG=python
+146. PATH=parking\views.py | LANG=python
+147. PATH=parking\management\commands\seed_demo_parking.py | LANG=python
+148. PATH=parking\migrations\0001_initial.py | LANG=python
+149. PATH=parking\migrations\0002_parkinglot_stress_index_parkingspot_occupancy_7d.py | LANG=python
+150. PATH=parking\migrations\0003_booking_ai_fields.py | LANG=python
+151. PATH=parking\migrations\0004_favoriteparkingspot_savedplace.py | LANG=python
+152. PATH=parking\migrations\0005_pushsubscription.py | LANG=python
+153. PATH=parking\migrations\__init__.py | LANG=python
+154. PATH=parking\tests\__init__.py | LANG=python
+155. PATH=parking\tests\test_pwa_endpoints.py | LANG=python
+156. PATH=payments\__init__.py | LANG=python
+157. PATH=payments\admin.py | LANG=python
+158. PATH=payments\apps.py | LANG=python
+159. PATH=payments\models.py | LANG=python
+160. PATH=payments\providers.py | LANG=python
+161. PATH=payments\serializers.py | LANG=python
+162. PATH=payments\tasks.py | LANG=python
+163. PATH=payments\views.py | LANG=python
+164. PATH=payments\migrations\0001_initial.py | LANG=python
+165. PATH=payments\migrations\0002_alter_payment_provider.py | LANG=python
+166. PATH=payments\migrations\0003_paymentmethod.py | LANG=python
+167. PATH=payments\migrations\__init__.py | LANG=python
+168. PATH=payments\providers\__init__.py | LANG=python
+169. PATH=payments\providers\base.py | LANG=python
+170. PATH=payments\providers\registry.py | LANG=python
+171. PATH=payments\providers\stripe.py | LANG=python
+172. PATH=payments\providers\yookassa.py | LANG=python
+173. PATH=regions\global.yml | LANG=yaml
+174. PATH=regions\ru.yml | LANG=yaml
+175. PATH=services\__init__.py | LANG=python
+176. PATH=services\llm.py | LANG=python
+177. PATH=services\llm_service\Dockerfile | LANG=text
+178. PATH=services\llm_service\main.py | LANG=python
+179. PATH=services\llm_service\requirements.txt | LANG=text
+180. PATH=static\manifest.webmanifest | LANG=text
+181. PATH=static\service-worker.js | LANG=javascript
+182. PATH=static\css\app.css | LANG=css
+183. PATH=static\css\cinematic-ui.css | LANG=css
+184. PATH=static\js\app.js | LANG=javascript
+185. PATH=static\js\chat.js | LANG=javascript
+186. PATH=static\js\map.js | LANG=javascript
+187. PATH=static\js\parkmate-ai.ts | LANG=typescript
+188. PATH=static\js\quantum-theme-manager.js | LANG=javascript
+189. PATH=static\js\theme.js | LANG=javascript
+190. PATH=static\pwa\api-client.js | LANG=javascript
+191. PATH=static\pwa\app.js | LANG=javascript
+192. PATH=static\pwa\router.js | LANG=javascript
+193. PATH=static\pwa\spots-view.js | LANG=javascript
+194. PATH=static\pwa\state-store.js | LANG=javascript
+195. PATH=static\pwa\ui-kit.js | LANG=javascript
+196. PATH=templates\base.html | LANG=html
+197. PATH=templates\offline.html | LANG=html
+198. PATH=templates\accounts\login.html | LANG=html
+199. PATH=templates\accounts\password_change.html | LANG=html
+200. PATH=templates\accounts\password_change_done.html | LANG=html
+201. PATH=templates\accounts\password_reset.html | LANG=html
+202. PATH=templates\accounts\password_reset_complete.html | LANG=html
+203. PATH=templates\accounts\password_reset_confirm.html | LANG=html
+204. PATH=templates\accounts\password_reset_done.html | LANG=html
+205. PATH=templates\accounts\password_reset_email.txt | LANG=text
+206. PATH=templates\accounts\password_reset_subject.txt | LANG=text
+207. PATH=templates\accounts\profile.html | LANG=html
+208. PATH=templates\accounts\register.html | LANG=html
+209. PATH=templates\ai\concierge.html | LANG=html
+210. PATH=templates\parking\landing.html | LANG=html
+211. PATH=templates\parking\map_fullscreen.html | LANG=html
+212. PATH=templates\parking\owner_dashboard.html | LANG=html
+213. PATH=templates\parking\pwa_install.html | LANG=html
+214. PATH=templates\parking\user_dashboard.html | LANG=html
+215. PATH=vehicles\__init__.py | LANG=python
+216. PATH=vehicles\admin.py | LANG=python
+217. PATH=vehicles\apps.py | LANG=python
+218. PATH=vehicles\models.py | LANG=python
+219. PATH=vehicles\serializers.py | LANG=python
+220. PATH=vehicles\urls.py | LANG=python
+221. PATH=vehicles\views.py | LANG=python
+222. PATH=vehicles\migrations\0001_initial.py | LANG=python
+223. PATH=vehicles\migrations\__init__.py | LANG=python
 
 
 ================================================================================
@@ -8996,6 +9004,7 @@ import logging
 from typing import Any
 
 from asgiref.sync import async_to_sync
+from django.http import StreamingHttpResponse
 from django.utils import timezone
 from rest_framework import status
 from rest_framework.permissions import AllowAny
@@ -9006,6 +9015,7 @@ from parking.models import ParkingLot, ParkingSpot
 from ai.pricing import recommend_price_for_spot
 from ai.models import DeviceProfile, UiEvent
 from services.llm import check_llm_health
+from ai.chat.parking_assistant import generate_chat_reply
 
 logger = logging.getLogger(__name__)
 
@@ -9208,6 +9218,33 @@ class LLMServiceHealthAPIView(APIView):
                 status=status.HTTP_503_SERVICE_UNAVAILABLE,
             )
         return Response(health, status=status.HTTP_200_OK if health.get("ok") else status.HTTP_503_SERVICE_UNAVAILABLE)
+
+
+class ChatStreamAPIView(APIView):
+    """
+    Минимальный чат‑эндпоинт для AI concierge на Django-страницах.
+    Принимает список сообщений в формате [{role, content}] и возвращает потоковый текстовый ответ.
+    """
+
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        data = request.data or {}
+        messages = data.get("messages") or []
+        if not isinstance(messages, list) or not messages:
+            return Response({"detail": "messages is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        last = messages[-1] if isinstance(messages[-1], dict) else {}
+        user_text = (last.get("content") or "").strip()
+        history = [m for m in messages[:-1] if isinstance(m, dict)]
+        reply_payload = generate_chat_reply(user_text, history, request.user if request.user.is_authenticated else None)
+        reply_text = (reply_payload.get("reply") or "").strip() or "Сервис временно недоступен. Попробуйте позже."
+
+        def stream():
+            for token in reply_text.split():
+                yield (token + " ").encode("utf-8")
+
+        return StreamingHttpResponse(stream(), content_type="text/plain; charset=utf-8")
 
 
 # ===== ParkMate AI — конфиг и предсказания (price/availability) =====
@@ -10695,6 +10732,7 @@ urlpatterns = [
     path("api/ai/departure-assistant/", ai_api.DepartureAssistantAPIView.as_view(), name="ai_departure_assistant"),
     path("api/ai/parkmate/config/", ai_api.ParkMateConfigAPIView.as_view(), name="parkmate_config"),
     path("api/ai/parkmate/price-forecast/", ai_api.ParkMatePriceForecastAPIView.as_view(), name="parkmate_price_forecast"),
+    path("api/chat/", ai_api.ChatStreamAPIView.as_view(), name="ai_chat_stream"),
     path("api/ai/llm/health/", ai_api.LLMServiceHealthAPIView.as_view(), name="ai_llm_health"),
     path("api/parking/map/", parking_views.ParkingMapAPIView.as_view(), name="parking_map"),
     path("api/geocode/", parking_views.GeocodeAPIView.as_view(), name="geocode"),
@@ -10710,6 +10748,7 @@ urlpatterns = [
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
 ===== CONTENT END =====
 ===== FILE END =====
 
@@ -11582,6 +11621,47 @@ class BookingModelTests(TestCase):
 
 ===== FILE START =====
 FILE_INDEX: 81
+PATH: backend\tests\test_ui_theme_chat.py
+LANG: python
+===== CONTENT START =====
+from django.test import Client, TestCase
+from django.urls import reverse
+
+
+class UIThemeTests(TestCase):
+    def setUp(self):
+        self.client = Client()
+
+    def test_landing_has_theme_toggle(self):
+        response = self.client.get(reverse("landing"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "data-theme-toggle")
+
+    def test_map_page_renders(self):
+        response = self.client.get(reverse("map_page"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "data-map-panel")
+
+
+class ChatAPITests(TestCase):
+    def setUp(self):
+        self.client = Client()
+
+    def test_chat_api_requires_messages(self):
+        response = self.client.post("/api/chat/", data={}, content_type="application/json")
+        self.assertEqual(response.status_code, 400)
+
+    def test_chat_api_returns_text(self):
+        payload = {"messages": [{"role": "user", "content": "Привет"}]}
+        response = self.client.post("/api/chat/", data=payload, content_type="application/json")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("text/plain", response.headers.get("Content-Type", ""))
+
+===== CONTENT END =====
+===== FILE END =====
+
+===== FILE START =====
+FILE_INDEX: 82
 PATH: core\__init__.py
 LANG: python
 ===== CONTENT START =====
@@ -11590,7 +11670,7 @@ LANG: python
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 82
+FILE_INDEX: 83
 PATH: core\admin.py
 LANG: python
 ===== CONTENT START =====
@@ -11599,7 +11679,7 @@ LANG: python
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 83
+FILE_INDEX: 84
 PATH: core\apps.py
 LANG: python
 ===== CONTENT START =====
@@ -11617,7 +11697,7 @@ class CoreConfig(AppConfig):
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 84
+FILE_INDEX: 85
 PATH: core\context_processors.py
 LANG: python
 ===== CONTENT START =====
@@ -11652,7 +11732,7 @@ def global_settings(request):
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 85
+FILE_INDEX: 86
 PATH: core\integrations.py
 LANG: python
 ===== CONTENT START =====
@@ -11791,7 +11871,7 @@ def get_integrations() -> dict:
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 86
+FILE_INDEX: 87
 PATH: core\middleware.py
 LANG: python
 ===== CONTENT START =====
@@ -11929,7 +12009,7 @@ class RateLimitMiddleware:
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 87
+FILE_INDEX: 88
 PATH: core\models.py
 LANG: python
 ===== CONTENT START =====
@@ -11974,7 +12054,7 @@ class TimeStampedUUIDModel(TimeStampedModel, UUIDModel):
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 88
+FILE_INDEX: 89
 PATH: core\pagination.py
 LANG: python
 ===== CONTENT START =====
@@ -11999,7 +12079,7 @@ class DefaultPageNumberPagination(PageNumberPagination):
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 89
+FILE_INDEX: 90
 PATH: core\permissions.py
 LANG: python
 ===== CONTENT START =====
@@ -12075,7 +12155,7 @@ class IsOwnerObject(BasePermission):
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 90
+FILE_INDEX: 91
 PATH: core\utils.py
 LANG: python
 ===== CONTENT START =====
@@ -12209,7 +12289,7 @@ def round_price(value: float | Decimal, step: float = 10.0) -> float:
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 91
+FILE_INDEX: 92
 PATH: drf_spectacular\__init__.py
 LANG: python
 ===== CONTENT START =====
@@ -12219,7 +12299,7 @@ LANG: python
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 92
+FILE_INDEX: 93
 PATH: drf_spectacular\openapi.py
 LANG: python
 ===== CONTENT START =====
@@ -12231,7 +12311,7 @@ __all__ = ["AutoSchema"]
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 93
+FILE_INDEX: 94
 PATH: drf_spectacular\views.py
 LANG: python
 ===== CONTENT START =====
@@ -12267,7 +12347,7 @@ __all__ = [
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 94
+FILE_INDEX: 95
 PATH: frontend\next-app\.env.local
 LANG: text
 ===== CONTENT START =====
@@ -12289,7 +12369,7 @@ AI_MODEL=gpt-4o
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 95
+FILE_INDEX: 96
 PATH: frontend\next-app\.eslintrc.json
 LANG: json
 ===== CONTENT START =====
@@ -12301,7 +12381,7 @@ LANG: json
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 96
+FILE_INDEX: 97
 PATH: frontend\next-app\Dockerfile
 LANG: text
 ===== CONTENT START =====
@@ -12338,7 +12418,7 @@ CMD ["npm", "start"]
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 97
+FILE_INDEX: 98
 PATH: frontend\next-app\jest.config.js
 LANG: javascript
 ===== CONTENT START =====
@@ -12365,7 +12445,7 @@ module.exports = createJestConfig(customJestConfig);
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 98
+FILE_INDEX: 99
 PATH: frontend\next-app\jest.setup.ts
 LANG: typescript
 ===== CONTENT START =====
@@ -12409,7 +12489,7 @@ if (!global.fetch || !global.Response) {
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 99
+FILE_INDEX: 100
 PATH: frontend\next-app\next-env.d.ts
 LANG: typescript
 ===== CONTENT START =====
@@ -12423,7 +12503,7 @@ LANG: typescript
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 100
+FILE_INDEX: 101
 PATH: frontend\next-app\next.config.mjs
 LANG: text
 ===== CONTENT START =====
@@ -12528,7 +12608,7 @@ export default nextConfig;
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 101
+FILE_INDEX: 102
 PATH: frontend\next-app\package.json
 LANG: json
 ===== CONTENT START =====
@@ -12584,7 +12664,7 @@ LANG: json
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 102
+FILE_INDEX: 103
 PATH: frontend\next-app\postcss.config.js
 LANG: javascript
 ===== CONTENT START =====
@@ -12599,7 +12679,7 @@ module.exports = {
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 103
+FILE_INDEX: 104
 PATH: frontend\next-app\tailwind.config.ts
 LANG: typescript
 ===== CONTENT START =====
@@ -12629,7 +12709,7 @@ export default config;
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 104
+FILE_INDEX: 105
 PATH: frontend\next-app\tsconfig.json
 LANG: json
 ===== CONTENT START =====
@@ -12680,7 +12760,7 @@ LANG: json
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 105
+FILE_INDEX: 106
 PATH: frontend\next-app\app\globals.css
 LANG: css
 ===== CONTENT START =====
@@ -12772,7 +12852,7 @@ LANG: css
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 106
+FILE_INDEX: 107
 PATH: frontend\next-app\app\layout.tsx
 LANG: tsx
 ===== CONTENT START =====
@@ -12794,7 +12874,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 107
+FILE_INDEX: 108
 PATH: frontend\next-app\app\(site)\layout.tsx
 LANG: tsx
 ===== CONTENT START =====
@@ -12820,7 +12900,7 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 108
+FILE_INDEX: 109
 PATH: frontend\next-app\app\(site)\page.tsx
 LANG: tsx
 ===== CONTENT START =====
@@ -12868,7 +12948,7 @@ export default function HomePage() {
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 109
+FILE_INDEX: 110
 PATH: frontend\next-app\app\(site)\auth\page.tsx
 LANG: tsx
 ===== CONTENT START =====
@@ -13113,7 +13193,7 @@ export default function AuthPage() {
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 110
+FILE_INDEX: 111
 PATH: frontend\next-app\app\api\chat\route.ts
 LANG: typescript
 ===== CONTENT START =====
@@ -13154,7 +13234,7 @@ export async function POST(req: NextRequest) {
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 111
+FILE_INDEX: 112
 PATH: frontend\next-app\app\embed\page.tsx
 LANG: tsx
 ===== CONTENT START =====
@@ -13177,7 +13257,7 @@ export default function EmbedPage() {
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 112
+FILE_INDEX: 113
 PATH: frontend\next-app\components\header.tsx
 LANG: tsx
 ===== CONTENT START =====
@@ -13242,7 +13322,7 @@ export function Header() {
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 113
+FILE_INDEX: 114
 PATH: frontend\next-app\components\providers.tsx
 LANG: tsx
 ===== CONTENT START =====
@@ -13263,7 +13343,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 114
+FILE_INDEX: 115
 PATH: frontend\next-app\components\theme-provider.tsx
 LANG: tsx
 ===== CONTENT START =====
@@ -13323,7 +13403,7 @@ export function useTheme() {
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 115
+FILE_INDEX: 116
 PATH: frontend\next-app\components\theme-toggle.tsx
 LANG: tsx
 ===== CONTENT START =====
@@ -13352,7 +13432,7 @@ export function ThemeToggle() {
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 116
+FILE_INDEX: 117
 PATH: frontend\next-app\components\chat\chat-panel.tsx
 LANG: tsx
 ===== CONTENT START =====
@@ -13972,7 +14052,7 @@ const MessageBubble = React.memo(function MessageBubble({
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 117
+FILE_INDEX: 118
 PATH: frontend\next-app\components\chat\compact-chat-panel.tsx
 LANG: tsx
 ===== CONTENT START =====
@@ -13990,7 +14070,7 @@ export function CompactChatPanel() {
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 118
+FILE_INDEX: 119
 PATH: frontend\next-app\components\chat\conversation-list.tsx
 LANG: tsx
 ===== CONTENT START =====
@@ -14109,7 +14189,7 @@ export function ConversationList({ conversations, activeId, onSelect, onCreate, 
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 119
+FILE_INDEX: 120
 PATH: frontend\next-app\components\chat\markdown-message.tsx
 LANG: tsx
 ===== CONTENT START =====
@@ -14140,7 +14220,7 @@ export default function MarkdownMessage({ content }: Props) {
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 120
+FILE_INDEX: 121
 PATH: frontend\next-app\components\chat\suggested-prompts.tsx
 LANG: tsx
 ===== CONTENT START =====
@@ -14179,7 +14259,7 @@ export function SuggestedPrompts({ onSelect }: SuggestedPromptsProps) {
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 121
+FILE_INDEX: 122
 PATH: frontend\next-app\components\chat\types.ts
 LANG: typescript
 ===== CONTENT START =====
@@ -14201,7 +14281,7 @@ export interface Conversation {
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 122
+FILE_INDEX: 123
 PATH: frontend\next-app\components\pwa\register-service-worker.tsx
 LANG: tsx
 ===== CONTENT START =====
@@ -14248,7 +14328,7 @@ export function ServiceWorkerRegistrar() {
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 123
+FILE_INDEX: 124
 PATH: frontend\next-app\components\widget\chat-widget.tsx
 LANG: tsx
 ===== CONTENT START =====
@@ -14296,7 +14376,7 @@ export function ChatWidget() {
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 124
+FILE_INDEX: 125
 PATH: frontend\next-app\context\AuthContext.tsx
 LANG: tsx
 ===== CONTENT START =====
@@ -14441,7 +14521,7 @@ export function useAuthContext() {
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 125
+FILE_INDEX: 126
 PATH: frontend\next-app\hooks\useAuth.ts
 LANG: typescript
 ===== CONTENT START =====
@@ -14466,7 +14546,7 @@ export function useAuth() {
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 126
+FILE_INDEX: 127
 PATH: frontend\next-app\lib\aiProvider.ts
 LANG: typescript
 ===== CONTENT START =====
@@ -14477,7 +14557,7 @@ export type { LLMMessage as ChatMessage } from './llmClient';
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 127
+FILE_INDEX: 128
 PATH: frontend\next-app\lib\authClient.ts
 LANG: typescript
 ===== CONTENT START =====
@@ -14601,7 +14681,7 @@ export function startOAuth(provider: 'vk' | 'yandex' | 'google') {
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 128
+FILE_INDEX: 129
 PATH: frontend\next-app\lib\chatClient.ts
 LANG: typescript
 ===== CONTENT START =====
@@ -14644,7 +14724,7 @@ export async function streamChatFromApi(messages: ChatMessage[], options: Stream
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 129
+FILE_INDEX: 130
 PATH: frontend\next-app\lib\llmClient.ts
 LANG: typescript
 ===== CONTENT START =====
@@ -14796,7 +14876,7 @@ export const isLLMConfigured = () => Boolean(process.env.LLM_API_URL || process.
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 130
+FILE_INDEX: 131
 PATH: frontend\next-app\public\manifest.webmanifest
 LANG: text
 ===== CONTENT START =====
@@ -14825,7 +14905,7 @@ LANG: text
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 131
+FILE_INDEX: 132
 PATH: frontend\next-app\public\offline.html
 LANG: html
 ===== CONTENT START =====
@@ -14894,7 +14974,7 @@ LANG: html
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 132
+FILE_INDEX: 133
 PATH: frontend\next-app\public\service-worker.js
 LANG: javascript
 ===== CONTENT START =====
@@ -14973,7 +15053,7 @@ self.addEventListener('fetch', (event) => {
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 133
+FILE_INDEX: 134
 PATH: frontend\next-app\__tests__\chat-client.test.ts
 LANG: typescript
 ===== CONTENT START =====
@@ -15037,7 +15117,7 @@ describe('streamChatFromApi', () => {
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 134
+FILE_INDEX: 135
 PATH: frontend\next-app\__tests__\conversation-list.test.tsx
 LANG: tsx
 ===== CONTENT START =====
@@ -15111,7 +15191,7 @@ describe('ConversationList', () => {
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 135
+FILE_INDEX: 136
 PATH: frontend\parkmate\parkmate.types.ts
 LANG: typescript
 ===== CONTENT START =====
@@ -15165,7 +15245,7 @@ export const defaultParkMateConfig: ParkMateAI = {
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 136
+FILE_INDEX: 137
 PATH: nginx\nginx.conf
 LANG: text
 ===== CONTENT START =====
@@ -15246,7 +15326,7 @@ http {
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 137
+FILE_INDEX: 138
 PATH: parking\__init__.py
 LANG: python
 ===== CONTENT START =====
@@ -15258,7 +15338,7 @@ default_app_config = "parking.apps.ParkingConfig"
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 138
+FILE_INDEX: 139
 PATH: parking\admin.py
 LANG: python
 ===== CONTENT START =====
@@ -15336,7 +15416,7 @@ class ComplaintAdmin(admin.ModelAdmin):
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 139
+FILE_INDEX: 140
 PATH: parking\apps.py
 LANG: python
 ===== CONTENT START =====
@@ -15354,7 +15434,7 @@ class ParkingConfig(AppConfig):
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 140
+FILE_INDEX: 141
 PATH: parking\models.py
 LANG: python
 ===== CONTENT START =====
@@ -15981,7 +16061,7 @@ class PushSubscription(TimeStampedModel):
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 141
+FILE_INDEX: 142
 PATH: parking\push.py
 LANG: python
 ===== CONTENT START =====
@@ -16054,7 +16134,7 @@ def send_parking_notification(user, payload: dict, subscriptions: Optional[Itera
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 142
+FILE_INDEX: 143
 PATH: parking\serializers.py
 LANG: python
 ===== CONTENT START =====
@@ -16473,7 +16553,7 @@ class PushSubscriptionSerializer(serializers.ModelSerializer):
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 143
+FILE_INDEX: 144
 PATH: parking\tasks.py
 LANG: python
 ===== CONTENT START =====
@@ -16515,7 +16595,7 @@ def expire_unpaid_bookings() -> str:
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 144
+FILE_INDEX: 145
 PATH: parking\urls.py
 LANG: python
 ===== CONTENT START =====
@@ -16533,7 +16613,7 @@ urlpatterns: list = [
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 145
+FILE_INDEX: 146
 PATH: parking\views.py
 LANG: python
 ===== CONTENT START =====
@@ -17123,7 +17203,7 @@ class GeocodeAPIView(APIView):
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 146
+FILE_INDEX: 147
 PATH: parking\management\commands\seed_demo_parking.py
 LANG: python
 ===== CONTENT START =====
@@ -17277,7 +17357,7 @@ class Command(BaseCommand):
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 147
+FILE_INDEX: 148
 PATH: parking\migrations\0001_initial.py
 LANG: python
 ===== CONTENT START =====
@@ -17424,7 +17504,7 @@ class Migration(migrations.Migration):
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 148
+FILE_INDEX: 149
 PATH: parking\migrations\0002_parkinglot_stress_index_parkingspot_occupancy_7d.py
 LANG: python
 ===== CONTENT START =====
@@ -17456,7 +17536,7 @@ class Migration(migrations.Migration):
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 149
+FILE_INDEX: 150
 PATH: parking\migrations\0003_booking_ai_fields.py
 LANG: python
 ===== CONTENT START =====
@@ -17485,7 +17565,7 @@ class Migration(migrations.Migration):
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 150
+FILE_INDEX: 151
 PATH: parking\migrations\0004_favoriteparkingspot_savedplace.py
 LANG: python
 ===== CONTENT START =====
@@ -17543,7 +17623,7 @@ class Migration(migrations.Migration):
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 151
+FILE_INDEX: 152
 PATH: parking\migrations\0005_pushsubscription.py
 LANG: python
 ===== CONTENT START =====
@@ -17612,7 +17692,7 @@ class Migration(migrations.Migration):
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 152
+FILE_INDEX: 153
 PATH: parking\migrations\__init__.py
 LANG: python
 ===== CONTENT START =====
@@ -17621,7 +17701,7 @@ LANG: python
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 153
+FILE_INDEX: 154
 PATH: parking\tests\__init__.py
 LANG: python
 ===== CONTENT START =====
@@ -17630,7 +17710,7 @@ LANG: python
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 154
+FILE_INDEX: 155
 PATH: parking\tests\test_pwa_endpoints.py
 LANG: python
 ===== CONTENT START =====
@@ -17679,7 +17759,7 @@ class PushSubscriptionAPITest(TestCase):
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 155
+FILE_INDEX: 156
 PATH: payments\__init__.py
 LANG: python
 ===== CONTENT START =====
@@ -17689,7 +17769,7 @@ default_app_config = "payments.apps.PaymentsConfig"
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 156
+FILE_INDEX: 157
 PATH: payments\admin.py
 LANG: python
 ===== CONTENT START =====
@@ -17727,7 +17807,7 @@ class PaymentAdmin(admin.ModelAdmin):
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 157
+FILE_INDEX: 158
 PATH: payments\apps.py
 LANG: python
 ===== CONTENT START =====
@@ -17743,7 +17823,7 @@ class PaymentsConfig(AppConfig):
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 158
+FILE_INDEX: 159
 PATH: payments\models.py
 LANG: python
 ===== CONTENT START =====
@@ -17984,7 +18064,7 @@ class PaymentMethod(TimeStampedModel):
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 159
+FILE_INDEX: 160
 PATH: payments\providers.py
 LANG: python
 ===== CONTENT START =====
@@ -18101,7 +18181,7 @@ def create_yookassa_payment(booking) -> Tuple[str, str, dict[str, Any]]:
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 160
+FILE_INDEX: 161
 PATH: payments\serializers.py
 LANG: python
 ===== CONTENT START =====
@@ -18284,7 +18364,7 @@ class PaymentMethodSerializer(serializers.ModelSerializer):
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 161
+FILE_INDEX: 162
 PATH: payments\tasks.py
 LANG: python
 ===== CONTENT START =====
@@ -18312,7 +18392,7 @@ def check_stale_payments() -> str:
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 162
+FILE_INDEX: 163
 PATH: payments\views.py
 LANG: python
 ===== CONTENT START =====
@@ -18494,7 +18574,7 @@ class StripeWebhookView(APIView):
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 163
+FILE_INDEX: 164
 PATH: payments\migrations\0001_initial.py
 LANG: python
 ===== CONTENT START =====
@@ -18545,7 +18625,7 @@ class Migration(migrations.Migration):
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 164
+FILE_INDEX: 165
 PATH: payments\migrations\0002_alter_payment_provider.py
 LANG: python
 ===== CONTENT START =====
@@ -18572,7 +18652,7 @@ class Migration(migrations.Migration):
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 165
+FILE_INDEX: 166
 PATH: payments\migrations\0003_paymentmethod.py
 LANG: python
 ===== CONTENT START =====
@@ -18616,7 +18696,7 @@ class Migration(migrations.Migration):
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 166
+FILE_INDEX: 167
 PATH: payments\migrations\__init__.py
 LANG: python
 ===== CONTENT START =====
@@ -18625,7 +18705,7 @@ LANG: python
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 167
+FILE_INDEX: 168
 PATH: payments\providers\__init__.py
 LANG: python
 ===== CONTENT START =====
@@ -18682,7 +18762,7 @@ def get_payment_provider(name: str | None = None) -> BasePaymentProvider:
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 168
+FILE_INDEX: 169
 PATH: payments\providers\base.py
 LANG: python
 ===== CONTENT START =====
@@ -18751,7 +18831,7 @@ PaymentProvider = BasePaymentProvider
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 169
+FILE_INDEX: 170
 PATH: payments\providers\registry.py
 LANG: python
 ===== CONTENT START =====
@@ -18781,7 +18861,7 @@ def get_payment_provider(provider_key: str) -> PaymentProvider:
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 170
+FILE_INDEX: 171
 PATH: payments\providers\stripe.py
 LANG: python
 ===== CONTENT START =====
@@ -18850,7 +18930,7 @@ class StripeProvider(PaymentProvider):
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 171
+FILE_INDEX: 172
 PATH: payments\providers\yookassa.py
 LANG: python
 ===== CONTENT START =====
@@ -19000,7 +19080,7 @@ class YooKassaProvider(PaymentProvider):
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 172
+FILE_INDEX: 173
 PATH: regions\global.yml
 LANG: yaml
 ===== CONTENT START =====
@@ -19035,7 +19115,7 @@ auth:
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 173
+FILE_INDEX: 174
 PATH: regions\ru.yml
 LANG: yaml
 ===== CONTENT START =====
@@ -19075,7 +19155,7 @@ pricing:
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 174
+FILE_INDEX: 175
 PATH: services\__init__.py
 LANG: python
 ===== CONTENT START =====
@@ -19084,7 +19164,7 @@ LANG: python
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 175
+FILE_INDEX: 176
 PATH: services\llm.py
 LANG: python
 ===== CONTENT START =====
@@ -19281,7 +19361,7 @@ async def check_llm_health() -> Dict[str, Any]:
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 176
+FILE_INDEX: 177
 PATH: services\llm_service\Dockerfile
 LANG: text
 ===== CONTENT START =====
@@ -19303,7 +19383,7 @@ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8002"]
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 177
+FILE_INDEX: 178
 PATH: services\llm_service\main.py
 LANG: python
 ===== CONTENT START =====
@@ -19826,7 +19906,7 @@ if __name__ == "__main__":
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 178
+FILE_INDEX: 179
 PATH: services\llm_service\requirements.txt
 LANG: text
 ===== CONTENT START =====
@@ -19841,7 +19921,7 @@ python-dotenv==1.2.1
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 179
+FILE_INDEX: 180
 PATH: static\manifest.webmanifest
 LANG: text
 ===== CONTENT START =====
@@ -19908,7 +19988,7 @@ LANG: text
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 180
+FILE_INDEX: 181
 PATH: static\service-worker.js
 LANG: javascript
 ===== CONTENT START =====
@@ -20235,7 +20315,7 @@ async function trimCache(cacheName, maxEntries) {
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 181
+FILE_INDEX: 182
 PATH: static\css\app.css
 LANG: css
 ===== CONTENT START =====
@@ -20273,6 +20353,19 @@ LANG: css
 
     --ps-header-height: 60px;
     --ps-bottom-nav-height: 70px;
+
+    /* new tokens */
+    --bg-page: var(--ps-color-bg);
+    --bg-surface: var(--ps-color-surface);
+    --bg-elevated: var(--ps-color-bg-elevated);
+    --text-primary: var(--ps-color-text);
+    --text-muted: var(--ps-color-text-muted);
+    --accent: var(--ps-color-primary);
+    --accent-strong: var(--ps-color-primary-strong);
+    --border-subtle: var(--ps-color-border);
+    --shadow-sm: 0 10px 26px rgba(15, 23, 42, 0.08);
+    --shadow-md: var(--ps-shadow-soft);
+    --shadow-lg: var(--ps-shadow-card);
 }
 
 @media (min-width: 768px) {
@@ -20305,6 +20398,41 @@ body.ps-body {
     -webkit-font-smoothing: antialiased;
 }
 
+.theme-dark {
+    --ps-color-bg: #0c1221;
+    --ps-color-bg-elevated: #111a2d;
+    --ps-color-surface: #152039;
+    --ps-color-border: rgba(255, 255, 255, 0.08);
+    --ps-color-primary: #2dd4bf;
+    --ps-color-primary-soft: rgba(45, 212, 191, 0.14);
+    --ps-color-primary-strong: #14b8a6;
+    --ps-color-accent: #60a5fa;
+    --ps-color-text: #f8fafc;
+    --ps-color-text-muted: #a5b4c3;
+    --ps-color-danger: #ef4444;
+    --ps-color-warning: #fbbf24;
+    --ps-color-success: #22c55e;
+    --ps-color-neutral: #64748b;
+    --bg-page: #0b1220;
+    --bg-surface: #0f172a;
+    --bg-elevated: #111a2d;
+    --text-primary: #e5e7eb;
+    --text-muted: #a5b4c3;
+    --accent: #2dd4bf;
+    --accent-strong: #60a5fa;
+    --border-subtle: rgba(255, 255, 255, 0.12);
+    --shadow-sm: 0 12px 30px rgba(0, 0, 0, 0.35);
+    --shadow-md: 0 18px 42px rgba(3, 7, 18, 0.36);
+    --shadow-lg: 0 22px 60px rgba(2, 6, 23, 0.55);
+}
+
+.theme-dark body.ps-body {
+    background: radial-gradient(circle at 15% 20%, rgba(96, 165, 250, 0.14), transparent 35%),
+    radial-gradient(circle at 80% 0%, rgba(45, 212, 191, 0.12), transparent 28%),
+    linear-gradient(180deg, #0b1220 0%, #050914 60%, #03060f 100%);
+    color: var(--ps-color-text);
+}
+
 @media (max-width: 767px) {
     body.ps-body {
         padding-bottom: calc(var(--ps-bottom-nav-height) + env(safe-area-inset-bottom));
@@ -20328,7 +20456,7 @@ img {
     z-index: 40;
     backdrop-filter: blur(18px);
     background: rgba(255, 255, 255, 0.9);
-    border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+    border-bottom: 1px solid var(--border-subtle);
     box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
 }
 
@@ -20532,8 +20660,8 @@ img {
 }
 
 .ps-footer {
-    border-top: 1px solid rgba(148, 163, 184, 0.18);
-    background: rgba(15, 23, 42, 0.96);
+    border-top: 1px solid var(--border-subtle);
+    background: var(--bg-elevated);
 }
 
 .ps-footer-inner {
@@ -20544,7 +20672,7 @@ img {
     flex-direction: column;
     gap: 0.25rem;
     font-size: 0.8rem;
-    color: var(--ps-color-text-muted);
+    color: var(--text-muted);
 }
 
 @media (min-width: 640px) {
@@ -20617,6 +20745,31 @@ img {
     display: flex;
     gap: 8px;
     flex-wrap: wrap;
+}
+
+.ps-theme-toggle {
+    border: 1px solid var(--border-subtle);
+    background: var(--bg-elevated);
+    border-radius: 999px;
+    padding: 0.35rem 0.55rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    color: var(--text-primary);
+    box-shadow: var(--shadow-sm);
+}
+
+.ps-theme-toggle .ps-icon-moon {
+    display: none;
+}
+
+.ps-theme-toggle[data-theme="dark"] .ps-icon-moon {
+    display: inline-block;
+}
+
+.ps-theme-toggle[data-theme="dark"] .ps-icon-sun {
+    display: none;
 }
 
 @media (max-width: 767px) {
@@ -22250,13 +22403,19 @@ body:not(.ps-day-mode) .ps-map-topbar {
     right: 0;
     bottom: 0;
     height: var(--ps-bottom-nav-height);
-    background: linear-gradient(180deg, rgba(10, 14, 26, 0.94), rgba(5, 8, 22, 0.98));
-    border-top: 1px solid rgba(148, 163, 184, 0.15);
+    background: rgba(255, 255, 255, 0.96);
+    border-top: 1px solid rgba(15, 23, 42, 0.08);
     display: none;
     grid-template-columns: repeat(4, 1fr);
-    box-shadow: 0 -10px 28px rgba(0, 0, 0, 0.45);
+    box-shadow: 0 -10px 30px rgba(15, 23, 42, 0.05);
     z-index: 1300;
     padding-bottom: env(safe-area-inset-bottom);
+}
+
+.theme-dark .ps-bottom-nav {
+    background: linear-gradient(180deg, rgba(10, 14, 26, 0.94), rgba(5, 8, 22, 0.98));
+    border-top: 1px solid rgba(148, 163, 184, 0.15);
+    box-shadow: 0 -10px 28px rgba(0, 0, 0, 0.45);
 }
 
 .ps-bottom-nav-item {
@@ -22294,10 +22453,23 @@ body:not(.ps-day-mode) .ps-map-topbar {
 .ps-bottom-nav-item.is-active,
 .ps-bottom-nav-item:focus-visible,
 .ps-bottom-nav-item:hover {
-    color: var(--ps-color-text);
+    color: var(--ps-color-primary-strong);
 }
 
 .ps-bottom-nav-item.is-active::before {
+    background: linear-gradient(90deg, #3f7df4, #818cf8);
+}
+
+.theme-dark .ps-bottom-nav-item {
+    color: var(--ps-color-text-muted);
+}
+
+.theme-dark .ps-bottom-nav-item.is-active,
+.theme-dark .ps-bottom-nav-item:hover {
+    color: #f8fafc;
+}
+
+.theme-dark .ps-bottom-nav-item.is-active::before {
     background: linear-gradient(90deg, #0d6efd, #22c55e);
 }
 
@@ -22367,6 +22539,60 @@ body:not(.ps-day-mode) .ps-map-topbar {
 
 .ps-hint {
     font-size: 0.82rem;
+    color: var(--ps-color-text-muted);
+}
+
+.theme-dark .ps-header {
+    background: linear-gradient(to bottom, rgba(13, 18, 35, 0.95), rgba(13, 18, 35, 0.7));
+    border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+}
+
+.theme-dark .ps-nav-link:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #f8fafc;
+}
+
+.theme-dark .ps-card {
+    background: radial-gradient(circle at top, rgba(15, 23, 42, 0.98), #020617);
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    box-shadow: var(--shadow-md);
+}
+
+.theme-dark .ps-map-panel,
+.theme-dark .ps-spots-panel {
+    background: rgba(15, 23, 42, 0.9);
+    border-color: rgba(148, 163, 184, 0.22);
+    box-shadow: var(--shadow-md);
+}
+
+.theme-dark .ps-map-action {
+    background: rgba(15, 23, 42, 0.9);
+    color: #e5e7eb;
+    border-color: rgba(148, 163, 184, 0.35);
+}
+
+.theme-dark .ps-ai-chat {
+    background: rgba(15, 23, 42, 0.95);
+    border-color: rgba(148, 163, 184, 0.22);
+}
+
+.theme-dark .ps-ai-bubble {
+    background: rgba(148, 163, 184, 0.08);
+    border-color: rgba(148, 163, 184, 0.22);
+    color: #e5e7eb;
+}
+
+.theme-dark .ps-ai-bubble--user {
+    background: rgba(34, 197, 94, 0.14);
+    border-color: rgba(34, 197, 94, 0.35);
+}
+
+.theme-dark .ps-ai-status,
+.theme-dark .ps-ai-subtitle,
+.theme-dark .ps-ai-hint,
+.theme-dark .ps-section-subtitle,
+.theme-dark .ps-card-line--muted {
     color: var(--ps-color-text-muted);
 }
 
@@ -23034,7 +23260,7 @@ body:not(.ps-day-mode) .ps-map-topbar {
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 182
+FILE_INDEX: 183
 PATH: static\css\cinematic-ui.css
 LANG: css
 ===== CONTENT START =====
@@ -23206,7 +23432,7 @@ body[data-quantum-theme="light"] {
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 183
+FILE_INDEX: 184
 PATH: static\js\app.js
 LANG: javascript
 ===== CONTENT START =====
@@ -23781,7 +24007,7 @@ function initAdaptiveProbe() {
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 184
+FILE_INDEX: 185
 PATH: static\js\chat.js
 LANG: javascript
 ===== CONTENT START =====
@@ -24062,7 +24288,7 @@ LANG: javascript
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 185
+FILE_INDEX: 186
 PATH: static\js\map.js
 LANG: javascript
 ===== CONTENT START =====
@@ -24758,7 +24984,7 @@ function createBooking(spotId) {
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 186
+FILE_INDEX: 187
 PATH: static\js\parkmate-ai.ts
 LANG: typescript
 ===== CONTENT START =====
@@ -24945,7 +25171,7 @@ export async function fetchAvailabilityForecast(
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 187
+FILE_INDEX: 188
 PATH: static\js\quantum-theme-manager.js
 LANG: javascript
 ===== CONTENT START =====
@@ -25034,7 +25260,75 @@ window.initQuantumThemeManager = function initQuantumThemeManager() {
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 188
+FILE_INDEX: 189
+PATH: static\js\theme.js
+LANG: javascript
+===== CONTENT START =====
+(function () {
+  "use strict";
+
+  var STORAGE_KEY = "ps_theme";
+
+  function applyTheme(theme) {
+    var root = document.documentElement;
+    if (!root) return;
+    if (theme === "dark") {
+      root.classList.add("theme-dark");
+    } else {
+      root.classList.remove("theme-dark");
+      theme = "light";
+    }
+    root.setAttribute("data-theme", theme);
+    try {
+      localStorage.setItem(STORAGE_KEY, theme);
+    } catch (_) {
+      /* ignore storage errors */
+    }
+    updateToggle(theme);
+  }
+
+  function currentTheme() {
+    var stored = null;
+    try {
+      stored = localStorage.getItem(STORAGE_KEY);
+    } catch (_) {}
+    if (stored === "dark" || stored === "light") return stored;
+    var prefersDark =
+      window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+    return prefersDark ? "dark" : "light";
+  }
+
+  function updateToggle(theme) {
+    var toggles = document.querySelectorAll("[data-theme-toggle]");
+    toggles.forEach(function (btn) {
+      btn.setAttribute("data-theme", theme);
+      btn.setAttribute("aria-pressed", theme === "dark");
+    });
+  }
+
+  function initToggle() {
+    var toggles = document.querySelectorAll("[data-theme-toggle]");
+    if (!toggles.length) return;
+    var theme = currentTheme();
+    applyTheme(theme);
+    toggles.forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var next = document.documentElement.classList.contains("theme-dark")
+          ? "light"
+          : "dark";
+        applyTheme(next);
+      });
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", initToggle);
+})();
+
+===== CONTENT END =====
+===== FILE END =====
+
+===== FILE START =====
+FILE_INDEX: 190
 PATH: static\pwa\api-client.js
 LANG: javascript
 ===== CONTENT START =====
@@ -25303,7 +25597,7 @@ async function cachedAiFetch(path, opts, cacheKey, ttlMs = 180000) {
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 189
+FILE_INDEX: 191
 PATH: static\pwa\app.js
 LANG: javascript
 ===== CONTENT START =====
@@ -25407,7 +25701,7 @@ document.addEventListener('DOMContentLoaded', init);
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 190
+FILE_INDEX: 192
 PATH: static\pwa\router.js
 LANG: javascript
 ===== CONTENT START =====
@@ -25462,7 +25756,7 @@ export function bindConnectionBanner() {
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 191
+FILE_INDEX: 193
 PATH: static\pwa\spots-view.js
 LANG: javascript
 ===== CONTENT START =====
@@ -25574,7 +25868,7 @@ function getAiScore(spotId) {
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 192
+FILE_INDEX: 194
 PATH: static\pwa\state-store.js
 LANG: javascript
 ===== CONTENT START =====
@@ -25753,7 +26047,7 @@ export function setPushOptIn(optIn) {
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 193
+FILE_INDEX: 195
 PATH: static\pwa\ui-kit.js
 LANG: javascript
 ===== CONTENT START =====
@@ -25868,7 +26162,7 @@ export function initConnectionBadge() {
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 194
+FILE_INDEX: 196
 PATH: templates\base.html
 LANG: html
 ===== CONTENT START =====
@@ -25888,6 +26182,24 @@ LANG: html
 
     <!-- Favicon (минимальный набор) -->
     <link rel="icon" type="image/png" sizes="32x32" href="{% static 'icons/icon-72.png' %}">
+
+    <script>
+        (function() {
+            try {
+                const stored = localStorage.getItem('ps_theme');
+                const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+                const theme = stored || (prefersDark ? 'dark' : 'light');
+                if (theme === 'dark') {
+                    document.documentElement.classList.add('theme-dark');
+                } else {
+                    document.documentElement.classList.remove('theme-dark');
+                }
+                document.documentElement.dataset.theme = theme;
+            } catch (_) {
+                /* ignore */
+            }
+        })();
+    </script>
 
     <!-- Основные стили PWA -->
     <link rel="stylesheet" href="{% static 'css/app.css' %}">
@@ -25917,6 +26229,10 @@ LANG: html
         </button>
 
         <div class="ps-navbar-menu" data-menu>
+            <button type="button" class="ps-theme-toggle" data-theme-toggle aria-label="Переключить тему">
+                <svg class="ps-icon ps-icon-sun" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM12 2v2m0 16v2m10-10h-2M4 12H2m16.95 6.95-1.41-1.41M6.46 7.46 5.05 6.05m13.9 0-1.41 1.41M6.46 16.54l-1.41 1.41" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg>
+                <svg class="ps-icon ps-icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 13.5A8.5 8.5 0 0 1 10.5 4 7 7 0 1 0 20 13.5Z" fill="currentColor"/></svg>
+            </button>
             <a href="{% url 'landing' %}" class="ps-nav-link">Главная</a>
             <a href="{% url 'user_dashboard' %}" class="ps-nav-link">Личный кабинет</a>
             {% if user.is_authenticated and user.is_owner %}
@@ -25994,6 +26310,7 @@ LANG: html
 </div>
 
 <script src="{% static 'js/app.js' %}"></script>
+<script src="{% static 'js/theme.js' %}"></script>
 {% block extra_scripts %}{% endblock %}
 </body>
 </html>
@@ -26002,7 +26319,7 @@ LANG: html
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 195
+FILE_INDEX: 197
 PATH: templates\offline.html
 LANG: html
 ===== CONTENT START =====
@@ -26033,7 +26350,7 @@ LANG: html
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 196
+FILE_INDEX: 198
 PATH: templates\accounts\login.html
 LANG: html
 ===== CONTENT START =====
@@ -26148,7 +26465,7 @@ LANG: html
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 197
+FILE_INDEX: 199
 PATH: templates\accounts\password_change.html
 LANG: html
 ===== CONTENT START =====
@@ -26201,7 +26518,7 @@ LANG: html
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 198
+FILE_INDEX: 200
 PATH: templates\accounts\password_change_done.html
 LANG: html
 ===== CONTENT START =====
@@ -26227,7 +26544,7 @@ LANG: html
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 199
+FILE_INDEX: 201
 PATH: templates\accounts\password_reset.html
 LANG: html
 ===== CONTENT START =====
@@ -26283,7 +26600,7 @@ LANG: html
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 200
+FILE_INDEX: 202
 PATH: templates\accounts\password_reset_complete.html
 LANG: html
 ===== CONTENT START =====
@@ -26309,7 +26626,7 @@ LANG: html
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 201
+FILE_INDEX: 203
 PATH: templates\accounts\password_reset_confirm.html
 LANG: html
 ===== CONTENT START =====
@@ -26375,7 +26692,7 @@ LANG: html
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 202
+FILE_INDEX: 204
 PATH: templates\accounts\password_reset_done.html
 LANG: html
 ===== CONTENT START =====
@@ -26402,7 +26719,7 @@ LANG: html
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 203
+FILE_INDEX: 205
 PATH: templates\accounts\password_reset_email.txt
 LANG: text
 ===== CONTENT START =====
@@ -26419,7 +26736,7 @@ LANG: text
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 204
+FILE_INDEX: 206
 PATH: templates\accounts\password_reset_subject.txt
 LANG: text
 ===== CONTENT START =====
@@ -26429,7 +26746,7 @@ LANG: text
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 205
+FILE_INDEX: 207
 PATH: templates\accounts\profile.html
 LANG: html
 ===== CONTENT START =====
@@ -26488,7 +26805,7 @@ LANG: html
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 206
+FILE_INDEX: 208
 PATH: templates\accounts\register.html
 LANG: html
 ===== CONTENT START =====
@@ -26554,7 +26871,7 @@ LANG: html
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 207
+FILE_INDEX: 209
 PATH: templates\ai\concierge.html
 LANG: html
 ===== CONTENT START =====
@@ -26576,7 +26893,7 @@ LANG: html
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 208
+FILE_INDEX: 210
 PATH: templates\parking\landing.html
 LANG: html
 ===== CONTENT START =====
@@ -26939,7 +27256,7 @@ LANG: html
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 209
+FILE_INDEX: 211
 PATH: templates\parking\map_fullscreen.html
 LANG: html
 ===== CONTENT START =====
@@ -26979,9 +27296,15 @@ LANG: html
                 <div id="map" class="ps-map ps-map--light"></div>
                 <div class="ps-map-loading" data-map-loading>Обновляем карту…</div>
                 <div class="ps-map-floating-actions" aria-label="Действия карты">
-                    <button class="ps-map-action" type="button" data-fill-location title="Моё местоположение">🎯</button>
-                    <button class="ps-map-action" type="button" data-reset-filters title="Сбросить фильтры">↺</button>
-                    <button class="ps-map-action" type="button" data-map-theme title="Светлая / тёмная карта" aria-pressed="false">🌙</button>
+                    <button class="ps-map-action" type="button" data-fill-location title="Моё местоположение" aria-label="Моё местоположение">
+                        <svg class="ps-icon" viewBox="0 0 24 24"><path d="M12 3.5 9.6 10H4l5 4-2 6.5L12 16l5 4.5-2-6.5 5-4h-5.6L12 3.5Z" fill="currentColor"/></svg>
+                    </button>
+                    <button class="ps-map-action" type="button" data-reset-filters title="Сбросить фильтры" aria-label="Сбросить фильтры">
+                        <svg class="ps-icon" viewBox="0 0 24 24"><path d="M12 5a7 7 0 0 1 6.9 6H21l-2.7 3-2.7-3H17A5 5 0 1 0 7 12H5.5A6.5 6.5 0 0 1 12 5Zm6 4h-1.5a4.5 4.5 0 0 0-9 0H6a6 6 0 0 1 12 0Zm-6 10a7 7 0 0 1-6.9-6H3l2.7-3 2.7 3H7a5 5 0 0 0 10 0h1.5A6.5 6.5 0 0 1 12 19Z" fill="currentColor"/></svg>
+                    </button>
+                    <button class="ps-map-action" type="button" data-map-theme title="Светлая / тёмная карта" aria-pressed="false">
+                        <svg class="ps-icon" viewBox="0 0 24 24"><path d="M12 3a9 9 0 0 0 0 18c2.9 0 5.5-1.4 7.1-3.5A7 7 0 0 1 12 4.9V3Zm0 2.9A7 7 0 0 1 17.8 17 7 7 0 1 1 12 5.9Z" fill="currentColor"/></svg>
+                    </button>
                 </div>
                 <div class="ps-map-topbar">
                     <div class="ps-input-icon">
@@ -27076,7 +27399,7 @@ LANG: html
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 210
+FILE_INDEX: 212
 PATH: templates\parking\owner_dashboard.html
 LANG: html
 ===== CONTENT START =====
@@ -27209,7 +27532,7 @@ LANG: html
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 211
+FILE_INDEX: 213
 PATH: templates\parking\pwa_install.html
 LANG: html
 ===== CONTENT START =====
@@ -27263,7 +27586,7 @@ LANG: html
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 212
+FILE_INDEX: 214
 PATH: templates\parking\user_dashboard.html
 LANG: html
 ===== CONTENT START =====
@@ -27435,7 +27758,7 @@ LANG: html
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 213
+FILE_INDEX: 215
 PATH: vehicles\__init__.py
 LANG: python
 ===== CONTENT START =====
@@ -27444,7 +27767,7 @@ LANG: python
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 214
+FILE_INDEX: 216
 PATH: vehicles\admin.py
 LANG: python
 ===== CONTENT START =====
@@ -27473,7 +27796,7 @@ class VehicleAdmin(admin.ModelAdmin):
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 215
+FILE_INDEX: 217
 PATH: vehicles\apps.py
 LANG: python
 ===== CONTENT START =====
@@ -27491,7 +27814,7 @@ class VehiclesConfig(AppConfig):
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 216
+FILE_INDEX: 218
 PATH: vehicles\models.py
 LANG: python
 ===== CONTENT START =====
@@ -27559,7 +27882,7 @@ class Vehicle(TimeStampedModel):
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 217
+FILE_INDEX: 219
 PATH: vehicles\serializers.py
 LANG: python
 ===== CONTENT START =====
@@ -27635,7 +27958,7 @@ class VehicleSerializer(serializers.ModelSerializer):
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 218
+FILE_INDEX: 220
 PATH: vehicles\urls.py
 LANG: python
 ===== CONTENT START =====
@@ -27662,7 +27985,7 @@ urlpatterns = [
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 219
+FILE_INDEX: 221
 PATH: vehicles\views.py
 LANG: python
 ===== CONTENT START =====
@@ -27702,7 +28025,7 @@ class VehicleViewSet(viewsets.ModelViewSet):
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 220
+FILE_INDEX: 222
 PATH: vehicles\migrations\0001_initial.py
 LANG: python
 ===== CONTENT START =====
@@ -27747,7 +28070,7 @@ class Migration(migrations.Migration):
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 221
+FILE_INDEX: 223
 PATH: vehicles\migrations\__init__.py
 LANG: python
 ===== CONTENT START =====

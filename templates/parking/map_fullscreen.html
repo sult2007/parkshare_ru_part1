@@ -34,9 +34,15 @@
                 <div id="map" class="ps-map ps-map--light"></div>
                 <div class="ps-map-loading" data-map-loading>Обновляем карту…</div>
                 <div class="ps-map-floating-actions" aria-label="Действия карты">
-                    <button class="ps-map-action" type="button" data-fill-location title="Моё местоположение">🎯</button>
-                    <button class="ps-map-action" type="button" data-reset-filters title="Сбросить фильтры">↺</button>
-                    <button class="ps-map-action" type="button" data-map-theme title="Светлая / тёмная карта" aria-pressed="false">🌙</button>
+                    <button class="ps-map-action" type="button" data-fill-location title="Моё местоположение" aria-label="Моё местоположение">
+                        <svg class="ps-icon" viewBox="0 0 24 24"><path d="M12 3.5 9.6 10H4l5 4-2 6.5L12 16l5 4.5-2-6.5 5-4h-5.6L12 3.5Z" fill="currentColor"/></svg>
+                    </button>
+                    <button class="ps-map-action" type="button" data-reset-filters title="Сбросить фильтры" aria-label="Сбросить фильтры">
+                        <svg class="ps-icon" viewBox="0 0 24 24"><path d="M12 5a7 7 0 0 1 6.9 6H21l-2.7 3-2.7-3H17A5 5 0 1 0 7 12H5.5A6.5 6.5 0 0 1 12 5Zm6 4h-1.5a4.5 4.5 0 0 0-9 0H6a6 6 0 0 1 12 0Zm-6 10a7 7 0 0 1-6.9-6H3l2.7-3 2.7 3H7a5 5 0 0 0 10 0h1.5A6.5 6.5 0 0 1 12 19Z" fill="currentColor"/></svg>
+                    </button>
+                    <button class="ps-map-action" type="button" data-map-theme title="Светлая / тёмная карта" aria-pressed="false">
+                        <svg class="ps-icon" viewBox="0 0 24 24"><path d="M12 3a9 9 0 0 0 0 18c2.9 0 5.5-1.4 7.1-3.5A7 7 0 0 1 12 4.9V3Zm0 2.9A7 7 0 0 1 17.8 17 7 7 0 1 1 12 5.9Z" fill="currentColor"/></svg>
+                    </button>
                 </div>
                 <div class="ps-map-topbar">
                     <div class="ps-input-icon">

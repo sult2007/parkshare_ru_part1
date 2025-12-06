@@ -15,6 +15,24 @@
     <!-- Favicon (минимальный набор) -->
     <link rel="icon" type="image/png" sizes="32x32" href="{% static 'icons/icon-72.png' %}">
 
+    <script>
+        (function() {
+            try {
+                const stored = localStorage.getItem('ps_theme');
+                const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+                const theme = stored || (prefersDark ? 'dark' : 'light');
+                if (theme === 'dark') {
+                    document.documentElement.classList.add('theme-dark');
+                } else {
+                    document.documentElement.classList.remove('theme-dark');
+                }
+                document.documentElement.dataset.theme = theme;
+            } catch (_) {
+                /* ignore */
+            }
+        })();
+    </script>
+
     <!-- Основные стили PWA -->
     <link rel="stylesheet" href="{% static 'css/app.css' %}">
 
@@ -43,6 +61,10 @@
         </button>
 
         <div class="ps-navbar-menu" data-menu>
+            <button type="button" class="ps-theme-toggle" data-theme-toggle aria-label="Переключить тему">
+                <svg class="ps-icon ps-icon-sun" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM12 2v2m0 16v2m10-10h-2M4 12H2m16.95 6.95-1.41-1.41M6.46 7.46 5.05 6.05m13.9 0-1.41 1.41M6.46 16.54l-1.41 1.41" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg>
+                <svg class="ps-icon ps-icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 13.5A8.5 8.5 0 0 1 10.5 4 7 7 0 1 0 20 13.5Z" fill="currentColor"/></svg>
+            </button>
             <a href="{% url 'landing' %}" class="ps-nav-link">Главная</a>
             <a href="{% url 'user_dashboard' %}" class="ps-nav-link">Личный кабинет</a>
             {% if user.is_authenticated and user.is_owner %}
@@ -120,6 +142,7 @@
 </div>
 
 <script src="{% static 'js/app.js' %}"></script>
+<script src="{% static 'js/theme.js' %}"></script>
 {% block extra_scripts %}{% endblock %}
 </body>
 </html>

@@ -138,6 +138,7 @@ urlpatterns = [
     path("api/ai/departure-assistant/", ai_api.DepartureAssistantAPIView.as_view(), name="ai_departure_assistant"),
     path("api/ai/parkmate/config/", ai_api.ParkMateConfigAPIView.as_view(), name="parkmate_config"),
     path("api/ai/parkmate/price-forecast/", ai_api.ParkMatePriceForecastAPIView.as_view(), name="parkmate_price_forecast"),
+    path("api/chat/", ai_api.ChatStreamAPIView.as_view(), name="ai_chat_stream"),
     path("api/ai/llm/health/", ai_api.LLMServiceHealthAPIView.as_view(), name="ai_llm_health"),
     path("api/parking/map/", parking_views.ParkingMapAPIView.as_view(), name="parking_map"),
     path("api/geocode/", parking_views.GeocodeAPIView.as_view(), name="geocode"),
