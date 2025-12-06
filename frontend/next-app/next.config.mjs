@@ -28,7 +28,7 @@ const nextConfig = {
       "manifest-src 'self'",
       "object-src 'none'",
       "base-uri 'self'",
-      "frame-ancestors 'none'",
+      "frame-ancestors 'self' http://localhost:8000 http://127.0.0.1:8000",
       "form-action 'self'"
     ].join('; ');
 
