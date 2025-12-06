@@ -1,8 +1,8 @@
 ################################################################################
 # COMPRESSED PROJECT DUMP
 # Root: C:\Users\Sultan\Downloads\parkshare_ru_part1
-# Generated at: 2025-12-06 21:25:35
-# Files: 213
+# Generated at: 2025-12-06 23:29:49
+# Files: 214
 # Max file size: 500KB
 # Code compression: True
 ################################################################################
@@ -152,6 +152,7 @@ parkshare_ru_part1/
                 theme-toggle.tsx
                 chat/
                     chat-panel.tsx
+                    compact-chat-panel.tsx
                     conversation-list.tsx
                     markdown-message.tsx
                     suggested-prompts.tsx
@@ -287,7 +288,7 @@ parkshare_ru_part1/
 FILES CONTENT:
 ================================================================================
 
-# File 1/213: .env
+# File 1/214: .env
 ################################################################################
 
 DEBUG=1
@@ -336,7 +337,7 @@ CELERY_RESULT_BACKEND=redis://localhost:6379/0
 # Database
 DATABASE_URL=sqlite:///db.sqlite3
 
-# File 2/213: .env.example
+# File 2/214: .env.example
 ################################################################################
 
 # Базовые настройки Django
@@ -407,7 +408,7 @@ OPENAI_API_KEY=your_openai_api_key
 AI_MODEL=gpt-3.5-turbo
 
 
-# File 3/213: .env.prod
+# File 3/214: .env.prod
 ################################################################################
 
 # -----------------------------
@@ -453,14 +454,14 @@ YANDEX_MAP_API_KEY=8fee7d21-b90a-43cd-8536-7acf9fc3c1cc
 MAPBOX_TOKEN=your_actual_token_here
 
 
-# File 4/213: .gitattributes
+# File 4/214: .gitattributes
 ################################################################################
 
 # Auto detect text files and perform LF normalization
 * text=auto
 
 
-# File 5/213: .gitignore
+# File 5/214: .gitignore
 ################################################################################
 
 db.sqlite3
@@ -473,7 +474,7 @@ frontend/next-app/node_modules/
 node_modules/
 
 
-# File 6/213: Dockerfile
+# File 6/214: Dockerfile
 ################################################################################
 
 # Production-ready Dockerfile
@@ -514,7 +515,7 @@ HEALTHCHECK --interval=30s --timeout=10s --retries=3 CMD curl -f http://localhos
 CMD ["gunicorn", "backend.config.wsgi:application", "--bind", "0.0.0.0:8000"]
 
 
-# File 7/213: README.md
+# File 7/214: README.md
 ################################################################################
 
 # ParkShare Global Platform
@@ -604,7 +605,7 @@ docker-compose -f docker-compose.prod.yml up -d --build
  
  
 
-# File 8/213: api_server.py
+# File 8/214: api_server.py
 ################################################################################
 
 # api_server.py
@@ -951,7 +952,7 @@ except (TypeError, ValueError):
 port = 8001
 uvicorn.run("api_server:app", host=host, port=port, reload=True)
 
-# File 9/213: app.js
+# File 9/214: app.js
 ################################################################################
 
 const API_BASE = "http:
@@ -1205,7 +1206,7 @@ handleRecommendations("B");
 });
 });
 
-# File 10/213: celerybeat-schedule.bak
+# File 10/214: celerybeat-schedule.bak
 ################################################################################
 
 'entries', (2048, 599)
@@ -1214,7 +1215,7 @@ handleRecommendations("B");
 'utc_enabled', (1536, 4)
 
 
-# File 11/213: celerybeat-schedule.dat
+# File 11/214: celerybeat-schedule.dat
 ################################################################################
 
 �}�.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           ��	       �5.5.3�.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            ��       �
@@ -1225,7 +1226,7 @@ Europe/Moscow�K��R���R�K�celery.schedules��schedule��
 �-	3Ӕh��R�KhhK MK ��R��N��R�)}�}�t�R��check_stale_payments�h(�check_stale_payments��#payments.tasks.check_stale_payments�h	C
 �-	;��h��R�KhhK M�K ��R��N��R�)}�}�t�R�u.
 
-# File 12/213: celerybeat-schedule.dir
+# File 12/214: celerybeat-schedule.dir
 ################################################################################
 
 'entries', (2048, 599)
@@ -1234,7 +1235,7 @@ Europe/Moscow�K��R���R�K�celery.schedules��schedule��
 'utc_enabled', (1536, 4)
 
 
-# File 13/213: database.py
+# File 13/214: database.py
 ################################################################################
 
 # database.py
@@ -1437,7 +1438,7 @@ if __name__ == "__main__":
 init_db()
 generate_synthetic_data()
 
-# File 14/213: docker-compose.prod.yml
+# File 14/214: docker-compose.prod.yml
 ################################################################################
 
 version: "3.9"
@@ -1546,7 +1547,7 @@ networks:
     driver: bridge
 
 
-# File 15/213: docker-compose.yml
+# File 15/214: docker-compose.yml
 ################################################################################
 
 version: "3.9"
@@ -1708,7 +1709,7 @@ networks:
     driver: bridge
 
 
-# File 16/213: dump_project.py
+# File 16/214: dump_project.py
 ################################################################################
 
 import os
@@ -1774,7 +1775,7 @@ line = line.split('')[1]
 else:
 line = line.split('
 
-# File 17/213: entrypoint.sh
+# File 17/214: entrypoint.sh
 ################################################################################
 
 #!/bin/sh
@@ -1799,7 +1800,7 @@ exec gunicorn backend.config.wsgi:application \
     --timeout "${GUNICORN_TIMEOUT:-60}"
 
 
-# File 18/213: index.html
+# File 18/214: index.html
 ################################################################################
 
 <!-- index.html -->
@@ -2169,7 +2170,7 @@ window.psThemeManager = window.initQuantumThemeManager();
 </body>
 </html>
 
-# File 19/213: model_training.py
+# File 19/214: model_training.py
 ################################################################################
 
 # model_training.py
@@ -2410,7 +2411,7 @@ print("Готово: все модели обучены и сохранены в
 if __name__ == "__main__":
 main()
 
-# File 20/213: requirements.txt
+# File 20/214: requirements.txt
 ################################################################################
 
 Django==5.2.8
@@ -2444,7 +2445,7 @@ uvicorn[standard]==0.32.1
 colorama==0.4.6
 
 
-# File 21/213: run_dev.bat
+# File 21/214: run_dev.bat
 ################################################################################
 
 @echo off
@@ -2460,7 +2461,7 @@ REM Запускаем основной скрипт
 python run_dev.py
 pause
 
-# File 22/213: run_dev.py
+# File 22/214: run_dev.py
 ################################################################################
 
 #!/usr/bin/env python3
@@ -2741,7 +2742,7 @@ print("👋 Все сервисы остановлены")
 if __name__ == "__main__":
 main()
 
-# File 23/213: run_dev.sh
+# File 23/214: run_dev.sh
 ################################################################################
 
 #!/bin/bash
@@ -2758,12 +2759,12 @@ fi
 # Запускаем основной скрипт
 python run_dev.py
 
-# File 24/213: accounts\__init__.py
+# File 24/214: accounts\__init__.py
 ################################################################################
 
 
 
-# File 25/213: accounts\admin.py
+# File 25/214: accounts\admin.py
 ################################################################################
 
 # accounts/admin.py
@@ -2799,7 +2800,7 @@ list_display = (
 list_filter = ("role", "is_active", "is_staff", "is_superuser")
 search_fields = ("username",)
 
-# File 26/213: accounts\apps.py
+# File 26/214: accounts\apps.py
 ################################################################################
 
 # accounts/apps.py
@@ -2809,7 +2810,7 @@ default_auto_field = "django.db.models.BigAutoField"
 name = "accounts"
 verbose_name = "Пользователи ParkShare"
 
-# File 27/213: accounts\auth.py
+# File 27/214: accounts\auth.py
 ################################################################################
 
 # accounts/auth.py
@@ -2872,7 +2873,7 @@ return None
 except User.MultipleObjectsReturned:
 return _get_first_or_none(qs.filter(phone_hash=phone_hash).order_by("date_joined"))
 
-# File 28/213: accounts\forms.py
+# File 28/214: accounts\forms.py
 ################################################################################
 
 # accounts/forms.py
@@ -2997,7 +2998,7 @@ if commit:
 user.save()
 return user
 
-# File 29/213: accounts\models.py
+# File 29/214: accounts\models.py
 ################################################################################
 
 # accounts/models.py
@@ -3203,7 +3204,7 @@ verbose_name_plural = "Промо/бонусы"
 def __str__(self) -> str:
 return self.code
 
-# File 30/213: accounts\serializers.py
+# File 30/214: accounts\serializers.py
 ################################################################################
 
 # accounts/serializers.py
@@ -3437,7 +3438,7 @@ choices=LoginCode.Purpose.choices,
 default=LoginCode.Purpose.LOGIN,
 )
 
-# File 31/213: accounts\urls.py
+# File 31/214: accounts\urls.py
 ################################################################################
 
 # accounts/urls.py
@@ -3502,7 +3503,7 @@ name="password_reset_complete",
 ),
 ]
 
-# File 32/213: accounts\utils.py
+# File 32/214: accounts\utils.py
 ################################################################################
 
 from __future__ import annotations
@@ -3547,7 +3548,7 @@ if not normalized:
 return ""
 return _hash_value("phone", normalized)
 
-# File 33/213: accounts\views.py
+# File 33/214: accounts\views.py
 ################################################################################
 
 # accounts/views.py
@@ -3862,7 +3863,7 @@ return Response(
 status=status.HTTP_200_OK,
 )
 
-# File 34/213: accounts\migrations\0001_initial.py
+# File 34/214: accounts\migrations\0001_initial.py
 ################################################################################
 
 # Generated by Django 5.2.8 on 2025-11-21 21:34
@@ -3909,7 +3910,7 @@ managers=[
 ),
 ]
 
-# File 35/213: accounts\migrations\0002_user_email_hash_user_phone_hash_logincode.py
+# File 35/214: accounts\migrations\0002_user_email_hash_user_phone_hash_logincode.py
 ################################################################################
 
 # Generated by Django 5.2.8 on 2025-11-23 15:00
@@ -3953,7 +3954,7 @@ options={
 ),
 ]
 
-# File 36/213: accounts\migrations\0003_userlevel_userbadge_promoreward.py
+# File 36/214: accounts\migrations\0003_userlevel_userbadge_promoreward.py
 ################################################################################
 
 import uuid
@@ -4016,17 +4017,17 @@ options={
 ),
 ]
 
-# File 37/213: accounts\migrations\__init__.py
+# File 37/214: accounts\migrations\__init__.py
 ################################################################################
 
 
 
-# File 38/213: ai\__init__.py
+# File 38/214: ai\__init__.py
 ################################################################################
 
 default_app_config = "ai.apps.AiConfig"
 
-# File 39/213: ai\admin.py
+# File 39/214: ai\admin.py
 ################################################################################
 
 from django.contrib import admin
@@ -4053,7 +4054,7 @@ class ChatFeedbackAdmin(admin.ModelAdmin):
 list_display = ("message", "rating", "created_at")
 list_filter = ("rating",)
 
-# File 40/213: ai\apps.py
+# File 40/214: ai\apps.py
 ################################################################################
 
 from django.apps import AppConfig
@@ -4064,7 +4065,7 @@ default_auto_field = "django.db.models.BigAutoField"
 name = "ai"
 verbose_name = "AI и рекомендации ParkShare"
 
-# File 41/213: ai\features.py
+# File 41/214: ai\features.py
 ################################################################################
 
 from __future__ import annotations
@@ -4103,7 +4104,7 @@ df = pd.DataFrame(rows)
 df["is_weekend"] = df["dow"] >= 5
 return df
 
-# File 42/213: ai\models.py
+# File 42/214: ai\models.py
 ################################################################################
 
 # ai/models.py
@@ -4224,7 +4225,7 @@ ordering = ("-created_at",)
 def __str__(self) -> str:
 return f"Feedback({self.rating})"
 
-# File 43/213: ai\orchestrator.py
+# File 43/214: ai\orchestrator.py
 ################################################################################
 
 from __future__ import annotations
@@ -4275,7 +4276,7 @@ booking.ai_snapshot = {
 "availability": forecast,
 }
 
-# File 44/213: ai\pricing.py
+# File 44/214: ai\pricing.py
 ################################################################################
 
 from __future__ import annotations
@@ -4369,12 +4370,12 @@ return {
 "reason": reason,
 }
 
-# File 45/213: ai\serializers.py
+# File 45/214: ai\serializers.py
 ################################################################################
 
 
 
-# File 46/213: ai\tasks.py
+# File 46/214: ai\tasks.py
 ################################################################################
 
 from __future__ import annotations
@@ -4436,7 +4437,7 @@ values = [max(0.0, min(s.occupancy_7d, 1.0)) for s in spots]
 lot.stress_index = sum(values) / len(values)
 lot.save(update_fields=["stress_index"])
 
-# File 47/213: ai\views.py
+# File 47/214: ai\views.py
 ################################################################################
 
 # backend/ai/views.py
@@ -4822,14 +4823,14 @@ data = {
 }
 return Response(data, status=status.HTTP_200_OK)
 
-# File 48/213: ai\chat\__init__.py
+# File 48/214: ai\chat\__init__.py
 ################################################################################
 
 """Chat helpers for local parking assistant."""
 from .parking_assistant import generate_chat_reply
 __all__ = ["generate_chat_reply"]
 
-# File 49/213: ai\chat\parking_assistant.py
+# File 49/214: ai\chat\parking_assistant.py
 ################################################################################
 
 """
@@ -5169,17 +5170,17 @@ response["reply"] = (
 )
 return response
 
-# File 50/213: ai\management\__init__.py
+# File 50/214: ai\management\__init__.py
 ################################################################################
 
 
 
-# File 51/213: ai\management\commands\__init__.py
+# File 51/214: ai\management\commands\__init__.py
 ################################################################################
 
 
 
-# File 52/213: ai\management\commands\train_chat_intents_from_logs.py
+# File 52/214: ai\management\commands\train_chat_intents_from_logs.py
 ################################################################################
 
 from django.core.management.base import BaseCommand
@@ -5196,7 +5197,7 @@ self.stdout.write(f"Сообщений пользователей: {user_message
 # TODO: выгружать диалоги и обучать намерения
 self.stdout.write("Подготовка к обучению завершена (заглушка).")
 
-# File 53/213: ai\migrations\0001_initial.py
+# File 53/214: ai\migrations\0001_initial.py
 ################################################################################
 
 # Generated manually to include initial AI models
@@ -5295,12 +5296,12 @@ options={
 ),
 ]
 
-# File 54/213: ai\migrations\__init__.py
+# File 54/214: ai\migrations\__init__.py
 ################################################################################
 
 
 
-# File 55/213: ai_services\__init__.py
+# File 55/214: ai_services\__init__.py
 ################################################################################
 
 """
@@ -5310,14 +5311,14 @@ AI microservices for ParkShare / ParkShare RU.
 - cv_service: Computer Vision (распознавание номеров, заполненность и т.д.).
 """
 
-# File 56/213: ai_services\ai_pricing_service\__init__.py
+# File 56/214: ai_services\ai_pricing_service\__init__.py
 ################################################################################
 
 """
 AI Pricing microservice (FastAPI) for dynamic parking spot pricing.
 """
 
-# File 57/213: ai_services\ai_pricing_service\main.py
+# File 57/214: ai_services\ai_pricing_service\main.py
 ################################################################################
 
 from __future__ import annotations
@@ -5470,7 +5471,7 @@ is_discount=is_discount,
 reason=reason,
 )
 
-# File 58/213: ai_services\cv_service\__init__.py
+# File 58/214: ai_services\cv_service\__init__.py
 ################################################################################
 
 """
@@ -5479,7 +5480,7 @@ Computer Vision microservice (FastAPI) for ParkShare:
 - оценка заполненности парковок по кадрам камер.
 """
 
-# File 59/213: ai_services\cv_service\main.py
+# File 59/214: ai_services\cv_service\main.py
 ################################################################################
 
 from __future__ import annotations
@@ -5584,7 +5585,7 @@ occupancy_rate=round(occupancy_rate, 3),
 timestamp=datetime.now(timezone.utc),
 )
 
-# File 60/213: backend\__init__.py
+# File 60/214: backend\__init__.py
 ################################################################################
 
 """
@@ -5597,7 +5598,7 @@ location without raising errors when __file__ is missing.
 from backend.backend.config.celery import app as celery_app
 __all__ = ("celery_app",)
 
-# File 61/213: backend\manage.py
+# File 61/214: backend\manage.py
 ################################################################################
 
 #!/usr/bin/env python
@@ -5634,13 +5635,13 @@ execute_from_command_line(sys.argv)
 if __name__ == "__main__":
 main()
 
-# File 62/213: backend\backend\__init__.py
+# File 62/214: backend\backend\__init__.py
 ################################################################################
 
 from .config.celery import app as celery_app
 __all__ = ("celery_app",)
 
-# File 63/213: backend\backend\config\__init__.py
+# File 63/214: backend\backend\config\__init__.py
 ################################################################################
 
 """Django config package for ASGI/WSGI and Celery app exposure."""
@@ -5651,7 +5652,7 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "backend.backend.settings.local"
 from .celery import app as celery_app
 __all__ = ("celery_app",)
 
-# File 64/213: backend\backend\config\asgi.py
+# File 64/214: backend\backend\config\asgi.py
 ################################################################################
 
 import os
@@ -5664,7 +5665,7 @@ raise RuntimeError(
 )
 application = get_asgi_application()
 
-# File 65/213: backend\backend\config\celery.py
+# File 65/214: backend\backend\config\celery.py
 ################################################################################
 
 # backend/backend/config/celery.py
@@ -5686,7 +5687,7 @@ app.autodiscover_tasks()
 def debug_task(self) -> None:
 print(f"Debug task: Request: {self.request!r}")
 
-# File 66/213: backend\backend\config\urls.py
+# File 66/214: backend\backend\config\urls.py
 ################################################################################
 
 from django.conf import settings
@@ -5822,7 +5823,7 @@ if settings.DEBUG:
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
-# File 67/213: backend\backend\config\wsgi.py
+# File 67/214: backend\backend\config\wsgi.py
 ################################################################################
 
 import os
@@ -5835,7 +5836,7 @@ raise RuntimeError(
 )
 application = get_wsgi_application()
 
-# File 68/213: backend\backend\settings\__init__.py
+# File 68/214: backend\backend\settings\__init__.py
 ################################################################################
 
 """
@@ -5848,7 +5849,7 @@ application = get_wsgi_application()
 Это согласовано с проверками в backend.backend.config.wsgi / asgi / celery.
 """
 
-# File 69/213: backend\backend\settings\base.py
+# File 69/214: backend\backend\settings\base.py
 ################################################################################
 
 import os
@@ -6154,6 +6155,19 @@ default=(
 "form-action 'self';"
 ),
 )
+if DEBUG:
+X_FRAME_OPTIONS = "SAMEORIGIN"
+CONTENT_SECURITY_POLICY = (
+"default-src 'self'; "
+"script-src 'self' 'unsafe-inline' https:; "
+"style-src 'self' 'unsafe-inline' https:; "
+"img-src 'self' data: https:; "
+"connect-src 'self' https: http:
+"font-src 'self' https: data:; "
+"frame-src 'self' http:
+"frame-ancestors 'self'; "
+"form-action 'self';"
+)
 REFERRER_POLICY = env("REFERRER_POLICY", default="strict-origin-when-cross-origin")
 PERMISSIONS_POLICY = env(
 "PERMISSIONS_POLICY",
@@ -6212,7 +6226,7 @@ CACHES = {
 }
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# File 70/213: backend\backend\settings\local.py
+# File 70/214: backend\backend\settings\local.py
 ################################################################################
 
 from .base import *
@@ -6224,7 +6238,7 @@ SECURE_SSL_REDIRECT = False
 SESSION_COOKIE_SECURE = False
 CSRF_COOKIE_SECURE = False
 
-# File 71/213: backend\backend\settings\production.py
+# File 71/214: backend\backend\settings\production.py
 ################################################################################
 
 from django.core.exceptions import ImproperlyConfigured
@@ -6244,7 +6258,7 @@ SECURE_HSTS_SECONDS = env.int("SECURE_HSTS_SECONDS", default=60 * 60 * 24)
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 SECURE_HSTS_PRELOAD = True
 
-# File 72/213: backend\backend\settings\regions.py
+# File 72/214: backend\backend\settings\regions.py
 ################################################################################
 
 from __future__ import annotations
@@ -6329,12 +6343,12 @@ REGION_PROFILES = {
 },
 }
 
-# File 73/213: backend\rest_framework_simplejwt\__init__.py
+# File 73/214: backend\rest_framework_simplejwt\__init__.py
 ################################################################################
 
 """Stub for rest_framework_simplejwt to allow offline checks."""
 
-# File 74/213: backend\rest_framework_simplejwt\authentication.py
+# File 74/214: backend\rest_framework_simplejwt\authentication.py
 ################################################################################
 
 from rest_framework.authentication import BaseAuthentication
@@ -6342,7 +6356,7 @@ class JWTAuthentication(BaseAuthentication):
 def authenticate(self, request):
 return None
 
-# File 75/213: backend\rest_framework_simplejwt\tokens.py
+# File 75/214: backend\rest_framework_simplejwt\tokens.py
 ################################################################################
 
 class RefreshToken:
@@ -6355,7 +6369,7 @@ return "stub-token"
 def access_token(self):
 return "stub-access"
 
-# File 76/213: backend\rest_framework_simplejwt\views.py
+# File 76/214: backend\rest_framework_simplejwt\views.py
 ################################################################################
 
 from rest_framework.response import Response
@@ -6369,12 +6383,12 @@ return Response({"access": "stub"})
 class TokenRefreshSlidingView(TokenRefreshView):
 pass
 
-# File 77/213: backend\tests\__init__.py
+# File 77/214: backend\tests\__init__.py
 ################################################################################
 
 # Пакет с базовыми тестами проекта ParkShare RU.
 
-# File 78/213: backend\tests\test_auth_api.py
+# File 78/214: backend\tests\test_auth_api.py
 ################################################################################
 
 from django.test import TestCase
@@ -6422,7 +6436,7 @@ format="json",
 )
 self.assertEqual(resp.status_code, 200)
 
-# File 79/213: backend\tests\test_booking_model.py
+# File 79/214: backend\tests\test_booking_model.py
 ################################################################################
 
 from datetime import timedelta
@@ -6497,17 +6511,17 @@ existing.end_at + timedelta(hours=1),
 )
 )
 
-# File 80/213: core\__init__.py
+# File 80/214: core\__init__.py
 ################################################################################
 
 
 
-# File 81/213: core\admin.py
+# File 81/214: core\admin.py
 ################################################################################
 
 
 
-# File 82/213: core\apps.py
+# File 82/214: core\apps.py
 ################################################################################
 
 # core/apps.py
@@ -6517,7 +6531,7 @@ default_auto_field = "django.db.models.BigAutoField"
 name = "core"
 verbose_name = "Ядро ParkShare"
 
-# File 83/213: core\context_processors.py
+# File 83/214: core\context_processors.py
 ################################################################################
 
 # core/context_processors.py
@@ -6543,7 +6557,7 @@ settings,
 "MAP_DEFAULT_ZOOM": getattr(settings, "MAP_DEFAULT_ZOOM", 11),
 }
 
-# File 84/213: core\integrations.py
+# File 84/214: core\integrations.py
 ################################################################################
 
 """core/integrations.py
@@ -6658,7 +6672,7 @@ if settings.PLATFORM_MODE == "GLOBAL":
 return GLOBAL_INTEGRATIONS
 return RU_INTEGRATIONS
 
-# File 85/213: core\middleware.py
+# File 85/214: core\middleware.py
 ################################################################################
 
 from __future__ import annotations
@@ -6684,7 +6698,9 @@ csp = getattr(settings, "CONTENT_SECURITY_POLICY", None)
 if csp:
 response.setdefault("Content-Security-Policy", csp)
 # X-Frame-Options
-response.setdefault("X-Frame-Options", "DENY")
+frame_option = getattr(settings, "X_FRAME_OPTIONS", "DENY")
+if frame_option:
+response.setdefault("X-Frame-Options", frame_option)
 # X-Content-Type-Options
 response.setdefault("X-Content-Type-Options", "nosniff")
 # Referrer-Policy
@@ -6760,7 +6776,7 @@ current = int(self.cache.get(cache_key) or 0) + 1
 self.cache.set(cache_key, current, timeout=self.window)
 return current > self.limit
 
-# File 86/213: core\models.py
+# File 86/214: core\models.py
 ################################################################################
 
 # backend/core/models.py
@@ -6787,7 +6803,7 @@ class TimeStampedUUIDModel(TimeStampedModel, UUIDModel):
 class Meta:
 abstract = True
 
-# File 87/213: core\pagination.py
+# File 87/214: core\pagination.py
 ################################################################################
 
 # core/pagination.py
@@ -6803,7 +6819,7 @@ page_size = settings.REST_FRAMEWORK.get("PAGE_SIZE", 20)
 page_size_query_param = "page_size"
 max_page_size = 100
 
-# File 88/213: core\permissions.py
+# File 88/214: core\permissions.py
 ################################################################################
 
 # core/permissions.py
@@ -6857,7 +6873,7 @@ return True
 owner = getattr(obj, "owner", None)
 return owner == user
 
-# File 89/213: core\utils.py
+# File 89/214: core\utils.py
 ################################################################################
 
 # backend/core/utils.py
@@ -6962,18 +6978,18 @@ scaled = (v / step_dec).quantize(Decimal("1"), rounding=ROUND_HALF_UP)
 result = scaled * step_dec
 return float(result)
 
-# File 90/213: drf_spectacular\__init__.py
+# File 90/214: drf_spectacular\__init__.py
 ################################################################################
 
 """Локальный заглушечный пакет drf_spectacular для офлайн-среды."""
 
-# File 91/213: drf_spectacular\openapi.py
+# File 91/214: drf_spectacular\openapi.py
 ################################################################################
 
 from rest_framework.schemas.openapi import AutoSchema
 __all__ = ["AutoSchema"]
 
-# File 92/213: drf_spectacular\views.py
+# File 92/214: drf_spectacular\views.py
 ################################################################################
 
 from rest_framework.response import Response
@@ -6995,7 +7011,7 @@ __all__ = [
 "SpectacularRedocView",
 ]
 
-# File 93/213: frontend\next-app\.env.local
+# File 93/214: frontend\next-app\.env.local
 ################################################################################
 
 # базовый адрес фронтенда в dev
@@ -7013,7 +7029,7 @@ OPENAI_API_KEY=sk-proj-KfKNljnWYNrqU96WiLCwJnYhtWW1izpRX_YV6-NI-iLu3mVUIInlU0yKA
 AI_MODEL=gpt-4o
 
 
-# File 94/213: frontend\next-app\.eslintrc.json
+# File 94/214: frontend\next-app\.eslintrc.json
 ################################################################################
 
 {
@@ -7021,7 +7037,7 @@ AI_MODEL=gpt-4o
 }
 
 
-# File 95/213: frontend\next-app\Dockerfile
+# File 95/214: frontend\next-app\Dockerfile
 ################################################################################
 
 # Multi-stage build for the Next.js AI Concierge
@@ -7054,7 +7070,7 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=20s CMD wget --quiet --sp
 CMD ["npm", "start"]
 
 
-# File 96/213: frontend\next-app\jest.config.js
+# File 96/214: frontend\next-app\jest.config.js
 ################################################################################
 
 const nextJest = require('next/jest');
@@ -7073,7 +7089,7 @@ transformIgnorePatterns: ['node_modules/(?!(nanoid)/)']
 };
 module.exports = createJestConfig(customJestConfig);
 
-# File 97/213: frontend\next-app\jest.setup.ts
+# File 97/214: frontend\next-app\jest.setup.ts
 ################################################################################
 
 import '@testing-library/jest-dom';
@@ -7108,12 +7124,12 @@ global.Response = Response;
 }
 }
 
-# File 98/213: frontend\next-app\next-env.d.ts
+# File 98/214: frontend\next-app\next-env.d.ts
 ################################################################################
 
 
 
-# File 99/213: frontend\next-app\next.config.mjs
+# File 99/214: frontend\next-app\next.config.mjs
 ################################################################################
 
 /** @type {import('next').NextConfig} */
@@ -7133,6 +7149,7 @@ const nextConfig = {
     ]
   },
   async headers() {
+    const isDev = process.env.NODE_ENV !== 'production';
     const csp = [
       "default-src 'self'",
       // Next.js injects small inline hydration/runtime scripts; keep inline until moved to a nonce-based policy.
@@ -7155,10 +7172,14 @@ const nextConfig = {
         key: 'Content-Security-Policy',
         value: csp
       },
-      {
-        key: 'X-Frame-Options',
-        value: 'DENY'
-      },
+      ...(!isDev
+        ? [
+            {
+              key: 'X-Frame-Options',
+              value: 'DENY'
+            }
+          ]
+        : []),
       {
         key: 'X-Content-Type-Options',
         value: 'nosniff'
@@ -7189,7 +7210,7 @@ const nextConfig = {
 export default nextConfig;
 
 
-# File 100/213: frontend\next-app\package.json
+# File 100/214: frontend\next-app\package.json
 ################################################################################
 
 {
@@ -7239,7 +7260,7 @@ export default nextConfig;
 }
 
 
-# File 101/213: frontend\next-app\postcss.config.js
+# File 101/214: frontend\next-app\postcss.config.js
 ################################################################################
 
 module.exports = {
@@ -7249,7 +7270,7 @@ autoprefixer: {}
 }
 };
 
-# File 102/213: frontend\next-app\tailwind.config.ts
+# File 102/214: frontend\next-app\tailwind.config.ts
 ################################################################################
 
 import type { Config } from 'tailwindcss';
@@ -7272,7 +7293,7 @@ plugins: []
 };
 export default config;
 
-# File 103/213: frontend\next-app\tsconfig.json
+# File 103/214: frontend\next-app\tsconfig.json
 ################################################################################
 
 {
@@ -7319,7 +7340,7 @@ export default config;
 }
 
 
-# File 104/213: frontend\next-app\app\globals.css
+# File 104/214: frontend\next-app\app\globals.css
 ################################################################################
 
 @tailwind base;
@@ -7344,7 +7365,7 @@ button {
 @apply rounded-lg px-4 py-2 text-sm font-medium;
 }
 
-# File 105/213: frontend\next-app\app\layout.tsx
+# File 105/214: frontend\next-app\app\layout.tsx
 ################################################################################
 
 import './globals.css';
@@ -7359,7 +7380,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
 }
 
 
-# File 106/213: frontend\next-app\app\(site)\layout.tsx
+# File 106/214: frontend\next-app\app\(site)\layout.tsx
 ################################################################################
 
 import { Providers } from '@/components/providers';
@@ -7381,7 +7402,7 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
 }
 
 
-# File 107/213: frontend\next-app\app\(site)\page.tsx
+# File 107/214: frontend\next-app\app\(site)\page.tsx
 ################################################################################
 
 import { ChatPanel } from '@/components/chat/chat-panel';
@@ -7407,7 +7428,7 @@ export default function HomePage() {
 }
 
 
-# File 108/213: frontend\next-app\app\api\chat\route.ts
+# File 108/214: frontend\next-app\app\api\chat\route.ts
 ################################################################################
 
 import { streamChatResponse } from '@/lib/aiProvider';
@@ -7428,22 +7449,26 @@ headers: { "Content-Type": "text/plain; charset=utf-8" }
 });
 }
 
-# File 109/213: frontend\next-app\app\embed\page.tsx
+# File 109/214: frontend\next-app\app\embed\page.tsx
 ################################################################################
 
-import { ChatPanel } from '@/components/chat/chat-panel';
+import { CompactChatPanel } from '@/components/chat/compact-chat-panel';
+
+export const metadata = {
+  title: 'AI Concierge – Embed'
+};
 
 export default function EmbedPage() {
   return (
-    <main className="min-h-screen bg-slate-50 dark:bg-slate-900 flex justify-center items-start p-4">
-      <div className="w-full max-w-4xl">
-        <ChatPanel />
+    <main className="min-h-screen bg-slate-950 flex items-center justify-center p-2">
+      <div className="w-full max-w-md h-[80vh] rounded-3xl bg-slate-900/90 shadow-2xl border border-slate-700/80 overflow-hidden">
+        <CompactChatPanel />
       </div>
     </main>
   );
 }
 
-# File 110/213: frontend\next-app\components\header.tsx
+# File 110/214: frontend\next-app\components\header.tsx
 ################################################################################
 
 'use client';
@@ -7476,7 +7501,7 @@ export function Header() {
 }
 
 
-# File 111/213: frontend\next-app\components\providers.tsx
+# File 111/214: frontend\next-app\components\providers.tsx
 ################################################################################
 
 'use client';
@@ -7490,7 +7515,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
 }
 
 
-# File 112/213: frontend\next-app\components\theme-provider.tsx
+# File 112/214: frontend\next-app\components\theme-provider.tsx
 ################################################################################
 
 'use client';
@@ -7546,7 +7571,7 @@ export function useTheme() {
 }
 
 
-# File 113/213: frontend\next-app\components\theme-toggle.tsx
+# File 113/214: frontend\next-app\components\theme-toggle.tsx
 ################################################################################
 
 'use client';
@@ -7571,7 +7596,7 @@ export function ThemeToggle() {
 }
 
 
-# File 114/213: frontend\next-app\components\chat\chat-panel.tsx
+# File 114/214: frontend\next-app\components\chat\chat-panel.tsx
 ################################################################################
 
 'use client';
@@ -7938,7 +7963,21 @@ const MessageBubble = React.memo(function MessageBubble({
 });
 
 
-# File 115/213: frontend\next-app\components\chat\conversation-list.tsx
+# File 115/214: frontend\next-app\components\chat\compact-chat-panel.tsx
+################################################################################
+
+'use client';
+
+import { ChatPanel } from './chat-panel';
+
+export function CompactChatPanel() {
+  // На будущее сюда можно будет передать пропсы для "урезанного" вида,
+  // сейчас просто используем существующую панель.
+  return <ChatPanel />;
+}
+
+
+# File 116/214: frontend\next-app\components\chat\conversation-list.tsx
 ################################################################################
 
 'use client';
@@ -8053,7 +8092,7 @@ export function ConversationList({ conversations, activeId, onSelect, onCreate, 
 }
 
 
-# File 116/213: frontend\next-app\components\chat\markdown-message.tsx
+# File 117/214: frontend\next-app\components\chat\markdown-message.tsx
 ################################################################################
 
 'use client';
@@ -8080,7 +8119,7 @@ export default function MarkdownMessage({ content }: Props) {
 }
 
 
-# File 117/213: frontend\next-app\components\chat\suggested-prompts.tsx
+# File 118/214: frontend\next-app\components\chat\suggested-prompts.tsx
 ################################################################################
 
 'use client';
@@ -8115,7 +8154,7 @@ export function SuggestedPrompts({ onSelect }: SuggestedPromptsProps) {
 }
 
 
-# File 118/213: frontend\next-app\components\chat\types.ts
+# File 119/214: frontend\next-app\components\chat\types.ts
 ################################################################################
 
 import { ChatMessage } from '@/lib/aiProvider';
@@ -8130,7 +8169,7 @@ messages: MessageWithId[];
 updatedAt: number;
 }
 
-# File 119/213: frontend\next-app\components\pwa\register-service-worker.tsx
+# File 120/214: frontend\next-app\components\pwa\register-service-worker.tsx
 ################################################################################
 
 'use client';
@@ -8173,7 +8212,7 @@ export function ServiceWorkerRegistrar() {
 }
 
 
-# File 120/213: frontend\next-app\components\widget\chat-widget.tsx
+# File 121/214: frontend\next-app\components\widget\chat-widget.tsx
 ################################################################################
 
 'use client';
@@ -8210,7 +8249,7 @@ export function ChatWidget() {
 }
 
 
-# File 121/213: frontend\next-app\lib\aiProvider.ts
+# File 122/214: frontend\next-app\lib\aiProvider.ts
 ################################################################################
 
 export type ChatMessage = {
@@ -8280,7 +8319,7 @@ console.error('Failed to parse AI chunk', error);
 });
 }
 
-# File 122/213: frontend\next-app\lib\chatClient.ts
+# File 123/214: frontend\next-app\lib\chatClient.ts
 ################################################################################
 
 import { ChatMessage } from './aiProvider';
@@ -8310,7 +8349,7 @@ options.onChunk?.(textChunk);
 }
 }
 
-# File 123/213: frontend\next-app\public\manifest.webmanifest
+# File 124/214: frontend\next-app\public\manifest.webmanifest
 ################################################################################
 
 {
@@ -8335,7 +8374,7 @@ options.onChunk?.(textChunk);
 }
 
 
-# File 124/213: frontend\next-app\public\offline.html
+# File 125/214: frontend\next-app\public\offline.html
 ################################################################################
 
 <!DOCTYPE html>
@@ -8399,7 +8438,7 @@ color:
 </body>
 </html>
 
-# File 125/213: frontend\next-app\public\service-worker.js
+# File 126/214: frontend\next-app\public\service-worker.js
 ################################################################################
 
 const CACHE_NAME = 'ps-concierge-v1';
@@ -8459,7 +8498,7 @@ return response;
 }
 });
 
-# File 126/213: frontend\next-app\__tests__\chat-client.test.ts
+# File 127/214: frontend\next-app\__tests__\chat-client.test.ts
 ################################################################################
 
 import { streamChatFromApi } from '@/lib/chatClient';
@@ -8507,7 +8546,7 @@ await expect(streamChatFromApi([{ role: 'user', content: 'test' }], { fetcher: m
 });
 });
 
-# File 127/213: frontend\next-app\__tests__\conversation-list.test.tsx
+# File 128/214: frontend\next-app\__tests__\conversation-list.test.tsx
 ################################################################################
 
 import { render, screen } from '@testing-library/react';
@@ -8577,7 +8616,7 @@ describe('ConversationList', () => {
 });
 
 
-# File 128/213: frontend\parkmate\parkmate.types.ts
+# File 129/214: frontend\parkmate\parkmate.types.ts
 ################################################################################
 
 export interface ParkMateAI {
@@ -8619,7 +8658,7 @@ availability: "/api/ai/predict/availability/",
 },
 };
 
-# File 129/213: nginx\nginx.conf
+# File 130/214: nginx\nginx.conf
 ################################################################################
 
 user  nginx;
@@ -8696,13 +8735,13 @@ http {
 }
 
 
-# File 130/213: parking\__init__.py
+# File 131/214: parking\__init__.py
 ################################################################################
 
 # backend/parking/__init__.py
 default_app_config = "parking.apps.ParkingConfig"
 
-# File 131/213: parking\admin.py
+# File 132/214: parking\admin.py
 ################################################################################
 
 # backend/parking/admin.py
@@ -8763,7 +8802,7 @@ list_filter = ("category", "status", "created_at")
 search_fields = ("author__username", "description")
 autocomplete_fields = ("author", "booking", "spot")
 
-# File 132/213: parking\apps.py
+# File 133/214: parking\apps.py
 ################################################################################
 
 # backend/parking/apps.py
@@ -8773,7 +8812,7 @@ default_auto_field = "django.db.models.BigAutoField"
 name = "parking"
 verbose_name = "Парковки и бронирования"
 
-# File 133/213: parking\models.py
+# File 134/214: parking\models.py
 ################################################################################
 
 # backend/parking/models.py
@@ -9304,7 +9343,7 @@ ordering = ("-created_at",)
 def __str__(self) -> str:
 return f"{self.user or 'guest'} {self.endpoint[:32]}"
 
-# File 134/213: parking\push.py
+# File 135/214: parking\push.py
 ################################################################################
 
 """Lightweight push notification service wrapper.
@@ -9357,7 +9396,7 @@ logger.warning("Push delivery failed, dropping subscription %s: %s", sub.id, exc
 sub.delete()
 return delivered
 
-# File 135/213: parking\serializers.py
+# File 136/214: parking\serializers.py
 ################################################################################
 
 from __future__ import annotations
@@ -9721,7 +9760,7 @@ if request.user.is_authenticated:
 validated_data.setdefault("user", request.user)
 return super().create(validated_data)
 
-# File 136/213: parking\tasks.py
+# File 137/214: parking\tasks.py
 ################################################################################
 
 # backend/parking/tasks.py
@@ -9750,7 +9789,7 @@ booking.status = Booking.Status.EXPIRED
 booking.save(update_fields=["status"])
 return f"Expired {count} unpaid bookings"
 
-# File 137/213: parking\urls.py
+# File 138/214: parking\urls.py
 ################################################################################
 
 # backend/parking/urls.py
@@ -9760,7 +9799,7 @@ urlpatterns: list = [
 # На данный момент все HTML‑страницы подключаются напрямую из config.urls.
 ]
 
-# File 138/213: parking\views.py
+# File 139/214: parking\views.py
 ################################################################################
 
 from __future__ import annotations
@@ -10235,7 +10274,7 @@ payload = {"results": results}
 cache.set(cache_key, payload, 60 * 10)
 return Response(payload)
 
-# File 139/213: parking\management\commands\seed_demo_parking.py
+# File 140/214: parking\management\commands\seed_demo_parking.py
 ################################################################################
 
 # parking/management/commands/seed_demo_parking.py
@@ -10367,7 +10406,7 @@ f"(создано за этот запуск {created_count})."
 )
 self.stdout.write(self.style.SUCCESS("seed_demo_parking: демо-данные готовы."))
 
-# File 140/213: parking\migrations\0001_initial.py
+# File 141/214: parking\migrations\0001_initial.py
 ################################################################################
 
 # Generated by Django 5.2.8 on 2025-11-21 21:34
@@ -10503,7 +10542,7 @@ options={
 ),
 ]
 
-# File 141/213: parking\migrations\0002_parkinglot_stress_index_parkingspot_occupancy_7d.py
+# File 142/214: parking\migrations\0002_parkinglot_stress_index_parkingspot_occupancy_7d.py
 ################################################################################
 
 # Generated by Django 5.2.8 on 2025-11-22 11:21
@@ -10525,7 +10564,7 @@ field=models.FloatField(default=0.0, help_text='Доля времени, ког�
 ),
 ]
 
-# File 142/213: parking\migrations\0003_booking_ai_fields.py
+# File 143/214: parking\migrations\0003_booking_ai_fields.py
 ################################################################################
 
 from django.db import migrations, models
@@ -10546,7 +10585,7 @@ field=models.BooleanField(default=False, verbose_name="Динамическое 
 ),
 ]
 
-# File 143/213: parking\migrations\0004_favoriteparkingspot_savedplace.py
+# File 144/214: parking\migrations\0004_favoriteparkingspot_savedplace.py
 ################################################################################
 
 from django.conf import settings
@@ -10596,7 +10635,7 @@ options={
 ),
 ]
 
-# File 144/213: parking\migrations\0005_pushsubscription.py
+# File 145/214: parking\migrations\0005_pushsubscription.py
 ################################################################################
 
 # Generated by Django 5.2.8 on 2025-12-06 10:47
@@ -10655,17 +10694,17 @@ options={
 ),
 ]
 
-# File 145/213: parking\migrations\__init__.py
+# File 146/214: parking\migrations\__init__.py
 ################################################################################
 
 
 
-# File 146/213: parking\tests\__init__.py
+# File 147/214: parking\tests\__init__.py
 ################################################################################
 
 
 
-# File 147/213: parking\tests\test_pwa_endpoints.py
+# File 148/214: parking\tests\test_pwa_endpoints.py
 ################################################################################
 
 import os
@@ -10702,12 +10741,12 @@ resp = self.client.post(url, payload, format='json')
 self.assertEqual(resp.status_code, 201)
 self.assertEqual(resp.data['endpoint'], payload['endpoint'])
 
-# File 148/213: payments\__init__.py
+# File 149/214: payments\__init__.py
 ################################################################################
 
 default_app_config = "payments.apps.PaymentsConfig"
 
-# File 149/213: payments\admin.py
+# File 150/214: payments\admin.py
 ################################################################################
 
 from django.contrib import admin
@@ -10737,7 +10776,7 @@ list_filter = (
 search_fields = ("provider_payment_id", "booking__id", "payer__username")
 autocomplete_fields = ("booking", "payer")
 
-# File 150/213: payments\apps.py
+# File 151/214: payments\apps.py
 ################################################################################
 
 from django.apps import AppConfig
@@ -10746,7 +10785,7 @@ default_auto_field = "django.db.models.BigAutoField"
 name = "payments"
 verbose_name = "Платежи"
 
-# File 151/213: payments\models.py
+# File 152/214: payments\models.py
 ################################################################################
 
 from __future__ import annotations
@@ -10952,7 +10991,7 @@ pk=self.pk
 ).update(is_default=False)
 return super().save(*args, **kwargs)
 
-# File 152/213: payments\providers.py
+# File 153/214: payments\providers.py
 ################################################################################
 
 from __future__ import annotations
@@ -11039,7 +11078,7 @@ raw_response = {
 }
 return payment_url, provider_payment_id, raw_response
 
-# File 153/213: payments\serializers.py
+# File 154/214: payments\serializers.py
 ################################################################################
 
 # payments/serializers.py
@@ -11190,7 +11229,7 @@ if request and request.user.is_authenticated:
 validated_data["user"] = request.user
 return super().create(validated_data)
 
-# File 154/213: payments\tasks.py
+# File 155/214: payments\tasks.py
 ################################################################################
 
 from __future__ import annotations
@@ -11208,7 +11247,7 @@ def check_stale_payments() -> str:
 pending_count = Payment.objects.filter(status=Payment.Status.PENDING).count()
 return f"Pending payments count: {pending_count}"
 
-# File 155/213: payments\views.py
+# File 156/214: payments\views.py
 ################################################################################
 
 from __future__ import annotations
@@ -11351,7 +11390,7 @@ if not payment:
 return Response({"detail": "Payment not found"}, status=status.HTTP_404_NOT_FOUND)
 return Response({"detail": "ok"}, status=status.HTTP_200_OK)
 
-# File 156/213: payments\migrations\0001_initial.py
+# File 157/214: payments\migrations\0001_initial.py
 ################################################################################
 
 # Generated by Django 5.2.8 on 2025-11-21 21:34
@@ -11391,7 +11430,7 @@ options={
 ),
 ]
 
-# File 157/213: payments\migrations\0002_alter_payment_provider.py
+# File 158/214: payments\migrations\0002_alter_payment_provider.py
 ################################################################################
 
 # Generated by Django 5.2.8 on 2025-11-23 12:00
@@ -11408,7 +11447,7 @@ field=models.CharField(choices=[('yookassa', 'YooKassa'), ('stripe', 'Stripe')],
 ),
 ]
 
-# File 158/213: payments\migrations\0003_paymentmethod.py
+# File 159/214: payments\migrations\0003_paymentmethod.py
 ################################################################################
 
 from django.conf import settings
@@ -11444,12 +11483,12 @@ options={
 ),
 ]
 
-# File 159/213: payments\migrations\__init__.py
+# File 160/214: payments\migrations\__init__.py
 ################################################################################
 
 
 
-# File 160/213: payments\providers\__init__.py
+# File 161/214: payments\providers\__init__.py
 ################################################################################
 
 # payments/providers/__init__.py
@@ -11488,7 +11527,7 @@ f"Доступные: {', '.join(sorted(_PROVIDER_REGISTRY.keys()))}"
 )
 return provider_cls()
 
-# File 161/213: payments\providers\base.py
+# File 162/214: payments\providers\base.py
 ################################################################################
 
 # payments/providers/base.py
@@ -11540,7 +11579,7 @@ raise NotImplementedError
 # ---------------------------------------------------------
 PaymentProvider = BasePaymentProvider
 
-# File 162/213: payments\providers\registry.py
+# File 163/214: payments\providers\registry.py
 ################################################################################
 
 from __future__ import annotations
@@ -11559,7 +11598,7 @@ if not provider_cls:
 raise ImproperlyConfigured(f"Unknown payment provider: {provider_key}")
 return provider_cls()
 
-# File 163/213: payments\providers\stripe.py
+# File 164/214: payments\providers\stripe.py
 ################################################################################
 
 from __future__ import annotations
@@ -11610,7 +11649,7 @@ def refund(self, payment, amount: Optional[float] = None) -> None:
 # Заглушка — Stripe refund через SDK
 return None
 
-# File 164/213: payments\providers\yookassa.py
+# File 165/214: payments\providers\yookassa.py
 ################################################################################
 
 from __future__ import annotations
@@ -11726,7 +11765,7 @@ def refund(self, payment, amount: Optional[float] = None) -> None:
 # Неполная реализация для MVP
 raise NotImplementedError("YooKassa refunds are not implemented in this stub.")
 
-# File 165/213: regions\global.yml
+# File 166/214: regions\global.yml
 ################################################################################
 
 # Базовый глобальный профиль ParkShare (по умолчанию для не-RU регионов)
@@ -11757,7 +11796,7 @@ auth:
     - "email-password"
 
 
-# File 166/213: regions\ru.yml
+# File 167/214: regions\ru.yml
 ################################################################################
 
 id: "ru"
@@ -11793,12 +11832,12 @@ pricing:
   tax_included: true
 
 
-# File 167/213: services\__init__.py
+# File 168/214: services\__init__.py
 ################################################################################
 
 
 
-# File 168/213: services\llm.py
+# File 169/214: services\llm.py
 ################################################################################
 
 # services/llm.py
@@ -11962,7 +12001,7 @@ results["endpoints"].append({"url": health_url, "error": str(exc)})
 results["ok"] = False
 return results
 
-# File 169/213: services\llm_service\Dockerfile
+# File 170/214: services\llm_service\Dockerfile
 ################################################################################
 
 FROM python:3.11-slim
@@ -11980,7 +12019,7 @@ COPY services/llm_service /app
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8002"]
 
 
-# File 170/213: services\llm_service\main.py
+# File 171/214: services\llm_service\main.py
 ################################################################################
 
 """Modern FastAPI-based LLM gateway for ParkShare.
@@ -12399,7 +12438,7 @@ if __name__ == "__main__":
 import uvicorn
 uvicorn.run(app, host=_settings.host, port=_settings.port)
 
-# File 171/213: services\llm_service\requirements.txt
+# File 172/214: services\llm_service\requirements.txt
 ################################################################################
 
 fastapi==0.115.0
@@ -12410,7 +12449,7 @@ pydantic-settings==2.8.0
 python-dotenv==1.2.1
 
 
-# File 172/213: static\manifest.webmanifest
+# File 173/214: static\manifest.webmanifest
 ################################################################################
 
 {
@@ -12473,7 +12512,7 @@ python-dotenv==1.2.1
 }
 
 
-# File 173/213: static\service-worker.js
+# File 174/214: static\service-worker.js
 ################################################################################
 
 const APP_VERSION = '2024.09.1';
@@ -12762,7 +12801,7 @@ await cache.delete(keys[0]);
 }
 }
 
-# File 174/213: static\css\app.css
+# File 175/214: static\css\app.css
 ################################################################################
 
 :root {
@@ -14792,8 +14831,97 @@ transform: translateY(0);
 border-radius: 8px;
 padding: 0.75rem 1rem;
 }
+.ai-assistant-launcher {
+position: fixed;
+right: 16px;
+bottom: 92px;
+width: 56px;
+height: 56px;
+border-radius: 999px;
+border: none;
+padding: 0;
+background: radial-gradient(circle at 30% 20%,
+box-shadow: 0 18px 45px rgba(15, 23, 42, 0.75);
+display: flex;
+align-items: center;
+justify-content: center;
+cursor: pointer;
+z-index: 2100;
+}
+.ai-assistant-launcher__glow {
+position: absolute;
+inset: 0;
+border-radius: inherit;
+background: radial-gradient(circle at 30% 20%, rgba(248, 250, 252, 0.6), transparent 60%);
+opacity: 0.9;
+}
+.ai-assistant-launcher__icon {
+position: relative;
+font-size: 22px;
+z-index: 1;
+}
+.ai-assistant-panel {
+position: fixed;
+right: 16px;
+bottom: 96px;
+width: 380px;
+max-width: calc(100% - 32px);
+height: 60vh;
+max-height: 520px;
+border-radius: 24px;
+overflow: hidden;
+background: rgba(15, 23, 42, 0.98);
+box-shadow: 0 24px 60px rgba(15, 23, 42, 0.9);
+z-index: 2200;
+opacity: 0;
+pointer-events: none;
+transform: translateY(12px);
+transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.ai-assistant-panel.is-open {
+opacity: 1;
+pointer-events: auto;
+transform: translateY(0);
+}
+.ai-assistant-panel__chrome {
+height: 44px;
+padding: 0 12px;
+display: flex;
+align-items: center;
+justify-content: space-between;
+background: linear-gradient(135deg, rgba(15, 23, 42, 0.96), rgba(15, 118, 110, 0.6));
+color:
+font-size: 13px;
+}
+.ai-assistant-panel__close {
+border: none;
+background: transparent;
+color: inherit;
+font-size: 16px;
+cursor: pointer;
+}
+.ai-assistant-frame {
+width: 100%;
+height: calc(100% - 44px);
+border: none;
+}
+@media (max-width: 768px) {
+.ai-assistant-launcher {
+right: 12px;
+bottom: 82px;
+}
+.ai-assistant-panel {
+right: 8px;
+left: 8px;
+width: auto;
+max-width: none;
+height: 65vh;
+bottom: 84px;
+border-radius: 20px;
+}
+}
 
-# File 175/213: static\css\cinematic-ui.css
+# File 176/214: static\css\cinematic-ui.css
 ################################################################################
 
 :root {
@@ -14941,7 +15069,7 @@ background: linear-gradient(135deg, rgba(59, 130, 246, 0.18), rgba(16, 185, 129,
 box-shadow: 0 18px 45px rgba(15, 23, 42, 0.5);
 }
 
-# File 176/213: static\js\app.js
+# File 177/214: static\js\app.js
 ################################################################################
 
 (function () {
@@ -15384,12 +15512,25 @@ initAdaptiveProbe();
 initGeolocation();
 initPaymentMethods();
 initBottomNav();
+const aiLauncher = document.querySelector(".ai-assistant-launcher");
+const aiPanel = document.querySelector(".ai-assistant-panel");
+const aiClose = document.querySelector(".ai-assistant-panel__close");
+if (aiLauncher && aiPanel) {
+aiLauncher.addEventListener("click", function () {
+aiPanel.classList.toggle("is-open");
+});
+}
+if (aiClose && aiPanel) {
+aiClose.addEventListener("click", function () {
+aiPanel.classList.remove("is-open");
+});
+}
 });
 window.ParkShare = window.ParkShare || {};
 window.ParkShare.showToast = showToast;
 })();
 
-# File 177/213: static\js\map.js
+# File 178/214: static\js\map.js
 ################################################################################
 
 (function () {
@@ -16012,7 +16153,7 @@ if (match && match.geometry) { var coords = match.geometry.coordinates; var latl
 });
 })();
 
-# File 178/213: static\js\parkmate-ai.ts
+# File 179/214: static\js\parkmate-ai.ts
 ################################################################################
 
 export interface ParkMateVoiceCommands {
@@ -16158,7 +16299,7 @@ stress_index: payload.stress_index,
 );
 }
 
-# File 179/213: static\js\quantum-theme-manager.js
+# File 180/214: static\js\quantum-theme-manager.js
 ################################################################################
 
 class QuantumThemeManager {
@@ -16232,7 +16373,7 @@ manager.switchTheme("dark");
 return manager;
 };
 
-# File 180/213: static\pwa\api-client.js
+# File 181/214: static\pwa\api-client.js
 ################################################################################
 
 import {
@@ -16476,7 +16617,7 @@ cacheDataset(cacheKey, payload);
 return payload;
 }
 
-# File 181/213: static\pwa\app.js
+# File 182/214: static\pwa\app.js
 ################################################################################
 
 import { getState, setConnectionStatus, setMapView, subscribe } from './state-store.js';
@@ -16565,7 +16706,7 @@ setMapView(map);
 }
 document.addEventListener('DOMContentLoaded', init);
 
-# File 182/213: static\pwa\router.js
+# File 183/214: static\pwa\router.js
 ################################################################################
 
 import { subscribe } from './state-store.js';
@@ -16609,7 +16750,7 @@ badge.hidden = false;
 });
 }
 
-# File 183/213: static\pwa\spots-view.js
+# File 184/214: static\pwa\spots-view.js
 ################################################################################
 
 import { subscribe, toggleFavorite, setMapView } from './state-store.js';
@@ -16705,7 +16846,7 @@ const hint = aiHints.get(spotId);
 return hint ? hint.score || 0 : 0;
 }
 
-# File 184/213: static\pwa\state-store.js
+# File 185/214: static\pwa\state-store.js
 ################################################################################
 
 const STORAGE_KEY = 'ps.pwa.state.v2';
@@ -16856,7 +16997,7 @@ export function setPushOptIn(optIn) {
 setState({ pushOptIn: optIn });
 }
 
-# File 185/213: static\pwa\ui-kit.js
+# File 186/214: static\pwa\ui-kit.js
 ################################################################################
 
 import { registerPushSubscription } from './api-client.js';
@@ -16960,7 +17101,7 @@ window.addEventListener('online', () => setConnectionStatus(true));
 window.addEventListener('offline', () => setConnectionStatus(false));
 }
 
-# File 186/213: templates\base.html
+# File 187/214: templates\base.html
 ################################################################################
 
 {% load static %}
@@ -17069,7 +17210,7 @@ window.addEventListener('offline', () => setConnectionStatus(false));
 </body>
 </html>
 
-# File 187/213: templates\offline.html
+# File 188/214: templates\offline.html
 ################################################################################
 
 {% extends "base.html" %}
@@ -17093,7 +17234,7 @@ window.addEventListener('offline', () => setConnectionStatus(false));
 </section>
 {% endblock %}
 
-# File 188/213: templates\accounts\login.html
+# File 189/214: templates\accounts\login.html
 ################################################################################
 
 {% extends "base.html" %}
@@ -17190,7 +17331,7 @@ panel.classList.toggle('is-active', panel.getAttribute('data-auth-panel') === ta
 </script>
 {% endblock %}
 
-# File 189/213: templates\accounts\password_change.html
+# File 190/214: templates\accounts\password_change.html
 ################################################################################
 
 {% extends "base.html" %}
@@ -17233,7 +17374,7 @@ panel.classList.toggle('is-active', panel.getAttribute('data-auth-panel') === ta
 </section>
 {% endblock %}
 
-# File 190/213: templates\accounts\password_change_done.html
+# File 191/214: templates\accounts\password_change_done.html
 ################################################################################
 
 {% extends "base.html" %}
@@ -17252,7 +17393,7 @@ panel.classList.toggle('is-active', panel.getAttribute('data-auth-panel') === ta
 </section>
 {% endblock %}
 
-# File 191/213: templates\accounts\password_reset.html
+# File 192/214: templates\accounts\password_reset.html
 ################################################################################
 
 {% extends "base.html" %}
@@ -17297,7 +17438,7 @@ panel.classList.toggle('is-active', panel.getAttribute('data-auth-panel') === ta
 </section>
 {% endblock %}
 
-# File 192/213: templates\accounts\password_reset_complete.html
+# File 193/214: templates\accounts\password_reset_complete.html
 ################################################################################
 
 {% extends "base.html" %}
@@ -17316,7 +17457,7 @@ panel.classList.toggle('is-active', panel.getAttribute('data-auth-panel') === ta
 </section>
 {% endblock %}
 
-# File 193/213: templates\accounts\password_reset_confirm.html
+# File 194/214: templates\accounts\password_reset_confirm.html
 ################################################################################
 
 {% extends "base.html" %}
@@ -17372,7 +17513,7 @@ panel.classList.toggle('is-active', panel.getAttribute('data-auth-panel') === ta
 </section>
 {% endblock %}
 
-# File 194/213: templates\accounts\password_reset_done.html
+# File 195/214: templates\accounts\password_reset_done.html
 ################################################################################
 
 {% extends "base.html" %}
@@ -17392,7 +17533,7 @@ panel.classList.toggle('is-active', panel.getAttribute('data-auth-panel') === ta
 </section>
 {% endblock %}
 
-# File 195/213: templates\accounts\password_reset_email.txt
+# File 196/214: templates\accounts\password_reset_email.txt
 ################################################################################
 
 Вы получили это письмо, потому что на сайте {{ site_name }} был запрошен сброс пароля
@@ -17405,13 +17546,13 @@ panel.classList.toggle('is-active', panel.getAttribute('data-auth-panel') === ta
 Если вы не запрашивали сброс пароля, просто проигнорируйте это письмо.
 
 
-# File 196/213: templates\accounts\password_reset_subject.txt
+# File 197/214: templates\accounts\password_reset_subject.txt
 ################################################################################
 
 Сброс пароля на ParkShare RU
 
 
-# File 197/213: templates\accounts\profile.html
+# File 198/214: templates\accounts\profile.html
 ################################################################################
 
 {% extends "base.html" %}
@@ -17460,7 +17601,7 @@ panel.classList.toggle('is-active', panel.getAttribute('data-auth-panel') === ta
 </section>
 {% endblock %}
 
-# File 198/213: templates\accounts\register.html
+# File 199/214: templates\accounts\register.html
 ################################################################################
 
 {% extends "base.html" %}
@@ -17514,21 +17655,23 @@ panel.classList.toggle('is-active', panel.getAttribute('data-auth-panel') === ta
 </section>
 {% endblock %}
 
-# File 199/213: templates\ai\concierge.html
+# File 200/214: templates\ai\concierge.html
 ################################################################################
 
 {% extends "base.html" %}
 {% block content %}
-<div style="min-height:calc(100vh - 120px); padding:0; display:flex;">
+<div style="min-height: calc(100vh - 120px); padding: 0; margin: 0;">
 <iframe
 src="http:
-style="flex:1; border:none;"
+style="width: 100%; height: 100%; border: none; display: block;"
 loading="lazy"
+referrerpolicy="no-referrer"
+sandbox="allow-scripts allow-same-origin allow-forms"
 ></iframe>
 </div>
 {% endblock %}
 
-# File 200/213: templates\parking\landing.html
+# File 201/214: templates\parking\landing.html
 ################################################################################
 
 {% extends "base.html" %}
@@ -17764,6 +17907,36 @@ defer></script>
 </div>
 </div>
 </section>
+<!-- AI assistant widget -->
+<button
+class="ai-assistant-launcher"
+type="button"
+data-ai-toggle
+aria-label="AI-помощник"
+>
+<span class="ai-assistant-launcher__glow"></span>
+<span class="ai-assistant-launcher__icon">🤖</span>
+</button>
+<div class="ai-assistant-panel" data-ai-panel>
+<div class="ai-assistant-panel__chrome">
+<div class="ai-assistant-panel__title">AI-помощник по парковке</div>
+<button
+type="button"
+class="ai-assistant-panel__close"
+data-ai-close
+aria-label="Закрыть"
+>
+✕
+</button>
+</div>
+<iframe
+src="http:
+class="ai-assistant-frame"
+loading="lazy"
+referrerpolicy="no-referrer"
+sandbox="allow-scripts allow-same-origin allow-forms"
+></iframe>
+</div>
 {% endblock %}
 {% block extra_scripts %}
 <script src="https:
@@ -17784,7 +17957,7 @@ default_zoom: {{ MAP_DEFAULT_ZOOM|default:11 }},
 <script src="{{ map_static }}?v=44"></script>
 {% endblock %}
 
-# File 201/213: templates\parking\map_fullscreen.html
+# File 202/214: templates\parking\map_fullscreen.html
 ################################################################################
 
 {% extends "base.html" %}
@@ -17910,7 +18083,7 @@ default_zoom: {{ MAP_DEFAULT_ZOOM|default:11 }},
 <script src="{{ map_static }}?v=50"></script>
 {% endblock %}
 
-# File 202/213: templates\parking\owner_dashboard.html
+# File 203/214: templates\parking\owner_dashboard.html
 ################################################################################
 
 {% extends "base.html" %}
@@ -18033,7 +18206,7 @@ default_zoom: {{ MAP_DEFAULT_ZOOM|default:11 }},
 </section>
 {% endblock %}
 
-# File 203/213: templates\parking\pwa_install.html
+# File 204/214: templates\parking\pwa_install.html
 ################################################################################
 
 {% extends "base.html" %}
@@ -18078,7 +18251,7 @@ default_zoom: {{ MAP_DEFAULT_ZOOM|default:11 }},
 </section>
 {% endblock %}
 
-# File 204/213: templates\parking\user_dashboard.html
+# File 205/214: templates\parking\user_dashboard.html
 ################################################################################
 
 {% extends "base.html" %}
@@ -18239,12 +18412,12 @@ default_zoom: {{ MAP_DEFAULT_ZOOM|default:11 }},
 </section>
 {% endblock %}
 
-# File 205/213: vehicles\__init__.py
+# File 206/214: vehicles\__init__.py
 ################################################################################
 
 
 
-# File 206/213: vehicles\admin.py
+# File 207/214: vehicles\admin.py
 ################################################################################
 
 # vehicles/admin.py
@@ -18263,7 +18436,7 @@ def has_view_or_change_permission(self, request, obj=None):
 """
 return super().has_view_or_change_permission(request, obj)
 
-# File 207/213: vehicles\apps.py
+# File 208/214: vehicles\apps.py
 ################################################################################
 
 # vehicles/apps.py
@@ -18273,7 +18446,7 @@ default_auto_field = "django.db.models.BigAutoField"
 name = "vehicles"
 verbose_name = "Машины пользователей"
 
-# File 208/213: vehicles\models.py
+# File 209/214: vehicles\models.py
 ################################################################################
 
 import uuid
@@ -18327,7 +18500,7 @@ if self.label:
 return f"{self.label} ({self.owner.username})"
 return f"Машина {self.pk}"
 
-# File 209/213: vehicles\serializers.py
+# File 210/214: vehicles\serializers.py
 ################################################################################
 
 # vehicles/serializers.py
@@ -18387,7 +18560,7 @@ def update(self, instance: Vehicle, validated_data: dict) -> Vehicle:
 validated_data.pop("plate_number", None)
 return super().update(instance, validated_data)
 
-# File 210/213: vehicles\urls.py
+# File 211/214: vehicles\urls.py
 ################################################################################
 
 # vehicles/urls.py
@@ -18406,7 +18579,7 @@ name="my_vehicles",
 ),
 ]
 
-# File 211/213: vehicles\views.py
+# File 212/214: vehicles\views.py
 ################################################################################
 
 # vehicles/views.py
@@ -18433,7 +18606,7 @@ def perform_create(self, serializer: VehicleSerializer) -> None:
 # owner устанавливается в serializer.create()
 serializer.save()
 
-# File 212/213: vehicles\migrations\0001_initial.py
+# File 213/214: vehicles\migrations\0001_initial.py
 ################################################################################
 
 # Generated by Django 5.2.8 on 2025-11-21 21:34
@@ -18467,7 +18640,7 @@ options={
 ),
 ]
 
-# File 213/213: vehicles\migrations\__init__.py
+# File 214/214: vehicles\migrations\__init__.py
 ################################################################################
 
 
