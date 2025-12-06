@@ -26,6 +26,15 @@
             <p class="ps-hero-subtitle">
                 Живые фильтры, AI-подсказки и мобильный фокус. Работает как PWA — установите на главный экран и бронируйте без лишних кликов.
             </p>
+            <div class="ps-search-bar" data-search-bar>
+                <div class="ps-search-icon">
+                    <svg class="ps-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M15.5 14h-.8l-.3-.3a6 6 0 1 0-.7.7l.3.3v.8l4.5 4.5 1.5-1.5-4.5-4.5Zm-5.5 0a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9Z" fill="currentColor"/></svg>
+                </div>
+                <input type="search" class="ps-input ps-input--pill" placeholder="Искать парковку" data-geocode-input>
+                <button type="button" class="ps-search-voice" title="Голосовой ввод">
+                    <svg class="ps-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a3 3 0 0 0-3 3v5a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3Zm-1 15.9V21h2v-2.1a6.5 6.5 0 0 0 5-6.3h-2a4.5 4.5 0 1 1-9 0H5a6.5 6.5 0 0 0 5 6.3Z" fill="currentColor"/></svg>
+                </button>
+            </div>
             <div class="ps-hero-actions">
                 <a href="{% url 'map_page' %}" class="ps-btn ps-btn-lg">
                     Открыть карту
@@ -76,9 +85,10 @@
     </div>
 
     <div class="ps-grid ps-grid--2col@lg ps-grid--gap-xl ps-grid--mobile-stack">
-        <div class="ps-map-panel" data-map-panel>
+        <div class="ps-map-panel ps-map-card" data-map-panel>
             <div class="ps-map-wrapper">
                 <div id="map" class="ps-map ps-map--light"></div>
+                <div class="ps-map-overlay"></div>
                 <div class="ps-map-loading" data-map-loading>Обновляем карту…</div>
                 <div class="ps-map-floating-actions" aria-label="Действия карты">
                     <button class="ps-map-action" type="button" data-fill-location title="Моё местоположение" aria-label="Моё местоположение">
@@ -135,6 +145,9 @@
                 </form>
             </div>
             <div class="ps-route-hint" data-route-hint>Постройте мини-маршрут до выбранной точки.</div>
+            <div class="ps-map-cta">
+                <a class="ps-btn ps-btn-secondary ps-btn-full" href="{% url 'map_page' %}">Открыть карту полностью</a>
+            </div>
         </div>
 
         <div class="ps-spots-panel" data-spots-panel>

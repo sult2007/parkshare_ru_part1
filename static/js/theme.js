@@ -45,12 +45,17 @@
     if (!toggles.length) return;
     var theme = currentTheme();
     applyTheme(theme);
+    document.dispatchEvent(new CustomEvent("ps-theme-changed", { detail: { theme: theme } }));
     toggles.forEach(function (btn) {
       btn.addEventListener("click", function () {
-        var next = document.documentElement.classList.contains("theme-dark")
-          ? "light"
-          : "dark";
+        var next =
+          document.documentElement.getAttribute("data-theme") === "dark"
+            ? "light"
+            : "dark";
         applyTheme(next);
+        document.dispatchEvent(
+          new CustomEvent("ps-theme-changed", { detail: { theme: next } })
+        );
       });
     });
   }

@@ -15,7 +15,7 @@
 #   Файлы идут в том же порядке, что и в индексе.
 ################################################################################
 # Root: C:\Users\Sultan\Downloads\parkshare_ru_part1
-# Generated at: 2025-12-07 01:52:48
+# Generated at: 2025-12-07 02:15:14
 # Files listed: 223
 # Max single file size: NONE
 # Max total dump size: NONE
@@ -3220,7 +3220,7 @@ LANG: text
 #   Файлы идут в том же порядке, что и в индексе.
 ################################################################################
 # Root: C:\Users\Sultan\Downloads\parkshare_ru_part1
-# Generated at: 2025-12-07 01:52:48
+# Generated at: 2025-12-07 02:15:14
 # Files listed: 223
 # Max single file size: NONE
 # Max total dump size: NONE
@@ -11636,6 +11636,10 @@ class UIThemeTests(TestCase):
         response = self.client.get(reverse("landing"))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "data-theme-toggle")
+        self.assertContains(response, "ps-search-bar")
+        self.assertContains(response, "ps-map-card")
+        self.assertContains(response, "ps-section-title")
+        self.assertContains(response, "assistant")
 
     def test_map_page_renders(self):
         response = self.client.get(reverse("map_page"))
@@ -20896,6 +20900,47 @@ img {
     color: var(--ps-color-text-muted);
 }
 
+.ps-search-bar {
+    width: 100%;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 0.4rem;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-subtle);
+    padding: 0.35rem 0.4rem;
+    border-radius: 999px;
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 0.75rem;
+}
+
+.ps-input--pill {
+    border-radius: 999px;
+    background: transparent;
+    border: none;
+    padding-left: 0;
+}
+
+.ps-search-icon,
+.ps-search-voice {
+    width: 38px;
+    height: 38px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: color var(--ps-transition-fast), transform var(--ps-transition-fast);
+}
+
+.ps-search-voice:hover {
+    color: var(--accent-strong);
+    transform: translateY(-1px);
+}
+
 .ps-hero-visual {
     display: flex;
     justify-content: center;
@@ -23066,6 +23111,30 @@ body:not(.ps-day-mode) .ps-map-topbar {
     box-shadow: var(--ps-shadow-soft);
 }
 
+.ps-map-card {
+    padding: 0.65rem;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-subtle);
+    box-shadow: var(--shadow-md);
+    border-radius: 26px;
+}
+
+.theme-dark .ps-map-card {
+    background: var(--ps-color-bg-elevated);
+    border-color: rgba(148, 163, 184, 0.18);
+}
+
+.ps-map-card .ps-map {
+    height: 320px;
+}
+
+.ps-map-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.04), transparent 30%, transparent 70%, rgba(0, 0, 0, 0.04));
+}
+
 .ps-map-action {
     width: 44px;
     height: 44px;
@@ -23944,8 +24013,10 @@ function initAdaptiveProbe() {
 
         const defaultKey = (function () {
             const path = window.location.pathname;
+            if (window.location.hash === "#assistant") return "assistant";
             if (path.indexOf("/accounts") === 0) return "profile";
             if (path.indexOf("/parking/user") === 0) return "bookings";
+            if (path.indexOf("/кабинет-владельца") === 0) return "parking";
             return "map";
         })();
 
@@ -24308,7 +24379,8 @@ LANG: javascript
     var storedTheme = null;
     try { storedTheme = localStorage.getItem(MAP_THEME_KEY); } catch (_) {}
     var prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
-    var isNight = (storedTheme || (prefersDark ? "dark" : "light")) === "dark";
+    var dataTheme = document.documentElement.getAttribute("data-theme");
+    var isNight = (storedTheme || dataTheme || (prefersDark ? "dark" : "light")) === "dark";
     var lastFeatures = [];
     var userLocation = null;
 
@@ -24328,13 +24400,12 @@ LANG: javascript
             mapEl.classList.toggle("ps-map--dark", mode === "dark");
             mapEl.classList.toggle("ps-map--light", mode === "light");
         }
-        document.body.classList.toggle("theme-dark", mode === "dark");
-        document.body.classList.toggle("ps-day-mode", mode === "light");
+        document.documentElement.classList.toggle("theme-dark", mode === "dark");
+        document.documentElement.setAttribute("data-theme", mode === "dark" ? "dark" : "light");
 
         var btn = qs("[data-map-theme]");
         if (btn) {
             var isDark = mode === "dark";
-            btn.textContent = isDark ? "☀️" : "🌙";
             btn.setAttribute("aria-pressed", String(isDark));
             btn.classList.toggle("is-active", isDark);
             btn.classList.add("is-animating");
@@ -24861,6 +24932,10 @@ LANG: javascript
 
         var themeBtn = qs("[data-map-theme]");
         if (themeBtn) themeBtn.addEventListener("click", function () { var next = isNight ? "light" : "dark"; themeBtn.classList.add("is-animating"); applyMapTheme(next, provider, mapContainer); });
+        document.addEventListener("ps-theme-changed", function (e) {
+            var next = e.detail && e.detail.theme;
+            if (next) applyMapTheme(next, provider, mapContainer);
+        });
 
         var filtersForm = qs("[data-map-filters]");
         if (filtersForm) filtersForm.addEventListener("change", function () { fetchFeatures(provider); });
@@ -25311,12 +25386,17 @@ LANG: javascript
     if (!toggles.length) return;
     var theme = currentTheme();
     applyTheme(theme);
+    document.dispatchEvent(new CustomEvent("ps-theme-changed", { detail: { theme: theme } }));
     toggles.forEach(function (btn) {
       btn.addEventListener("click", function () {
-        var next = document.documentElement.classList.contains("theme-dark")
-          ? "light"
-          : "dark";
+        var next =
+          document.documentElement.getAttribute("data-theme") === "dark"
+            ? "light"
+            : "dark";
         applyTheme(next);
+        document.dispatchEvent(
+          new CustomEvent("ps-theme-changed", { detail: { theme: next } })
+        );
       });
     });
   }
@@ -26194,7 +26274,7 @@ LANG: html
                 } else {
                     document.documentElement.classList.remove('theme-dark');
                 }
-                document.documentElement.dataset.theme = theme;
+                document.documentElement.setAttribute('data-theme', theme);
             } catch (_) {
                 /* ignore */
             }
@@ -26286,13 +26366,19 @@ LANG: html
         <span class="ps-bottom-nav-icon" aria-hidden="true">
             <svg class="ps-icon" viewBox="0 0 24 24"><path d="M7 4.5h10c.8 0 1.5.7 1.5 1.5v12a1.5 1.5 0 0 1-1.5 1.5H7A1.5 1.5 0 0 1 5.5 18V6c0-.8.7-1.5 1.5-1.5Zm0 1.5V9h10V6H7Zm0 4v6h10v-6H7Z" fill="currentColor"/></svg>
         </span>
-        <span class="ps-bottom-nav-label">Мои брони</span>
+        <span class="ps-bottom-nav-label">Брони</span>
     </a>
-    <a href="{% url 'accounts:profile' %}" class="ps-bottom-nav-item" data-nav="profile">
+    <a href="{% url 'owner_dashboard' %}" class="ps-bottom-nav-item" data-nav="parking">
         <span class="ps-bottom-nav-icon" aria-hidden="true">
-            <svg class="ps-icon" viewBox="0 0 24 24"><path d="M12 4.5a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7Zm0 8.5c2.8 0 6 1.4 6 4v1h-12v-1c0-2.6 3.2-4 6-4Z" fill="currentColor"/></svg>
+            <svg class="ps-icon" viewBox="0 0 24 24"><path d="M7.5 4h7A3.5 3.5 0 0 1 18 7.5c0 1.9-1.6 3.5-3.5 3.5H9v6H7.5V4Zm7 6A2.5 2.5 0 0 0 17 7.5 2.5 2.5 0 0 0 14.5 5H9v5h5.5Z" fill="currentColor"/></svg>
         </span>
-        <span class="ps-bottom-nav-label">Профиль</span>
+        <span class="ps-bottom-nav-label">Моя парковка</span>
+    </a>
+    <a href="#assistant" class="ps-bottom-nav-item" data-nav="assistant">
+        <span class="ps-bottom-nav-icon" aria-hidden="true">
+            <svg class="ps-icon" viewBox="0 0 24 24"><path d="M12 3a7 7 0 0 0-7 7v3.5A4.5 4.5 0 0 0 9.5 18h.8l1.7 2.6c.4.6 1.3.6 1.7 0L15.5 18h.8A4.5 4.5 0 0 0 19 13.5V10a7 7 0 0 0-7-7Zm0 2a5 5 0 0 1 5 5v3.5a2.5 2.5 0 0 1-2.5 2.5h-1.4l-1.1 1.8-1.1-1.8H9.5A2.5 2.5 0 0 1 7 13.5V10a5 5 0 0 1 5-5Z" fill="currentColor"/></svg>
+        </span>
+        <span class="ps-bottom-nav-label">Ассистент</span>
     </a>
 </nav>
 
@@ -26925,6 +27011,15 @@ LANG: html
             <p class="ps-hero-subtitle">
                 Живые фильтры, AI-подсказки и мобильный фокус. Работает как PWA — установите на главный экран и бронируйте без лишних кликов.
             </p>
+            <div class="ps-search-bar" data-search-bar>
+                <div class="ps-search-icon">
+                    <svg class="ps-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M15.5 14h-.8l-.3-.3a6 6 0 1 0-.7.7l.3.3v.8l4.5 4.5 1.5-1.5-4.5-4.5Zm-5.5 0a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9Z" fill="currentColor"/></svg>
+                </div>
+                <input type="search" class="ps-input ps-input--pill" placeholder="Искать парковку" data-geocode-input>
+                <button type="button" class="ps-search-voice" title="Голосовой ввод">
+                    <svg class="ps-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a3 3 0 0 0-3 3v5a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3Zm-1 15.9V21h2v-2.1a6.5 6.5 0 0 0 5-6.3h-2a4.5 4.5 0 1 1-9 0H5a6.5 6.5 0 0 0 5 6.3Z" fill="currentColor"/></svg>
+                </button>
+            </div>
             <div class="ps-hero-actions">
                 <a href="{% url 'map_page' %}" class="ps-btn ps-btn-lg">
                     Открыть карту
@@ -26975,9 +27070,10 @@ LANG: html
     </div>
 
     <div class="ps-grid ps-grid--2col@lg ps-grid--gap-xl ps-grid--mobile-stack">
-        <div class="ps-map-panel" data-map-panel>
+        <div class="ps-map-panel ps-map-card" data-map-panel>
             <div class="ps-map-wrapper">
                 <div id="map" class="ps-map ps-map--light"></div>
+                <div class="ps-map-overlay"></div>
                 <div class="ps-map-loading" data-map-loading>Обновляем карту…</div>
                 <div class="ps-map-floating-actions" aria-label="Действия карты">
                     <button class="ps-map-action" type="button" data-fill-location title="Моё местоположение" aria-label="Моё местоположение">
@@ -27034,6 +27130,9 @@ LANG: html
                 </form>
             </div>
             <div class="ps-route-hint" data-route-hint>Постройте мини-маршрут до выбранной точки.</div>
+            <div class="ps-map-cta">
+                <a class="ps-btn ps-btn-secondary ps-btn-full" href="{% url 'map_page' %}">Открыть карту полностью</a>
+            </div>
         </div>
 
         <div class="ps-spots-panel" data-spots-panel>

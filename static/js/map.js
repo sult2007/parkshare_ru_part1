@@ -14,7 +14,8 @@
     var storedTheme = null;
     try { storedTheme = localStorage.getItem(MAP_THEME_KEY); } catch (_) {}
     var prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
-    var isNight = (storedTheme || (prefersDark ? "dark" : "light")) === "dark";
+    var dataTheme = document.documentElement.getAttribute("data-theme");
+    var isNight = (storedTheme || dataTheme || (prefersDark ? "dark" : "light")) === "dark";
     var lastFeatures = [];
     var userLocation = null;
 
@@ -34,13 +35,12 @@
             mapEl.classList.toggle("ps-map--dark", mode === "dark");
             mapEl.classList.toggle("ps-map--light", mode === "light");
         }
-        document.body.classList.toggle("theme-dark", mode === "dark");
-        document.body.classList.toggle("ps-day-mode", mode === "light");
+        document.documentElement.classList.toggle("theme-dark", mode === "dark");
+        document.documentElement.setAttribute("data-theme", mode === "dark" ? "dark" : "light");
 
         var btn = qs("[data-map-theme]");
         if (btn) {
             var isDark = mode === "dark";
-            btn.textContent = isDark ? "☀️" : "🌙";
             btn.setAttribute("aria-pressed", String(isDark));
             btn.classList.toggle("is-active", isDark);
             btn.classList.add("is-animating");
@@ -567,6 +567,10 @@
 
         var themeBtn = qs("[data-map-theme]");
         if (themeBtn) themeBtn.addEventListener("click", function () { var next = isNight ? "light" : "dark"; themeBtn.classList.add("is-animating"); applyMapTheme(next, provider, mapContainer); });
+        document.addEventListener("ps-theme-changed", function (e) {
+            var next = e.detail && e.detail.theme;
+            if (next) applyMapTheme(next, provider, mapContainer);
+        });
 
         var filtersForm = qs("[data-map-filters]");
         if (filtersForm) filtersForm.addEventListener("change", function () { fetchFeatures(provider); });

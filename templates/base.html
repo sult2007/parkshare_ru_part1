@@ -26,7 +26,7 @@
                 } else {
                     document.documentElement.classList.remove('theme-dark');
                 }
-                document.documentElement.dataset.theme = theme;
+                document.documentElement.setAttribute('data-theme', theme);
             } catch (_) {
                 /* ignore */
             }
@@ -118,13 +118,19 @@
         <span class="ps-bottom-nav-icon" aria-hidden="true">
             <svg class="ps-icon" viewBox="0 0 24 24"><path d="M7 4.5h10c.8 0 1.5.7 1.5 1.5v12a1.5 1.5 0 0 1-1.5 1.5H7A1.5 1.5 0 0 1 5.5 18V6c0-.8.7-1.5 1.5-1.5Zm0 1.5V9h10V6H7Zm0 4v6h10v-6H7Z" fill="currentColor"/></svg>
         </span>
-        <span class="ps-bottom-nav-label">Мои брони</span>
+        <span class="ps-bottom-nav-label">Брони</span>
     </a>
-    <a href="{% url 'accounts:profile' %}" class="ps-bottom-nav-item" data-nav="profile">
+    <a href="{% url 'owner_dashboard' %}" class="ps-bottom-nav-item" data-nav="parking">
         <span class="ps-bottom-nav-icon" aria-hidden="true">
-            <svg class="ps-icon" viewBox="0 0 24 24"><path d="M12 4.5a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7Zm0 8.5c2.8 0 6 1.4 6 4v1h-12v-1c0-2.6 3.2-4 6-4Z" fill="currentColor"/></svg>
+            <svg class="ps-icon" viewBox="0 0 24 24"><path d="M7.5 4h7A3.5 3.5 0 0 1 18 7.5c0 1.9-1.6 3.5-3.5 3.5H9v6H7.5V4Zm7 6A2.5 2.5 0 0 0 17 7.5 2.5 2.5 0 0 0 14.5 5H9v5h5.5Z" fill="currentColor"/></svg>
         </span>
-        <span class="ps-bottom-nav-label">Профиль</span>
+        <span class="ps-bottom-nav-label">Моя парковка</span>
+    </a>
+    <a href="#assistant" class="ps-bottom-nav-item" data-nav="assistant">
+        <span class="ps-bottom-nav-icon" aria-hidden="true">
+            <svg class="ps-icon" viewBox="0 0 24 24"><path d="M12 3a7 7 0 0 0-7 7v3.5A4.5 4.5 0 0 0 9.5 18h.8l1.7 2.6c.4.6 1.3.6 1.7 0L15.5 18h.8A4.5 4.5 0 0 0 19 13.5V10a7 7 0 0 0-7-7Zm0 2a5 5 0 0 1 5 5v3.5a2.5 2.5 0 0 1-2.5 2.5h-1.4l-1.1 1.8-1.1-1.8H9.5A2.5 2.5 0 0 1 7 13.5V10a5 5 0 0 1 5-5Z" fill="currentColor"/></svg>
+        </span>
+        <span class="ps-bottom-nav-label">Ассистент</span>
     </a>
 </nav>
 

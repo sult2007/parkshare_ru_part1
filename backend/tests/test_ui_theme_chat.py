@@ -10,6 +10,10 @@ class UIThemeTests(TestCase):
         response = self.client.get(reverse("landing"))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "data-theme-toggle")
+        self.assertContains(response, "ps-search-bar")
+        self.assertContains(response, "ps-map-card")
+        self.assertContains(response, "ps-section-title")
+        self.assertContains(response, "assistant")
 
     def test_map_page_renders(self):
         response = self.client.get(reverse("map_page"))
