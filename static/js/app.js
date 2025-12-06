@@ -17,14 +17,15 @@
         return window.matchMedia("(max-width: 767px)").matches;
     }
 
-    // ---------- Service worker ----------
+    // ---------- Service worker (registration is idempotent, PWA layer can override) ----------
 
-    if ("serviceWorker" in navigator) {
+    if ("serviceWorker" in navigator && !window.__PS_PWA_REGISTERED__) {
+        window.__PS_PWA_REGISTERED__ = true;
         window.addEventListener("load", function () {
             navigator.serviceWorker
-                .register("/service-worker.js")
+                .register("/service-worker.js", {updateViaCache: "none"})
                 .then(function (reg) {
-                    console.log("[SW] registered", reg.scope);
+                    console.log("[SW] registered (legacy entry)", reg.scope);
                 })
                 .catch(function (err) {
                     console.warn("[SW] registration failed", err);

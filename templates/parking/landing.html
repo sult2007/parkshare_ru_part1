@@ -48,11 +48,11 @@
                     <span class="ps-dot ps-dot--blue"></span>
                     Средняя цена: <strong data-avg-price>180 ₽/час</strong>
                 </div>
-                <div class="ps-hero-card-line">
-                    <span class="ps-dot ps-dot--yellow"></span>
-                    Свободных мест:
-                    <strong data-spots-count>{{ spots|length }}</strong>
-                </div>
+                    <div class="ps-hero-card-line">
+                        <span class="ps-dot ps-dot--yellow"></span>
+                        Свободных мест:
+                        <strong data-spots-count>{{ spots_total|default:0 }}</strong>
+                    </div>
             </div>
         </div>
     </div>
@@ -262,6 +262,7 @@
         };
     </script>
     {% load static %}
+    <script type="module" src="{% static 'pwa/app.js' %}?v=2024.09"></script>
     {% static 'js/map.js' as map_static %}
     <script src="{{ map_static }}?v=43"></script>
 {% endblock %}

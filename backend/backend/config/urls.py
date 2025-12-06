@@ -39,6 +39,11 @@ router.register(
 router.register(
     r"parking/saved-places", parking_views.SavedPlaceViewSet, basename="saved-place"
 )
+router.register(
+    r"parking/push-subscriptions",
+    parking_views.PushSubscriptionViewSet,
+    basename="push-subscription",
+)
 
 # Payments
 router.register(r"payments", payments_api.PaymentViewSet, basename="payment")

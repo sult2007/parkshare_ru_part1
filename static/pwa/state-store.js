@@ -1,0 +1,173 @@
+<<<<<<< ours
+<<<<<<< ours
+const STORAGE_KEY = 'ps.pwa.state.v1';
+=======
+const STORAGE_KEY = 'ps.pwa.state.v2';
+>>>>>>> theirs
+=======
+const STORAGE_KEY = 'ps.pwa.state.v2';
+>>>>>>> theirs
+
+const initialState = {
+  appVersion: '2024.09.0',
+  isOnline: navigator.onLine,
+  lastKnownPosition: null,
+<<<<<<< ours
+<<<<<<< ours
+  mapView: { center: null, zoom: 11 },
+=======
+  mapView: { center: null, zoom: 11, features: [] },
+>>>>>>> theirs
+=======
+  mapView: { center: null, zoom: 11, features: [] },
+>>>>>>> theirs
+  filters: {
+    priceMax: null,
+    onlyFree: false,
+    ev: false,
+    covered: false,
+    is_24_7: false,
+    ai_recommended: false,
+<<<<<<< ours
+<<<<<<< ours
+=======
+    distance_km: 5,
+>>>>>>> theirs
+=======
+    distance_km: 5,
+>>>>>>> theirs
+  },
+  pagination: {
+    next: null,
+    previous: null,
+    count: 0,
+    page_size: 20,
+  },
+  spots: [],
+  favorites: [],
+  savedPlaces: [],
+  offlineQueue: [],
+<<<<<<< ours
+<<<<<<< ours
+=======
+  profile: { id: null, role: 'guest', layout_profile: 'comfortable', theme: 'light', platform: 'web' },
+>>>>>>> theirs
+=======
+  profile: { id: null, role: 'guest', layout_profile: 'comfortable', theme: 'light', platform: 'web' },
+>>>>>>> theirs
+};
+
+let state = loadState();
+const subscribers = new Set();
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return { ...initialState };
+    return { ...initialState, ...JSON.parse(raw) };
+  } catch (err) {
+    console.warn('[PWA] failed to load state', err);
+    return { ...initialState };
+  }
+}
+
+function persist() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch (err) {
+    console.warn('[PWA] failed to persist state', err);
+  }
+}
+
+function setState(patch) {
+  state = { ...state, ...patch };
+  persist();
+  subscribers.forEach((cb) => cb(state));
+}
+
+export function subscribe(callback) {
+  subscribers.add(callback);
+  callback(state);
+  return () => subscribers.delete(callback);
+}
+
+export function getState() {
+  return state;
+}
+
+export function updateFilters(patch) {
+  setState({ filters: { ...state.filters, ...patch } });
+}
+
+export function updatePagination(meta) {
+  setState({ pagination: { ...state.pagination, ...meta } });
+}
+
+export function setSpots(spots) {
+  setState({ spots });
+}
+
+export function appendSpots(spots) {
+  setState({ spots: [...state.spots, ...spots] });
+}
+
+export function setConnectionStatus(isOnline) {
+  setState({ isOnline });
+}
+
+export function setMapView(patch) {
+  setState({ mapView: { ...state.mapView, ...patch } });
+}
+
+export function setFavorites(favorites) {
+  setState({ favorites });
+}
+
+export function toggleFavorite(id) {
+  const exists = state.favorites.includes(id);
+  const updated = exists
+    ? state.favorites.filter((item) => item !== id)
+    : [...state.favorites, id];
+  setState({ favorites: updated });
+}
+
+export function setSavedPlaces(items) {
+  setState({ savedPlaces: items });
+}
+
+export function queueAction(action) {
+  const offlineQueue = [...state.offlineQueue, action];
+  setState({ offlineQueue });
+}
+
+export function flushQueue(predicate) {
+  const kept = state.offlineQueue.filter((item) => !predicate(item));
+  setState({ offlineQueue: kept });
+}
+<<<<<<< ours
+<<<<<<< ours
+=======
+=======
+>>>>>>> theirs
+
+export function setProfile(profile) {
+  setState({ profile: { ...state.profile, ...profile } });
+}
+
+export function setThemeConfig(config) {
+  const profile = {
+    ...state.profile,
+    layout_profile: config.layout_profile || state.profile.layout_profile,
+    theme: config.theme || state.profile.theme,
+    platform: config.platform || state.profile.platform,
+  };
+  setState({ profile });
+}
+
+export function setMapFeatures(features) {
+  setState({ mapView: { ...state.mapView, features } });
+}
+<<<<<<< ours
+>>>>>>> theirs
+=======
+>>>>>>> theirs

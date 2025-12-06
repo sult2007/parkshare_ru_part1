@@ -591,3 +591,28 @@ class SavedPlace(TimeStampedModel):
 
     def __str__(self) -> str:
         return f"{self.title} ({self.user})"
+
+
+class PushSubscription(TimeStampedModel):
+    """Хранение WebPush‑подписок для уведомлений."""
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="push_subscriptions",
+        null=True,
+        blank=True,
+    )
+    endpoint = models.URLField(unique=True)
+    p256dh = models.CharField(max_length=255)
+    auth = models.CharField(max_length=255)
+    platform = models.CharField(max_length=64, blank=True)
+    user_agent = models.CharField(max_length=255, blank=True)
+
+    class Meta:
+        verbose_name = "Push-подписка"
+        verbose_name_plural = "Push-подписки"
+        ordering = ("-created_at",)
+
+    def __str__(self) -> str:
+        return f"{self.user or 'guest'} {self.endpoint[:32]}"

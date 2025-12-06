@@ -15,11 +15,12 @@
 {% endblock %}
 
 {% block content %}
-<section class="ps-section ps-section--flush-top ps-map-hero">
+<section class="ps-section ps-section--flush-top ps-map-hero" data-route="map">
     <div class="ps-section-header ps-section-header--stack">
         <div>
             <h1 class="ps-section-title">Карта парковок</h1>
             <p class="ps-section-subtitle">Полноэкранный режим с поиском, фильтрами и маршрутами.</p>
+            <div class="ps-connection" data-connection-badge hidden>Проверяем сеть…</div>
         </div>
         <div class="ps-section-actions">
             <a href="{% url 'landing' %}" class="ps-btn ps-btn-ghost ps-btn-sm">На главную</a>
@@ -79,12 +80,12 @@
             <div class="ps-route-hint" data-route-hint>Постройте мини-маршрут до выбранной точки.</div>
         </div>
 
-        <div class="ps-bottom-sheet" data-spots-panel>
+        <div class="ps-bottom-sheet" data-spots-panel data-route="list">
             <div class="ps-bottom-sheet__handle"></div>
             <div class="ps-bottom-sheet__header">
                 <div>
                     <div class="ps-section-title-sm">Доступные места</div>
-                    <div class="ps-text-muted">Свободных: <span data-spots-count>{{ spots|length }}</span>, ср. цена <span data-avg-price>—</span></div>
+                    <div class="ps-text-muted">Свободных: <span data-spots-count>{{ spots_total|default:0 }}</span>, ср. цена <span data-avg-price>—</span></div>
                 </div>
                 <div class="ps-bottom-sheet__actions">
                     <button type="button" class="ps-btn ps-btn-ghost ps-btn-sm" data-reset-filters>Сбросить</button>
@@ -92,19 +93,14 @@
             </div>
             <div class="ps-bottom-sheet__body">
                 <div class="ps-spots-list" data-spots-list>
-                    {% for spot in spots %}
-                        <article class="ps-card ps-card--spot" data-spot-card="{{ spot.id }}">
-                            <div class="ps-card-header">
-                                <div class="ps-card-title">{{ spot.lot.city }}, {{ spot.lot.name }} — {{ spot.name }}</div>
-                            </div>
-                            <div class="ps-card-body">
-                                <div class="ps-card-line">от {{ spot.hourly_price }} ₽/час</div>
-                                <div class="ps-card-line ps-card-line--muted">{{ spot.lot.address|default:"Адрес уточняется" }}</div>
-                            </div>
-                        </article>
-                    {% empty %}
-                        <div class="ps-empty">Места будут показаны после загрузки карты.</div>
-                    {% endfor %}
+                    <div class="ps-card ps-card--spot ps-card--skeleton">
+                        <div class="ps-skeleton-line ps-skeleton-line--lg"></div>
+                        <div class="ps-skeleton-line"></div>
+                        <div class="ps-skeleton-line ps-skeleton-line--short"></div>
+                    </div>
+                </div>
+                <div class="ps-bottom-sheet__footer">
+                    <button class="ps-btn ps-btn-secondary ps-btn-block" type="button" data-spots-load-more data-route-link="list">Показать ещё</button>
                 </div>
             </div>
         </div>
@@ -118,6 +114,7 @@
             crossorigin=""></script>
     <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
     <script src="https://unpkg.com/nouislider@15.7.1/dist/nouislider.min.js"></script>
+    <script type="module" src="{% static 'pwa/app.js' %}?v=2024.09"></script>
     <script>
         window.PARKSHARE_MAP_PROVIDER = {
             id: "{{ MAP_PROVIDER|default:'yandex' }}",

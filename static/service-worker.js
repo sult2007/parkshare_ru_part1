@@ -1,24 +1,61 @@
-// static/service-worker.js — production-grade PWA cache
-const CACHE_VERSION = 'v5';
-const STATIC_CACHE = `static-${CACHE_VERSION}`;
-const HTML_CACHE = `html-${CACHE_VERSION}`;
-const API_CACHE = `api-${CACHE_VERSION}`;
+// static/service-worker.js — production-grade PWA cache with app versioning
+const APP_VERSION = '2024.09.0';
+const CACHE_PREFIX = 'parkshare-';
+const RUNTIME_CACHE = `${CACHE_PREFIX}runtime-${APP_VERSION}`;
+const STATIC_CACHE = `${CACHE_PREFIX}static-${APP_VERSION}`;
+const SHELL_CACHE = `${CACHE_PREFIX}shell-${APP_VERSION}`;
+const API_CACHE = `${CACHE_PREFIX}api-${APP_VERSION}`;
+<<<<<<< ours
+<<<<<<< ours
+=======
+const PRIVATE_API_CACHE = `${CACHE_PREFIX}api-private-${APP_VERSION}`;
+const MAP_CACHE = `${CACHE_PREFIX}map-${APP_VERSION}`;
+>>>>>>> theirs
+=======
+const PRIVATE_API_CACHE = `${CACHE_PREFIX}api-private-${APP_VERSION}`;
+const MAP_CACHE = `${CACHE_PREFIX}map-${APP_VERSION}`;
+>>>>>>> theirs
 const OFFLINE_URL = '/offline/';
+const APP_SHELL = [
+  '/',
+  '/map/',
+  '/личный-кабинет/',
+  '/кабинет-владельца/',
+  OFFLINE_URL,
+  '/manifest.webmanifest',
+];
 
 const STATIC_ASSETS = [
-  '/',
-  OFFLINE_URL,
   '/static/css/app.css',
   '/static/js/app.js',
-  '/static/js/map.js',  // ← добавить эту строку
+  '/static/js/map.js',
+  '/static/js/quantum-theme-manager.js',
   '/static/icons/icon-192.png',
   '/static/icons/icon-512.png',
-  '/manifest.webmanifest'
+  '/static/icons/icon-72.png',
+  '/static/pwa/app.js',
+  '/static/pwa/api-client.js',
+  '/static/pwa/state-store.js',
+  '/static/pwa/router.js',
+  '/static/pwa/spots-view.js',
+<<<<<<< ours
+<<<<<<< ours
+=======
+  '/static/pwa/ui-kit.js',
+>>>>>>> theirs
+=======
+  '/static/pwa/ui-kit.js',
+>>>>>>> theirs
 ];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(STATIC_CACHE).then((cache) => cache.addAll(STATIC_ASSETS)).catch(() => null)
+    Promise.all([
+      caches.open(SHELL_CACHE).then((cache) => cache.addAll(APP_SHELL)),
+      caches.open(STATIC_CACHE).then((cache) => cache.addAll(STATIC_ASSETS)),
+    ]).catch((err) => {
+      console.warn('[SW] install cache error', err);
+    })
   );
   self.skipWaiting();
 });
@@ -28,7 +65,22 @@ self.addEventListener('activate', (event) => {
     caches.keys().then((keys) =>
       Promise.all(
         keys
-          .filter((key) => ![STATIC_CACHE, HTML_CACHE, API_CACHE].includes(key))
+          .filter((key) => key.startsWith(CACHE_PREFIX) && ![
+            RUNTIME_CACHE,
+            STATIC_CACHE,
+            SHELL_CACHE,
+            API_CACHE,
+<<<<<<< ours
+<<<<<<< ours
+=======
+            PRIVATE_API_CACHE,
+            MAP_CACHE,
+>>>>>>> theirs
+=======
+            PRIVATE_API_CACHE,
+            MAP_CACHE,
+>>>>>>> theirs
+          ].includes(key))
           .map((key) => caches.delete(key))
       )
     )
@@ -36,52 +88,218 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-const isGet = (req) => req.method === 'GET';
-const isApi = (req) => new URL(req.url).pathname.startsWith('/api/');
-const isHtml = (req) => req.headers.get('accept')?.includes('text/html');
-const sameOrigin = (req) => self.location.origin === new URL(req.url).origin;
+self.addEventListener('message', (event) => {
+  if (event.data === 'SW_APPLY_UPDATE') {
+    self.skipWaiting();
+    return;
+  }
+  if (event.data && event.data.type === 'PRIME_SHELL') {
+    precacheShell();
+  }
+});
 
 self.addEventListener('fetch', (event) => {
   const { request } = event;
-  if (!isGet(request)) return;
+  if (request.method !== 'GET') return;
 
-  if (isApi(request)) {
+  const url = new URL(request.url);
+  const isSameOrigin = url.origin === self.location.origin;
+
+  if (request.headers.get('accept')?.includes('text/html')) {
+    if (isSameOrigin) {
+      event.respondWith(networkFirst(request, SHELL_CACHE, OFFLINE_URL));
+      return;
+    }
+  }
+
+  if (isApiRequest(url)) {
+    if (request.headers.get('authorization')) {
+<<<<<<< ours
+<<<<<<< ours
+      event.respondWith(networkFirst(request, RUNTIME_CACHE));
+=======
+      event.respondWith(networkFirst(request, PRIVATE_API_CACHE));
+>>>>>>> theirs
+=======
+      event.respondWith(networkFirst(request, PRIVATE_API_CACHE));
+>>>>>>> theirs
+      return;
+    }
     event.respondWith(staleWhileRevalidate(request, API_CACHE));
     return;
   }
 
-  if (sameOrigin(request) && isHtml(request)) {
-    event.respondWith(networkFirst(request, HTML_CACHE, OFFLINE_URL));
+<<<<<<< ours
+<<<<<<< ours
+=======
+=======
+>>>>>>> theirs
+  if (isMapTile(url)) {
+    event.respondWith(limitCacheSize(cacheFirst(request, MAP_CACHE, 150)),);
     return;
   }
 
-  event.respondWith(cacheFirst(request, STATIC_CACHE));
+<<<<<<< ours
+>>>>>>> theirs
+=======
+>>>>>>> theirs
+  if (isAsset(url)) {
+    event.respondWith(cacheFirst(request, STATIC_CACHE));
+    return;
+  }
+
+  event.respondWith(staleWhileRevalidate(request, RUNTIME_CACHE));
+<<<<<<< ours
 });
+
+self.addEventListener('sync', (event) => {
+  if (event.tag === 'ps-sync-queue') {
+    event.waitUntil(flushOfflineQueue());
+  }
+});
+
+self.addEventListener('push', (event) => {
+  const data = event.data ? event.data.json() : {};
+  const title = data.title || 'ParkShare';
+  const body = data.body || 'Новые события по вашим бронированиям';
+  const url = data.url || '/map/';
+  const actions = data.actions || [];
+  event.waitUntil(
+    self.registration.showNotification(title, {
+      body,
+      data: { url },
+      icon: '/static/icons/icon-192.png',
+      badge: '/static/icons/icon-72.png',
+      actions,
+    })
+  );
+<<<<<<< ours
+});
+
+self.addEventListener('notificationclick', (event) => {
+  const targetUrl = event.notification?.data?.url || '/map/';
+  event.notification.close();
+  event.waitUntil(
+    clients.matchAll({ type: 'window' }).then((clientList) => {
+      for (const client of clientList) {
+        if ('focus' in client) {
+          client.navigate(targetUrl);
+          return client.focus();
+        }
+      }
+      return clients.openWindow(targetUrl);
+    })
+  );
+});
+
+=======
+});
+
+self.addEventListener('notificationclick', (event) => {
+  const targetUrl = event.notification?.data?.url || '/map/';
+  event.notification.close();
+  event.waitUntil(
+    clients.matchAll({ type: 'window' }).then((clientList) => {
+      for (const client of clientList) {
+        if ('focus' in client) {
+          client.navigate(targetUrl);
+          return client.focus();
+        }
+      }
+      return clients.openWindow(targetUrl);
+    })
+  );
+});
+
+>>>>>>> theirs
+=======
+});
+
+self.addEventListener('sync', (event) => {
+  if (event.tag === 'ps-sync-queue') {
+    event.waitUntil(flushOfflineQueue());
+  }
+});
+
+self.addEventListener('push', (event) => {
+  const data = event.data ? event.data.json() : {};
+  const title = data.title || 'ParkShare';
+  const body = data.body || 'Новые события по вашим бронированиям';
+  const url = data.url || '/map/';
+  const actions = data.actions || [];
+  event.waitUntil(
+    self.registration.showNotification(title, {
+      body,
+      data: { url },
+      icon: '/static/icons/icon-192.png',
+      badge: '/static/icons/icon-72.png',
+      actions,
+    })
+  );
+});
+
+self.addEventListener('notificationclick', (event) => {
+  const targetUrl = event.notification?.data?.url || '/map/';
+  event.notification.close();
+  event.waitUntil(
+    clients.matchAll({ type: 'window' }).then((clientList) => {
+      for (const client of clientList) {
+        if ('focus' in client) {
+          client.navigate(targetUrl);
+          return client.focus();
+        }
+      }
+      return clients.openWindow(targetUrl);
+    })
+  );
+});
+
+>>>>>>> theirs
+async function precacheShell() {
+  const cache = await caches.open(SHELL_CACHE);
+  await cache.addAll(APP_SHELL);
+}
+
+function isApiRequest(url) {
+  return url.pathname.startsWith('/api/');
+}
+
+<<<<<<< ours
+<<<<<<< ours
+=======
+=======
+>>>>>>> theirs
+function isMapTile(url) {
+  return url.hostname.includes('tile') || url.pathname.includes('/tiles/') || url.pathname.match(/\/(\d+)\/(\d+)\/(\d+)\.png/);
+}
+
+<<<<<<< ours
+>>>>>>> theirs
+=======
+>>>>>>> theirs
+function isAsset(url) {
+  return (
+    url.pathname.startsWith('/static/') ||
+    url.pathname.match(/\.(?:js|css|png|svg|webp|jpg|jpeg|woff2?)$/)
+  );
+}
 
 async function cacheFirst(request, cacheName) {
   const cache = await caches.open(cacheName);
   const cached = await cache.match(request);
   if (cached) return cached;
-  try {
-    const response = await fetch(request);
-    if (response && response.status === 200) {
-      cache.put(request, response.clone());
-    }
-    return response;
-  } catch (err) {
-    if (isHtml(request)) {
-      const fallback = await caches.match(OFFLINE_URL);
-      if (fallback) return fallback;
-    }
-    throw err;
+  const response = await fetch(request);
+  if (response && response.ok) {
+    cache.put(request, response.clone());
   }
+  return response;
 }
 
 async function networkFirst(request, cacheName, fallbackUrl) {
   const cache = await caches.open(cacheName);
   try {
     const response = await fetch(request);
-    if (response && response.status === 200) {
+    if (response && response.ok) {
       cache.put(request, response.clone());
     }
     return response;
@@ -101,11 +319,59 @@ async function staleWhileRevalidate(request, cacheName) {
   const cached = await cache.match(request);
   const network = fetch(request)
     .then((response) => {
-      if (response && response.status === 200) {
+      if (response && response.ok) {
         cache.put(request, response.clone());
       }
       return response;
     })
     .catch(() => cached);
   return cached || network;
+}
+
+<<<<<<< ours
+<<<<<<< ours
+=======
+=======
+>>>>>>> theirs
+async function limitCacheSize(promise, maxEntries = 150) {
+  const response = await promise;
+  const cache = await caches.open(MAP_CACHE);
+  const keys = await cache.keys();
+  if (keys.length > maxEntries) {
+    await cache.delete(keys[0]);
+  }
+  return response;
+}
+
+<<<<<<< ours
+>>>>>>> theirs
+=======
+>>>>>>> theirs
+async function flushOfflineQueue() {
+  const queue = await loadQueue();
+  const stillPending = [];
+  for (const item of queue) {
+    try {
+      await fetch(item.url, item.options);
+    } catch (err) {
+      stillPending.push(item);
+    }
+  }
+  await saveQueue(stillPending);
+}
+
+async function loadQueue() {
+  try {
+    const cache = await caches.open(RUNTIME_CACHE);
+    const stored = await cache.match('ps-offline-queue');
+    if (!stored) return [];
+    return await stored.json();
+  } catch (_) {
+    return [];
+  }
+}
+
+async function saveQueue(payload) {
+  const cache = await caches.open(RUNTIME_CACHE);
+  await cache.put('ps-offline-queue', new Response(JSON.stringify(payload)));
 }

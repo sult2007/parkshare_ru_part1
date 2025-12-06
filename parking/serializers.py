@@ -11,6 +11,7 @@ from .models import (
     FavoriteParkingSpot,
     ParkingLot,
     ParkingSpot,
+    PushSubscription,
     SavedPlace,
     WaitlistEntry,
 )
@@ -383,4 +384,27 @@ class SavedPlaceSerializer(serializers.ModelSerializer):
         request = self.context.get("request")
         if request and request.user.is_authenticated:
             validated_data["user"] = request.user
+        return super().create(validated_data)
+
+
+class PushSubscriptionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PushSubscription
+        fields = (
+            "id",
+            "endpoint",
+            "p256dh",
+            "auth",
+            "platform",
+            "user_agent",
+            "created_at",
+        )
+        read_only_fields = ("id", "created_at")
+
+    def create(self, validated_data):
+        request = self.context.get("request")
+        if request:
+            validated_data.setdefault("user_agent", request.META.get("HTTP_USER_AGENT", ""))
+            if request.user.is_authenticated:
+                validated_data.setdefault("user", request.user)
         return super().create(validated_data)

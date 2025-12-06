@@ -5,6 +5,7 @@ from typing import Any, Iterable, List
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.cache import cache
 from django.db.models import Q
+import math
 import requests
 from django.shortcuts import redirect
 from django.urls import reverse
@@ -22,6 +23,7 @@ from .models import (
     FavoriteParkingSpot,
     ParkingLot,
     ParkingSpot,
+    PushSubscription,
     SavedPlace,
     WaitlistEntry,
 )
@@ -31,6 +33,7 @@ from .serializers import (
     FavoriteParkingSpotSerializer,
     ParkingLotSerializer,
     ParkingSpotSerializer,
+    PushSubscriptionSerializer,
     SavedPlaceSerializer,
     WaitlistEntrySerializer,
 )
@@ -142,11 +145,28 @@ class ParkingSpotViewSet(viewsets.ModelViewSet):
         """
         queryset = self.filter_queryset(self.get_queryset())
 
+        try:
+            page_size = int(request.query_params.get("page_size") or 50)
+        except (TypeError, ValueError):
+            page_size = 50
+        page_size = min(max(page_size, 1), 100)
+        if hasattr(self, "paginator"):
+            self.paginator.page_size = page_size
+
         lat = parse_float(request.query_params.get("lat"))
         lng = parse_float(request.query_params.get("lng"))
-        radius_km = parse_float(request.query_params.get("radius_km"))
+        radius_km = parse_float(request.query_params.get("radius_km")) or 5
+        radius_km = min(radius_km, 25)
 
         if lat is not None and lng is not None and radius_km is not None:
+            lat_delta = radius_km / 111  # приблизительно ~111 км на градус
+            lng_delta = radius_km / max(1, 111 * math.cos(math.radians(lat)))
+            queryset = queryset.filter(
+                lot__latitude__gte=lat - lat_delta,
+                lot__latitude__lte=lat + lat_delta,
+                lot__longitude__gte=lng - lng_delta,
+                lot__longitude__lte=lng + lng_delta,
+            )
             # Python‑фильтрация по расстоянию (работает и без PostGIS)
             filtered: List[ParkingSpot] = []
             for spot in queryset:
@@ -164,10 +184,39 @@ class ParkingSpotViewSet(viewsets.ModelViewSet):
         page = self.paginate_queryset(queryset)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
+            response = self.get_paginated_response(serializer.data)
+            self._maybe_cache_response(request, response.data)
+            return response
 
         serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
+        data = serializer.data
+        self._maybe_cache_response(request, data)
+        return Response(data)
+
+    def _maybe_cache_response(self, request, data):
+        user = request.user
+        if user.is_authenticated:
+            return
+        lat = parse_float(request.query_params.get("lat"))
+        lng = parse_float(request.query_params.get("lng"))
+        if lat is None or lng is None:
+            return
+        cache_key = "spots:{lat:.4f}:{lng:.4f}:{radius}:{page}:{size}".format(
+            lat=lat,
+            lng=lng,
+            radius=request.query_params.get("radius_km") or "default",
+            page=request.query_params.get("page") or "1",
+            size=request.query_params.get("page_size") or "",
+        )
+<<<<<<< ours
+<<<<<<< ours
+        cache.set(cache_key, data, 60)
+=======
+        cache.set(cache_key, data, 300)
+>>>>>>> theirs
+=======
+        cache.set(cache_key, data, 300)
+>>>>>>> theirs
 
 
 class BookingViewSet(viewsets.ModelViewSet):
@@ -285,6 +334,22 @@ class SavedPlaceViewSet(viewsets.ModelViewSet):
         serializer.save(user=self.request.user)
 
 
+class PushSubscriptionViewSet(viewsets.ModelViewSet):
+    """Регистрация WebPush подписок."""
+
+    serializer_class = PushSubscriptionSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    def get_queryset(self):
+        user = self.request.user
+        if not user.is_authenticated:
+            return PushSubscription.objects.none()
+        return PushSubscription.objects.filter(user=user)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user if self.request.user.is_authenticated else None)
+
+
 # =======================
 #   HTML-вьюхи
 # =======================
@@ -302,55 +367,15 @@ class LandingPageView(TemplateView):
 
     def get_context_data(self, **kwargs: Any):
         ctx = super().get_context_data(**kwargs)
-        params = self.request.GET
-
-        city = (params.get("city") or "").strip()
-        lat = parse_float(params.get("lat"))
-        lng = parse_float(params.get("lng"))
-        radius_km = parse_float(params.get("radius_km"))
-
-        lots_qs = ParkingLot.objects.filter(
-            is_active=True, is_approved=True
-        ).select_related("owner")
-
-        if city:
-            lots_qs = lots_qs.filter(city__iexact=city)
-
-        lots = lots_qs.order_by("city", "name")[:50]
-
-        spots_qs = ParkingSpot.objects.filter(
+        city = (self.request.GET.get("city") or "").strip()
+        ctx["lots"] = []  # данные отдаём через API, чтобы не дублировать шаблонную логику
+        ctx["spots"] = []
+        ctx["has_query"] = bool(city)
+        ctx["spots_total"] = ParkingSpot.objects.filter(
             status=ParkingSpot.SpotStatus.ACTIVE,
-            lot__in=lots,
-        ).select_related("lot", "lot__owner")
-
-        spots: Iterable[ParkingSpot]
-
-        if lat is not None and lng is not None and radius_km is not None:
-            filtered: list[ParkingSpot] = []
-            for spot in spots_qs:
-                lot = spot.lot
-                if lot.latitude is None or lot.longitude is None:
-                    continue
-                distance = haversine_distance_km(
-                    lat, lng, lot.latitude, lot.longitude
-                )
-                if distance <= radius_km:
-                    spot.distance_km = distance
-                    filtered.append(spot)
-            spots = sorted(
-                filtered,
-                key=lambda s: getattr(s, "distance_km", 0.0),
-            )[:100]
-        else:
-            spots = spots_qs.order_by(
-                "lot__city", "lot__name", "name"
-            )[:100]
-
-        ctx["lots"] = lots
-        ctx["spots"] = spots
-        ctx["has_query"] = bool(
-            city or (lat is not None and lng is not None and radius_km is not None)
-        )
+            lot__is_active=True,
+            lot__is_approved=True,
+        ).count()
         return ctx
 
 
