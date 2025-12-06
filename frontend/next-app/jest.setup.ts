@@ -12,7 +12,6 @@ if (!global.crypto) {
   const { webcrypto } = require('crypto');
   global.crypto = webcrypto as Crypto;
 }
-<<<<<<< ours
 
 if (!global.ReadableStream) {
   const { ReadableStream } = require('stream/web');
@@ -34,5 +33,3 @@ if (!global.fetch || !global.Response) {
     global.Response = Response;
   }
 }
-=======
->>>>>>> theirs

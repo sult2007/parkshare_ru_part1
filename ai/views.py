@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import logging
 from typing import Any
-from uuid import UUID, uuid4
 
 from asgiref.sync import async_to_sync
 from django.utils import timezone
@@ -15,8 +14,7 @@ from rest_framework.views import APIView
 
 from parking.models import ParkingLot, ParkingSpot
 from ai.pricing import recommend_price_for_spot
-from ai.models import ChatFeedback, ChatMessage, ChatSession, DeviceProfile, UiEvent
-from ai.chat import generate_chat_reply
+from ai.models import DeviceProfile, UiEvent
 from services.llm import check_llm_health
 
 logger = logging.getLogger(__name__)
@@ -207,94 +205,6 @@ class DepartureAssistantAPIView(APIView):
         )
 
 
-class ParkingChatAPIView(APIView):
-    """Мини-чатбот для подсказок по парковке."""
-
-    permission_classes = [AllowAny]
-
-    def post(self, request, *args, **kwargs):
-        data = request.data or {}
-        message = data.get("message") or ""
-        history = data.get("history") or []
-
-        logger.info(
-            "Parking chat API request",
-            extra={
-                "message": str(message)[:200],
-                "history_len": len(history),
-                "user": getattr(request.user, "id", None),
-                "ip": request.META.get("REMOTE_ADDR"),
-                "ua": request.META.get("HTTP_USER_AGENT"),
-            },
-        )
-
-        sid_raw = request.COOKIES.get("ps_chat_sid")
-        try:
-            sid = UUID(sid_raw) if sid_raw else uuid4()
-        except (ValueError, TypeError):
-            sid = uuid4()
-        session, _ = ChatSession.objects.get_or_create(
-            id=sid,
-            defaults={
-                "user": request.user if request.user.is_authenticated else None,
-                "client_info": {
-                    "ua": request.META.get("HTTP_USER_AGENT"),
-                    "ip": request.META.get("REMOTE_ADDR"),
-                },
-            },
-        )
-        if request.user.is_authenticated and session.user is None:
-            session.user = request.user
-            session.save(update_fields=["user", "last_activity_at"])
-
-        ChatMessage.objects.create(
-            session=session,
-            role=ChatMessage.Role.USER,
-            text=message,
-            meta={"history": history},
-        )
-
-        try:
-            logger.info(
-                "Parking chat request received",
-                extra={"message": message, "session": str(session.id)},
-            )
-            result = generate_chat_reply(
-                message,
-                history,
-                request.user if request.user.is_authenticated else None,
-            )
-        except Exception as exc:  # pragma: no cover - защита от любых сбоев
-            logger.exception("Parking chat failed", exc_info=exc)
-            result = {
-                "reply": "Извините, ассистент временно недоступен.",
-                "suggestions": [],
-                "reason": "assistant_error",
-            }
-            status_code = status.HTTP_503_SERVICE_UNAVAILABLE
-        else:
-            status_code = status.HTTP_200_OK
-
-        assistant_message = ChatMessage.objects.create(
-            session=session,
-            role=ChatMessage.Role.ASSISTANT,
-            text=result.get("reply", ""),
-            meta={"suggested_spots": result.get("suggestions", [])},
-        )
-
-        response = Response(
-            {
-                "reply": result.get("reply"),
-                "suggestions": result.get("suggestions", []),
-                "message_id": assistant_message.id,
-                "reason": result.get("reason"),
-            },
-            status=status_code,
-        )
-        response.set_cookie("ps_chat_sid", str(session.id), max_age=60 * 60 * 24 * 30, httponly=False)
-        return response
-
-
 class LLMServiceHealthAPIView(APIView):
     permission_classes = [AllowAny]
 
@@ -308,22 +218,6 @@ class LLMServiceHealthAPIView(APIView):
                 status=status.HTTP_503_SERVICE_UNAVAILABLE,
             )
         return Response(health, status=status.HTTP_200_OK if health.get("ok") else status.HTTP_503_SERVICE_UNAVAILABLE)
-
-
-class ChatFeedbackAPIView(APIView):
-    permission_classes = [AllowAny]
-
-    def post(self, request, *args, **kwargs):
-        message_id = request.data.get("message_id")
-        rating = int(request.data.get("rating", 0))
-        if message_id is None:
-            return Response({"detail": "message_id required"}, status=status.HTTP_400_BAD_REQUEST)
-        try:
-            message = ChatMessage.objects.get(id=message_id)
-        except ChatMessage.DoesNotExist:
-            return Response({"detail": "message not found"}, status=status.HTTP_404_NOT_FOUND)
-        feedback = ChatFeedback.objects.create(message=message, rating=rating)
-        return Response({"id": feedback.id, "rating": feedback.rating}, status=status.HTTP_201_CREATED)
 
 
 # ===== ParkMate AI — конфиг и предсказания (price/availability) =====

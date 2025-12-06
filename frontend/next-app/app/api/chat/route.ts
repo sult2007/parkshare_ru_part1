@@ -1,9 +1,8 @@
 import { streamChatResponse } from '@/lib/aiProvider';
 
-export const runtime = 'edge';
-
-export async function POST(req) {
+export async function POST(req: Request) {
   let payload;
+
   try {
     payload = await req.json();
   } catch {
@@ -16,6 +15,7 @@ export async function POST(req) {
   }
 
   const stream = await streamChatResponse(messages);
+
   return new Response(stream, {
     headers: { "Content-Type": "text/plain; charset=utf-8" }
   });

@@ -22,14 +22,7 @@
         "name": "next"
       }
     ],
-<<<<<<< ours
-    "types": [
-      "jest",
-      "node"
-    ],
-=======
     "types": ["jest", "node"],
->>>>>>> theirs
     "paths": {
       "@/*": [
         "./*"

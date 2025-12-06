@@ -13,7 +13,7 @@ export default function MarkdownMessage({ content }: Props) {
   return (
     <ReactMarkdown
       remarkPlugins={[remarkGfm]}
-      rehypePlugins={[rehypeSanitize, rehypeHighlight]}
+      rehypePlugins={[rehypeSanitize as any, rehypeHighlight as any]}
       className="prose prose-sm max-w-none dark:prose-invert"
     >
       {content}
