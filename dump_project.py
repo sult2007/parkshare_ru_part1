@@ -6,7 +6,6 @@ from datetime import datetime
 EXCLUDED_DIRS = {
     ".git", ".venv", "venv", "__pycache__", "node_modules",
     "dist", "build", "staticfiles", "media", ".idea", ".vscode",
-    "ai_models",  # модели ИИ обычно очень большие
     "static/icons",  # иконки не нужны в дампе
     "logs", "cache", "temp",  # временные файлы и логи
 }
