@@ -3,6 +3,6 @@ __pycache__/
 *.pyc
 .env
 staticfiles/
-node_modules/
 frontend/next-app/node_modules/
 .next/
+node_modules/
