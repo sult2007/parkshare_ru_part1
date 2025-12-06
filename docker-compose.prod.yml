@@ -64,6 +64,22 @@ services:
     networks:
       - parkshare_net
 
+  frontend:
+    build:
+      context: ./frontend/next-app
+      dockerfile: Dockerfile
+    restart: always
+    environment:
+      NEXTAUTH_URL: ${NEXTAUTH_URL:-http://localhost:3000}
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET:-change_me_frontend}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-dummy}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-dummy}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-dummy}
+    ports:
+      - "3000:3000"
+    networks:
+      - parkshare_net
+
   nginx:
     image: nginx:1.27-alpine
     restart: always

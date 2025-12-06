@@ -17,11 +17,17 @@ const nextConfig = {
   async headers() {
     const csp = [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-eval' 'unsafe-inline'",
+      // Next.js injects small inline hydration/runtime scripts; keep inline until moved to a nonce-based policy.
+      "script-src 'self' 'unsafe-inline'",
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: https:",
       "font-src 'self' data:",
-      "connect-src 'self' https://www.googleapis.com https://accounts.google.com",
+      "connect-src 'self' https://www.googleapis.com https://accounts.google.com https://api.openai.com",
+      "frame-src 'self' https://accounts.google.com",
+      "worker-src 'self'",
+      "manifest-src 'self'",
+      "object-src 'none'",
+      "base-uri 'self'",
       "frame-ancestors 'none'",
       "form-action 'self'"
     ].join('; ');

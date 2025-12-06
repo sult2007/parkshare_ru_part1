@@ -8,6 +8,7 @@ import { ChatMessage } from '@/lib/aiProvider';
 import { Conversation, MessageWithId } from './types';
 import { ConversationList } from './conversation-list';
 import { SuggestedPrompts } from './suggested-prompts';
+import { streamChatFromApi } from '@/lib/chatClient';
 
 const MarkdownMessage = dynamic(() => import('./markdown-message'), {
   ssr: false,
@@ -37,6 +38,7 @@ export function ChatPanel() {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const chatEndRef = useRef<HTMLDivElement | null>(null);
   const hasBootstrapped = useRef(false);
 
@@ -54,6 +56,7 @@ export function ChatPanel() {
     } catch (error) {
       console.warn('Failed to parse saved conversations', error);
     }
+    // TODO: Mirror conversation history to a backend store for multi-device sync and tenant scoping.
     const starter = createConversation('Welcome thread');
     setConversations([starter]);
     setActiveConversationId(starter.id);
@@ -103,6 +106,11 @@ export function ChatPanel() {
     [activeConversationId]
   );
 
+  const handleSelectConversation = useCallback((id: string) => {
+    setActiveConversationId(id);
+    setShowSidebar(false);
+  }, []);
+
   const handleSend = useCallback(async () => {
     if (!currentConversation || !input.trim() || isLoading) return;
 
@@ -115,6 +123,12 @@ export function ChatPanel() {
 
     setInput('');
     setIsLoading(true);
+    setErrorMessage(null);
+
+    const payloadMessages: ChatMessage[] = currentConversation.messages
+      .concat(userMessage)
+      .slice(-MAX_HISTORY)
+      .map(({ id, createdAt, ...rest }) => rest as ChatMessage);
 
     updateConversation(currentConversation.id, (conv) => {
       const trimmedHistory = [...conv.messages, userMessage].slice(-MAX_HISTORY);
@@ -129,40 +143,19 @@ export function ChatPanel() {
     }));
 
     try {
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          messages: currentConversation.messages
-            .concat(userMessage)
-            .slice(-MAX_HISTORY)
-            .map(({ id, createdAt, ...rest }) => rest as ChatMessage)
-        })
+      await streamChatFromApi(payloadMessages, {
+        onChunk: (textChunk: string) =>
+          updateConversation(currentConversation.id, (conv) => ({
+            ...conv,
+            messages: conv.messages.map((msg) =>
+              msg.id === assistantMessage.id ? { ...msg, content: msg.content + textChunk } : msg
+            ),
+            updatedAt: Date.now()
+          }))
       });
-
-      if (!response.ok || !response.body) {
-        throw new Error('Failed to reach chat API');
-      }
-
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        const textChunk = decoder.decode(value, { stream: true });
-        updateConversation(currentConversation.id, (conv) => ({
-          ...conv,
-          messages: conv.messages.map((msg) =>
-            msg.id === assistantMessage.id ? { ...msg, content: msg.content + textChunk } : msg
-          ),
-          updatedAt: Date.now()
-        }));
-      }
     } catch (error) {
       console.error(error);
+      setErrorMessage('We could not reach the concierge right now. Please retry or check your connection.');
       updateConversation(currentConversation.id, (conv) => ({
         ...conv,
         messages: conv.messages.map((msg) =>
@@ -237,7 +230,7 @@ export function ChatPanel() {
           <ConversationList
             conversations={conversations}
             activeId={activeConversationId}
-            onSelect={(id) => setActiveConversationId(id)}
+            onSelect={handleSelectConversation}
             onCreate={handleCreate}
             onRename={handleRename}
             onDelete={handleDelete}
@@ -255,6 +248,18 @@ export function ChatPanel() {
               <label htmlFor="chat-input" className="text-sm font-medium text-slate-700 dark:text-slate-200">
                 Ask the concierge
               </label>
+              {errorMessage && (
+                <div className="flex items-start justify-between gap-3 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700 shadow-sm dark:border-red-900 dark:bg-red-950/40 dark:text-red-100">
+                  <p>{errorMessage}</p>
+                  <button
+                    onClick={() => setErrorMessage(null)}
+                    className="rounded-md px-2 py-1 text-[11px] font-semibold text-red-700 transition hover:bg-red-100 dark:text-red-50 dark:hover:bg-red-900/60"
+                    aria-label="Dismiss error"
+                  >
+                    Dismiss
+                  </button>
+                </div>
+              )}
               <div className="flex flex-col gap-3 rounded-2xl border border-slate-200/70 bg-white/70 p-3 shadow-sm transition focus-within:border-indigo-200 focus-within:ring-1 focus-within:ring-indigo-200 dark:border-slate-800/60 dark:bg-slate-900/70 dark:focus-within:border-indigo-500/50 dark:focus-within:ring-indigo-500/50">
                 <textarea
                   id="chat-input"
@@ -289,7 +294,7 @@ export function ChatPanel() {
             <ConversationList
               conversations={conversations}
               activeId={activeConversationId}
-              onSelect={(id) => setActiveConversationId(id)}
+              onSelect={handleSelectConversation}
               onCreate={() => {
                 handleCreate();
                 setShowSidebar(false);
