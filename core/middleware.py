@@ -32,7 +32,9 @@ class SecurityHeadersMiddleware:
             response.setdefault("Content-Security-Policy", csp)
 
         # X-Frame-Options
-        response.setdefault("X-Frame-Options", "DENY")
+        frame_option = getattr(settings, "X_FRAME_OPTIONS", "DENY")
+        if frame_option:
+            response.setdefault("X-Frame-Options", frame_option)
 
         # X-Content-Type-Options
         response.setdefault("X-Content-Type-Options", "nosniff")

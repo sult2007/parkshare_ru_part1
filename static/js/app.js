@@ -542,6 +542,22 @@ function initAdaptiveProbe() {
         initGeolocation();
         initPaymentMethods();
         initBottomNav();
+
+        const aiLauncher = document.querySelector(".ai-assistant-launcher");
+        const aiPanel = document.querySelector(".ai-assistant-panel");
+        const aiClose = document.querySelector(".ai-assistant-panel__close");
+
+        if (aiLauncher && aiPanel) {
+            aiLauncher.addEventListener("click", function () {
+                aiPanel.classList.toggle("is-open");
+            });
+        }
+
+        if (aiClose && aiPanel) {
+            aiClose.addEventListener("click", function () {
+                aiPanel.classList.remove("is-open");
+            });
+        }
     });
 
     // Экспортируем showToast в глобальную область на всякий

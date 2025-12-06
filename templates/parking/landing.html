@@ -246,6 +246,38 @@
     </div>
 </section>
 
+<!-- AI assistant widget -->
+<button
+    class="ai-assistant-launcher"
+    type="button"
+    data-ai-toggle
+    aria-label="AI-помощник"
+>
+    <span class="ai-assistant-launcher__glow"></span>
+    <span class="ai-assistant-launcher__icon">🤖</span>
+</button>
+
+<div class="ai-assistant-panel" data-ai-panel>
+    <div class="ai-assistant-panel__chrome">
+        <div class="ai-assistant-panel__title">AI-помощник по парковке</div>
+        <button
+            type="button"
+            class="ai-assistant-panel__close"
+            data-ai-close
+            aria-label="Закрыть"
+        >
+            ✕
+        </button>
+    </div>
+    <iframe
+        src="http://localhost:3000/embed"
+        class="ai-assistant-frame"
+        loading="lazy"
+        referrerpolicy="no-referrer"
+        sandbox="allow-scripts allow-same-origin allow-forms"
+    ></iframe>
+</div>
+
 {% endblock %}
 
 {% block extra_scripts %}

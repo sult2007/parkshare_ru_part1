@@ -356,6 +356,21 @@ CONTENT_SECURITY_POLICY = env(
         "form-action 'self';"
     ),
 )
+
+if DEBUG:
+    X_FRAME_OPTIONS = "SAMEORIGIN"
+    CONTENT_SECURITY_POLICY = (
+        "default-src 'self'; "
+        "script-src 'self' 'unsafe-inline' https:; "
+        "style-src 'self' 'unsafe-inline' https:; "
+        "img-src 'self' data: https:; "
+        "connect-src 'self' https: http://localhost:3000 http://127.0.0.1:3000; "
+        "font-src 'self' https: data:; "
+        "frame-src 'self' http://localhost:3000 http://127.0.0.1:3000; "
+        "frame-ancestors 'self'; "
+        "form-action 'self';"
+    )
+
 REFERRER_POLICY = env("REFERRER_POLICY", default="strict-origin-when-cross-origin")
 PERMISSIONS_POLICY = env(
     "PERMISSIONS_POLICY",

@@ -15,6 +15,7 @@ const nextConfig = {
     ]
   },
   async headers() {
+    const isDev = process.env.NODE_ENV !== 'production';
     const csp = [
       "default-src 'self'",
       // Next.js injects small inline hydration/runtime scripts; keep inline until moved to a nonce-based policy.
@@ -37,10 +38,14 @@ const nextConfig = {
         key: 'Content-Security-Policy',
         value: csp
       },
-      {
-        key: 'X-Frame-Options',
-        value: 'DENY'
-      },
+      ...(!isDev
+        ? [
+            {
+              key: 'X-Frame-Options',
+              value: 'DENY'
+            }
+          ]
+        : []),
       {
         key: 'X-Content-Type-Options',
         value: 'nosniff'
