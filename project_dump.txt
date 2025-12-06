@@ -1,8 +1,8 @@
 ################################################################################
 # COMPRESSED PROJECT DUMP
 # Root: C:\Users\Sultan\Downloads\parkshare_ru_part1
-# Generated at: 2025-12-06 12:59:14
-# Files: 167
+# Generated at: 2025-12-06 14:55:34
+# Files: 177
 # Max file size: 500KB
 # Code compression: True
 ################################################################################
@@ -131,6 +131,7 @@ parkshare_ru_part1/
         admin.py
         apps.py
         models.py
+        push.py
         serializers.py
         tasks.py
         urls.py
@@ -143,7 +144,11 @@ parkshare_ru_part1/
             0002_parkinglot_stress_index_parkingspot_occupancy_7d.py
             0003_booking_ai_fields.py
             0004_favoriteparkingspot_savedplace.py
+            0005_pushsubscription.py
             __init__.py
+        tests/
+            __init__.py
+            test_pwa_endpoints.py
     payments/
         __init__.py
         admin.py
@@ -186,6 +191,13 @@ parkshare_ru_part1/
             map.js
             parkmate-ai.ts
             quantum-theme-manager.js
+        pwa/
+            api-client.js
+            app.js
+            router.js
+            spots-view.js
+            state-store.js
+            ui-kit.js
     templates/
         base.html
         offline.html
@@ -224,7 +236,7 @@ parkshare_ru_part1/
 FILES CONTENT:
 ================================================================================
 
-# File 1/167: .env
+# File 1/177: .env
 ################################################################################
 
 DEBUG=1
@@ -272,7 +284,7 @@ CELERY_RESULT_BACKEND=redis://localhost:6379/0
 # Database
 DATABASE_URL=sqlite:///db.sqlite3
 
-# File 2/167: .env.example
+# File 2/177: .env.example
 ################################################################################
 
 # Базовые настройки Django
@@ -332,7 +344,7 @@ MAP_PROVIDER=yandex
 YANDEX_MAP_API_KEY=your_yandex_maps_api_key
 
 
-# File 3/167: .env.prod
+# File 3/177: .env.prod
 ################################################################################
 
 # -----------------------------
@@ -378,14 +390,14 @@ YANDEX_MAP_API_KEY=your_yandex_maps_api_key
 MAPBOX_TOKEN=your_actual_token_here
 
 
-# File 4/167: .gitattributes
+# File 4/177: .gitattributes
 ################################################################################
 
 # Auto detect text files and perform LF normalization
 * text=auto
 
 
-# File 5/167: .gitignore
+# File 5/177: .gitignore
 ################################################################################
 
 db.sqlite3
@@ -394,7 +406,7 @@ __pycache__/
 .env
 staticfiles/
 
-# File 6/167: Dockerfile
+# File 6/177: Dockerfile
 ################################################################################
 
 # Production-ready Dockerfile
@@ -435,7 +447,7 @@ HEALTHCHECK --interval=30s --timeout=10s --retries=3 CMD curl -f http://localhos
 CMD ["gunicorn", "backend.config.wsgi:application", "--bind", "0.0.0.0:8000"]
 
 
-# File 7/167: README.md
+# File 7/177: README.md
 ################################################################################
 
 # ParkShare Global Platform
@@ -486,7 +498,7 @@ docker-compose -f docker-compose.prod.yml up -d --build
  
  
 
-# File 8/167: api_server.py
+# File 8/177: api_server.py
 ################################################################################
 
 # api_server.py
@@ -833,7 +845,7 @@ except (TypeError, ValueError):
 port = 8001
 uvicorn.run("api_server:app", host=host, port=port, reload=True)
 
-# File 9/167: app.js
+# File 9/177: app.js
 ################################################################################
 
 const API_BASE = "http:
@@ -1087,7 +1099,7 @@ handleRecommendations("B");
 });
 });
 
-# File 10/167: celerybeat-schedule.bak
+# File 10/177: celerybeat-schedule.bak
 ################################################################################
 
 'entries', (2048, 599)
@@ -1096,18 +1108,18 @@ handleRecommendations("B");
 'utc_enabled', (1536, 4)
 
 
-# File 11/167: celerybeat-schedule.dat
+# File 11/177: celerybeat-schedule.dat
 ################################################################################
 
 �}�.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           ��	       �5.5.3�.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            ��       �
 Europe/Moscow�.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    ��.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            ��L      }�(�expire_unpaid_bookings��celery.beat��
 ScheduleEntry���(�expire_unpaid_bookings��$parking.tasks.expire_unpaid_bookings��datetime��datetime���C
-�5.���builtins��getattr����zoneinfo��ZoneInfo����	_unpickle���R��
-Europe/Moscow�K��R���R�K�celery.schedules��schedule���h�	timedelta���K MXK ��R��N��R�)}�}�t�R��update_ai_models�h(�update_ai_models��ai.tasks.update_models�h	C
-�+0���h��R�KhhK MK ��R��N��R�)}�}�t�R��check_stale_payments�h(�check_stale_payments��#payments.tasks.check_stale_payments�h	C
-�+0���h��R�KhhK M�K ��R��N��R�)}�}�t�R�u.
+�-�E��builtins��getattr����zoneinfo��ZoneInfo����	_unpickle���R��
+Europe/Moscow�K��R���R�K�celery.schedules��schedule���h�	timedelta���K MXK ��R��N��R�)}�}�t�R��update_ai_models�h(�update_ai_models��ai.tasks.update_models�h	C
+�-	3Ӕh��R�KhhK MK ��R��N��R�)}�}�t�R��check_stale_payments�h(�check_stale_payments��#payments.tasks.check_stale_payments�h	C
+�-	;��h��R�KhhK M�K ��R��N��R�)}�}�t�R�u.
 
-# File 12/167: celerybeat-schedule.dir
+# File 12/177: celerybeat-schedule.dir
 ################################################################################
 
 'entries', (2048, 599)
@@ -1116,7 +1128,7 @@ Europe/Moscow�K��R���R�K�celery.schedules��schedule��
 'utc_enabled', (1536, 4)
 
 
-# File 13/167: database.py
+# File 13/177: database.py
 ################################################################################
 
 # database.py
@@ -1319,7 +1331,7 @@ if __name__ == "__main__":
 init_db()
 generate_synthetic_data()
 
-# File 14/167: docker-compose.prod.yml
+# File 14/177: docker-compose.prod.yml
 ################################################################################
 
 version: "3.9"
@@ -1412,7 +1424,7 @@ networks:
     driver: bridge
 
 
-# File 15/167: docker-compose.yml
+# File 15/177: docker-compose.yml
 ################################################################################
 
 version: "3.9"
@@ -1557,7 +1569,7 @@ networks:
     driver: bridge
 
 
-# File 16/167: dump_project.py
+# File 16/177: dump_project.py
 ################################################################################
 
 import os
@@ -1623,7 +1635,7 @@ line = line.split('')[1]
 else:
 line = line.split('
 
-# File 17/167: entrypoint.sh
+# File 17/177: entrypoint.sh
 ################################################################################
 
 #!/bin/sh
@@ -1648,7 +1660,7 @@ exec gunicorn backend.config.wsgi:application \
     --timeout "${GUNICORN_TIMEOUT:-60}"
 
 
-# File 18/167: index.html
+# File 18/177: index.html
 ################################################################################
 
 <!-- index.html -->
@@ -2018,7 +2030,7 @@ window.psThemeManager = window.initQuantumThemeManager();
 </body>
 </html>
 
-# File 19/167: model_training.py
+# File 19/177: model_training.py
 ################################################################################
 
 # model_training.py
@@ -2259,7 +2271,7 @@ print("Готово: все модели обучены и сохранены в
 if __name__ == "__main__":
 main()
 
-# File 20/167: requirements.txt
+# File 20/177: requirements.txt
 ################################################################################
 
 Django==5.2.8
@@ -2293,7 +2305,7 @@ uvicorn[standard]==0.32.1
 colorama==0.4.6
 
 
-# File 21/167: run_dev.bat
+# File 21/177: run_dev.bat
 ################################################################################
 
 @echo off
@@ -2309,7 +2321,7 @@ REM Запускаем основной скрипт
 python run_dev.py
 pause
 
-# File 22/167: run_dev.py
+# File 22/177: run_dev.py
 ################################################################################
 
 #!/usr/bin/env python3
@@ -2590,7 +2602,7 @@ print("👋 Все сервисы остановлены")
 if __name__ == "__main__":
 main()
 
-# File 23/167: run_dev.sh
+# File 23/177: run_dev.sh
 ################################################################################
 
 #!/bin/bash
@@ -2607,12 +2619,12 @@ fi
 # Запускаем основной скрипт
 python run_dev.py
 
-# File 24/167: accounts\__init__.py
+# File 24/177: accounts\__init__.py
 ################################################################################
 
 
 
-# File 25/167: accounts\admin.py
+# File 25/177: accounts\admin.py
 ################################################################################
 
 # accounts/admin.py
@@ -2648,7 +2660,7 @@ list_display = (
 list_filter = ("role", "is_active", "is_staff", "is_superuser")
 search_fields = ("username",)
 
-# File 26/167: accounts\apps.py
+# File 26/177: accounts\apps.py
 ################################################################################
 
 # accounts/apps.py
@@ -2658,7 +2670,7 @@ default_auto_field = "django.db.models.BigAutoField"
 name = "accounts"
 verbose_name = "Пользователи ParkShare"
 
-# File 27/167: accounts\auth.py
+# File 27/177: accounts\auth.py
 ################################################################################
 
 # accounts/auth.py
@@ -2721,7 +2733,7 @@ return None
 except User.MultipleObjectsReturned:
 return _get_first_or_none(qs.filter(phone_hash=phone_hash).order_by("date_joined"))
 
-# File 28/167: accounts\forms.py
+# File 28/177: accounts\forms.py
 ################################################################################
 
 # accounts/forms.py
@@ -2846,7 +2858,7 @@ if commit:
 user.save()
 return user
 
-# File 29/167: accounts\models.py
+# File 29/177: accounts\models.py
 ################################################################################
 
 # accounts/models.py
@@ -3052,7 +3064,7 @@ verbose_name_plural = "Промо/бонусы"
 def __str__(self) -> str:
 return self.code
 
-# File 30/167: accounts\serializers.py
+# File 30/177: accounts\serializers.py
 ################################################################################
 
 # accounts/serializers.py
@@ -3286,7 +3298,7 @@ choices=LoginCode.Purpose.choices,
 default=LoginCode.Purpose.LOGIN,
 )
 
-# File 31/167: accounts\urls.py
+# File 31/177: accounts\urls.py
 ################################################################################
 
 # accounts/urls.py
@@ -3351,7 +3363,7 @@ name="password_reset_complete",
 ),
 ]
 
-# File 32/167: accounts\utils.py
+# File 32/177: accounts\utils.py
 ################################################################################
 
 from __future__ import annotations
@@ -3396,7 +3408,7 @@ if not normalized:
 return ""
 return _hash_value("phone", normalized)
 
-# File 33/167: accounts\views.py
+# File 33/177: accounts\views.py
 ################################################################################
 
 # accounts/views.py
@@ -3711,7 +3723,7 @@ return Response(
 status=status.HTTP_200_OK,
 )
 
-# File 34/167: accounts\migrations\0001_initial.py
+# File 34/177: accounts\migrations\0001_initial.py
 ################################################################################
 
 # Generated by Django 5.2.8 on 2025-11-21 21:34
@@ -3758,7 +3770,7 @@ managers=[
 ),
 ]
 
-# File 35/167: accounts\migrations\0002_user_email_hash_user_phone_hash_logincode.py
+# File 35/177: accounts\migrations\0002_user_email_hash_user_phone_hash_logincode.py
 ################################################################################
 
 # Generated by Django 5.2.8 on 2025-11-23 15:00
@@ -3802,7 +3814,7 @@ options={
 ),
 ]
 
-# File 36/167: accounts\migrations\0003_userlevel_userbadge_promoreward.py
+# File 36/177: accounts\migrations\0003_userlevel_userbadge_promoreward.py
 ################################################################################
 
 import uuid
@@ -3865,17 +3877,17 @@ options={
 ),
 ]
 
-# File 37/167: accounts\migrations\__init__.py
+# File 37/177: accounts\migrations\__init__.py
 ################################################################################
 
 
 
-# File 38/167: ai\__init__.py
+# File 38/177: ai\__init__.py
 ################################################################################
 
 default_app_config = "ai.apps.AiConfig"
 
-# File 39/167: ai\admin.py
+# File 39/177: ai\admin.py
 ################################################################################
 
 from django.contrib import admin
@@ -3902,7 +3914,7 @@ class ChatFeedbackAdmin(admin.ModelAdmin):
 list_display = ("message", "rating", "created_at")
 list_filter = ("rating",)
 
-# File 40/167: ai\apps.py
+# File 40/177: ai\apps.py
 ################################################################################
 
 from django.apps import AppConfig
@@ -3913,7 +3925,7 @@ default_auto_field = "django.db.models.BigAutoField"
 name = "ai"
 verbose_name = "AI и рекомендации ParkShare"
 
-# File 41/167: ai\features.py
+# File 41/177: ai\features.py
 ################################################################################
 
 from __future__ import annotations
@@ -3952,7 +3964,7 @@ df = pd.DataFrame(rows)
 df["is_weekend"] = df["dow"] >= 5
 return df
 
-# File 42/167: ai\models.py
+# File 42/177: ai\models.py
 ################################################################################
 
 # ai/models.py
@@ -4073,7 +4085,7 @@ ordering = ("-created_at",)
 def __str__(self) -> str:
 return f"Feedback({self.rating})"
 
-# File 43/167: ai\orchestrator.py
+# File 43/177: ai\orchestrator.py
 ################################################################################
 
 from __future__ import annotations
@@ -4124,7 +4136,7 @@ booking.ai_snapshot = {
 "availability": forecast,
 }
 
-# File 44/167: ai\pricing.py
+# File 44/177: ai\pricing.py
 ################################################################################
 
 from __future__ import annotations
@@ -4218,12 +4230,12 @@ return {
 "reason": reason,
 }
 
-# File 45/167: ai\serializers.py
+# File 45/177: ai\serializers.py
 ################################################################################
 
 
 
-# File 46/167: ai\tasks.py
+# File 46/177: ai\tasks.py
 ################################################################################
 
 from __future__ import annotations
@@ -4285,7 +4297,7 @@ values = [max(0.0, min(s.occupancy_7d, 1.0)) for s in spots]
 lot.stress_index = sum(values) / len(values)
 lot.save(update_fields=["stress_index"])
 
-# File 47/167: ai\views.py
+# File 47/177: ai\views.py
 ################################################################################
 
 # backend/ai/views.py
@@ -4764,14 +4776,14 @@ data = {
 }
 return Response(data, status=status.HTTP_200_OK)
 
-# File 48/167: ai\chat\__init__.py
+# File 48/177: ai\chat\__init__.py
 ################################################################################
 
 """Chat helpers for local parking assistant."""
 from .parking_assistant import generate_chat_reply
 __all__ = ["generate_chat_reply"]
 
-# File 49/167: ai\chat\parking_assistant.py
+# File 49/177: ai\chat\parking_assistant.py
 ################################################################################
 
 """
@@ -5080,17 +5092,17 @@ logger.exception("LLM flow errored, forcing rule-based fallback", exc_info=exc)
 logger.info("Falling back to rule-based parser")
 return _handle_rule_based_flow(lowered)
 
-# File 50/167: ai\management\__init__.py
+# File 50/177: ai\management\__init__.py
 ################################################################################
 
 
 
-# File 51/167: ai\management\commands\__init__.py
+# File 51/177: ai\management\commands\__init__.py
 ################################################################################
 
 
 
-# File 52/167: ai\management\commands\train_chat_intents_from_logs.py
+# File 52/177: ai\management\commands\train_chat_intents_from_logs.py
 ################################################################################
 
 from django.core.management.base import BaseCommand
@@ -5107,7 +5119,7 @@ self.stdout.write(f"Сообщений пользователей: {user_message
 # TODO: выгружать диалоги и обучать намерения
 self.stdout.write("Подготовка к обучению завершена (заглушка).")
 
-# File 53/167: ai\migrations\0001_initial.py
+# File 53/177: ai\migrations\0001_initial.py
 ################################################################################
 
 # Generated manually to include initial AI models
@@ -5206,12 +5218,12 @@ options={
 ),
 ]
 
-# File 54/167: ai\migrations\__init__.py
+# File 54/177: ai\migrations\__init__.py
 ################################################################################
 
 
 
-# File 55/167: ai_services\__init__.py
+# File 55/177: ai_services\__init__.py
 ################################################################################
 
 """
@@ -5221,14 +5233,14 @@ AI microservices for ParkShare / ParkShare RU.
 - cv_service: Computer Vision (распознавание номеров, заполненность и т.д.).
 """
 
-# File 56/167: ai_services\ai_pricing_service\__init__.py
+# File 56/177: ai_services\ai_pricing_service\__init__.py
 ################################################################################
 
 """
 AI Pricing microservice (FastAPI) for dynamic parking spot pricing.
 """
 
-# File 57/167: ai_services\ai_pricing_service\main.py
+# File 57/177: ai_services\ai_pricing_service\main.py
 ################################################################################
 
 from __future__ import annotations
@@ -5381,7 +5393,7 @@ is_discount=is_discount,
 reason=reason,
 )
 
-# File 58/167: ai_services\cv_service\__init__.py
+# File 58/177: ai_services\cv_service\__init__.py
 ################################################################################
 
 """
@@ -5390,7 +5402,7 @@ Computer Vision microservice (FastAPI) for ParkShare:
 - оценка заполненности парковок по кадрам камер.
 """
 
-# File 59/167: ai_services\cv_service\main.py
+# File 59/177: ai_services\cv_service\main.py
 ################################################################################
 
 from __future__ import annotations
@@ -5495,7 +5507,7 @@ occupancy_rate=round(occupancy_rate, 3),
 timestamp=datetime.now(timezone.utc),
 )
 
-# File 60/167: backend\__init__.py
+# File 60/177: backend\__init__.py
 ################################################################################
 
 """
@@ -5508,7 +5520,7 @@ location without raising errors when __file__ is missing.
 from backend.backend.config.celery import app as celery_app
 __all__ = ("celery_app",)
 
-# File 61/167: backend\manage.py
+# File 61/177: backend\manage.py
 ################################################################################
 
 #!/usr/bin/env python
@@ -5545,13 +5557,13 @@ execute_from_command_line(sys.argv)
 if __name__ == "__main__":
 main()
 
-# File 62/167: backend\backend\__init__.py
+# File 62/177: backend\backend\__init__.py
 ################################################################################
 
 from .config.celery import app as celery_app
 __all__ = ("celery_app",)
 
-# File 63/167: backend\backend\config\__init__.py
+# File 63/177: backend\backend\config\__init__.py
 ################################################################################
 
 """Django config package for ASGI/WSGI and Celery app exposure."""
@@ -5562,7 +5574,7 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "backend.backend.settings.local"
 from .celery import app as celery_app
 __all__ = ("celery_app",)
 
-# File 64/167: backend\backend\config\asgi.py
+# File 64/177: backend\backend\config\asgi.py
 ################################################################################
 
 import os
@@ -5575,7 +5587,7 @@ raise RuntimeError(
 )
 application = get_asgi_application()
 
-# File 65/167: backend\backend\config\celery.py
+# File 65/177: backend\backend\config\celery.py
 ################################################################################
 
 # backend/backend/config/celery.py
@@ -5597,7 +5609,7 @@ app.autodiscover_tasks()
 def debug_task(self) -> None:
 print(f"Debug task: Request: {self.request!r}")
 
-# File 66/167: backend\backend\config\urls.py
+# File 66/177: backend\backend\config\urls.py
 ################################################################################
 
 from django.conf import settings
@@ -5635,6 +5647,11 @@ r"parking/favorites", parking_views.FavoriteParkingSpotViewSet, basename="favori
 )
 router.register(
 r"parking/saved-places", parking_views.SavedPlaceViewSet, basename="saved-place"
+)
+router.register(
+r"parking/push-subscriptions",
+parking_views.PushSubscriptionViewSet,
+basename="push-subscription",
 )
 # Payments
 router.register(r"payments", payments_api.PaymentViewSet, basename="payment")
@@ -5729,7 +5746,7 @@ if settings.DEBUG:
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
-# File 67/167: backend\backend\config\wsgi.py
+# File 67/177: backend\backend\config\wsgi.py
 ################################################################################
 
 import os
@@ -5742,7 +5759,7 @@ raise RuntimeError(
 )
 application = get_wsgi_application()
 
-# File 68/167: backend\backend\settings\__init__.py
+# File 68/177: backend\backend\settings\__init__.py
 ################################################################################
 
 """
@@ -5755,7 +5772,7 @@ application = get_wsgi_application()
 Это согласовано с проверками в backend.backend.config.wsgi / asgi / celery.
 """
 
-# File 69/167: backend\backend\settings\base.py
+# File 69/177: backend\backend\settings\base.py
 ################################################################################
 
 import os
@@ -6119,7 +6136,7 @@ CACHES = {
 }
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# File 70/167: backend\backend\settings\local.py
+# File 70/177: backend\backend\settings\local.py
 ################################################################################
 
 from .base import *
@@ -6131,7 +6148,7 @@ SECURE_SSL_REDIRECT = False
 SESSION_COOKIE_SECURE = False
 CSRF_COOKIE_SECURE = False
 
-# File 71/167: backend\backend\settings\production.py
+# File 71/177: backend\backend\settings\production.py
 ################################################################################
 
 from django.core.exceptions import ImproperlyConfigured
@@ -6151,7 +6168,7 @@ SECURE_HSTS_SECONDS = env.int("SECURE_HSTS_SECONDS", default=60 * 60 * 24)
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 SECURE_HSTS_PRELOAD = True
 
-# File 72/167: backend\backend\settings\regions.py
+# File 72/177: backend\backend\settings\regions.py
 ################################################################################
 
 from __future__ import annotations
@@ -6236,12 +6253,12 @@ REGION_PROFILES = {
 },
 }
 
-# File 73/167: backend\rest_framework_simplejwt\__init__.py
+# File 73/177: backend\rest_framework_simplejwt\__init__.py
 ################################################################################
 
 """Stub for rest_framework_simplejwt to allow offline checks."""
 
-# File 74/167: backend\rest_framework_simplejwt\authentication.py
+# File 74/177: backend\rest_framework_simplejwt\authentication.py
 ################################################################################
 
 from rest_framework.authentication import BaseAuthentication
@@ -6249,7 +6266,7 @@ class JWTAuthentication(BaseAuthentication):
 def authenticate(self, request):
 return None
 
-# File 75/167: backend\rest_framework_simplejwt\tokens.py
+# File 75/177: backend\rest_framework_simplejwt\tokens.py
 ################################################################################
 
 class RefreshToken:
@@ -6262,7 +6279,7 @@ return "stub-token"
 def access_token(self):
 return "stub-access"
 
-# File 76/167: backend\rest_framework_simplejwt\views.py
+# File 76/177: backend\rest_framework_simplejwt\views.py
 ################################################################################
 
 from rest_framework.response import Response
@@ -6276,12 +6293,12 @@ return Response({"access": "stub"})
 class TokenRefreshSlidingView(TokenRefreshView):
 pass
 
-# File 77/167: backend\tests\__init__.py
+# File 77/177: backend\tests\__init__.py
 ################################################################################
 
 # Пакет с базовыми тестами проекта ParkShare RU.
 
-# File 78/167: backend\tests\test_auth_api.py
+# File 78/177: backend\tests\test_auth_api.py
 ################################################################################
 
 from django.test import TestCase
@@ -6329,7 +6346,7 @@ format="json",
 )
 self.assertEqual(resp.status_code, 200)
 
-# File 79/167: backend\tests\test_booking_model.py
+# File 79/177: backend\tests\test_booking_model.py
 ################################################################################
 
 from datetime import timedelta
@@ -6404,17 +6421,17 @@ existing.end_at + timedelta(hours=1),
 )
 )
 
-# File 80/167: core\__init__.py
+# File 80/177: core\__init__.py
 ################################################################################
 
 
 
-# File 81/167: core\admin.py
+# File 81/177: core\admin.py
 ################################################################################
 
 
 
-# File 82/167: core\apps.py
+# File 82/177: core\apps.py
 ################################################################################
 
 # core/apps.py
@@ -6424,7 +6441,7 @@ default_auto_field = "django.db.models.BigAutoField"
 name = "core"
 verbose_name = "Ядро ParkShare"
 
-# File 83/167: core\context_processors.py
+# File 83/177: core\context_processors.py
 ################################################################################
 
 # core/context_processors.py
@@ -6450,7 +6467,7 @@ settings,
 "MAP_DEFAULT_ZOOM": getattr(settings, "MAP_DEFAULT_ZOOM", 11),
 }
 
-# File 84/167: core\integrations.py
+# File 84/177: core\integrations.py
 ################################################################################
 
 """core/integrations.py
@@ -6565,7 +6582,7 @@ if settings.PLATFORM_MODE == "GLOBAL":
 return GLOBAL_INTEGRATIONS
 return RU_INTEGRATIONS
 
-# File 85/167: core\middleware.py
+# File 85/177: core\middleware.py
 ################################################################################
 
 from __future__ import annotations
@@ -6667,7 +6684,7 @@ current = int(self.cache.get(cache_key) or 0) + 1
 self.cache.set(cache_key, current, timeout=self.window)
 return current > self.limit
 
-# File 86/167: core\models.py
+# File 86/177: core\models.py
 ################################################################################
 
 # backend/core/models.py
@@ -6694,7 +6711,7 @@ class TimeStampedUUIDModel(TimeStampedModel, UUIDModel):
 class Meta:
 abstract = True
 
-# File 87/167: core\pagination.py
+# File 87/177: core\pagination.py
 ################################################################################
 
 # core/pagination.py
@@ -6710,7 +6727,7 @@ page_size = settings.REST_FRAMEWORK.get("PAGE_SIZE", 20)
 page_size_query_param = "page_size"
 max_page_size = 100
 
-# File 88/167: core\permissions.py
+# File 88/177: core\permissions.py
 ################################################################################
 
 # core/permissions.py
@@ -6764,7 +6781,7 @@ return True
 owner = getattr(obj, "owner", None)
 return owner == user
 
-# File 89/167: core\utils.py
+# File 89/177: core\utils.py
 ################################################################################
 
 # backend/core/utils.py
@@ -6869,18 +6886,18 @@ scaled = (v / step_dec).quantize(Decimal("1"), rounding=ROUND_HALF_UP)
 result = scaled * step_dec
 return float(result)
 
-# File 90/167: drf_spectacular\__init__.py
+# File 90/177: drf_spectacular\__init__.py
 ################################################################################
 
 """Локальный заглушечный пакет drf_spectacular для офлайн-среды."""
 
-# File 91/167: drf_spectacular\openapi.py
+# File 91/177: drf_spectacular\openapi.py
 ################################################################################
 
 from rest_framework.schemas.openapi import AutoSchema
 __all__ = ["AutoSchema"]
 
-# File 92/167: drf_spectacular\views.py
+# File 92/177: drf_spectacular\views.py
 ################################################################################
 
 from rest_framework.response import Response
@@ -6902,7 +6919,7 @@ __all__ = [
 "SpectacularRedocView",
 ]
 
-# File 93/167: frontend\parkmate\parkmate.types.ts
+# File 93/177: frontend\parkmate\parkmate.types.ts
 ################################################################################
 
 export interface ParkMateAI {
@@ -6944,7 +6961,7 @@ availability: "/api/ai/predict/availability/",
 },
 };
 
-# File 94/167: nginx\nginx.conf
+# File 94/177: nginx\nginx.conf
 ################################################################################
 
 user  nginx;
@@ -7017,13 +7034,13 @@ http {
 }
 
 
-# File 95/167: parking\__init__.py
+# File 95/177: parking\__init__.py
 ################################################################################
 
 # backend/parking/__init__.py
 default_app_config = "parking.apps.ParkingConfig"
 
-# File 96/167: parking\admin.py
+# File 96/177: parking\admin.py
 ################################################################################
 
 # backend/parking/admin.py
@@ -7084,7 +7101,7 @@ list_filter = ("category", "status", "created_at")
 search_fields = ("author__username", "description")
 autocomplete_fields = ("author", "booking", "spot")
 
-# File 97/167: parking\apps.py
+# File 97/177: parking\apps.py
 ################################################################################
 
 # backend/parking/apps.py
@@ -7094,7 +7111,7 @@ default_auto_field = "django.db.models.BigAutoField"
 name = "parking"
 verbose_name = "Парковки и бронирования"
 
-# File 98/167: parking\models.py
+# File 98/177: parking\models.py
 ################################################################################
 
 # backend/parking/models.py
@@ -7604,8 +7621,81 @@ ordering = ("title",)
 unique_together = ("user", "title")
 def __str__(self) -> str:
 return f"{self.title} ({self.user})"
+class PushSubscription(TimeStampedModel):
+"""Хранение WebPush‑подписок для уведомлений."""
+user = models.ForeignKey(
+settings.AUTH_USER_MODEL,
+on_delete=models.CASCADE,
+related_name="push_subscriptions",
+null=True,
+blank=True,
+)
+endpoint = models.URLField(unique=True)
+p256dh = models.CharField(max_length=255)
+auth = models.CharField(max_length=255)
+platform = models.CharField(max_length=64, blank=True)
+user_agent = models.CharField(max_length=255, blank=True)
+class Meta:
+verbose_name = "Push-подписка"
+verbose_name_plural = "Push-подписки"
+ordering = ("-created_at",)
+def __str__(self) -> str:
+return f"{self.user or 'guest'} {self.endpoint[:32]}"
 
-# File 99/167: parking\serializers.py
+# File 99/177: parking\push.py
+################################################################################
+
+"""Lightweight push notification service wrapper.
+The module intentionally avoids binding to a specific provider. It validates
+payloads and envelopes and provides a single entry point that backend code can
+call without caring about transport details.
+"""
+from __future__ import annotations
+import json
+import logging
+import os
+from typing import Iterable, Optional
+from parking.models import PushSubscription
+logger = logging.getLogger(__name__)
+class PushTransportError(Exception):
+"""Raised when the configured push transport fails."""
+def _vapid_keys() -> tuple[Optional[str], Optional[str]]:
+return os.getenv("PUSH_VAPID_PUBLIC_KEY"), os.getenv("PUSH_VAPID_PRIVATE_KEY")
+def send_parking_notification(user, payload: dict, subscriptions: Optional[Iterable[PushSubscription]] = None) -> int:
+"""Send a WebPush notification to the provided subscriptions.
+The function is transport-agnostic; actual integration with a provider
+(VAPID/FCM/etc.) should be added where marked. Returns number of successfully
+queued notifications.
+"""
+public_key, private_key = _vapid_keys()
+if not public_key or not private_key:
+logger.info("Push skipped: VAPID keys are not configured")
+return 0
+subs = list(subscriptions or [])
+if not subs and user:
+subs = list(PushSubscription.objects.filter(user=user))
+if not subs:
+return 0
+# Normalize payload to expected shape consumed by service worker
+normalized = {
+"title": payload.get("title") or "ParkShare",
+"body": payload.get("body") or "Новые события по бронированиям",
+"data": payload.get("data") or {},
+"actions": payload.get("actions") or [],
+}
+delivered = 0
+for sub in subs:
+try:
+# TODO: plug in concrete push provider here (pywebpush/FCM/etc.)
+logger.debug("Would send push to %s", sub.endpoint)
+_ = json.dumps(normalized, ensure_ascii=False)
+delivered += 1
+except Exception as exc:
+logger.warning("Push delivery failed, dropping subscription %s: %s", sub.id, exc)
+sub.delete()
+return delivered
+
+# File 100/177: parking\serializers.py
 ################################################################################
 
 from __future__ import annotations
@@ -7619,6 +7709,7 @@ Complaint,
 FavoriteParkingSpot,
 ParkingLot,
 ParkingSpot,
+PushSubscription,
 SavedPlace,
 WaitlistEntry,
 )
@@ -7947,8 +8038,28 @@ request = self.context.get("request")
 if request and request.user.is_authenticated:
 validated_data["user"] = request.user
 return super().create(validated_data)
+class PushSubscriptionSerializer(serializers.ModelSerializer):
+class Meta:
+model = PushSubscription
+fields = (
+"id",
+"endpoint",
+"p256dh",
+"auth",
+"platform",
+"user_agent",
+"created_at",
+)
+read_only_fields = ("id", "created_at")
+def create(self, validated_data):
+request = self.context.get("request")
+if request:
+validated_data.setdefault("user_agent", request.META.get("HTTP_USER_AGENT", ""))
+if request.user.is_authenticated:
+validated_data.setdefault("user", request.user)
+return super().create(validated_data)
 
-# File 100/167: parking\tasks.py
+# File 101/177: parking\tasks.py
 ################################################################################
 
 # backend/parking/tasks.py
@@ -7977,7 +8088,7 @@ booking.status = Booking.Status.EXPIRED
 booking.save(update_fields=["status"])
 return f"Expired {count} unpaid bookings"
 
-# File 101/167: parking\urls.py
+# File 102/177: parking\urls.py
 ################################################################################
 
 # backend/parking/urls.py
@@ -7987,7 +8098,7 @@ urlpatterns: list = [
 # На данный момент все HTML‑страницы подключаются напрямую из config.urls.
 ]
 
-# File 102/167: parking\views.py
+# File 103/177: parking\views.py
 ################################################################################
 
 from __future__ import annotations
@@ -7995,6 +8106,7 @@ from typing import Any, Iterable, List
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.cache import cache
 from django.db.models import Q
+import math
 import requests
 from django.shortcuts import redirect
 from django.urls import reverse
@@ -8010,6 +8122,7 @@ Complaint,
 FavoriteParkingSpot,
 ParkingLot,
 ParkingSpot,
+PushSubscription,
 SavedPlace,
 WaitlistEntry,
 )
@@ -8019,6 +8132,7 @@ ComplaintSerializer,
 FavoriteParkingSpotSerializer,
 ParkingLotSerializer,
 ParkingSpotSerializer,
+PushSubscriptionSerializer,
 SavedPlaceSerializer,
 WaitlistEntrySerializer,
 )
@@ -8104,10 +8218,26 @@ def list(self, request, *args, **kwargs):
 Список мест c опциональной фильтрацией по радиусу от точки (lat/lng).
 """
 queryset = self.filter_queryset(self.get_queryset())
+try:
+page_size = int(request.query_params.get("page_size") or 50)
+except (TypeError, ValueError):
+page_size = 50
+page_size = min(max(page_size, 1), 100)
+if hasattr(self, "paginator"):
+self.paginator.page_size = page_size
 lat = parse_float(request.query_params.get("lat"))
 lng = parse_float(request.query_params.get("lng"))
-radius_km = parse_float(request.query_params.get("radius_km"))
+radius_km = parse_float(request.query_params.get("radius_km")) or 5
+radius_km = min(radius_km, 25)
 if lat is not None and lng is not None and radius_km is not None:
+lat_delta = radius_km / 111
+lng_delta = radius_km / max(1, 111 * math.cos(math.radians(lat)))
+queryset = queryset.filter(
+lot__latitude__gte=lat - lat_delta,
+lot__latitude__lte=lat + lat_delta,
+lot__longitude__gte=lng - lng_delta,
+lot__longitude__lte=lng + lng_delta,
+)
 # Python‑фильтрация по расстоянию (работает и без PostGIS)
 filtered: List[ParkingSpot] = []
 for spot in queryset:
@@ -8124,9 +8254,29 @@ queryset = filtered
 page = self.paginate_queryset(queryset)
 if page is not None:
 serializer = self.get_serializer(page, many=True)
-return self.get_paginated_response(serializer.data)
+response = self.get_paginated_response(serializer.data)
+self._maybe_cache_response(request, response.data)
+return response
 serializer = self.get_serializer(queryset, many=True)
-return Response(serializer.data)
+data = serializer.data
+self._maybe_cache_response(request, data)
+return Response(data)
+def _maybe_cache_response(self, request, data):
+user = request.user
+if user.is_authenticated:
+return
+lat = parse_float(request.query_params.get("lat"))
+lng = parse_float(request.query_params.get("lng"))
+if lat is None or lng is None:
+return
+cache_key = "spots:{lat:.4f}:{lng:.4f}:{radius}:{page}:{size}".format(
+lat=lat,
+lng=lng,
+radius=request.query_params.get("radius_km") or "default",
+page=request.query_params.get("page") or "1",
+size=request.query_params.get("page_size") or "",
+)
+cache.set(cache_key, data, 60)
 class BookingViewSet(viewsets.ModelViewSet):
 """
 Бронирования.
@@ -8214,6 +8364,17 @@ return qs
 return qs.filter(user=user)
 def perform_create(self, serializer):
 serializer.save(user=self.request.user)
+class PushSubscriptionViewSet(viewsets.ModelViewSet):
+"""Регистрация WebPush подписок."""
+serializer_class = PushSubscriptionSerializer
+permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+def get_queryset(self):
+user = self.request.user
+if not user.is_authenticated:
+return PushSubscription.objects.none()
+return PushSubscription.objects.filter(user=user)
+def perform_create(self, serializer):
+serializer.save(user=self.request.user if self.request.user.is_authenticated else None)
 # =======================
 #   HTML-вьюхи
 # =======================
@@ -8227,47 +8388,15 @@ class LandingPageView(TemplateView):
 template_name = "parking/landing.html"
 def get_context_data(self, **kwargs: Any):
 ctx = super().get_context_data(**kwargs)
-params = self.request.GET
-city = (params.get("city") or "").strip()
-lat = parse_float(params.get("lat"))
-lng = parse_float(params.get("lng"))
-radius_km = parse_float(params.get("radius_km"))
-lots_qs = ParkingLot.objects.filter(
-is_active=True, is_approved=True
-).select_related("owner")
-if city:
-lots_qs = lots_qs.filter(city__iexact=city)
-lots = lots_qs.order_by("city", "name")[:50]
-spots_qs = ParkingSpot.objects.filter(
+city = (self.request.GET.get("city") or "").strip()
+ctx["lots"] = []
+ctx["spots"] = []
+ctx["has_query"] = bool(city)
+ctx["spots_total"] = ParkingSpot.objects.filter(
 status=ParkingSpot.SpotStatus.ACTIVE,
-lot__in=lots,
-).select_related("lot", "lot__owner")
-spots: Iterable[ParkingSpot]
-if lat is not None and lng is not None and radius_km is not None:
-filtered: list[ParkingSpot] = []
-for spot in spots_qs:
-lot = spot.lot
-if lot.latitude is None or lot.longitude is None:
-continue
-distance = haversine_distance_km(
-lat, lng, lot.latitude, lot.longitude
-)
-if distance <= radius_km:
-spot.distance_km = distance
-filtered.append(spot)
-spots = sorted(
-filtered,
-key=lambda s: getattr(s, "distance_km", 0.0),
-)[:100]
-else:
-spots = spots_qs.order_by(
-"lot__city", "lot__name", "name"
-)[:100]
-ctx["lots"] = lots
-ctx["spots"] = spots
-ctx["has_query"] = bool(
-city or (lat is not None and lng is not None and radius_km is not None)
-)
+lot__is_active=True,
+lot__is_approved=True,
+).count()
 return ctx
 class MapPageView(LandingPageView):
 """Полноэкранная карта с теми же данными, что и лендинг."""
@@ -8444,7 +8573,7 @@ payload = {"results": results}
 cache.set(cache_key, payload, 60 * 10)
 return Response(payload)
 
-# File 103/167: parking\management\commands\seed_demo_parking.py
+# File 104/177: parking\management\commands\seed_demo_parking.py
 ################################################################################
 
 # parking/management/commands/seed_demo_parking.py
@@ -8576,7 +8705,7 @@ f"(создано за этот запуск {created_count})."
 )
 self.stdout.write(self.style.SUCCESS("seed_demo_parking: демо-данные готовы."))
 
-# File 104/167: parking\migrations\0001_initial.py
+# File 105/177: parking\migrations\0001_initial.py
 ################################################################################
 
 # Generated by Django 5.2.8 on 2025-11-21 21:34
@@ -8712,7 +8841,7 @@ options={
 ),
 ]
 
-# File 105/167: parking\migrations\0002_parkinglot_stress_index_parkingspot_occupancy_7d.py
+# File 106/177: parking\migrations\0002_parkinglot_stress_index_parkingspot_occupancy_7d.py
 ################################################################################
 
 # Generated by Django 5.2.8 on 2025-11-22 11:21
@@ -8734,7 +8863,7 @@ field=models.FloatField(default=0.0, help_text='Доля времени, ког�
 ),
 ]
 
-# File 106/167: parking\migrations\0003_booking_ai_fields.py
+# File 107/177: parking\migrations\0003_booking_ai_fields.py
 ################################################################################
 
 from django.db import migrations, models
@@ -8755,7 +8884,7 @@ field=models.BooleanField(default=False, verbose_name="Динамическое 
 ),
 ]
 
-# File 107/167: parking\migrations\0004_favoriteparkingspot_savedplace.py
+# File 108/177: parking\migrations\0004_favoriteparkingspot_savedplace.py
 ################################################################################
 
 from django.conf import settings
@@ -8805,17 +8934,118 @@ options={
 ),
 ]
 
-# File 108/167: parking\migrations\__init__.py
+# File 109/177: parking\migrations\0005_pushsubscription.py
+################################################################################
+
+# Generated by Django 5.2.8 on 2025-12-06 10:47
+import django.db.models.deletion
+from django.conf import settings
+from django.db import migrations, models
+class Migration(migrations.Migration):
+dependencies = [
+("parking", "0004_favoriteparkingspot_savedplace"),
+migrations.swappable_dependency(settings.AUTH_USER_MODEL),
+]
+operations = [
+migrations.CreateModel(
+name="PushSubscription",
+fields=[
+(
+"id",
+models.BigAutoField(
+auto_created=True,
+primary_key=True,
+serialize=False,
+verbose_name="ID",
+),
+),
+(
+"created_at",
+models.DateTimeField(
+auto_now_add=True, verbose_name="Дата создания"
+),
+),
+(
+"updated_at",
+models.DateTimeField(auto_now=True, verbose_name="Дата обновления"),
+),
+("endpoint", models.URLField(unique=True)),
+("p256dh", models.CharField(max_length=255)),
+("auth", models.CharField(max_length=255)),
+("platform", models.CharField(blank=True, max_length=64)),
+("user_agent", models.CharField(blank=True, max_length=255)),
+(
+"user",
+models.ForeignKey(
+blank=True,
+null=True,
+on_delete=django.db.models.deletion.CASCADE,
+related_name="push_subscriptions",
+to=settings.AUTH_USER_MODEL,
+),
+),
+],
+options={
+"verbose_name": "Push-подписка",
+"verbose_name_plural": "Push-подписки",
+"ordering": ("-created_at",),
+},
+),
+]
+
+# File 110/177: parking\migrations\__init__.py
 ################################################################################
 
 
 
-# File 109/167: payments\__init__.py
+# File 111/177: parking\tests\__init__.py
+################################################################################
+
+
+
+# File 112/177: parking\tests\test_pwa_endpoints.py
+################################################################################
+
+import os
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "backend.backend.settings.local")
+import django
+from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.test import TestCase
+from django.urls import reverse
+from rest_framework.test import APIClient
+class PushSubscriptionAPITest(TestCase):
+@classmethod
+def setUpClass(cls):
+super().setUpClass()
+django.setup()
+settings.ALLOWED_HOSTS.append("testserver")
+def setUp(self):
+self.client = APIClient()
+def test_requires_payload(self):
+url = reverse('push-subscription-list')
+resp = self.client.post(url, {}, format='json')
+self.assertEqual(resp.status_code, 403)
+def test_authenticated_create(self):
+User = get_user_model()
+user = User.objects.create_user(username='pwa-user', password='pw')
+self.client.force_authenticate(user)
+url = reverse('push-subscription-list')
+payload = {
+'endpoint': 'https:
+'p256dh': 'key',
+'auth': 'auth',
+}
+resp = self.client.post(url, payload, format='json')
+self.assertEqual(resp.status_code, 201)
+self.assertEqual(resp.data['endpoint'], payload['endpoint'])
+
+# File 113/177: payments\__init__.py
 ################################################################################
 
 default_app_config = "payments.apps.PaymentsConfig"
 
-# File 110/167: payments\admin.py
+# File 114/177: payments\admin.py
 ################################################################################
 
 from django.contrib import admin
@@ -8845,7 +9075,7 @@ list_filter = (
 search_fields = ("provider_payment_id", "booking__id", "payer__username")
 autocomplete_fields = ("booking", "payer")
 
-# File 111/167: payments\apps.py
+# File 115/177: payments\apps.py
 ################################################################################
 
 from django.apps import AppConfig
@@ -8854,7 +9084,7 @@ default_auto_field = "django.db.models.BigAutoField"
 name = "payments"
 verbose_name = "Платежи"
 
-# File 112/167: payments\models.py
+# File 116/177: payments\models.py
 ################################################################################
 
 from __future__ import annotations
@@ -9060,7 +9290,7 @@ pk=self.pk
 ).update(is_default=False)
 return super().save(*args, **kwargs)
 
-# File 113/167: payments\providers.py
+# File 117/177: payments\providers.py
 ################################################################################
 
 from __future__ import annotations
@@ -9147,7 +9377,7 @@ raw_response = {
 }
 return payment_url, provider_payment_id, raw_response
 
-# File 114/167: payments\serializers.py
+# File 118/177: payments\serializers.py
 ################################################################################
 
 # payments/serializers.py
@@ -9298,7 +9528,7 @@ if request and request.user.is_authenticated:
 validated_data["user"] = request.user
 return super().create(validated_data)
 
-# File 115/167: payments\tasks.py
+# File 119/177: payments\tasks.py
 ################################################################################
 
 from __future__ import annotations
@@ -9316,7 +9546,7 @@ def check_stale_payments() -> str:
 pending_count = Payment.objects.filter(status=Payment.Status.PENDING).count()
 return f"Pending payments count: {pending_count}"
 
-# File 116/167: payments\views.py
+# File 120/177: payments\views.py
 ################################################################################
 
 from __future__ import annotations
@@ -9459,7 +9689,7 @@ if not payment:
 return Response({"detail": "Payment not found"}, status=status.HTTP_404_NOT_FOUND)
 return Response({"detail": "ok"}, status=status.HTTP_200_OK)
 
-# File 117/167: payments\migrations\0001_initial.py
+# File 121/177: payments\migrations\0001_initial.py
 ################################################################################
 
 # Generated by Django 5.2.8 on 2025-11-21 21:34
@@ -9499,7 +9729,7 @@ options={
 ),
 ]
 
-# File 118/167: payments\migrations\0002_alter_payment_provider.py
+# File 122/177: payments\migrations\0002_alter_payment_provider.py
 ################################################################################
 
 # Generated by Django 5.2.8 on 2025-11-23 12:00
@@ -9516,7 +9746,7 @@ field=models.CharField(choices=[('yookassa', 'YooKassa'), ('stripe', 'Stripe')],
 ),
 ]
 
-# File 119/167: payments\migrations\0003_paymentmethod.py
+# File 123/177: payments\migrations\0003_paymentmethod.py
 ################################################################################
 
 from django.conf import settings
@@ -9552,12 +9782,12 @@ options={
 ),
 ]
 
-# File 120/167: payments\migrations\__init__.py
+# File 124/177: payments\migrations\__init__.py
 ################################################################################
 
 
 
-# File 121/167: payments\providers\__init__.py
+# File 125/177: payments\providers\__init__.py
 ################################################################################
 
 # payments/providers/__init__.py
@@ -9596,7 +9826,7 @@ f"Доступные: {', '.join(sorted(_PROVIDER_REGISTRY.keys()))}"
 )
 return provider_cls()
 
-# File 122/167: payments\providers\base.py
+# File 126/177: payments\providers\base.py
 ################################################################################
 
 # payments/providers/base.py
@@ -9648,7 +9878,7 @@ raise NotImplementedError
 # ---------------------------------------------------------
 PaymentProvider = BasePaymentProvider
 
-# File 123/167: payments\providers\registry.py
+# File 127/177: payments\providers\registry.py
 ################################################################################
 
 from __future__ import annotations
@@ -9667,7 +9897,7 @@ if not provider_cls:
 raise ImproperlyConfigured(f"Unknown payment provider: {provider_key}")
 return provider_cls()
 
-# File 124/167: payments\providers\stripe.py
+# File 128/177: payments\providers\stripe.py
 ################################################################################
 
 from __future__ import annotations
@@ -9718,7 +9948,7 @@ def refund(self, payment, amount: Optional[float] = None) -> None:
 # Заглушка — Stripe refund через SDK
 return None
 
-# File 125/167: payments\providers\yookassa.py
+# File 129/177: payments\providers\yookassa.py
 ################################################################################
 
 from __future__ import annotations
@@ -9834,7 +10064,7 @@ def refund(self, payment, amount: Optional[float] = None) -> None:
 # Неполная реализация для MVP
 raise NotImplementedError("YooKassa refunds are not implemented in this stub.")
 
-# File 126/167: regions\global.yml
+# File 130/177: regions\global.yml
 ################################################################################
 
 # Базовый глобальный профиль ParkShare (по умолчанию для не-RU регионов)
@@ -9865,7 +10095,7 @@ auth:
     - "email-password"
 
 
-# File 127/167: regions\ru.yml
+# File 131/177: regions\ru.yml
 ################################################################################
 
 id: "ru"
@@ -9901,12 +10131,12 @@ pricing:
   tax_included: true
 
 
-# File 128/167: services\__init__.py
+# File 132/177: services\__init__.py
 ################################################################################
 
 
 
-# File 129/167: services\llm.py
+# File 133/177: services\llm.py
 ################################################################################
 
 # services/llm.py
@@ -10070,7 +10300,7 @@ results["endpoints"].append({"url": health_url, "error": str(exc)})
 results["ok"] = False
 return results
 
-# File 130/167: services\llm_service\Dockerfile
+# File 134/177: services\llm_service\Dockerfile
 ################################################################################
 
 FROM python:3.11-slim
@@ -10088,7 +10318,7 @@ COPY services/llm_service /app
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8002"]
 
 
-# File 131/167: services\llm_service\main.py
+# File 135/177: services\llm_service\main.py
 ################################################################################
 
 """Modern FastAPI-based LLM gateway for ParkShare.
@@ -10507,7 +10737,7 @@ if __name__ == "__main__":
 import uvicorn
 uvicorn.run(app, host=_settings.host, port=_settings.port)
 
-# File 132/167: services\llm_service\requirements.txt
+# File 136/177: services\llm_service\requirements.txt
 ################################################################################
 
 fastapi==0.115.0
@@ -10518,7 +10748,7 @@ pydantic-settings==2.8.0
 python-dotenv==1.2.1
 
 
-# File 133/167: static\manifest.webmanifest
+# File 137/177: static\manifest.webmanifest
 ################################################################################
 
 {
@@ -10581,27 +10811,45 @@ python-dotenv==1.2.1
 }
 
 
-# File 134/167: static\service-worker.js
+# File 138/177: static\service-worker.js
 ################################################################################
 
-const CACHE_VERSION = 'v5';
-const STATIC_CACHE = `static-${CACHE_VERSION}`;
-const HTML_CACHE = `html-${CACHE_VERSION}`;
-const API_CACHE = `api-${CACHE_VERSION}`;
+const APP_VERSION = '2024.09.1';
+const CACHE_PREFIX = 'parkshare-';
+const PUBLIC_STATIC_CACHE = `${CACHE_PREFIX}static-${APP_VERSION}`;
+const PUBLIC_PAGE_CACHE = `${CACHE_PREFIX}pages-${APP_VERSION}`;
+const PUBLIC_API_CACHE = `${CACHE_PREFIX}api-${APP_VERSION}`;
+const PRIVATE_API_CACHE = `${CACHE_PREFIX}api-private-${APP_VERSION}`;
+const MAP_CACHE = `${CACHE_PREFIX}map-${APP_VERSION}`;
+const RUNTIME_CACHE = `${CACHE_PREFIX}runtime-${APP_VERSION}`;
 const OFFLINE_URL = '/offline/';
+const PRIVATE_TTL_MS = 5 * 60 * 1000;
+const PRIVATE_MAX_ENTRIES = 30;
+const SHELL_ROUTES = ['/map/', '/app/', '/личный-кабинет/', '/кабинет-владельца/'];
+const APP_SHELL = [...SHELL_ROUTES, OFFLINE_URL, '/manifest.webmanifest'];
 const STATIC_ASSETS = [
-'/',
-OFFLINE_URL,
 '/static/css/app.css',
 '/static/js/app.js',
 '/static/js/map.js',
+'/static/js/quantum-theme-manager.js',
 '/static/icons/icon-192.png',
 '/static/icons/icon-512.png',
-'/manifest.webmanifest'
+'/static/icons/icon-72.png',
+'/static/pwa/app.js',
+'/static/pwa/api-client.js',
+'/static/pwa/state-store.js',
+'/static/pwa/router.js',
+'/static/pwa/spots-view.js',
+'/static/pwa/ui-kit.js',
 ];
 self.addEventListener('install', (event) => {
 event.waitUntil(
-caches.open(STATIC_CACHE).then((cache) => cache.addAll(STATIC_ASSETS)).catch(() => null)
+Promise.all([
+caches.open(PUBLIC_PAGE_CACHE).then((cache) => cache.addAll(APP_SHELL)),
+caches.open(PUBLIC_STATIC_CACHE).then((cache) => cache.addAll(STATIC_ASSETS)),
+]).catch((err) => {
+console.warn('[SW] install cache error', err);
+})
 );
 self.skipWaiting();
 });
@@ -10610,63 +10858,151 @@ event.waitUntil(
 caches.keys().then((keys) =>
 Promise.all(
 keys
-.filter((key) => ![STATIC_CACHE, HTML_CACHE, API_CACHE].includes(key))
+.filter(
+(key) =>
+key.startsWith(CACHE_PREFIX) &&
+![
+RUNTIME_CACHE,
+PUBLIC_STATIC_CACHE,
+PUBLIC_PAGE_CACHE,
+PUBLIC_API_CACHE,
+PRIVATE_API_CACHE,
+MAP_CACHE,
+].includes(key)
+)
 .map((key) => caches.delete(key))
 )
 )
 );
 self.clients.claim();
 });
-const isGet = (req) => req.method === 'GET';
-const isApi = (req) => new URL(req.url).pathname.startsWith('/api/');
-const isHtml = (req) => req.headers.get('accept')?.includes('text/html');
-const sameOrigin = (req) => self.location.origin === new URL(req.url).origin;
+self.addEventListener('message', (event) => {
+if (event.data === 'SW_APPLY_UPDATE') {
+self.skipWaiting();
+return;
+}
+if (event.data && event.data.type === 'PRIME_SHELL') {
+precacheShell();
+}
+});
 self.addEventListener('fetch', (event) => {
 const { request } = event;
-if (!isGet(request)) return;
-if (isApi(request)) {
-event.respondWith(staleWhileRevalidate(request, API_CACHE));
+if (request.method !== 'GET') return;
+const url = new URL(request.url);
+const isSameOrigin = url.origin === self.location.origin;
+if (request.headers.get('accept')?.includes('text/html')) {
+if (isSameOrigin) {
+const targetCache = isPwaShell(url) ? PUBLIC_PAGE_CACHE : null;
+event.respondWith(handleHtmlRequest(request, targetCache));
 return;
 }
-if (sameOrigin(request) && isHtml(request)) {
-event.respondWith(networkFirst(request, HTML_CACHE, OFFLINE_URL));
+}
+if (isApiRequest(url)) {
+if (isPrivateApi(url)) {
+event.respondWith(networkFirstPrivate(request, PRIVATE_API_CACHE));
 return;
 }
-event.respondWith(cacheFirst(request, STATIC_CACHE));
+event.respondWith(staleWhileRevalidate(request, PUBLIC_API_CACHE));
+return;
+}
+if (isMapTile(url)) {
+event.respondWith(limitCacheSize(cacheFirst(request, MAP_CACHE), 150));
+return;
+}
+if (isAsset(url)) {
+event.respondWith(cacheFirst(request, PUBLIC_STATIC_CACHE));
+return;
+}
+event.respondWith(staleWhileRevalidate(request, RUNTIME_CACHE));
 });
+self.addEventListener('sync', (event) => {
+if (event.tag === 'ps-sync-queue') {
+event.waitUntil(flushOfflineQueue());
+}
+});
+self.addEventListener('push', (event) => {
+const data = event.data ? event.data.json() : {};
+const title = data.title || 'ParkShare';
+const body = data.body || 'Новые события по вашим бронированиям';
+const url = data.data?.url || data.url || '/map/';
+const actions = data.actions || [];
+event.waitUntil(
+self.registration.showNotification(title, {
+body,
+data: { url, ...data.data },
+icon: '/static/icons/icon-192.png',
+badge: '/static/icons/icon-72.png',
+actions,
+})
+);
+});
+self.addEventListener('notificationclick', (event) => {
+const targetUrl = event.notification?.data?.url || '/map/';
+event.notification.close();
+event.waitUntil(
+clients.matchAll({ type: 'window' }).then((clientList) => {
+for (const client of clientList) {
+if ('focus' in client) {
+client.navigate(targetUrl);
+return client.focus();
+}
+}
+return clients.openWindow(targetUrl);
+})
+);
+});
+async function precacheShell() {
+const cache = await caches.open(PUBLIC_PAGE_CACHE);
+await cache.addAll(APP_SHELL);
+}
+function isApiRequest(url) {
+return url.pathname.startsWith('/api/');
+}
+function isPrivateApi(url) {
+if (!isApiRequest(url)) return false;
+return (
+url.pathname.includes('/favorites/') ||
+url.pathname.includes('/saved-places/') ||
+url.pathname.includes('/push-subscriptions/') ||
+url.pathname.includes('/accounts/profile') ||
+url.pathname.includes('/ai/parkmate/config')
+);
+}
+function isPwaShell(url) {
+return SHELL_ROUTES.some((route) => url.pathname.startsWith(route));
+}
+function isMapTile(url) {
+return url.hostname.includes('tile') || url.pathname.includes('/tiles/') || url.pathname.match(/\/(\d+)\/(\d+)\/(\d+)\.png/);
+}
+function isAsset(url) {
+return (
+url.pathname.startsWith('/static/') ||
+url.pathname.match(/\.(?:js|css|png|svg|webp|jpg|jpeg|woff2?)$/)
+);
+}
 async function cacheFirst(request, cacheName) {
 const cache = await caches.open(cacheName);
 const cached = await cache.match(request);
 if (cached) return cached;
-try {
 const response = await fetch(request);
-if (response && response.status === 200) {
+if (response && response.ok) {
 cache.put(request, response.clone());
 }
 return response;
-} catch (err) {
-if (isHtml(request)) {
-const fallback = await caches.match(OFFLINE_URL);
-if (fallback) return fallback;
 }
-throw err;
-}
-}
-async function networkFirst(request, cacheName, fallbackUrl) {
+async function networkFirstPrivate(request, cacheName) {
 const cache = await caches.open(cacheName);
 try {
 const response = await fetch(request);
-if (response && response.status === 200) {
-cache.put(request, response.clone());
+if (response && response.ok) {
+const stamped = stampResponse(response);
+await cache.put(request, stamped.clone());
+await trimCache(cacheName, PRIVATE_MAX_ENTRIES);
 }
 return response;
 } catch (err) {
 const cached = await cache.match(request);
-if (cached) return cached;
-if (fallbackUrl) {
-const fallback = await caches.match(fallbackUrl);
-if (fallback) return fallback;
-}
+if (cached && !isExpired(cached, PRIVATE_TTL_MS)) return cached;
 throw err;
 }
 }
@@ -10675,7 +11011,7 @@ const cache = await caches.open(cacheName);
 const cached = await cache.match(request);
 const network = fetch(request)
 .then((response) => {
-if (response && response.status === 200) {
+if (response && response.ok) {
 cache.put(request, response.clone());
 }
 return response;
@@ -10683,8 +11019,88 @@ return response;
 .catch(() => cached);
 return cached || network;
 }
+async function handleHtmlRequest(request, cacheName) {
+if (!cacheName) {
+return fetch(request).catch(async () => (await caches.match(OFFLINE_URL)) || Response.error());
+}
+const cache = await caches.open(cacheName);
+try {
+const response = await fetch(request);
+if (response && response.ok) {
+await cache.put(request, response.clone());
+}
+return response;
+} catch (_) {
+const cached = await cache.match(request);
+if (cached) return cached;
+const fallback = await caches.match(OFFLINE_URL);
+if (fallback) return fallback;
+return Response.error();
+}
+}
+async function limitCacheSize(responsePromise, maxEntries = 150) {
+const response = await responsePromise;
+const cache = await caches.open(MAP_CACHE);
+const keys = await cache.keys();
+if (keys.length > maxEntries) {
+await cache.delete(keys[0]);
+}
+return response;
+}
+async function flushOfflineQueue() {
+const queue = await loadQueue();
+const stillPending = [];
+for (const item of queue) {
+try {
+await fetch(item.url, item.options);
+} catch (err) {
+if ((item.attempts || 0) < 3) {
+stillPending.push({ ...item, attempts: (item.attempts || 0) + 1 });
+}
+}
+}
+await saveQueue(stillPending);
+}
+async function loadQueue() {
+try {
+const cache = await caches.open(RUNTIME_CACHE);
+const stored = await cache.match('ps-offline-queue');
+if (!stored) return [];
+const payload = await stored.json();
+const cutoff = Date.now() - 24 * 60 * 60 * 1000;
+return (payload || []).filter((item) => (item.created_at || 0) > cutoff).slice(-50);
+} catch (_) {
+return [];
+}
+}
+async function saveQueue(payload) {
+const cache = await caches.open(RUNTIME_CACHE);
+const limited = (payload || []).slice(-50);
+await cache.put('ps-offline-queue', new Response(JSON.stringify(limited)));
+}
+function stampResponse(response) {
+const headers = new Headers(response.headers);
+headers.set('X-SW-Timestamp', Date.now().toString());
+return new Response(response.clone().body, {
+status: response.status,
+statusText: response.statusText,
+headers,
+});
+}
+function isExpired(response, ttlMs) {
+const ts = Number(response.headers.get('X-SW-Timestamp') || 0);
+if (!ts) return true;
+return Date.now() - ts > ttlMs;
+}
+async function trimCache(cacheName, maxEntries) {
+const cache = await caches.open(cacheName);
+const keys = await cache.keys();
+if (keys.length > maxEntries) {
+await cache.delete(keys[0]);
+}
+}
 
-# File 135/167: static\css\app.css
+# File 139/177: static\css\app.css
 ################################################################################
 
 :root {
@@ -12678,7 +13094,7 @@ border-radius: 8px;
 padding: 0.75rem 1rem;
 }
 
-# File 136/167: static\css\cinematic-ui.css
+# File 140/177: static\css\cinematic-ui.css
 ################################################################################
 
 :root {
@@ -12826,7 +13242,7 @@ background: linear-gradient(135deg, rgba(59, 130, 246, 0.18), rgba(16, 185, 129,
 box-shadow: 0 18px 45px rgba(15, 23, 42, 0.5);
 }
 
-# File 137/167: static\js\app.js
+# File 141/177: static\js\app.js
 ################################################################################
 
 (function () {
@@ -12841,12 +13257,13 @@ return Array.prototype.slice.call((scope || document).querySelectorAll(selector)
 function isMobileWidth() {
 return window.matchMedia("(max-width: 767px)").matches;
 }
-if ("serviceWorker" in navigator) {
+if ("serviceWorker" in navigator && !window.__PS_PWA_REGISTERED__) {
+window.__PS_PWA_REGISTERED__ = true;
 window.addEventListener("load", function () {
 navigator.serviceWorker
-.register("/service-worker.js")
+.register("/service-worker.js", {updateViaCache: "none"})
 .then(function (reg) {
-console.log("[SW] registered", reg.scope);
+console.log("[SW] registered (legacy entry)", reg.scope);
 })
 .catch(function (err) {
 console.warn("[SW] registration failed", err);
@@ -13533,7 +13950,7 @@ window.ParkShare = window.ParkShare || {};
 window.ParkShare.showToast = showToast;
 })();
 
-# File 138/167: static\js\map.js
+# File 142/177: static\js\map.js
 ################################################################################
 
 (function () {
@@ -14101,7 +14518,7 @@ if (match && match.geometry) { var coords = match.geometry.coordinates; var latl
 });
 })();
 
-# File 139/167: static\js\parkmate-ai.ts
+# File 143/177: static\js\parkmate-ai.ts
 ################################################################################
 
 export interface ParkMateVoiceCommands {
@@ -14247,7 +14664,7 @@ stress_index: payload.stress_index,
 );
 }
 
-# File 140/167: static\js\quantum-theme-manager.js
+# File 144/177: static\js\quantum-theme-manager.js
 ################################################################################
 
 class QuantumThemeManager {
@@ -14321,7 +14738,735 @@ manager.switchTheme("dark");
 return manager;
 };
 
-# File 141/167: templates\base.html
+# File 145/177: static\pwa\api-client.js
+################################################################################
+
+import {
+appendSpots,
+flushQueue,
+getState,
+queueAction,
+setConnectionStatus,
+setMapFeatures,
+setSavedPlaces,
+setFavorites,
+setSpots,
+setThemeConfig,
+updatePagination,
+markQueueItem,
+} from './state-store.js';
+const API_ROOT = '/api/parking';
+const AI_ROOT = '/api/ai';
+const datasetCache = new Map();
+const aiCache = new Map();
+async function apiFetch(path, { method = 'GET', body, params } = {}) {
+const url = new URL(path, window.location.origin);
+if (params) {
+Object.entries(params).forEach(([key, value]) => {
+if (value === undefined || value === null || value === '') return;
+url.searchParams.set(key, value);
+});
+}
+const headers = { 'Content-Type': 'application/json' };
+const options = { method, headers, credentials: 'include' };
+if (body) options.body = JSON.stringify(body);
+try {
+const response = await fetch(url.toString(), options);
+setConnectionStatus(true);
+if (!response.ok) throw new Error(`API ${response.status}`);
+return await response.json();
+} catch (err) {
+setConnectionStatus(false);
+throw err;
+}
+}
+export async function loadSpots({ append = false, filters = {}, page = 1, pageSize = 50 }) {
+const params = {
+page,
+page_size: Math.min(pageSize || 50, 100),
+...filters,
+};
+const cacheKey = `spots:${JSON.stringify(params)}`;
+try {
+const payload = await cachedApiFetch(`${API_ROOT}/spots/`, { params }, cacheKey, 300000);
+const { results, next, previous, count } = payload;
+if (append) {
+appendSpots(results);
+} else {
+setSpots(results);
+}
+updatePagination({ next, previous, count, page_size: params.page_size });
+cacheDataset('spots', payload);
+} catch (err) {
+const cached = readDataset('spots') || datasetCache.get(cacheKey);
+if (cached) {
+const { results, next, previous, count } = cached;
+if (append) {
+appendSpots(results);
+} else {
+setSpots(results);
+}
+updatePagination({ next, previous, count, page_size: params.page_size });
+} else {
+console.warn('[PWA] failed to load spots and no cache', err);
+}
+}
+}
+export async function loadFavorites() {
+try {
+const payload = await apiFetch(`${API_ROOT}/favorites/`);
+setFavorites(payload.results ? payload.results.map((item) => item.spot) : payload.map((i) => i.spot));
+cacheDataset('favorites', payload);
+} catch (err) {
+const cached = readDataset('favorites');
+if (cached) {
+setFavorites(cached.results ? cached.results.map((i) => i.spot) : cached.map((i) => i.spot));
+}
+}
+}
+export async function saveFavorite(spotId) {
+if (!navigator.onLine) {
+queueAction({ type: 'favorite:toggle', payload: { spotId } });
+return toggleLocalFavorite(spotId);
+}
+await apiFetch(`${API_ROOT}/favorites/`, {
+method: 'POST',
+body: { spot: spotId },
+});
+toggleLocalFavorite(spotId);
+}
+function toggleLocalFavorite(spotId) {
+const current = getState().favorites || [];
+if (current.includes(spotId)) {
+setFavorites(current.filter((id) => id !== spotId));
+} else {
+setFavorites([...current, spotId]);
+}
+}
+export async function loadSavedPlaces() {
+try {
+const payload = await apiFetch(`${API_ROOT}/saved-places/`);
+const items = payload.results || payload;
+setSavedPlaces(items);
+cacheDataset('saved_places', payload);
+} catch (err) {
+const cached = readDataset('saved_places');
+if (cached) {
+setSavedPlaces(cached.results || cached);
+}
+}
+}
+export async function syncOfflineQueue() {
+const { offlineQueue } = getState();
+if (!offlineQueue.length || !navigator.onLine) return;
+for (const item of offlineQueue) {
+try {
+if (item.type === 'favorite:toggle') {
+await saveFavorite(item.payload.spotId);
+markQueueItem(item.id, { status: 'synced' });
+}
+if (item.type === 'saved_place:create') {
+await createSavedPlace(item.payload.place, { skipQueue: true });
+markQueueItem(item.id, { status: 'synced' });
+}
+} catch (err) {
+const attempts = (item.attempts || 0) + 1;
+if (attempts >= 3) {
+markQueueItem(item.id, { status: 'failed', attempts });
+} else {
+markQueueItem(item.id, { attempts });
+}
+}
+}
+flushQueue((item) => item.status === 'synced' || item.status === 'failed');
+}
+export async function loadProfile() {
+try {
+const payload = await apiFetch('/api/ai/parkmate/config/');
+setThemeConfig(payload);
+} catch (_) {
+}
+}
+export async function loadMapFeatures(filters = {}) {
+const params = { ...filters };
+const cacheKey = `map:${JSON.stringify(params)}`;
+try {
+const payload = await cachedApiFetch('/api/parking/map/', { params }, cacheKey, 300000);
+setMapFeatures(payload.features || []);
+} catch (err) {
+const cached = datasetCache.get(cacheKey) || readDataset('map_features');
+if (cached?.features) {
+setMapFeatures(cached.features);
+}
+}
+}
+export async function registerPushSubscription(subscription) {
+await apiFetch('/api/parking/push-subscriptions/', { method: 'POST', body: subscription });
+}
+export async function loadAiRecommendations(filters = {}) {
+const params = {
+city: filters.city,
+limit: Math.min(filters.limit || 20, 50),
+};
+const cacheKey = `ai:rec:${JSON.stringify(params)}`;
+try {
+const payload = await cachedAiFetch(`${AI_ROOT}/recommendations/`, { params }, cacheKey, 300000);
+return payload?.results || [];
+} catch (err) {
+const cached = readDataset(cacheKey) || aiCache.get(cacheKey)?.payload;
+if (cached) return cached.results || cached;
+throw err;
+}
+}
+export async function loadAiStressIndex(filters = {}) {
+const params = { city: filters.city };
+const cacheKey = `ai:stress:${JSON.stringify(params)}`;
+try {
+return await cachedAiFetch(`${AI_ROOT}/stress-index/`, { params }, cacheKey, 180000);
+} catch (err) {
+const cached = readDataset(cacheKey) || aiCache.get(cacheKey)?.payload;
+if (cached) return cached;
+throw err;
+}
+}
+export async function createSavedPlace(place, { skipQueue = false } = {}) {
+const body = {
+title: place.title,
+place_type: place.place_type || 'custom',
+latitude: place.latitude,
+longitude: place.longitude,
+};
+if (!navigator.onLine && !skipQueue) {
+queueAction({ type: 'saved_place:create', payload: { place: body } });
+setSavedPlaces([...(getState().savedPlaces || []), { ...body, id: `local-${Date.now()}` }]);
+return;
+}
+await apiFetch(`${API_ROOT}/saved-places/`, { method: 'POST', body });
+await loadSavedPlaces();
+}
+async function cachedApiFetch(path, opts, cacheKey, ttlMs = 120000) {
+if (datasetCache.has(cacheKey)) {
+const cached = datasetCache.get(cacheKey);
+if (cached.expires > Date.now()) {
+return cached.payload;
+}
+}
+const payload = await apiFetch(path, opts);
+datasetCache.set(cacheKey, { payload, expires: Date.now() + ttlMs });
+cacheDataset(cacheKey, payload);
+return payload;
+}
+function cacheDataset(name, payload) {
+try {
+localStorage.setItem(`ps.pwa.cache.${name}`, JSON.stringify(payload));
+} catch (_) {}
+}
+function readDataset(name) {
+try {
+const raw = localStorage.getItem(`ps.pwa.cache.${name}`);
+return raw ? JSON.parse(raw) : null;
+} catch (_) {
+return null;
+}
+}
+async function cachedAiFetch(path, opts, cacheKey, ttlMs = 180000) {
+if (aiCache.has(cacheKey)) {
+const cached = aiCache.get(cacheKey);
+if (cached.expires > Date.now()) {
+return cached.payload;
+}
+}
+const payload = await apiFetch(path, opts);
+aiCache.set(cacheKey, { payload, expires: Date.now() + ttlMs });
+cacheDataset(cacheKey, payload);
+return payload;
+}
+
+# File 146/177: static\pwa\app.js
+################################################################################
+
+import { getState, setConnectionStatus, setMapView, subscribe } from './state-store.js';
+import { loadFavorites, loadMapFeatures, loadProfile, loadSavedPlaces, syncOfflineQueue } from './api-client.js';
+import { initPushUI, initLazyMedia } from './ui-kit.js';
+const APP_VERSION = '2024.09.0';
+function registerServiceWorker() {
+if (!('serviceWorker' in navigator)) return;
+navigator.serviceWorker
+.register('/service-worker.js', { updateViaCache: 'none' })
+.then((reg) => {
+console.log('[SW] registered', reg.scope);
+if (reg.waiting) {
+notifyUpdate(reg.waiting);
+}
+reg.addEventListener('updatefound', () => {
+const newWorker = reg.installing;
+if (!newWorker) return;
+newWorker.addEventListener('statechange', () => {
+if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+notifyUpdate(newWorker);
+}
+});
+});
+})
+.catch((err) => console.warn('[SW] registration failed', err));
+}
+function notifyUpdate(worker) {
+const banner = document.querySelector('[data-sw-update]');
+if (!banner) {
+worker.postMessage('SW_APPLY_UPDATE');
+return;
+}
+banner.hidden = false;
+const btn = banner.querySelector('button');
+btn?.addEventListener('click', () => {
+worker.postMessage('SW_APPLY_UPDATE');
+worker.addEventListener('statechange', () => {
+if (worker.state === 'activated') {
+window.location.reload();
+}
+});
+});
+}
+async function hydrateUI() {
+initLazyMedia();
+loadFavorites();
+loadSavedPlaces();
+loadProfile();
+initPushUI();
+const needsMap = document.querySelector('[data-spots-list]') || document.querySelector('[data-route="map"]');
+if (needsMap) {
+const [{ initRouter, bindConnectionBanner }, { initSpotsView }] = await Promise.all([
+import('./router.js'),
+import('./spots-view.js'),
+]);
+bindConnectionBanner();
+initRouter();
+initSpotsView();
+loadMapFeatures();
+}
+}
+function wireConnectivity() {
+window.addEventListener('online', () => {
+setConnectionStatus(true);
+syncOfflineQueue();
+});
+window.addEventListener('offline', () => setConnectionStatus(false));
+}
+function hydrateMeta() {
+const counter = document.querySelector('[data-spots-count]');
+subscribe((state) => {
+if (counter) counter.textContent = state.spots.length || state.pagination.count || 0;
+});
+}
+function init() {
+console.log('[PWA] booting', APP_VERSION);
+registerServiceWorker();
+hydrateUI();
+wireConnectivity();
+hydrateMeta();
+const map = getState().mapView;
+if (map?.center) {
+setMapView(map);
+}
+}
+document.addEventListener('DOMContentLoaded', init);
+
+# File 147/177: static\pwa\router.js
+################################################################################
+
+import { subscribe } from './state-store.js';
+const routes = {
+map: '[data-route="map"]',
+list: '[data-route="list"]',
+dashboard: '[data-route="dashboard"]',
+};
+export function initRouter() {
+document.addEventListener('click', (event) => {
+const link = event.target.closest('[data-route-link]');
+if (!link) return;
+const target = link.getAttribute('data-route-link');
+if (!target || !routes[target]) return;
+event.preventDefault();
+showRoute(target);
+history.pushState({ route: target }, '', `
+});
+window.addEventListener('popstate', (event) => {
+const route = event.state?.route || window.location.hash.replace('
+showRoute(route);
+});
+const initial = window.location.hash.replace('
+showRoute(initial);
+}
+function showRoute(name) {
+Object.entries(routes).forEach(([key, selector]) => {
+document.querySelectorAll(selector).forEach((node) => {
+node.hidden = key !== name;
+node.classList.toggle('is-active', key === name);
+});
+});
+}
+export function bindConnectionBanner() {
+const badge = document.querySelector('[data-connection-badge]');
+if (!badge) return;
+subscribe((state) => {
+badge.textContent = state.isOnline ? 'Онлайн' : 'Оффлайн режим';
+badge.classList.toggle('is-offline', !state.isOnline);
+badge.hidden = false;
+});
+}
+
+# File 148/177: static\pwa\spots-view.js
+################################################################################
+
+import { subscribe, toggleFavorite, setMapView } from './state-store.js';
+import { loadSpots, saveFavorite, loadAiRecommendations } from './api-client.js';
+import { renderSkeletonCards, renderSpotCard } from './ui-kit.js';
+let loading = false;
+let aiCacheKey = null;
+let aiHints = new Map();
+export function initSpotsView() {
+const list = document.querySelector('[data-spots-list]');
+if (!list) return;
+subscribe((state) => {
+renderSpots(list, state.spots, state.favorites);
+});
+const loadMoreBtn = document.querySelector('[data-spots-load-more]');
+if (loadMoreBtn) {
+loadMoreBtn.addEventListener('click', () => fetchMore());
+}
+if (navigator.geolocation) {
+navigator.geolocation.getCurrentPosition((pos) => {
+const center = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+setMapView({ center });
+fetchInitial({ lat: center.lat, lng: center.lng });
+}, () => fetchInitial({}));
+} else {
+fetchInitial({});
+}
+}
+async function fetchInitial(filters) {
+if (loading) return;
+loading = true;
+renderSkeletonCards(document.querySelector('[data-spots-list]'));
+await Promise.all([loadSpots({ filters, page: 1 }), primeAiHints(filters)]);
+loading = false;
+}
+async function fetchMore() {
+if (loading) return;
+loading = true;
+const next = document.querySelector('[data-spots-load-more]');
+const page = next?.dataset.page ? Number(next.dataset.page) : 1;
+await loadSpots({ append: true, page: page + 1 });
+if (next) next.dataset.page = page + 1;
+loading = false;
+}
+function renderSpots(container, spots, favorites) {
+if (!spots || !spots.length) {
+container.innerHTML = '<div class="ps-empty">Места будут показаны после загрузки карты.</div>';
+return;
+}
+container.innerHTML = '';
+const scoredSpots = [...spots].sort((a, b) => getAiScore(b.id) - getAiScore(a.id));
+scoredSpots.forEach((spot) => {
+const aiHint = aiHints.get(spot.id);
+const card = renderSpotCard(spot, {
+favorite: favorites?.includes(spot.id),
+aiHint,
+onFavorite: () => handleFavorite(spot.id),
+});
+container.appendChild(card);
+});
+}
+async function handleFavorite(spotId) {
+toggleFavorite(spotId);
+try {
+await saveFavorite(spotId);
+} catch (err) {
+console.warn('[PWA] favorite queued', err);
+}
+}
+async function primeAiHints(filters) {
+const key = JSON.stringify(filters || {});
+if (aiCacheKey === key && aiHints.size) return;
+aiCacheKey = key;
+try {
+const recommendations = await loadAiRecommendations({ city: filters?.city, limit: 40 });
+aiHints = new Map();
+recommendations.forEach((rec, index) => {
+const spotId = Number(rec.spot_id || rec.spotId);
+if (!spotId) return;
+aiHints.set(spotId, {
+label: index < 3 ? 'Рекомендуем' : 'AI',
+score: 100 - index * 2 + (rec.ai_discount_percent || 0),
+reason: rec.ai_reason || rec.address || '',
+});
+});
+} catch (err) {
+aiHints = new Map();
+console.warn('[PWA] AI hints unavailable', err);
+}
+}
+function getAiScore(spotId) {
+const hint = aiHints.get(spotId);
+return hint ? hint.score || 0 : 0;
+}
+
+# File 149/177: static\pwa\state-store.js
+################################################################################
+
+const STORAGE_KEY = 'ps.pwa.state.v2';
+const OFFLINE_QUEUE_LIMIT = 50;
+const OFFLINE_QUEUE_TTL = 24 * 60 * 60 * 1000;
+const initialState = {
+appVersion: '2024.09.0',
+isOnline: navigator.onLine,
+lastKnownPosition: null,
+mapView: { center: null, zoom: 11, features: [] },
+filters: {
+priceMax: null,
+onlyFree: false,
+ev: false,
+covered: false,
+is_24_7: false,
+ai_recommended: false,
+distance_km: 5,
+},
+pagination: {
+next: null,
+previous: null,
+count: 0,
+page_size: 20,
+},
+spots: [],
+favorites: [],
+savedPlaces: [],
+offlineQueue: [],
+profile: { id: null, role: 'guest', layout_profile: 'comfortable', theme: 'light', platform: 'web' },
+pushOptIn: false,
+};
+let state = loadState();
+const subscribers = new Set();
+function loadState() {
+try {
+const raw = localStorage.getItem(STORAGE_KEY);
+if (!raw) return { ...initialState };
+const parsed = JSON.parse(raw);
+const now = Date.now();
+const hydratedQueue = (parsed.offlineQueue || []).filter((item) =>
+item && item.created_at && now - item.created_at < OFFLINE_QUEUE_TTL
+);
+return {
+...initialState,
+...parsed,
+filters: { ...initialState.filters, ...(parsed.filters || {}) },
+mapView: { ...initialState.mapView, ...(parsed.mapView || {}) },
+profile: { ...initialState.profile, ...(parsed.profile || {}) },
+offlineQueue: hydratedQueue.slice(-OFFLINE_QUEUE_LIMIT),
+};
+} catch (err) {
+console.warn('[PWA] failed to load state', err);
+return { ...initialState };
+}
+}
+function persist() {
+try {
+localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+} catch (err) {
+console.warn('[PWA] failed to persist state', err);
+}
+}
+function setState(patch) {
+state = { ...state, ...patch };
+persist();
+subscribers.forEach((cb) => cb(state));
+}
+export function subscribe(callback) {
+subscribers.add(callback);
+callback(state);
+return () => subscribers.delete(callback);
+}
+export function getState() {
+return state;
+}
+export function updateFilters(patch) {
+setState({ filters: { ...state.filters, ...patch } });
+}
+export function updatePagination(meta) {
+setState({ pagination: { ...state.pagination, ...meta } });
+}
+export function setSpots(spots) {
+setState({ spots });
+}
+export function appendSpots(spots) {
+setState({ spots: [...state.spots, ...spots] });
+}
+export function setConnectionStatus(isOnline) {
+setState({ isOnline });
+}
+export function setMapView(patch) {
+setState({ mapView: { ...state.mapView, ...patch } });
+}
+export function setFavorites(favorites) {
+setState({ favorites });
+}
+export function toggleFavorite(id) {
+const exists = state.favorites.includes(id);
+const updated = exists ? state.favorites.filter((item) => item !== id) : [...state.favorites, id];
+setState({ favorites: updated });
+}
+export function setSavedPlaces(items) {
+setState({ savedPlaces: items });
+}
+export function queueAction(action) {
+const now = Date.now();
+const entry = {
+id: action.id || `${now}-${Math.random().toString(16).slice(2, 8)}`,
+type: action.type,
+payload: action.payload || {},
+status: 'pending',
+attempts: action.attempts || 0,
+created_at: action.created_at || now,
+};
+const freshQueue = state.offlineQueue.filter((item) => now - item.created_at < OFFLINE_QUEUE_TTL);
+const offlineQueue = [...freshQueue.slice(-(OFFLINE_QUEUE_LIMIT - 1)), entry];
+setState({ offlineQueue });
+return entry.id;
+}
+export function flushQueue(predicate) {
+const now = Date.now();
+const kept = state.offlineQueue
+.filter((item) => now - item.created_at < OFFLINE_QUEUE_TTL)
+.filter((item) => !(predicate ? predicate(item) : false));
+setState({ offlineQueue: kept });
+}
+export function markQueueItem(id, patch) {
+const queue = state.offlineQueue.map((item) => (item.id === id ? { ...item, ...patch } : item));
+setState({ offlineQueue: queue });
+}
+export function setProfile(profile) {
+setState({ profile: { ...state.profile, ...profile } });
+}
+export function setThemeConfig(config) {
+const profile = {
+...state.profile,
+layout_profile: config.layout_profile || state.profile.layout_profile,
+theme: config.theme || state.profile.theme,
+platform: config.platform || state.profile.platform,
+};
+setState({ profile });
+}
+export function setMapFeatures(features) {
+setState({ mapView: { ...state.mapView, features } });
+}
+export function setPushOptIn(optIn) {
+setState({ pushOptIn: optIn });
+}
+
+# File 150/177: static\pwa\ui-kit.js
+################################################################################
+
+import { registerPushSubscription } from './api-client.js';
+import { setConnectionStatus, subscribe } from './state-store.js';
+export function createBadge(text, tone = 'info') {
+const span = document.createElement('span');
+span.className = `ps-badge ps-badge-${tone}`;
+span.textContent = text;
+return span;
+}
+export function renderSkeletonCards(container, count = 3) {
+if (!container) return;
+container.innerHTML = '';
+for (let i = 0; i < count; i += 1) {
+const card = document.createElement('article');
+card.className = 'ps-card ps-card--spot ps-card--skeleton';
+card.innerHTML = `
+<div class="ps-skeleton-line ps-skeleton-line--lg"></div>
+<div class="ps-skeleton-line"></div>
+<div class="ps-skeleton-line ps-skeleton-line--short"></div>
+`;
+container.appendChild(card);
+}
+}
+export function renderSpotCard(spot, { favorite, onFavorite, aiHint } = {}) {
+const card = document.createElement('article');
+card.className = 'ps-card ps-card--spot';
+card.dataset.spotId = spot.id;
+const badge = aiHint
+? `<span class="ps-badge ps-badge-success">${aiHint.label || 'AI'}</span>`
+: '';
+const priceHint = aiHint?.reason ? `<div class="ps-card-line ps-card-line--muted">${aiHint.reason}</div>` : '';
+card.innerHTML = `
+<div class="ps-card-header">
+<div class="ps-card-title">${spot.lot?.city || ''} ${spot.lot?.name || ''} — ${spot.name}</div>
+<button class="ps-icon-btn" type="button" aria-label="В избранное" data-fav-toggle>
+${favorite ? '★' : '☆'}
+</button>
+</div>
+<div class="ps-card-body">
+<div class="ps-card-line">от ${spot.hourly_price} ₽/час ${badge}</div>
+<div class="ps-card-line ps-card-line--muted">${spot.lot?.address || 'Адрес уточняется'}</div>
+${priceHint}
+</div>
+`;
+if (onFavorite) {
+card.querySelector('[data-fav-toggle]')?.addEventListener('click', onFavorite);
+}
+return card;
+}
+export function initLazyMedia() {
+document.querySelectorAll('img[loading="lazy"], source[loading="lazy"]').forEach((node) => {
+node.decoding = 'async';
+});
+const lazyNodes = document.querySelectorAll('[data-lazy-src]');
+if (!lazyNodes.length) return;
+const observer = new IntersectionObserver((entries) => {
+entries.forEach((entry) => {
+if (entry.isIntersecting) {
+const el = entry.target;
+el.src = el.dataset.lazySrc;
+observer.unobserve(el);
+}
+});
+});
+lazyNodes.forEach((node) => observer.observe(node));
+}
+export function initPushUI() {
+const toggle = document.querySelector('[data-push-optin]');
+if (!toggle || !('serviceWorker' in navigator) || !('PushManager' in window)) return;
+toggle.addEventListener('click', async () => {
+try {
+const permission = await Notification.requestPermission();
+if (permission !== 'granted') return;
+const reg = await navigator.serviceWorker.ready;
+const subscription = await reg.pushManager.subscribe({
+userVisibleOnly: true,
+applicationServerKey: window.PARKSHARE_VAPID_KEY || undefined,
+});
+await registerPushSubscription(subscription.toJSON());
+toggle.setAttribute('disabled', 'disabled');
+toggle.textContent = 'Уведомления включены';
+} catch (err) {
+console.warn('[PWA] push subscribe failed', err);
+}
+});
+}
+export function initConnectionBadge() {
+const badge = document.querySelector('[data-connection-indicator]');
+if (!badge) return;
+subscribe((state) => {
+if (state.isOnline) {
+badge.textContent = 'Онлайн';
+badge.classList.remove('ps-badge-offline');
+} else {
+badge.textContent = 'Оффлайн';
+badge.classList.add('ps-badge-offline');
+}
+});
+window.addEventListener('online', () => setConnectionStatus(true));
+window.addEventListener('offline', () => setConnectionStatus(false));
+}
+
+# File 151/177: templates\base.html
 ################################################################################
 
 {% load static %}
@@ -14381,6 +15526,10 @@ return manager;
 </nav>
 </header>
 <main class="ps-main">
+<div class="ps-update-banner" data-sw-update hidden>
+<div class="ps-update-banner__text">Доступно обновление PWA.</div>
+<button type="button" class="ps-btn ps-btn-primary ps-btn-sm">Обновить</button>
+</div>
 {% block content %}{% endblock %}
 </main>
 <footer class="ps-footer">
@@ -14457,7 +15606,7 @@ return manager;
 </body>
 </html>
 
-# File 142/167: templates\offline.html
+# File 152/177: templates\offline.html
 ################################################################################
 
 {% extends "base.html" %}
@@ -14481,7 +15630,7 @@ return manager;
 </section>
 {% endblock %}
 
-# File 143/167: templates\accounts\login.html
+# File 153/177: templates\accounts\login.html
 ################################################################################
 
 {% extends "base.html" %}
@@ -14578,7 +15727,7 @@ panel.classList.toggle('is-active', panel.getAttribute('data-auth-panel') === ta
 </script>
 {% endblock %}
 
-# File 144/167: templates\accounts\password_change.html
+# File 154/177: templates\accounts\password_change.html
 ################################################################################
 
 {% extends "base.html" %}
@@ -14621,7 +15770,7 @@ panel.classList.toggle('is-active', panel.getAttribute('data-auth-panel') === ta
 </section>
 {% endblock %}
 
-# File 145/167: templates\accounts\password_change_done.html
+# File 155/177: templates\accounts\password_change_done.html
 ################################################################################
 
 {% extends "base.html" %}
@@ -14640,7 +15789,7 @@ panel.classList.toggle('is-active', panel.getAttribute('data-auth-panel') === ta
 </section>
 {% endblock %}
 
-# File 146/167: templates\accounts\password_reset.html
+# File 156/177: templates\accounts\password_reset.html
 ################################################################################
 
 {% extends "base.html" %}
@@ -14685,7 +15834,7 @@ panel.classList.toggle('is-active', panel.getAttribute('data-auth-panel') === ta
 </section>
 {% endblock %}
 
-# File 147/167: templates\accounts\password_reset_complete.html
+# File 157/177: templates\accounts\password_reset_complete.html
 ################################################################################
 
 {% extends "base.html" %}
@@ -14704,7 +15853,7 @@ panel.classList.toggle('is-active', panel.getAttribute('data-auth-panel') === ta
 </section>
 {% endblock %}
 
-# File 148/167: templates\accounts\password_reset_confirm.html
+# File 158/177: templates\accounts\password_reset_confirm.html
 ################################################################################
 
 {% extends "base.html" %}
@@ -14760,7 +15909,7 @@ panel.classList.toggle('is-active', panel.getAttribute('data-auth-panel') === ta
 </section>
 {% endblock %}
 
-# File 149/167: templates\accounts\password_reset_done.html
+# File 159/177: templates\accounts\password_reset_done.html
 ################################################################################
 
 {% extends "base.html" %}
@@ -14780,7 +15929,7 @@ panel.classList.toggle('is-active', panel.getAttribute('data-auth-panel') === ta
 </section>
 {% endblock %}
 
-# File 150/167: templates\accounts\password_reset_email.txt
+# File 160/177: templates\accounts\password_reset_email.txt
 ################################################################################
 
 Вы получили это письмо, потому что на сайте {{ site_name }} был запрошен сброс пароля
@@ -14793,13 +15942,13 @@ panel.classList.toggle('is-active', panel.getAttribute('data-auth-panel') === ta
 Если вы не запрашивали сброс пароля, просто проигнорируйте это письмо.
 
 
-# File 151/167: templates\accounts\password_reset_subject.txt
+# File 161/177: templates\accounts\password_reset_subject.txt
 ################################################################################
 
 Сброс пароля на ParkShare RU
 
 
-# File 152/167: templates\accounts\profile.html
+# File 162/177: templates\accounts\profile.html
 ################################################################################
 
 {% extends "base.html" %}
@@ -14848,7 +15997,7 @@ panel.classList.toggle('is-active', panel.getAttribute('data-auth-panel') === ta
 </section>
 {% endblock %}
 
-# File 153/167: templates\accounts\register.html
+# File 163/177: templates\accounts\register.html
 ################################################################################
 
 {% extends "base.html" %}
@@ -14902,7 +16051,7 @@ panel.classList.toggle('is-active', panel.getAttribute('data-auth-panel') === ta
 </section>
 {% endblock %}
 
-# File 154/167: templates\parking\landing.html
+# File 164/177: templates\parking\landing.html
 ################################################################################
 
 {% extends "base.html" %}
@@ -14955,7 +16104,7 @@ defer></script>
 <div class="ps-hero-card-line">
 <span class="ps-dot ps-dot--yellow"></span>
 Свободных мест:
-<strong data-spots-count>{{ spots|length }}</strong>
+<strong data-spots-count>{{ spots_total|default:0 }}</strong>
 </div>
 </div>
 </div>
@@ -15154,10 +16303,10 @@ default_zoom: {{ MAP_DEFAULT_ZOOM|default:11 }},
 </script>
 {% load static %}
 {% static 'js/map.js' as map_static %}
-<script src="{{ map_static }}?v=43"></script>
+<script src="{{ map_static }}?v=44"></script>
 {% endblock %}
 
-# File 155/167: templates\parking\map_fullscreen.html
+# File 165/177: templates\parking\map_fullscreen.html
 ################################################################################
 
 {% extends "base.html" %}
@@ -15174,11 +16323,12 @@ crossorigin=""/>
 defer></script>
 {% endblock %}
 {% block content %}
-<section class="ps-section ps-section--flush-top ps-map-hero">
+<section class="ps-section ps-section--flush-top ps-map-hero" data-route="map">
 <div class="ps-section-header ps-section-header--stack">
 <div>
 <h1 class="ps-section-title">Карта парковок</h1>
 <p class="ps-section-subtitle">Полноэкранный режим с поиском, фильтрами и маршрутами.</p>
+<div class="ps-connection" data-connection-badge hidden>Проверяем сеть…</div>
 </div>
 <div class="ps-section-actions">
 <a href="{% url 'landing' %}" class="ps-btn ps-btn-ghost ps-btn-sm">На главную</a>
@@ -15236,12 +16386,12 @@ defer></script>
 </div>
 <div class="ps-route-hint" data-route-hint>Постройте мини-маршрут до выбранной точки.</div>
 </div>
-<div class="ps-bottom-sheet" data-spots-panel>
+<div class="ps-bottom-sheet" data-spots-panel data-route="list">
 <div class="ps-bottom-sheet__handle"></div>
 <div class="ps-bottom-sheet__header">
 <div>
 <div class="ps-section-title-sm">Доступные места</div>
-<div class="ps-text-muted">Свободных: <span data-spots-count>{{ spots|length }}</span>, ср. цена <span data-avg-price>—</span></div>
+<div class="ps-text-muted">Свободных: <span data-spots-count>{{ spots_total|default:0 }}</span>, ср. цена <span data-avg-price>—</span></div>
 </div>
 <div class="ps-bottom-sheet__actions">
 <button type="button" class="ps-btn ps-btn-ghost ps-btn-sm" data-reset-filters>Сбросить</button>
@@ -15249,19 +16399,14 @@ defer></script>
 </div>
 <div class="ps-bottom-sheet__body">
 <div class="ps-spots-list" data-spots-list>
-{% for spot in spots %}
-<article class="ps-card ps-card--spot" data-spot-card="{{ spot.id }}">
-<div class="ps-card-header">
-<div class="ps-card-title">{{ spot.lot.city }}, {{ spot.lot.name }} — {{ spot.name }}</div>
+<div class="ps-card ps-card--spot ps-card--skeleton">
+<div class="ps-skeleton-line ps-skeleton-line--lg"></div>
+<div class="ps-skeleton-line"></div>
+<div class="ps-skeleton-line ps-skeleton-line--short"></div>
 </div>
-<div class="ps-card-body">
-<div class="ps-card-line">от {{ spot.hourly_price }} ₽/час</div>
-<div class="ps-card-line ps-card-line--muted">{{ spot.lot.address|default:"Адрес уточняется" }}</div>
 </div>
-</article>
-{% empty %}
-<div class="ps-empty">Места будут показаны после загрузки карты.</div>
-{% endfor %}
+<div class="ps-bottom-sheet__footer">
+<button class="ps-btn ps-btn-secondary ps-btn-block" type="button" data-spots-load-more data-route-link="list">Показать ещё</button>
 </div>
 </div>
 </div>
@@ -15274,6 +16419,7 @@ integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
 crossorigin=""></script>
 <script src="https:
 <script src="https:
+<script type="module" src="{% static 'pwa/app.js' %}?v=2024.09"></script>
 <script>
 window.PARKSHARE_MAP_PROVIDER = {
 id: "{{ MAP_PROVIDER|default:'yandex' }}",
@@ -15286,7 +16432,7 @@ default_zoom: {{ MAP_DEFAULT_ZOOM|default:11 }},
 <script src="{{ map_static }}?v=50"></script>
 {% endblock %}
 
-# File 156/167: templates\parking\owner_dashboard.html
+# File 166/177: templates\parking\owner_dashboard.html
 ################################################################################
 
 {% extends "base.html" %}
@@ -15409,7 +16555,7 @@ default_zoom: {{ MAP_DEFAULT_ZOOM|default:11 }},
 </section>
 {% endblock %}
 
-# File 157/167: templates\parking\pwa_install.html
+# File 167/177: templates\parking\pwa_install.html
 ################################################################################
 
 {% extends "base.html" %}
@@ -15454,7 +16600,7 @@ default_zoom: {{ MAP_DEFAULT_ZOOM|default:11 }},
 </section>
 {% endblock %}
 
-# File 158/167: templates\parking\user_dashboard.html
+# File 168/177: templates\parking\user_dashboard.html
 ################################################################################
 
 {% extends "base.html" %}
@@ -15615,12 +16761,12 @@ default_zoom: {{ MAP_DEFAULT_ZOOM|default:11 }},
 </section>
 {% endblock %}
 
-# File 159/167: vehicles\__init__.py
+# File 169/177: vehicles\__init__.py
 ################################################################################
 
 
 
-# File 160/167: vehicles\admin.py
+# File 170/177: vehicles\admin.py
 ################################################################################
 
 # vehicles/admin.py
@@ -15639,7 +16785,7 @@ def has_view_or_change_permission(self, request, obj=None):
 """
 return super().has_view_or_change_permission(request, obj)
 
-# File 161/167: vehicles\apps.py
+# File 171/177: vehicles\apps.py
 ################################################################################
 
 # vehicles/apps.py
@@ -15649,7 +16795,7 @@ default_auto_field = "django.db.models.BigAutoField"
 name = "vehicles"
 verbose_name = "Машины пользователей"
 
-# File 162/167: vehicles\models.py
+# File 172/177: vehicles\models.py
 ################################################################################
 
 import uuid
@@ -15703,7 +16849,7 @@ if self.label:
 return f"{self.label} ({self.owner.username})"
 return f"Машина {self.pk}"
 
-# File 163/167: vehicles\serializers.py
+# File 173/177: vehicles\serializers.py
 ################################################################################
 
 # vehicles/serializers.py
@@ -15763,7 +16909,7 @@ def update(self, instance: Vehicle, validated_data: dict) -> Vehicle:
 validated_data.pop("plate_number", None)
 return super().update(instance, validated_data)
 
-# File 164/167: vehicles\urls.py
+# File 174/177: vehicles\urls.py
 ################################################################################
 
 # vehicles/urls.py
@@ -15782,7 +16928,7 @@ name="my_vehicles",
 ),
 ]
 
-# File 165/167: vehicles\views.py
+# File 175/177: vehicles\views.py
 ################################################################################
 
 # vehicles/views.py
@@ -15809,7 +16955,7 @@ def perform_create(self, serializer: VehicleSerializer) -> None:
 # owner устанавливается в serializer.create()
 serializer.save()
 
-# File 166/167: vehicles\migrations\0001_initial.py
+# File 176/177: vehicles\migrations\0001_initial.py
 ################################################################################
 
 # Generated by Django 5.2.8 on 2025-11-21 21:34
@@ -15843,7 +16989,7 @@ options={
 ),
 ]
 
-# File 167/167: vehicles\migrations\__init__.py
+# File 177/177: vehicles\migrations\__init__.py
 ################################################################################
 
 
