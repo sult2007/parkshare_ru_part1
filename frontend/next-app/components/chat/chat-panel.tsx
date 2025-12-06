@@ -1,7 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import type React from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { PaperAirplaneIcon, SparklesIcon, ClockIcon, ArrowPathIcon, Bars3Icon } from '@heroicons/react/24/outline';
 import { ChatMessage } from '@/lib/aiProvider';
