@@ -1,26 +1,10 @@
-<<<<<<< ours
-<<<<<<< ours
-const STORAGE_KEY = 'ps.pwa.state.v1';
-=======
 const STORAGE_KEY = 'ps.pwa.state.v2';
->>>>>>> theirs
-=======
-const STORAGE_KEY = 'ps.pwa.state.v2';
->>>>>>> theirs
 
 const initialState = {
   appVersion: '2024.09.0',
   isOnline: navigator.onLine,
   lastKnownPosition: null,
-<<<<<<< ours
-<<<<<<< ours
-  mapView: { center: null, zoom: 11 },
-=======
   mapView: { center: null, zoom: 11, features: [] },
->>>>>>> theirs
-=======
-  mapView: { center: null, zoom: 11, features: [] },
->>>>>>> theirs
   filters: {
     priceMax: null,
     onlyFree: false,
@@ -28,14 +12,7 @@ const initialState = {
     covered: false,
     is_24_7: false,
     ai_recommended: false,
-<<<<<<< ours
-<<<<<<< ours
-=======
     distance_km: 5,
->>>>>>> theirs
-=======
-    distance_km: 5,
->>>>>>> theirs
   },
   pagination: {
     next: null,
@@ -47,14 +24,8 @@ const initialState = {
   favorites: [],
   savedPlaces: [],
   offlineQueue: [],
-<<<<<<< ours
-<<<<<<< ours
-=======
   profile: { id: null, role: 'guest', layout_profile: 'comfortable', theme: 'light', platform: 'web' },
->>>>>>> theirs
-=======
-  profile: { id: null, role: 'guest', layout_profile: 'comfortable', theme: 'light', platform: 'web' },
->>>>>>> theirs
+  pushOptIn: false,
 };
 
 let state = loadState();
@@ -64,7 +35,14 @@ function loadState() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return { ...initialState };
-    return { ...initialState, ...JSON.parse(raw) };
+    const parsed = JSON.parse(raw);
+    return {
+      ...initialState,
+      ...parsed,
+      filters: { ...initialState.filters, ...(parsed.filters || {}) },
+      mapView: { ...initialState.mapView, ...(parsed.mapView || {}) },
+      profile: { ...initialState.profile, ...(parsed.profile || {}) },
+    };
   } catch (err) {
     console.warn('[PWA] failed to load state', err);
     return { ...initialState };
@@ -125,9 +103,7 @@ export function setFavorites(favorites) {
 
 export function toggleFavorite(id) {
   const exists = state.favorites.includes(id);
-  const updated = exists
-    ? state.favorites.filter((item) => item !== id)
-    : [...state.favorites, id];
+  const updated = exists ? state.favorites.filter((item) => item !== id) : [...state.favorites, id];
   setState({ favorites: updated });
 }
 
@@ -144,11 +120,6 @@ export function flushQueue(predicate) {
   const kept = state.offlineQueue.filter((item) => !predicate(item));
   setState({ offlineQueue: kept });
 }
-<<<<<<< ours
-<<<<<<< ours
-=======
-=======
->>>>>>> theirs
 
 export function setProfile(profile) {
   setState({ profile: { ...state.profile, ...profile } });
@@ -167,7 +138,7 @@ export function setThemeConfig(config) {
 export function setMapFeatures(features) {
   setState({ mapView: { ...state.mapView, features } });
 }
-<<<<<<< ours
->>>>>>> theirs
-=======
->>>>>>> theirs
+
+export function setPushOptIn(optIn) {
+  setState({ pushOptIn: optIn });
+}

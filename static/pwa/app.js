@@ -1,29 +1,8 @@
 import { initRouter, bindConnectionBanner } from './router.js';
 import { initSpotsView } from './spots-view.js';
-import {
-  getState,
-  setConnectionStatus,
-  setMapView,
-  subscribe,
-} from './state-store.js';
-<<<<<<< ours
-<<<<<<< ours
-import { loadFavorites, loadSavedPlaces, syncOfflineQueue } from './api-client.js';
-=======
-=======
->>>>>>> theirs
-import {
-  loadFavorites,
-  loadMapFeatures,
-  loadProfile,
-  loadSavedPlaces,
-  syncOfflineQueue,
-} from './api-client.js';
+import { getState, setConnectionStatus, setMapView, subscribe } from './state-store.js';
+import { loadFavorites, loadMapFeatures, loadProfile, loadSavedPlaces, syncOfflineQueue } from './api-client.js';
 import { initPushUI } from './ui-kit.js';
-<<<<<<< ours
->>>>>>> theirs
-=======
->>>>>>> theirs
 
 const APP_VERSION = '2024.09.0';
 
@@ -73,18 +52,9 @@ function hydrateUI() {
   initSpotsView();
   loadFavorites();
   loadSavedPlaces();
-<<<<<<< ours
-<<<<<<< ours
-=======
   loadProfile();
   loadMapFeatures();
   initPushUI();
->>>>>>> theirs
-=======
-  loadProfile();
-  loadMapFeatures();
-  initPushUI();
->>>>>>> theirs
 }
 
 function wireConnectivity() {

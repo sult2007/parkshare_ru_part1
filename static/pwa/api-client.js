@@ -1,45 +1,20 @@
 import {
   appendSpots,
-<<<<<<< ours
-<<<<<<< ours
-  getState,
-  queueAction,
-  setConnectionStatus,
-  setSpots,
-  setSavedPlaces,
-  setFavorites,
-=======
-=======
->>>>>>> theirs
   flushQueue,
   getState,
   queueAction,
   setConnectionStatus,
   setMapFeatures,
-  setProfile,
   setSavedPlaces,
   setFavorites,
   setSpots,
   setThemeConfig,
-<<<<<<< ours
->>>>>>> theirs
-=======
->>>>>>> theirs
   updatePagination,
 } from './state-store.js';
 
 const API_ROOT = '/api/parking';
-
-<<<<<<< ours
-<<<<<<< ours
-=======
 const datasetCache = new Map();
 
->>>>>>> theirs
-=======
-const datasetCache = new Map();
-
->>>>>>> theirs
 async function apiFetch(path, { method = 'GET', body, params } = {}) {
   const url = new URL(path, window.location.origin);
   if (params) {
@@ -63,19 +38,6 @@ async function apiFetch(path, { method = 'GET', body, params } = {}) {
   }
 }
 
-<<<<<<< ours
-<<<<<<< ours
-export async function loadSpots({ append = false, filters = {}, page = 1, pageSize }) {
-  const params = {
-    page,
-    page_size: pageSize,
-    ...filters,
-  };
-  try {
-    const payload = await apiFetch(`${API_ROOT}/spots/`, { params });
-=======
-=======
->>>>>>> theirs
 export async function loadSpots({ append = false, filters = {}, page = 1, pageSize = 50 }) {
   const params = {
     page,
@@ -85,10 +47,6 @@ export async function loadSpots({ append = false, filters = {}, page = 1, pageSi
   const cacheKey = `spots:${JSON.stringify(params)}`;
   try {
     const payload = await cachedApiFetch(`${API_ROOT}/spots/`, { params }, cacheKey, 300000);
-<<<<<<< ours
->>>>>>> theirs
-=======
->>>>>>> theirs
     const { results, next, previous, count } = payload;
     if (append) {
       appendSpots(results);
@@ -98,15 +56,7 @@ export async function loadSpots({ append = false, filters = {}, page = 1, pageSi
     updatePagination({ next, previous, count, page_size: params.page_size });
     cacheDataset('spots', payload);
   } catch (err) {
-<<<<<<< ours
-<<<<<<< ours
-    const cached = readDataset('spots');
-=======
     const cached = readDataset('spots') || datasetCache.get(cacheKey);
->>>>>>> theirs
-=======
-    const cached = readDataset('spots') || datasetCache.get(cacheKey);
->>>>>>> theirs
     if (cached) {
       const { results, next, previous, count } = cached;
       if (append) {
@@ -114,7 +64,7 @@ export async function loadSpots({ append = false, filters = {}, page = 1, pageSi
       } else {
         setSpots(results);
       }
-      updatePagination({ next, previous, count });
+      updatePagination({ next, previous, count, page_size: params.page_size });
     } else {
       console.warn('[PWA] failed to load spots and no cache', err);
     }
@@ -123,15 +73,7 @@ export async function loadSpots({ append = false, filters = {}, page = 1, pageSi
 
 export async function loadFavorites() {
   try {
-<<<<<<< ours
-<<<<<<< ours
-    const payload = await apiFetch(`${API_ROOT}/favorite-spots/`);
-=======
     const payload = await apiFetch(`${API_ROOT}/favorites/`);
->>>>>>> theirs
-=======
-    const payload = await apiFetch(`${API_ROOT}/favorites/`);
->>>>>>> theirs
     setFavorites(payload.results ? payload.results.map((item) => item.spot) : payload.map((i) => i.spot));
     cacheDataset('favorites', payload);
   } catch (err) {
@@ -147,15 +89,7 @@ export async function saveFavorite(spotId) {
     queueAction({ type: 'favorite', spotId, action: 'toggle' });
     return toggleLocalFavorite(spotId);
   }
-<<<<<<< ours
-<<<<<<< ours
-  await apiFetch(`${API_ROOT}/favorite-spots/`, {
-=======
   await apiFetch(`${API_ROOT}/favorites/`, {
->>>>>>> theirs
-=======
-  await apiFetch(`${API_ROOT}/favorites/`, {
->>>>>>> theirs
     method: 'POST',
     body: { spot: spotId },
   });
@@ -198,16 +132,8 @@ export async function syncOfflineQueue() {
       leftover.push(item);
     }
   }
-  if (leftover.length === 0) {
-<<<<<<< ours
-<<<<<<< ours
-    cacheDataset('offlineQueue', []);
-  }
-=======
-=======
->>>>>>> theirs
-    flushQueue(() => true);
-  }
+  flushQueue(() => true);
+  leftover.forEach((item) => queueAction(item));
 }
 
 export async function loadProfile() {
@@ -248,10 +174,6 @@ async function cachedApiFetch(path, opts, cacheKey, ttlMs = 120000) {
   datasetCache.set(cacheKey, { payload, expires: Date.now() + ttlMs });
   cacheDataset(cacheKey, payload);
   return payload;
-<<<<<<< ours
->>>>>>> theirs
-=======
->>>>>>> theirs
 }
 
 function cacheDataset(name, payload) {

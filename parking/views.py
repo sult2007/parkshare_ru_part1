@@ -208,15 +208,7 @@ class ParkingSpotViewSet(viewsets.ModelViewSet):
             page=request.query_params.get("page") or "1",
             size=request.query_params.get("page_size") or "",
         )
-<<<<<<< ours
-<<<<<<< ours
         cache.set(cache_key, data, 60)
-=======
-        cache.set(cache_key, data, 300)
->>>>>>> theirs
-=======
-        cache.set(cache_key, data, 300)
->>>>>>> theirs
 
 
 class BookingViewSet(viewsets.ModelViewSet):

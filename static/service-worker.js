@@ -5,16 +5,8 @@ const RUNTIME_CACHE = `${CACHE_PREFIX}runtime-${APP_VERSION}`;
 const STATIC_CACHE = `${CACHE_PREFIX}static-${APP_VERSION}`;
 const SHELL_CACHE = `${CACHE_PREFIX}shell-${APP_VERSION}`;
 const API_CACHE = `${CACHE_PREFIX}api-${APP_VERSION}`;
-<<<<<<< ours
-<<<<<<< ours
-=======
 const PRIVATE_API_CACHE = `${CACHE_PREFIX}api-private-${APP_VERSION}`;
 const MAP_CACHE = `${CACHE_PREFIX}map-${APP_VERSION}`;
->>>>>>> theirs
-=======
-const PRIVATE_API_CACHE = `${CACHE_PREFIX}api-private-${APP_VERSION}`;
-const MAP_CACHE = `${CACHE_PREFIX}map-${APP_VERSION}`;
->>>>>>> theirs
 const OFFLINE_URL = '/offline/';
 const APP_SHELL = [
   '/',
@@ -38,14 +30,7 @@ const STATIC_ASSETS = [
   '/static/pwa/state-store.js',
   '/static/pwa/router.js',
   '/static/pwa/spots-view.js',
-<<<<<<< ours
-<<<<<<< ours
-=======
   '/static/pwa/ui-kit.js',
->>>>>>> theirs
-=======
-  '/static/pwa/ui-kit.js',
->>>>>>> theirs
 ];
 
 self.addEventListener('install', (event) => {
@@ -65,22 +50,18 @@ self.addEventListener('activate', (event) => {
     caches.keys().then((keys) =>
       Promise.all(
         keys
-          .filter((key) => key.startsWith(CACHE_PREFIX) && ![
-            RUNTIME_CACHE,
-            STATIC_CACHE,
-            SHELL_CACHE,
-            API_CACHE,
-<<<<<<< ours
-<<<<<<< ours
-=======
-            PRIVATE_API_CACHE,
-            MAP_CACHE,
->>>>>>> theirs
-=======
-            PRIVATE_API_CACHE,
-            MAP_CACHE,
->>>>>>> theirs
-          ].includes(key))
+          .filter(
+            (key) =>
+              key.startsWith(CACHE_PREFIX) &&
+              ![
+                RUNTIME_CACHE,
+                STATIC_CACHE,
+                SHELL_CACHE,
+                API_CACHE,
+                PRIVATE_API_CACHE,
+                MAP_CACHE,
+              ].includes(key)
+          )
           .map((key) => caches.delete(key))
       )
     )
@@ -114,105 +95,24 @@ self.addEventListener('fetch', (event) => {
 
   if (isApiRequest(url)) {
     if (request.headers.get('authorization')) {
-<<<<<<< ours
-<<<<<<< ours
-      event.respondWith(networkFirst(request, RUNTIME_CACHE));
-=======
       event.respondWith(networkFirst(request, PRIVATE_API_CACHE));
->>>>>>> theirs
-=======
-      event.respondWith(networkFirst(request, PRIVATE_API_CACHE));
->>>>>>> theirs
       return;
     }
     event.respondWith(staleWhileRevalidate(request, API_CACHE));
     return;
   }
 
-<<<<<<< ours
-<<<<<<< ours
-=======
-=======
->>>>>>> theirs
   if (isMapTile(url)) {
-    event.respondWith(limitCacheSize(cacheFirst(request, MAP_CACHE, 150)),);
+    event.respondWith(limitCacheSize(cacheFirst(request, MAP_CACHE), 150));
     return;
   }
 
-<<<<<<< ours
->>>>>>> theirs
-=======
->>>>>>> theirs
   if (isAsset(url)) {
     event.respondWith(cacheFirst(request, STATIC_CACHE));
     return;
   }
 
   event.respondWith(staleWhileRevalidate(request, RUNTIME_CACHE));
-<<<<<<< ours
-});
-
-self.addEventListener('sync', (event) => {
-  if (event.tag === 'ps-sync-queue') {
-    event.waitUntil(flushOfflineQueue());
-  }
-});
-
-self.addEventListener('push', (event) => {
-  const data = event.data ? event.data.json() : {};
-  const title = data.title || 'ParkShare';
-  const body = data.body || 'Новые события по вашим бронированиям';
-  const url = data.url || '/map/';
-  const actions = data.actions || [];
-  event.waitUntil(
-    self.registration.showNotification(title, {
-      body,
-      data: { url },
-      icon: '/static/icons/icon-192.png',
-      badge: '/static/icons/icon-72.png',
-      actions,
-    })
-  );
-<<<<<<< ours
-});
-
-self.addEventListener('notificationclick', (event) => {
-  const targetUrl = event.notification?.data?.url || '/map/';
-  event.notification.close();
-  event.waitUntil(
-    clients.matchAll({ type: 'window' }).then((clientList) => {
-      for (const client of clientList) {
-        if ('focus' in client) {
-          client.navigate(targetUrl);
-          return client.focus();
-        }
-      }
-      return clients.openWindow(targetUrl);
-    })
-  );
-});
-
-=======
-});
-
-self.addEventListener('notificationclick', (event) => {
-  const targetUrl = event.notification?.data?.url || '/map/';
-  event.notification.close();
-  event.waitUntil(
-    clients.matchAll({ type: 'window' }).then((clientList) => {
-      for (const client of clientList) {
-        if ('focus' in client) {
-          client.navigate(targetUrl);
-          return client.focus();
-        }
-      }
-      return clients.openWindow(targetUrl);
-    })
-  );
-});
-
->>>>>>> theirs
-=======
 });
 
 self.addEventListener('sync', (event) => {
@@ -254,7 +154,6 @@ self.addEventListener('notificationclick', (event) => {
   );
 });
 
->>>>>>> theirs
 async function precacheShell() {
   const cache = await caches.open(SHELL_CACHE);
   await cache.addAll(APP_SHELL);
@@ -264,19 +163,10 @@ function isApiRequest(url) {
   return url.pathname.startsWith('/api/');
 }
 
-<<<<<<< ours
-<<<<<<< ours
-=======
-=======
->>>>>>> theirs
 function isMapTile(url) {
   return url.hostname.includes('tile') || url.pathname.includes('/tiles/') || url.pathname.match(/\/(\d+)\/(\d+)\/(\d+)\.png/);
 }
 
-<<<<<<< ours
->>>>>>> theirs
-=======
->>>>>>> theirs
 function isAsset(url) {
   return (
     url.pathname.startsWith('/static/') ||
@@ -328,13 +218,8 @@ async function staleWhileRevalidate(request, cacheName) {
   return cached || network;
 }
 
-<<<<<<< ours
-<<<<<<< ours
-=======
-=======
->>>>>>> theirs
-async function limitCacheSize(promise, maxEntries = 150) {
-  const response = await promise;
+async function limitCacheSize(responsePromise, maxEntries = 150) {
+  const response = await responsePromise;
   const cache = await caches.open(MAP_CACHE);
   const keys = await cache.keys();
   if (keys.length > maxEntries) {
@@ -343,10 +228,6 @@ async function limitCacheSize(promise, maxEntries = 150) {
   return response;
 }
 
-<<<<<<< ours
->>>>>>> theirs
-=======
->>>>>>> theirs
 async function flushOfflineQueue() {
   const queue = await loadQueue();
   const stillPending = [];
