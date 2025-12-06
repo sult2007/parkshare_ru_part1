@@ -48,7 +48,6 @@
                 <a href="{% url 'owner_dashboard' %}" class="ps-nav-link">Кабинет владельца</a>
             {% endif %}
             <a href="{% url 'map_page' %}" class="ps-nav-link">Карта</a>
-            <button type="button" class="ps-nav-link ps-nav-link--ghost" data-chat-open-link>AI-помощник</button>
             <button type="button" class="ps-nav-link" data-nav-install-app data-install-href="{% url 'pwa_install' %}">Установить приложение</button>
             {% if user.is_authenticated %}
                 <a href="{% url 'accounts:profile' %}" class="ps-nav-link">Профиль</a>
@@ -84,33 +83,6 @@
 <!-- Toasts -->
 <div class="ps-toast-container" aria-live="polite" aria-atomic="true"></div>
 
-<!-- Chat assistant -->
-<div class="ps-chat" data-chat>
-    <button class="ps-chat-fab" type="button" data-chat-toggle aria-expanded="false">
-        <span class="ps-chat-fab-icon">🤖</span>
-        <span class="ps-chat-fab-text">AI-помощник</span>
-    </button>
-    <div class="ps-chat-overlay" data-chat-overlay></div>
-    <div class="ps-chat-panel" data-chat-panel aria-hidden="true" role="dialog" aria-label="AI-помощник по парковке">
-        <div class="ps-chat-header">
-            <div class="ps-chat-header-text">
-                <div class="ps-chat-title">AI-помощник по парковке</div>
-                <div class="ps-chat-hint">Подскажет свободные места, тарифы и построит маршрут.</div>
-            </div>
-            <div class="ps-chat-meta">
-                <span class="ps-chat-status-dot">онлайн</span>
-                <button class="ps-chat-close" type="button" data-chat-close aria-label="Свернуть чат">×</button>
-            </div>
-        </div>
-        <div class="ps-chat-body" data-chat-body></div>
-        <div class="ps-chat-status" data-chat-status hidden>Ассистент печатает…</div>
-        <div class="ps-chat-input">
-            <textarea class="ps-input" rows="2" placeholder="Напишите: «Нужна парковка завтра с 9 до 11 у метро Курская, недорого»" data-chat-input></textarea>
-            <button class="ps-btn ps-btn-primary" type="button" data-chat-send>Отправить</button>
-        </div>
-    </div>
-</div>
-
 <!-- Bottom navigation for mobile -->
 <nav class="ps-bottom-nav" data-bottom-nav>
     <a href="{% url 'map_page' %}" class="ps-bottom-nav-item" data-nav="map">
@@ -125,10 +97,6 @@
         <span class="ps-bottom-nav-icon" aria-hidden="true">👤</span>
         <span class="ps-bottom-nav-label">Профиль</span>
     </a>
-    <button type="button" class="ps-bottom-nav-item" data-nav="chat" data-chat-open-link>
-        <span class="ps-bottom-nav-icon" aria-hidden="true">🤖</span>
-        <span class="ps-bottom-nav-label">AI-чат</span>
-    </button>
 </nav>
 
 <!-- PWA install banner -->

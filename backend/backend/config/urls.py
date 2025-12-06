@@ -95,6 +95,7 @@ urlpatterns = [
     path("личный-кабинет/", parking_views.UserDashboardView.as_view(), name="user_dashboard"),
     path("кабинет-владельца/", parking_views.OwnerDashboardView.as_view(), name="owner_dashboard"),
     path("offline/", TemplateView.as_view(template_name="offline.html"), name="offline"),
+    path("ai/", TemplateView.as_view(template_name="ai/concierge.html")),
 
     # Auth страницы (регистрация/логин/сброс пароля)
     path("accounts/", include("accounts.urls")),
@@ -137,8 +138,6 @@ urlpatterns = [
     path("api/ai/departure-assistant/", ai_api.DepartureAssistantAPIView.as_view(), name="ai_departure_assistant"),
     path("api/ai/parkmate/config/", ai_api.ParkMateConfigAPIView.as_view(), name="parkmate_config"),
     path("api/ai/parkmate/price-forecast/", ai_api.ParkMatePriceForecastAPIView.as_view(), name="parkmate_price_forecast"),
-    path("api/ai/chat/parking/", ai_api.ParkingChatAPIView.as_view(), name="ai_parking_chat"),
-    path("api/ai/chat/feedback/", ai_api.ChatFeedbackAPIView.as_view(), name="ai_chat_feedback"),
     path("api/ai/llm/health/", ai_api.LLMServiceHealthAPIView.as_view(), name="ai_llm_health"),
     path("api/parking/map/", parking_views.ParkingMapAPIView.as_view(), name="parking_map"),
     path("api/geocode/", parking_views.GeocodeAPIView.as_view(), name="geocode"),

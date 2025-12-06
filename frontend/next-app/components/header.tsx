@@ -19,10 +19,7 @@ export function Header() {
         </div>
         <div className="flex items-center gap-3">
           <ThemeToggle />
-          <div className="hidden sm:block text-right">
-            <p className="text-sm font-medium leading-tight">Local dev user</p>
-            <p className="text-xs text-slate-500 dark:text-slate-400 leading-tight">localhost</p>
-          </div>
+          <span className="hidden sm:inline text-sm font-medium text-slate-800 dark:text-slate-200">Local user</span>
           <div className="h-9 w-9 rounded-full bg-slate-200 dark:bg-slate-700" />
         </div>
       </div>
