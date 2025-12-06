@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="ParkShare icon">
+  <defs>
+    <linearGradient id="g2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6366f1" />
+      <stop offset="100%" stop-color="#22d3ee" />
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="88" fill="url(#g2)" />
+  <g fill="white" opacity="0.95">
+    <circle cx="170" cy="220" r="60" />
+    <circle cx="342" cy="220" r="60" />
+    <path d="M126 320c30-44 90-72 170-72s140 28 170 72c18 24 6 56-28 56H154c-34 0-46-32-28-56Z" />
+  </g>
+</svg>

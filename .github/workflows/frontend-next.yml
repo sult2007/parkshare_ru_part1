@@ -1,0 +1,41 @@
+name: Frontend Next.js CI
+
+on:
+  push:
+    paths:
+      - 'frontend/next-app/**'
+  pull_request:
+    paths:
+      - 'frontend/next-app/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+          cache-dependency-path: frontend/next-app/package-lock.json
+      - name: Install dependencies
+        working-directory: frontend/next-app
+        run: npm ci || npm install
+      - name: Lint
+        working-directory: frontend/next-app
+        run: npm run lint
+      - name: Build
+        working-directory: frontend/next-app
+        env:
+          NEXTAUTH_URL: http://localhost:3000
+          NEXTAUTH_SECRET: test_secret
+          GOOGLE_CLIENT_ID: dummy
+          GOOGLE_CLIENT_SECRET: dummy
+          OPENAI_API_KEY: dummy
+        run: npm run build
+      - name: Validate Dockerfile
+        working-directory: frontend/next-app
+        run: |
+          docker build . -f Dockerfile --target runner --tag parkshare-next:test
