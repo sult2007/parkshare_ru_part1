@@ -19,7 +19,7 @@ from parking import views as parking_views
 from payments import views as payments_api
 from vehicles import views as vehicles_api
 
-from backend.health import healthz, readyz
+from ..health import healthz, readyz
 router = routers.DefaultRouter()
 
 # Accounts / пользователи (только API)
