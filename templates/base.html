@@ -4,145 +4,116 @@
 <head>
     <meta charset="utf-8">
     <title>{% block title %}ParkShare — smart parking{% endblock %}</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 
     <!-- PWA -->
-    <meta name="theme-color" content="#0f172a">
+    <meta name="theme-color" content="#0b0f1a">
     <link rel="manifest" href="{% url 'manifest' %}">
     <link rel="apple-touch-icon" sizes="192x192" href="{% static 'icons/icon-192.png' %}">
     <link rel="apple-touch-icon" sizes="512x512" href="{% static 'icons/icon-512.png' %}">
-
-    <!-- Favicon (минимальный набор) -->
     <link rel="icon" type="image/png" sizes="32x32" href="{% static 'icons/icon-72.png' %}">
 
     <script>
         (function() {
+            var storageKey = "ps-theme";
             try {
-                const stored = localStorage.getItem('ps_theme');
-                const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-                const theme = stored || (prefersDark ? 'dark' : 'light');
-                if (theme === 'dark') {
-                    document.documentElement.classList.add('theme-dark');
-                } else {
-                    document.documentElement.classList.remove('theme-dark');
-                }
-                document.documentElement.setAttribute('data-theme', theme);
+                var stored = localStorage.getItem(storageKey);
+                var prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+                var theme = stored || (prefersDark ? "dark" : "light");
+                document.documentElement.dataset.theme = theme;
             } catch (_) {
-                /* ignore */
+                document.documentElement.dataset.theme = "dark";
             }
         })();
     </script>
 
-    <!-- Основные стили PWA -->
     <link rel="stylesheet" href="{% static 'css/app.css' %}">
 
     {% block extra_head %}{% endblock %}
 </head>
 <body class="ps-body" data-user-id="{% if user.is_authenticated %}{{ user.id }}{% endif %}">
-<header class="ps-header">
-    <nav class="ps-navbar">
-        <div class="ps-navbar-left">
-            <a href="{% url 'landing' %}" class="ps-logo">
-                <span class="ps-logo-main">ParkShare</span>
-                <span class="ps-logo-accent">{{ REGION_PROFILE }}</span>
-            </a>
-            {% if user.is_authenticated %}
-                <span class="ps-user-level" title="Ваш уровень по бронированиям">
-                    <svg class="ps-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5 9.6 9H3l5.4 4.1L6.6 19.5 12 15.8l5.4 3.7-1.8-6.4L21 9h-6.6L12 2.5Z" fill="currentColor"/></svg>
-                    {{ user.username }}
-                </span>
-            {% endif %}
+<div class="ps-app">
+    <header class="ps-topbar">
+        <div class="ps-topbar__safe">
+            <div class="ps-topbar__row">
+                <a href="{% url 'landing' %}" class="ps-brand">
+                    <span class="ps-brand__title">ParkShare</span>
+                    <span class="ps-brand__region">{{ REGION_PROFILE }}</span>
+                </a>
+                <div class="ps-topbar__actions">
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'accounts:profile' %}" class="ps-icon-btn" aria-label="Профиль" title="{{ user.username }}">
+                            <svg class="ps-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5a4.5 4.5 0 1 0 0 9 4.5 4.5 0 0 0 0-9Zm0 11c-3.3 0-6 1.7-6 3.8V20h12v-1.7c0-2.1-2.7-3.8-6-3.8Z" fill="currentColor"/></svg>
+                        </a>
+                    {% else %}
+                        <a href="{% url 'accounts:login' %}" class="ps-icon-btn" aria-label="Войти">
+                            <svg class="ps-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a7 7 0 0 0-7 7v3.5A4.5 4.5 0 0 0 9.5 18h.8l1.7 2.6c.4.6 1.3.6 1.7 0L15.5 18h.8A4.5 4.5 0 0 0 19 13.5V10a7 7 0 0 0-7-7Zm0 2a5 5 0 0 1 5 5v3.5a2.5 2.5 0 0 1-2.5 2.5h-1.4l-1.1 1.8-1.1-1.8H9.5A2.5 2.5 0 0 1 7 13.5V10a5 5 0 0 1 5-5Z" fill="currentColor"/></svg>
+                        </a>
+                    {% endif %}
+                    <button type="button" class="ps-icon-btn" data-theme-toggle aria-label="Переключить тему">
+                        <svg class="ps-icon ps-icon-sun" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM12 2v2m0 16v2m10-10h-2M4 12H2m16.95 6.95-1.41-1.41M6.46 7.46 5.05 6.05m13.9 0-1.41 1.41M6.46 16.54l-1.41 1.41" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg>
+                        <svg class="ps-icon ps-icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 13.5A8.5 8.5 0 0 1 10.5 4 7 7 0 1 0 20 13.5Z" fill="currentColor"/></svg>
+                    </button>
+                </div>
+            </div>
         </div>
+    </header>
 
-        <button class="ps-navbar-toggle" type="button" data-menu-toggle aria-label="Открыть меню">
-            <span></span>
-            <span></span>
-            <span></span>
-        </button>
-
-        <div class="ps-navbar-menu" data-menu>
-            <button type="button" class="ps-theme-toggle" data-theme-toggle aria-label="Переключить тему">
-                <svg class="ps-icon ps-icon-sun" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM12 2v2m0 16v2m10-10h-2M4 12H2m16.95 6.95-1.41-1.41M6.46 7.46 5.05 6.05m13.9 0-1.41 1.41M6.46 16.54l-1.41 1.41" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg>
-                <svg class="ps-icon ps-icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 13.5A8.5 8.5 0 0 1 10.5 4 7 7 0 1 0 20 13.5Z" fill="currentColor"/></svg>
-            </button>
-            <a href="{% url 'landing' %}" class="ps-nav-link">Главная</a>
-            <a href="{% url 'user_dashboard' %}" class="ps-nav-link">Личный кабинет</a>
-            {% if user.is_authenticated and user.is_owner %}
-                <a href="{% url 'owner_dashboard' %}" class="ps-nav-link">Кабинет владельца</a>
-            {% endif %}
-            <a href="{% url 'map_page' %}" class="ps-nav-link">Карта</a>
-            <button type="button" class="ps-nav-link" data-nav-install-app data-install-href="{% url 'pwa_install' %}">Установить приложение</button>
-            {% if user.is_authenticated %}
-                <a href="{% url 'accounts:profile' %}" class="ps-nav-link">Профиль</a>
-                <a href="{% url 'accounts:logout' %}" class="ps-nav-link ps-nav-link--danger">Выйти</a>
-            {% else %}
-                <a href="{% url 'accounts:login' %}" class="ps-nav-link">Войти</a>
-                <a href="{% url 'accounts:register' %}" class="ps-nav-link ps-nav-link--primary">Регистрация</a>
-            {% endif %}
+    <main class="ps-main">
+        <div class="ps-update-banner" data-sw-update hidden>
+            <div class="ps-update-banner__text">Доступно обновление PWA.</div>
+            <button type="button" class="ps-btn ps-btn-primary ps-btn-sm">Обновить</button>
         </div>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="ps-footer">
+        <div class="ps-footer__inner">
+            <span>© {% now "Y" %} ParkShare RU</span>
+            <span class="ps-footer__meta">PWA · Offline-first · AI pricing</span>
+        </div>
+    </footer>
+
+    <button class="ps-back-to-top" type="button" data-back-to-top aria-label="Наверх">↑</button>
+
+    <div class="ps-toast-container" aria-live="polite" aria-atomic="true"></div>
+
+    <nav class="ps-tabbar" data-bottom-nav>
+        <a href="{% url 'landing' %}" class="ps-tabbar__item" data-nav="map">
+            <span class="ps-tabbar__icon" aria-hidden="true">
+                <svg class="ps-icon" viewBox="0 0 24 24"><path d="M9.5 4.2 4 6.3v13l5.5-2.1 5 2.1 5.5-2.1v-13l-5.5 2.1-5-2.1Zm0 2.3 5 2.1v9l-5-2.1v-9Zm-1 9.2-3.5 1.3v-9l3.5-1.3v9Zm11-7.7v9l-3.5 1.3v-9l3.5-1.3Z" fill="currentColor"/></svg>
+            </span>
+            <span class="ps-tabbar__label">Карта</span>
+        </a>
+        <a href="{% url 'user_dashboard' %}" class="ps-tabbar__item" data-nav="bookings">
+            <span class="ps-tabbar__icon" aria-hidden="true">
+                <svg class="ps-icon" viewBox="0 0 24 24"><path d="M7 4.5h10c.8 0 1.5.7 1.5 1.5v12a1.5 1.5 0 0 1-1.5 1.5H7A1.5 1.5 0 0 1 5.5 18V6c0-.8.7-1.5 1.5-1.5Zm0 1.5V9h10V6H7Zm0 4v6h10v-6H7Z" fill="currentColor"/></svg>
+            </span>
+            <span class="ps-tabbar__label">Брони</span>
+        </a>
+        <a href="{% url 'owner_dashboard' %}" class="ps-tabbar__item" data-nav="parking">
+            <span class="ps-tabbar__icon" aria-hidden="true">
+                <svg class="ps-icon" viewBox="0 0 24 24"><path d="M7.5 4h7A3.5 3.5 0 0 1 18 7.5c0 1.9-1.6 3.5-3.5 3.5H9v6H7.5V4Zm7 6A2.5 2.5 0 0 0 17 7.5 2.5 2.5 0 0 0 14.5 5H9v5h5.5Z" fill="currentColor"/></svg>
+            </span>
+            <span class="ps-tabbar__label">Моя парковка</span>
+        </a>
+        <a href="{% url 'ai_chat' %}" class="ps-tabbar__item" data-nav="assistant">
+            <span class="ps-tabbar__icon" aria-hidden="true">
+                <svg class="ps-icon" viewBox="0 0 24 24"><path d="M12 3a7 7 0 0 0-7 7v3.5A4.5 4.5 0 0 0 9.5 18h.8l1.7 2.6c.4.6 1.3.6 1.7 0L15.5 18h.8A4.5 4.5 0 0 0 19 13.5V10a7 7 0 0 0-7-7Zm0 2a5 5 0 0 1 5 5v3.5a2.5 2.5 0 0 1-2.5 2.5h-1.4l-1.1 1.8-1.1-1.8H9.5A2.5 2.5 0 0 1 7 13.5V10a5 5 0 0 1 5-5Z" fill="currentColor"/></svg>
+            </span>
+            <span class="ps-tabbar__label">Ассистент</span>
+        </a>
     </nav>
-</header>
 
-<main class="ps-main">
-    <div class="ps-update-banner" data-sw-update hidden>
-        <div class="ps-update-banner__text">Доступно обновление PWA.</div>
-        <button type="button" class="ps-btn ps-btn-primary ps-btn-sm">Обновить</button>
-    </div>
-    {% block content %}{% endblock %}
-</main>
-
-<footer class="ps-footer">
-    <div class="ps-footer-inner">
-        <span>© {% now "Y" %} ParkShare RU</span>
-        <span class="ps-footer-meta">PWA · Offline-first · AI pricing</span>
-    </div>
-</footer>
-
-<!-- Back to top -->
-<button class="ps-back-to-top" type="button" data-back-to-top aria-label="Наверх">
-    ↑
-</button>
-
-<!-- Toasts -->
-<div class="ps-toast-container" aria-live="polite" aria-atomic="true"></div>
-
-<!-- Bottom navigation for mobile -->
-<nav class="ps-bottom-nav" data-bottom-nav>
-    <a href="{% url 'map_page' %}" class="ps-bottom-nav-item" data-nav="map">
-        <span class="ps-bottom-nav-icon" aria-hidden="true">
-            <svg class="ps-icon" viewBox="0 0 24 24"><path d="M9.5 4.2 4 6.3v13l5.5-2.1 5 2.1 5.5-2.1v-13l-5.5 2.1-5-2.1Zm0 2.3 5 2.1v9l-5-2.1v-9Zm-1 9.2-3.5 1.3v-9l3.5-1.3v9Zm11-7.7v9l-3.5 1.3v-9l3.5-1.3Z" fill="currentColor"/></svg>
-        </span>
-        <span class="ps-bottom-nav-label">Карта</span>
-    </a>
-    <a href="{% url 'user_dashboard' %}" class="ps-bottom-nav-item" data-nav="bookings">
-        <span class="ps-bottom-nav-icon" aria-hidden="true">
-            <svg class="ps-icon" viewBox="0 0 24 24"><path d="M7 4.5h10c.8 0 1.5.7 1.5 1.5v12a1.5 1.5 0 0 1-1.5 1.5H7A1.5 1.5 0 0 1 5.5 18V6c0-.8.7-1.5 1.5-1.5Zm0 1.5V9h10V6H7Zm0 4v6h10v-6H7Z" fill="currentColor"/></svg>
-        </span>
-        <span class="ps-bottom-nav-label">Брони</span>
-    </a>
-    <a href="{% url 'owner_dashboard' %}" class="ps-bottom-nav-item" data-nav="parking">
-        <span class="ps-bottom-nav-icon" aria-hidden="true">
-            <svg class="ps-icon" viewBox="0 0 24 24"><path d="M7.5 4h7A3.5 3.5 0 0 1 18 7.5c0 1.9-1.6 3.5-3.5 3.5H9v6H7.5V4Zm7 6A2.5 2.5 0 0 0 17 7.5 2.5 2.5 0 0 0 14.5 5H9v5h5.5Z" fill="currentColor"/></svg>
-        </span>
-        <span class="ps-bottom-nav-label">Моя парковка</span>
-    </a>
-    <a href="#assistant" class="ps-bottom-nav-item" data-nav="assistant">
-        <span class="ps-bottom-nav-icon" aria-hidden="true">
-            <svg class="ps-icon" viewBox="0 0 24 24"><path d="M12 3a7 7 0 0 0-7 7v3.5A4.5 4.5 0 0 0 9.5 18h.8l1.7 2.6c.4.6 1.3.6 1.7 0L15.5 18h.8A4.5 4.5 0 0 0 19 13.5V10a7 7 0 0 0-7-7Zm0 2a5 5 0 0 1 5 5v3.5a2.5 2.5 0 0 1-2.5 2.5h-1.4l-1.1 1.8-1.1-1.8H9.5A2.5 2.5 0 0 1 7 13.5V10a5 5 0 0 1 5-5Z" fill="currentColor"/></svg>
-        </span>
-        <span class="ps-bottom-nav-label">Ассистент</span>
-    </a>
-</nav>
-
-<!-- PWA install banner -->
-<div class="ps-install-banner" data-install-banner hidden>
-    <div class="ps-install-banner-inner">
-        <div class="ps-install-banner-text">
-            Установите <strong>ParkShare RU</strong> как приложение
-        </div>
-        <div class="ps-install-banner-actions">
-            <button type="button" class="ps-btn ps-btn-secondary" data-install-dismiss>Позже</button>
-            <button type="button" class="ps-btn" data-install-accept>Установить</button>
+    <div class="ps-install-banner" data-install-banner hidden>
+        <div class="ps-install-banner__inner">
+            <div class="ps-install-banner__text">
+                Установите <strong>ParkShare RU</strong> как приложение
+            </div>
+            <div class="ps-install-banner__actions">
+                <button type="button" class="ps-btn ps-btn-secondary" data-install-dismiss>Позже</button>
+                <button type="button" class="ps-btn" data-install-accept>Установить</button>
+            </div>
         </div>
     </div>
 </div>

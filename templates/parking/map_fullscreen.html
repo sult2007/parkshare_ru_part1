@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Живая карта — ParkShare{% endblock %}
+{% block title %}Полная карта — ParkShare{% endblock %}
 
 {% block extra_head %}
     <link rel="stylesheet"
@@ -18,8 +18,9 @@
 <section class="ps-section ps-section--flush-top ps-map-hero" data-route="map">
     <div class="ps-section-header ps-section-header--stack">
         <div>
-            <h1 class="ps-section-title">Карта парковок</h1>
-            <p class="ps-section-subtitle">Полноэкранный режим с поиском, фильтрами и маршрутами.</p>
+            <p class="ps-kicker">Карта</p>
+            <h1 class="ps-section-title">Полноэкранный режим</h1>
+            <p class="ps-section-subtitle">Поиск, фильтры, маршруты и live-темы.</p>
             <div class="ps-connection" data-connection-badge hidden>Проверяем сеть…</div>
         </div>
         <div class="ps-section-actions">
@@ -31,7 +32,7 @@
     <div class="ps-map-grid">
         <div class="ps-map-panel" data-map-panel>
             <div class="ps-map-wrapper">
-                <div id="map" class="ps-map ps-map--light"></div>
+                <div id="map" class="ps-map"></div>
                 <div class="ps-map-loading" data-map-loading>Обновляем карту…</div>
                 <div class="ps-map-floating-actions" aria-label="Действия карты">
                     <button class="ps-map-action" type="button" data-fill-location title="Моё местоположение" aria-label="Моё местоположение">
@@ -45,11 +46,8 @@
                     </button>
                 </div>
                 <div class="ps-map-topbar">
-                    <div class="ps-input-icon">
-                        <span class="ps-input-icon-symbol">🔍</span>
-                        <input type="text" class="ps-input" placeholder="Адрес, метро или место" data-geocode-input>
-                    </div>
-                    <button class="ps-btn ps-btn-primary" type="button" data-geocode-submit>Найти</button>
+                    <input type="text" class="ps-input ps-input--pill" placeholder="Адрес, метро или место" data-geocode-input>
+                    <button class="ps-btn ps-btn-primary ps-btn-sm" type="button" data-geocode-submit>Найти</button>
                 </div>
                 <div class="ps-map-chips" data-filter-chips>
                     <label class="ps-chip" data-chip-toggle>

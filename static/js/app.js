@@ -507,9 +507,10 @@ function initAdaptiveProbe() {
         const defaultKey = (function () {
             const path = window.location.pathname;
             if (window.location.hash === "#assistant") return "assistant";
-            if (path.indexOf("/accounts") === 0) return "profile";
-            if (path.indexOf("/parking/user") === 0) return "bookings";
+            if (path.indexOf("/assistant") === 0 || path.indexOf("/ai") === 0) return "assistant";
+            if (path.indexOf("/личный-кабинет") === 0) return "bookings";
             if (path.indexOf("/кабинет-владельца") === 0) return "parking";
+            if (path.indexOf("/map") === 0) return "map";
             return "map";
         })();
 

@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from django.test import Client, TestCase
 from django.urls import reverse
 
@@ -9,16 +10,40 @@ class UIThemeTests(TestCase):
     def test_landing_has_theme_toggle(self):
         response = self.client.get(reverse("landing"))
         self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "ParkShare")
         self.assertContains(response, "data-theme-toggle")
-        self.assertContains(response, "ps-search-bar")
-        self.assertContains(response, "ps-map-card")
-        self.assertContains(response, "ps-section-title")
-        self.assertContains(response, "assistant")
+        self.assertContains(response, "data-map-panel")
+        self.assertContains(response, "data-spots-list")
+        self.assertContains(response, "Рекомендации")
+        self.assertContains(response, 'data-nav="assistant"')
 
     def test_map_page_renders(self):
         response = self.client.get(reverse("map_page"))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "data-map-panel")
+
+    def test_assistant_page_renders(self):
+        response = self.client.get(reverse("ai_chat"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "data-ai-chat")
+        self.assertContains(response, "ps-ai-prompts")
+
+    def test_bookings_page_for_user(self):
+        User = get_user_model()
+        user = User.objects.create_user(username="demo", password="pass")
+        self.client.login(username="demo", password="pass")
+        response = self.client.get(reverse("user_dashboard"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "data-route=\"bookings\"")
+        self.assertContains(response, "Мои бронирования")
+
+    def test_owner_page_for_owner_role(self):
+        User = get_user_model()
+        owner = User.objects.create_user(username="owner", password="pass", role=User.Role.OWNER)
+        self.client.login(username="owner", password="pass")
+        response = self.client.get(reverse("owner_dashboard"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "data-route=\"parking\"")
 
 
 class ChatAPITests(TestCase):

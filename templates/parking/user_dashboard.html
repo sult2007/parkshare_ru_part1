@@ -1,162 +1,138 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}ParkShare RU — личный кабинет{% endblock %}
+{% block title %}Брони — ParkShare RU{% endblock %}
 
 {% block content %}
-<section class="ps-section">
-    <div class="ps-section-header">
-        <h1 class="ps-section-title">Личный кабинет водителя</h1>
-        <p class="ps-section-subtitle">
-            Здесь собраны ваши машины и все активные бронирования.
-        </p>
+<section class="ps-section ps-section--flush-top" data-route="bookings">
+    <div class="ps-section-header ps-section-header--stack">
+        <div>
+            <p class="ps-kicker">Брони</p>
+            <h1 class="ps-section-title">Личный кабинет</h1>
+            <p class="ps-section-subtitle">
+                Машины, способы оплаты и активные бронирования в одном месте.
+            </p>
+        </div>
+        <div class="ps-section-actions">
+            <a href="{% url 'map_page' %}" class="ps-btn ps-btn-secondary ps-btn-sm">Открыть карту</a>
+        </div>
     </div>
 
-    <div class="ps-grid ps-grid--3col@lg ps-grid--gap-xl">
-        <div class="ps-grid-span-1">
-            <article class="ps-card ps-card--elevated ps-animate-fade-up">
-                <div class="ps-card-header">
-                    <h2 class="ps-card-title">Профиль</h2>
-                </div>
-                <div class="ps-card-body">
-                    <p class="ps-card-line">
-                        <span class="ps-label">Логин:</span> {{ user.username }}
-                    </p>
-                    <p class="ps-card-line">
-                        <span class="ps-label">Роль:</span> {{ user.get_role_display }}
-                    </p>
-                    <div class="ps-progress-block">
-                        <div class="ps-progress-header">
-                            <span class="ps-badge">Уровень 1 · Новичок</span>
-                            <span class="ps-progress-label">До следующего уровня: 3 бронирования</span>
-                        </div>
-                        <div class="ps-progress">
-                            <div class="ps-progress-bar" style="width: 45%"></div>
-                        </div>
+    <div class="ps-grid ps-grid--gap-lg ps-grid--2col">
+        <article class="ps-card ps-card--elevated">
+            <div class="ps-card-header">
+                <h2 class="ps-card-title">Профиль</h2>
+                <span class="ps-badge ps-badge--neutral">{{ user.get_role_display }}</span>
+            </div>
+            <div class="ps-card-body">
+                <p class="ps-card-line">
+                    <span class="ps-label">Логин:</span> {{ user.username }}
+                </p>
+                <div class="ps-progress-block">
+                    <div class="ps-progress-header">
+                        <span class="ps-badge">Уровень 1 · Новичок</span>
+                        <span class="ps-progress-label">До следующего уровня: 3 бронирования</span>
                     </div>
-                    <a href="{% url 'accounts:profile' %}" class="ps-btn ps-btn-full">
-                        Настройки профиля
-                    </a>
-                </div>
-            </article>
-
-            <article class="ps-card ps-animate-fade-up">
-                <div class="ps-card-header">
-                    <h2 class="ps-card-title">Способы оплаты</h2>
-                </div>
-                <div class="ps-card-body ps-card-body--spacing-lg">
-                    <div class="ps-payment-list" data-payment-methods>
-                        <div class="ps-empty">Карты ещё не добавлены. Подключите карту, чтобы бронировать без ввода данных.</div>
+                    <div class="ps-progress">
+                        <div class="ps-progress-bar" style="width: 45%"></div>
                     </div>
-                    <div class="ps-divider"></div>
-                    <form class="ps-form ps-form-compact" method="post" action="#" data-payment-method-form>
-                        <div class="ps-form-row">
-                            <label class="ps-form-label">Номер карты / токен</label>
-                            <input class="ps-input" type="text" name="card_number" placeholder="**** **** **** 1234" autocomplete="off">
-                            <div class="ps-field-help">Данные токенизируются у провайдера, мы храним только маску.</div>
-                        </div>
-                        <div class="ps-form-row ps-form-row--inline">
-                            <input class="ps-input" type="text" name="exp" placeholder="MM/YY">
-                            <input class="ps-input" type="text" name="label" placeholder="Личная / Работа">
-                        </div>
-                        <div class="ps-form-row ps-form-row--inline">
-                            <select class="ps-input" name="provider">
-                                <option value="sber">Сбербанк</option>
-                                <option value="tinkoff">Тинькофф</option>
-                                <option value="other">YooKassa / другое</option>
-                            </select>
-                            <label class="ps-checkbox ps-checkbox--inline">
-                                <input type="checkbox" name="is_default">
-                                <span>Сделать по умолчанию</span>
-                            </label>
-                        </div>
-                        <div class="ps-form-actions">
-                            <button class="ps-btn ps-btn-primary ps-btn-full" type="submit">Сохранить карту</button>
-                        </div>
-                    </form>
                 </div>
-            </article>
+                <a href="{% url 'accounts:profile' %}" class="ps-btn ps-btn-full">
+                    Настройки профиля
+                </a>
+            </div>
+        </article>
 
-            <article class="ps-card ps-animate-fade-up ps-animate-delay-1">
-                <div class="ps-card-header">
-                    <h2 class="ps-card-title">Мои машины</h2>
+        <article class="ps-card">
+            <div class="ps-card-header">
+                <h2 class="ps-card-title">Способы оплаты</h2>
+            </div>
+            <div class="ps-card-body ps-card-body--spacing-lg">
+                <div class="ps-payment-list" data-payment-methods>
+                    <div class="ps-empty">Карты ещё не добавлены. Подключите карту, чтобы бронировать без ввода данных.</div>
                 </div>
-                <ul class="ps-list">
-                    {% for vehicle in vehicles %}
-                        <li class="ps-list-item">
-                            <div class="ps-list-main">
-                                <div class="ps-list-title">
-                                    {{ vehicle.label|default:"Без названия" }}
-                                </div>
-                                <div class="ps-list-subtitle">
-                                    {{ vehicle.get_vehicle_type_display }}
-                                </div>
+                <form class="ps-form ps-form-compact" method="post" action="#" data-payment-method-form>
+                    <div class="ps-form-row">
+                        <label class="ps-form-label">Номер карты / токен</label>
+                        <input class="ps-input" type="text" name="card_number" placeholder="**** **** **** 1234" autocomplete="off">
+                        <div class="ps-field-help">Данные токенизируются у провайдера, мы храним только маску.</div>
+                    </div>
+                    <div class="ps-form-row ps-form-row--inline">
+                        <input class="ps-input" type="text" name="exp" placeholder="MM/YY">
+                        <input class="ps-input" type="text" name="label" placeholder="Личная / Работа">
+                    </div>
+                    <div class="ps-form-row ps-form-row--inline">
+                        <select class="ps-input" name="provider">
+                            <option value="sber">Сбербанк</option>
+                            <option value="tinkoff">Тинькофф</option>
+                            <option value="other">YooKassa / другое</option>
+                        </select>
+                        <label class="ps-checkbox ps-checkbox--inline">
+                            <input type="checkbox" name="is_default">
+                            <span>Сделать по умолчанию</span>
+                        </label>
+                    </div>
+                    <div class="ps-form-actions">
+                        <button class="ps-btn ps-btn-primary ps-btn-full" type="submit">Сохранить карту</button>
+                    </div>
+                </form>
+            </div>
+        </article>
+
+        <article class="ps-card">
+            <div class="ps-card-header">
+                <h2 class="ps-card-title">Мои машины</h2>
+            </div>
+            <ul class="ps-list">
+                {% for vehicle in vehicles %}
+                    <li class="ps-list-item">
+                        <div class="ps-list-main">
+                            <div class="ps-list-title">
+                                {{ vehicle.label|default:"Без названия" }}
                             </div>
-                            <span class="ps-badge ps-badge--neutral">
-                                {{ vehicle.created_at|date:"d.m.Y" }}
-                            </span>
-                        </li>
-                    {% empty %}
-                        <li class="ps-list-empty">
-                            Пока ни одной машины. Добавьте машину через мобильный интерфейс ParkShare RU.
-                        </li>
-                    {% endfor %}
-                </ul>
-            </article>
-        </div>
+                            <div class="ps-list-subtitle">
+                                {{ vehicle.get_vehicle_type_display }}
+                            </div>
+                        </div>
+                        <span class="ps-badge ps-badge--neutral">
+                            {{ vehicle.created_at|date:"d.m.Y" }}
+                        </span>
+                    </li>
+                {% empty %}
+                    <li class="ps-list-empty">
+                        Пока ни одной машины. Добавьте машину через мобильный интерфейс ParkShare RU.
+                    </li>
+                {% endfor %}
+            </ul>
+        </article>
+    </div>
 
-        <div class="ps-grid-span-2">
-            <article class="ps-card ps-card--elevated ps-animate-fade-up">
-                <div class="ps-card-header">
-                    <h2 class="ps-card-title">Мои бронирования</h2>
-                </div>
-                <div class="ps-table-wrapper">
-                    <table class="ps-table">
-                        <thead>
-                        <tr>
-                            <th>Место</th>
-                            <th>Тип</th>
-                            <th>Период</th>
-                            <th>Статус</th>
-                            <th>Сумма</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {% for booking in bookings %}
-                            <tr class="ps-animate-fade-up ps-animate-stagger">
-                                <td data-label="Место">
-                                    {{ booking.spot.lot.city }},
-                                    {{ booking.spot.lot.name }} — {{ booking.spot.name }}
-                                </td>
-                                <td data-label="Тип">
-                                    {{ booking.get_booking_type_display }}
-                                </td>
-                                <td data-label="Период">
-                                    {{ booking.start_at|date:"d.m H:i" }} → {{ booking.end_at|date:"d.m H:i" }}
-                                </td>
-                                <td data-label="Статус">
-                                    <span class="ps-badge ps-badge--status-{{ booking.status }}">
-                                        {{ booking.get_status_display }}
-                                    </span>
-                                </td>
-                            <td data-label="Сумма">
-                                    {{ booking.total_price }} ₽
-                                    {% if booking.status == 'confirmed' or booking.status == 'active' or booking.status == 'completed' %}
-                                        <span class="ps-badge ps-badge--success">+10 опыта</span>
-                                    {% endif %}
-                            </td>
-                            </tr>
-                        {% empty %}
-                            <tr>
-                                <td colspan="5" class="ps-empty">
-                                    У вас пока нет бронирований.
-                                </td>
-                            </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </article>
+    <div class="ps-section">
+        <div class="ps-section-header ps-section-header--stack">
+            <div>
+                <h2 class="ps-section-title">Мои бронирования</h2>
+                <p class="ps-section-subtitle">История и активные сессии с быстрыми действиями.</p>
+            </div>
+        </div>
+        <div class="ps-reco-list">
+            {% for booking in bookings %}
+                <article class="ps-reco-card ps-animate-fade-up">
+                    <div>
+                        <div class="ps-reco-title">
+                            {{ booking.spot.lot.city }}, {{ booking.spot.lot.name }} — {{ booking.spot.name }}
+                        </div>
+                        <div class="ps-reco-meta">
+                            {{ booking.get_booking_type_display }} · {{ booking.start_at|date:"d.m H:i" }} → {{ booking.end_at|date:"d.m H:i" }}
+                        </div>
+                        <div class="ps-reco-meta">
+                            Сумма: {{ booking.total_price }} ₽
+                        </div>
+                    </div>
+                    <span class="ps-chip ps-chip--soft">{{ booking.get_status_display }}</span>
+                </article>
+            {% empty %}
+                <div class="ps-empty">У вас пока нет бронирований.</div>
+            {% endfor %}
         </div>
     </div>
 </section>

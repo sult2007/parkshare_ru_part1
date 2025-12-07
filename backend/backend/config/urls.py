@@ -95,6 +95,7 @@ urlpatterns = [
     path("личный-кабинет/", parking_views.UserDashboardView.as_view(), name="user_dashboard"),
     path("кабинет-владельца/", parking_views.OwnerDashboardView.as_view(), name="owner_dashboard"),
     path("offline/", TemplateView.as_view(template_name="offline.html"), name="offline"),
+    path("assistant/", TemplateView.as_view(template_name="ai/concierge.html"), name="ai_chat"),
     path("ai/", TemplateView.as_view(template_name="ai/concierge.html")),
 
     # Auth страницы (регистрация/логин/сброс пароля)

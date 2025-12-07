@@ -28,26 +28,30 @@
         return 6371 * 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h));
     }
 
-    function applyMapTheme(theme, provider, container) {
+    function applyMapTheme(theme, provider, container, silent) {
         var mode = theme === "dark" ? "dark" : "light";
         var mapEl = container || qs("#map");
         if (mapEl) {
             mapEl.classList.toggle("ps-map--dark", mode === "dark");
             mapEl.classList.toggle("ps-map--light", mode === "light");
         }
-        document.documentElement.classList.toggle("theme-dark", mode === "dark");
-        document.documentElement.setAttribute("data-theme", mode === "dark" ? "dark" : "light");
+
+        if (!silent) {
+            if (window.ThemeController && typeof window.ThemeController.setTheme === "function") {
+                window.ThemeController.setTheme(mode);
+            } else {
+                document.documentElement.setAttribute("data-theme", mode);
+                try { localStorage.setItem("ps-theme", mode); } catch (_) {}
+            }
+        } else {
+            document.documentElement.setAttribute("data-theme", mode);
+        }
 
         var btn = qs("[data-map-theme]");
         if (btn) {
             var isDark = mode === "dark";
             btn.setAttribute("aria-pressed", String(isDark));
             btn.classList.toggle("is-active", isDark);
-            btn.classList.add("is-animating");
-            btn.addEventListener("animationend", function handler() {
-                btn.classList.remove("is-animating");
-                btn.removeEventListener("animationend", handler);
-            });
         }
 
         try { localStorage.setItem(MAP_THEME_KEY, mode); } catch (_) {}
@@ -530,27 +534,43 @@
     }
 
     function initGeocode(provider) {
-        var input = qs("[data-geocode-input]"); var submit = qs("[data-geocode-submit]"); var suggestions = qs("[data-geocode-suggestions]"); var timer = null;
+        var inputs = qsa("[data-geocode-input]");
+        var primary = inputs.length ? inputs[0] : null;
+        var submit = qs("[data-geocode-submit]"); var suggestions = qs("[data-geocode-suggestions]"); var timer = null;
+
+        function syncInputs(value) {
+            inputs.forEach(function (el) { el.value = value; });
+        }
+
         function search(query) {
             if (!query) return;
             fetch("/api/geocode/?q=" + encodeURIComponent(query))
                 .then(function (resp) { return resp.json(); })
                 .then(function (data) {
                     var list = data.results || [];
-                    suggestions.innerHTML = list.map(function (item) { return "<button type='button' data-geocode-choice data-lat='" + item.lat + "' data-lng='" + item.lng + "'>" + item.title + "</button>"; }).join("");
+                    if (suggestions) suggestions.innerHTML = list.map(function (item) { return "<button type='button' data-geocode-choice data-lat='" + item.lat + "' data-lng='" + item.lng + "'>" + item.title + "</button>"; }).join("");
                 })
                 .catch(function () {});
         }
-        if (input) {
-            input.addEventListener("input", function () { clearTimeout(timer); var value = input.value.trim(); timer = setTimeout(function () { search(value); }, 350); });
-            input.addEventListener("keydown", function (evt) { if (evt.key === "Enter") { evt.preventDefault(); search(input.value.trim()); } });
-        }
-        if (submit) submit.addEventListener("click", function () { search(input.value); });
+
+        inputs.forEach(function (input) {
+            input.addEventListener("input", function () {
+                clearTimeout(timer);
+                var value = input.value.trim();
+                timer = setTimeout(function () { search(value); }, 350);
+            });
+            input.addEventListener("keydown", function (evt) {
+                if (evt.key === "Enter") { evt.preventDefault(); search(input.value.trim()); }
+            });
+        });
+
+        if (submit) submit.addEventListener("click", function () { var value = primary ? primary.value : ""; search(value); });
         if (suggestions) {
             suggestions.addEventListener("click", function (e) {
                 var btn = e.target.closest("[data-geocode-choice]"); if (!btn) return;
                 var lat = parseFloat(btn.getAttribute("data-lat")); var lng = parseFloat(btn.getAttribute("data-lng"));
                 suggestions.innerHTML = "";
+                syncInputs(btn.textContent || "");
                 if (provider && provider.setView) { provider.setView(lat, lng, 15); drawRoute(provider, { lat: lat, lng: lng }); }
             });
         }
@@ -563,13 +583,13 @@
         initGeocode(provider);
         fetchFeatures(provider);
         initFloatingActions(provider);
-        applyMapTheme(isNight ? "dark" : "light", provider, mapContainer);
+        applyMapTheme(isNight ? "dark" : "light", provider, mapContainer, true);
 
         var themeBtn = qs("[data-map-theme]");
-        if (themeBtn) themeBtn.addEventListener("click", function () { var next = isNight ? "light" : "dark"; themeBtn.classList.add("is-animating"); applyMapTheme(next, provider, mapContainer); });
+        if (themeBtn) themeBtn.addEventListener("click", function () { var next = isNight ? "light" : "dark"; applyMapTheme(next, provider, mapContainer, false); });
         document.addEventListener("ps-theme-changed", function (e) {
             var next = e.detail && e.detail.theme;
-            if (next) applyMapTheme(next, provider, mapContainer);
+            if (next) applyMapTheme(next, provider, mapContainer, true);
         });
 
         var filtersForm = qs("[data-map-filters]");
@@ -583,13 +603,17 @@
         var resetBtn = qs("[data-reset-filters]");
         if (resetBtn) {
             resetBtn.addEventListener("click", function () {
-                resetBtn.classList.remove("ps-map-action--spinning"); void resetBtn.offsetWidth; resetBtn.classList.add("ps-map-action--spinning");
-                if (filtersForm) filtersForm.reset(); priceRange = [0, 1500];
-        var slider = qs("[data-price-slider]"); if (slider && slider.noUiSlider) slider.noUiSlider.set(priceRange);
-        qsa("[data-chip-toggle]").forEach(function (chip) { chip.classList.remove("is-active"); });
-        fetchFeatures(provider);
-    });
-}
+                resetBtn.classList.remove("ps-map-action--spinning");
+                void resetBtn.offsetWidth;
+                resetBtn.classList.add("ps-map-action--spinning");
+                if (filtersForm) filtersForm.reset();
+                priceRange = [0, 1500];
+                var slider = qs("[data-price-slider]");
+                if (slider && slider.noUiSlider) slider.noUiSlider.set(priceRange);
+                qsa("[data-chip-toggle]").forEach(function (chip) { chip.classList.remove("is-active"); });
+                fetchFeatures(provider);
+            });
+        }
 
 function getCSRFToken() {
     var match = document.cookie.match(/csrftoken=([^;]+)/);

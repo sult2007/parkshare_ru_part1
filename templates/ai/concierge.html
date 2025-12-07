@@ -1,13 +1,72 @@
 {% extends "base.html" %}
 
+{% block title %}Ассистент — ParkShare{% endblock %}
+
 {% block content %}
-<div style="min-height: calc(100vh - 120px); padding: 0; margin: 0;">
-  <iframe
-    src="http://localhost:3000/embed"
-    style="width: 100%; height: 100%; border: none; display: block;"
-    loading="lazy"
-    referrerpolicy="no-referrer"
-    sandbox="allow-scripts allow-same-origin allow-forms"
-  ></iframe>
-</div>
+<section class="ps-section ps-section--flush-top" data-route="assistant">
+    <div class="ps-section-header ps-section-header--stack">
+        <div>
+            <p class="ps-kicker">Ассистент</p>
+            <h1 class="ps-section-title">AI-консьерж ParkShare</h1>
+            <p class="ps-section-subtitle">Поможет найти место, построить маршрут или подсказать скрипты для гостей.</p>
+        </div>
+        <div class="ps-section-actions">
+            <a href="{% url 'landing' %}" class="ps-btn ps-btn-secondary ps-btn-sm">К карте</a>
+        </div>
+    </div>
+
+    <div class="ps-ai-grid">
+        <div class="ps-ai-summary">
+            <div class="ps-card ps-card--elevated">
+                <h3 class="ps-card-title">Предустановленные подсказки</h3>
+                <p class="ps-card-line ps-card-line--muted">Выберите и отправьте в один тап.</p>
+                <div class="ps-ai-prompts" data-ai-prompts>
+                    <button type="button" class="ps-chip" data-ai-prompt>Сформируй чат-скрипт для диспетчера парковки с VIP-клиентами.</button>
+                    <button type="button" class="ps-chip" data-ai-prompt>Собери сводку по пиковым часам и дай рекомендации по динамическим тарифам.</button>
+                    <button type="button" class="ps-chip" data-ai-prompt>Сценарий поддержки: клиент не может найти въезд. Какие шаги предложить?</button>
+                    <button type="button" class="ps-chip" data-ai-prompt>Что добавить в онбординг партнёра, чтобы повысить NPS?</button>
+                    <button type="button" class="ps-chip" data-ai-prompt>Сделай контрольный чек-лист для запуска новой парковки на выходные.</button>
+                </div>
+                <div class="ps-hint">Гостевой режим сохраняет историю в браузере. Авторизация привяжет её к аккаунту.</div>
+            </div>
+        </div>
+
+        <div class="ps-ai-chat" data-ai-chat data-ai-history-key="ps_ai_chat_v2">
+            <div class="ps-ai-chat__header">
+                <div>
+                    <p class="ps-kicker">Concierge</p>
+                    <p class="ps-ai-title">AI-чат ParkShare</p>
+                    <p class="ps-ai-subtitle">Спроси про цены, места, маршруты или сценарии для гостей.</p>
+                </div>
+                <div class="ps-ai-actions">
+                    <button type="button" class="ps-btn ps-btn-ghost ps-btn-sm" data-ai-clear>Очистить</button>
+                    <button type="button" class="ps-btn ps-btn-secondary ps-btn-sm" data-ai-stop hidden>Остановить</button>
+                </div>
+            </div>
+
+            <div class="ps-ai-chat__body">
+                <div class="ps-ai-status" data-ai-status>История сохраняется локально. Готов к диалогу.</div>
+                <div class="ps-ai-messages" data-ai-messages></div>
+            </div>
+
+            <div class="ps-ai-input">
+                <label class="ps-form-label" for="ai-input">Введите запрос</label>
+                <textarea id="ai-input" class="ps-input" rows="3" placeholder="Как оптимизировать тарифы на выходные?"></textarea>
+                <div class="ps-ai-input__actions">
+                    <div class="ps-ai-hint">Enter — отправить, Shift+Enter — перенос строки</div>
+                    <div class="ps-ai-buttons">
+                        <button type="button" class="ps-btn ps-btn-secondary ps-btn-sm" data-ai-regenerate hidden>Перегенерировать</button>
+                        <button type="button" class="ps-btn ps-btn-sm" data-ai-send>Отправить</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+    {% load static %}
+    {% static 'js/chat.js' as chat_static %}
+    <script src="{{ chat_static }}?v=2"></script>
 {% endblock %}
