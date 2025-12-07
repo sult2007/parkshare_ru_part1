@@ -3,9 +3,15 @@
 from django.contrib.auth import views as auth_views
 from django.urls import path, reverse_lazy
 
-from .views import CustomLoginView, ProfileView, RegisterView, logout_view
-
-# TODO: интегрировать вход по коду и Госуслуги (ESIA) в отдельные view/urls, когда появятся провайдеры
+from .views import (
+    CustomLoginView,
+    MFASettingsView,
+    MFAVerifyPageView,
+    ProfileView,
+    RegisterView,
+    SecurePasswordChangeView,
+    logout_view,
+)
 
 app_name = "accounts"
 
@@ -14,11 +20,12 @@ urlpatterns = [
     path("logout/", logout_view, name="logout"),
     path("register/", RegisterView.as_view(), name="register"),
     path("profile/", ProfileView.as_view(), name="profile"),
+    path("mfa/setup/", MFASettingsView.as_view(), name="mfa_setup"),
+    path("mfa/verify/", MFAVerifyPageView.as_view(), name="mfa_verify"),
 
-    # Смена пароля (HTML)
     path(
         "password/change/",
-        auth_views.PasswordChangeView.as_view(
+        SecurePasswordChangeView.as_view(
             template_name="accounts/password_change.html",
             success_url=reverse_lazy("accounts:password_change_done"),
         ),
@@ -32,7 +39,6 @@ urlpatterns = [
         name="password_change_done",
     ),
 
-    # Сброс пароля (HTML)
     path(
         "password/reset/",
         auth_views.PasswordResetView.as_view(

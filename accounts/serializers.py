@@ -10,7 +10,15 @@ from rest_framework import serializers
 from core.utils import normalize_phone
 from .auth import find_user_by_identifier
 from .models import LoginCode, SocialAccount, User
-from .utils import generate_username, hash_code, hash_email, hash_phone, normalize_email
+from .utils import (
+    generate_username,
+    hash_code,
+    hash_email,
+    hash_phone,
+    invalidate_other_sessions,
+    normalize_email,
+)
+from django.utils import timezone
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -69,12 +77,18 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ("id", "username", "role", "email", "phone", "social_accounts")
+        fields = (
+            "id",
+            "username",
+            "role",
+            "email",
+            "phone",
+            "mfa_enabled",
+            "mfa_method",
+            "social_accounts",
+        )
 
     def validate_phone(self, value: str) -> str:
-        """
-        Валидируем и нормализуем телефон, проверяем уникальность через phone_hash.
-        """
         value = value or ""
         if not value:
             return ""
@@ -95,9 +109,6 @@ class UserProfileSerializer(serializers.ModelSerializer):
         return normalized
 
     def validate_email(self, value: str) -> str:
-        """
-        Валидируем и нормализуем email, проверяем уникальность через email_hash.
-        """
         value = normalize_email(value)
         if not value:
             return ""
@@ -250,7 +261,13 @@ class ChangePasswordSerializer(serializers.Serializer):
         user = self.context["request"].user
         new_password = self.validated_data["new_password"]
         user.set_password(new_password)
-        user.save(update_fields=["password"])
+        user.last_password_change = timezone.now()
+        user.save(update_fields=["password", "last_password_change"])
+
+        request = self.context.get("request")
+        if request and hasattr(request, "session"):
+            invalidate_other_sessions(user, keep_session_key=request.session.session_key)
+            request.session.cycle_key()
         return user
 
 
@@ -262,7 +279,6 @@ class PasswordResetRequestSerializer(serializers.Serializer):
     email = serializers.EmailField()
 
     def validate_email(self, value: str) -> str:
-        # В целях безопасности не раскрываем, существует ли пользователь.
         return normalize_email(value)
 
 
@@ -321,3 +337,23 @@ class OTPVerifySerializer(serializers.Serializer):
         if "@" in identifier:
             return LoginCode.Channel.EMAIL
         return LoginCode.Channel.PHONE
+
+
+class MFAVerifySerializer(serializers.Serializer):
+    code = serializers.CharField(label=_("Код подтверждения"), max_length=12)
+
+
+class MFASetupSerializer(serializers.Serializer):
+    method = serializers.ChoiceField(
+        choices=User.MFAMethod.choices,
+        help_text=_("totp / sms / email"),
+    )
+
+    def validate_method(self, value: str) -> str:
+        if value == User.MFAMethod.NONE:
+            raise serializers.ValidationError(_("Выберите конкретный метод MFA."))
+        return value
+
+
+class MFAActivateSerializer(serializers.Serializer):
+    code = serializers.CharField(label=_("Код подтверждения"), max_length=12)

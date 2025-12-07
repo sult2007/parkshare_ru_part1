@@ -9,45 +9,51 @@ import {
   registerWithEmailPassword,
   requestOtp,
   startOAuth,
+  verifyMfa,
   verifyOtp
 } from '@/lib/authClient';
+import { clearUserSecure, getUserSecure, saveUserSecure } from '@/lib/authStorage';
+
+type MfaChallenge = {
+  method: string | null;
+  channel?: string | null;
+};
 
 interface AuthContextValue {
   user: AuthUser | null;
   loading: boolean;
+  mfaChallenge: MfaChallenge | null;
   loginWithEmail: (email: string, password: string) => Promise<AuthUser | null>;
   registerWithEmail: (email: string, password: string, name?: string) => Promise<AuthUser | null>;
   requestPhoneOtp: (phone: string) => Promise<void>;
   verifyPhoneOtp: (phone: string, code: string) => Promise<AuthUser | null>;
+  verifyMfaCode: (code: string) => Promise<AuthUser | null>;
   loginWithVK: () => void;
   loginWithYandex: () => void;
+  clearMfaChallenge: () => void;
   logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
-const STORAGE_KEY = 'parkshare_auth_user';
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const [mfaChallenge, setMfaChallenge] = useState<MfaChallenge | null>(null);
 
   useEffect(() => {
     const bootstrap = async () => {
       try {
-        if (typeof window !== 'undefined') {
-          const saved = localStorage.getItem(STORAGE_KEY);
-          if (saved) {
-            setUser(JSON.parse(saved));
-            setLoading(false);
-            return;
-          }
+        const saved = await getUserSecure();
+        if (saved) {
+          setUser(saved);
+          setLoading(false);
+          return;
         }
         const serverUser = await getCurrentUser();
         if (serverUser) {
           setUser(serverUser);
-          if (typeof window !== 'undefined') {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(serverUser));
-          }
+          await saveUserSecure(serverUser);
         }
       } catch (error) {
         console.warn('Auth bootstrap failed', error);
@@ -59,69 +65,116 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     void bootstrap();
   }, []);
 
-  const persistUser = useCallback((nextUser: AuthUser | null) => {
+  const persistUser = useCallback(async (nextUser: AuthUser | null) => {
     setUser(nextUser);
-    if (typeof window !== 'undefined') {
-      if (nextUser) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(nextUser));
-      } else {
-        localStorage.removeItem(STORAGE_KEY);
-      }
+    if (nextUser) {
+      await saveUserSecure(nextUser);
+    } else {
+      clearUserSecure();
     }
+    setMfaChallenge(null);
   }, []);
 
-  const loginWithEmail = useCallback(async (email: string, password: string) => {
-    const response = await loginWithEmailPassword(email, password);
-    if (response.user) {
-      persistUser(response.user);
-      return response.user;
-    }
-    return null;
-  }, [persistUser]);
+  const loginWithEmail = useCallback(
+    async (email: string, password: string) => {
+      const response = await loginWithEmailPassword(email, password);
+      if (response.mfa_required) {
+        setMfaChallenge({ method: response.mfa_method ?? 'totp', channel: response.mfa_channel ?? null });
+        return null;
+      }
+      if (response.user) {
+        await persistUser(response.user);
+        return response.user;
+      }
+      return null;
+    },
+    [persistUser]
+  );
 
-  const registerWithEmail = useCallback(async (email: string, password: string, name?: string) => {
-    const response = await registerWithEmailPassword(email, password, name);
-    if (response.user) {
-      persistUser(response.user);
-      return response.user;
-    }
-    return null;
-  }, [persistUser]);
+  const registerWithEmail = useCallback(
+    async (email: string, password: string, name?: string) => {
+      const response = await registerWithEmailPassword(email, password, name);
+      if (response.mfa_required) {
+        setMfaChallenge({ method: response.mfa_method ?? 'totp', channel: response.mfa_channel ?? null });
+        return null;
+      }
+      if (response.user) {
+        await persistUser(response.user);
+        return response.user;
+      }
+      return null;
+    },
+    [persistUser]
+  );
 
   const requestPhoneOtp = useCallback(async (phone: string) => {
     await requestOtp(phone);
   }, []);
 
-  const verifyPhoneOtp = useCallback(async (phone: string, code: string) => {
-    const response = await verifyOtp(phone, code);
-    if (response.user) {
-      persistUser(response.user);
-      return response.user;
-    }
-    return null;
-  }, [persistUser]);
+  const verifyPhoneOtp = useCallback(
+    async (phone: string, code: string) => {
+      const response = await verifyOtp(phone, code);
+      if (response.mfa_required) {
+        setMfaChallenge({ method: response.mfa_method ?? 'totp', channel: response.mfa_channel ?? null });
+        return null;
+      }
+      if (response.user) {
+        await persistUser(response.user);
+        return response.user;
+      }
+      return null;
+    },
+    [persistUser]
+  );
+
+  const verifyMfaCode = useCallback(
+    async (code: string) => {
+      const response = await verifyMfa(code);
+      if (response.user) {
+        await persistUser(response.user);
+        return response.user;
+      }
+      return null;
+    },
+    [persistUser]
+  );
 
   const loginWithVK = useCallback(() => startOAuth('vk'), []);
   const loginWithYandex = useCallback(() => startOAuth('yandex'), []);
 
   const logout = useCallback(async () => {
     await apiLogout();
-    persistUser(null);
+    await persistUser(null);
   }, [persistUser]);
 
   const value = useMemo(
     () => ({
       user,
       loading,
+      mfaChallenge,
       loginWithEmail,
       registerWithEmail,
       requestPhoneOtp,
       verifyPhoneOtp,
+      verifyMfaCode,
+      loginWithVK,
+      loginWithYandex,
+      clearMfaChallenge: () => setMfaChallenge(null),
+      logout
+    }),
+    [
+      user,
+      loading,
+      mfaChallenge,
+      loginWithEmail,
+      registerWithEmail,
+      requestPhoneOtp,
+      verifyPhoneOtp,
+      verifyMfaCode,
       loginWithVK,
       loginWithYandex,
       logout
-    }),
-    [user, loading, loginWithEmail, registerWithEmail, requestPhoneOtp, verifyPhoneOtp, loginWithVK, loginWithYandex, logout]
+    ]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

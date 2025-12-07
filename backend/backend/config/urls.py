@@ -23,13 +23,8 @@ from vehicles import views as vehicles_api
 from ..health import healthz, readyz
 router = routers.DefaultRouter()
 
-# Accounts / пользователи (только API)
 router.register(r"accounts/users", accounts_api.UserViewSet, basename="user")
-
-# Vehicles
 router.register(r"vehicles", vehicles_api.VehicleViewSet, basename="vehicle")
-
-# Parking
 router.register(r"parking/lots", parking_views.ParkingLotViewSet, basename="parking-lot")
 router.register(r"parking/spots", parking_views.ParkingSpotViewSet, basename="parking-spot")
 router.register(r"parking/bookings", parking_views.BookingViewSet, basename="booking")
@@ -46,8 +41,6 @@ router.register(
     parking_views.PushSubscriptionViewSet,
     basename="push-subscription",
 )
-
-# Payments
 router.register(r"payments", payments_api.PaymentViewSet, basename="payment")
 router.register(
     r"payment-methods", payments_api.PaymentMethodViewSet, basename="payment-method"
@@ -59,9 +52,6 @@ router.register(
 
 @never_cache
 def service_worker(request):
-    """
-    Отдаём service-worker.js с корня домена, но физически он лежит в static/.
-    """
     path = finders.find("service-worker.js")
     if not path:
         raise Http404("Service worker not found")
@@ -72,9 +62,6 @@ def service_worker(request):
 
 @never_cache
 def manifest(request):
-    """
-    Отдаём manifest.webmanifest с правильным content-type.
-    """
     path = finders.find("manifest.webmanifest")
     if not path:
         raise Http404("Manifest not found")
@@ -89,18 +76,16 @@ urlpatterns = [
     path("readyz", readyz, name="readyz"),
     path("metrics", metrics_view, name="metrics"),
 
-    # PWA файлы
     path("service-worker.js", service_worker, name="service_worker"),
     path("manifest.webmanifest", manifest, name="manifest"),
 
-    # Web‑страницы
     path("", parking_views.LandingPageView.as_view(), name="landing"),
     path("map/", parking_views.MapPageView.as_view(), name="map_page"),
     path("pwa-install/", parking_views.PWAInstallGuideView.as_view(), name="pwa_install"),
     path("личный-кабинет/", parking_views.UserDashboardView.as_view(), name="user_dashboard"),
     path("кабинет-владельца/", parking_views.OwnerDashboardView.as_view(), name="owner_dashboard"),
     path("booking/confirm/", parking_views.BookingConfirmView.as_view(), name="booking_confirm"),
-    path("payments/methods/", parking_views.PaymentMethodsPageView.as_view(), name="payment_methods_page"),
+    path("payments/methods/", parking_views.PaymentMethodsPageView.as_view(), name="payment_methods"),
     path("profile/settings/", parking_views.ProfileSettingsView.as_view(), name="profile_settings"),
     path("promos/activate/", parking_views.PromoActivateView.as_view(), name="promo_activate"),
     path("business/reports/", parking_views.BusinessReportsView.as_view(), name="business_reports"),
@@ -109,20 +94,19 @@ urlpatterns = [
     path("assistant/", TemplateView.as_view(template_name="ai/concierge.html"), name="ai_chat"),
     path("ai/", TemplateView.as_view(template_name="ai/concierge.html")),
 
-    # Auth страницы (регистрация/логин/сброс пароля)
     path("accounts/", include("accounts.urls")),
 
-    # Passwordless auth (OTP via email/SMS) + profile
     path("auth/otp/request/", accounts_api.AuthOTPRequestView.as_view(), name="auth_otp_request"),
     path("auth/otp/verify/", accounts_api.AuthOTPVerifyView.as_view(), name="auth_otp_verify"),
+    path("auth/mfa/verify/", accounts_api.AuthMFAVerifyView.as_view(), name="auth_mfa_verify"),
+    path("auth/mfa/setup/", accounts_api.AuthMFASetupView.as_view(), name="auth_mfa_setup_api"),
+    path("auth/mfa/activate/", accounts_api.AuthMFAActivateView.as_view(), name="auth_mfa_activate_api"),
+    path("auth/mfa/disable/", accounts_api.AuthMFADisableView.as_view(), name="auth_mfa_disable_api"),
     path("auth/oauth/<str:provider>/start/", accounts_api.SocialOAuthStartView.as_view(), name="oauth_start"),
     path("auth/oauth/<str:provider>/callback/", accounts_api.SocialOAuthCallbackView.as_view(), name="oauth_callback"),
 
-
-    # API (DRF router)
     path("api/", include(router.urls)),
 
-    # JWT auth
     path(
         "api/auth/token/",
         accounts_api.TokenObtainPairView.as_view(),
@@ -133,13 +117,15 @@ urlpatterns = [
         accounts_api.TokenRefreshSlidingView.as_view(),
         name="token_refresh",
     ),
+    path("api/auth/mfa/verify/", accounts_api.AuthMFAVerifyView.as_view(), name="api_auth_mfa_verify"),
+    path("api/auth/mfa/setup/", accounts_api.AuthMFASetupView.as_view(), name="api_auth_mfa_setup"),
+    path("api/auth/mfa/activate/", accounts_api.AuthMFAActivateView.as_view(), name="api_auth_mfa_activate"),
+    path("api/auth/mfa/disable/", accounts_api.AuthMFADisableView.as_view(), name="api_auth_mfa_disable"),
 
-    # OTP / auth
     path("api/auth/request-code/", accounts_api.AuthOTPRequestView.as_view(), name="auth_request_code"),
     path("api/auth/verify-code/", accounts_api.AuthOTPVerifyView.as_view(), name="auth_verify_code"),
     path("api/accounts/social-accounts/<int:pk>/", accounts_api.SocialAccountDetailView.as_view(), name="social_account_unlink"),
 
-    # OpenAPI / документация
     path("api/schema/", SpectacularAPIView.as_view(), name="api-schema"),
     path(
         "api/docs/",
@@ -152,7 +138,6 @@ urlpatterns = [
         name="api-docs-redoc",
     ),
 
-    # AI API (ParkMate + аналитика)
     path("api/ai/recommendations/", ai_api.RecommendationsAPIView.as_view(), name="ai_recommendations"),
     path("api/ai/stress-index/", ai_api.StressIndexAPIView.as_view(), name="ai_stress_index"),
     path("api/ai/departure-assistant/", ai_api.DepartureAssistantAPIView.as_view(), name="ai_departure_assistant"),
@@ -163,11 +148,9 @@ urlpatterns = [
     path("api/parking/map/", parking_views.ParkingMapAPIView.as_view(), name="parking_map"),
     path("api/geocode/", parking_views.GeocodeAPIView.as_view(), name="geocode"),
 
-    # Payments webhooks
     path("payments/webhook/yookassa/", payments_api.YooKassaWebhookView.as_view(), name="yookassa_webhook"),
     path("payments/webhook/stripe/", payments_api.StripeWebhookView.as_view(), name="stripe_webhook"),
 
-    # DRF browsable API login/logout
     path("api-auth/", include("rest_framework.urls")),
 ]
 

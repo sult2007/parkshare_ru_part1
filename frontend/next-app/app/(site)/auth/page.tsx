@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   ArrowRightIcon,
   EnvelopeIcon,
@@ -10,6 +10,7 @@ import {
   ShieldCheckIcon
 } from '@heroicons/react/24/outline';
 import { useAuth } from '@/hooks/useAuth';
+import SocialLoginButtons from '@/components/auth/SocialLoginButtons';
 
 export default function AuthPage() {
   const {
@@ -20,9 +21,11 @@ export default function AuthPage() {
     registerWithEmail,
     requestPhoneOtp,
     verifyPhoneOtp,
+    verifyMfaCode,
     loginWithVK,
     loginWithYandex,
-    logout
+    logout,
+    mfaChallenge
   } = useAuth();
 
   const [phone, setPhone] = useState('');
@@ -34,8 +37,15 @@ export default function AuthPage() {
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [otpRequested, setOtpRequested] = useState(false);
+  const [mfaCode, setMfaCode] = useState('');
 
   const isPhoneValid = useMemo(() => phone.replace(/[^\d]/g, '').length >= 10, [phone]);
+
+  useEffect(() => {
+    if (mfaChallenge) {
+      setStatus('Требуется подтверждение второго фактора. Введите код ниже.');
+    }
+  }, [mfaChallenge]);
 
   const handleSendOtp = async () => {
     setIsSubmitting(true);
@@ -52,13 +62,36 @@ export default function AuthPage() {
     }
   };
 
+  const handleVerifyMfa = async () => {
+    setIsSubmitting(true);
+    setError(null);
+    setStatus(null);
+    try {
+      const verified = await verifyMfaCode(mfaCode);
+      if (verified) {
+        setStatus('MFA подтверждена, вход завершён.');
+        setMfaCode('');
+      } else {
+        setError('Не удалось подтвердить MFA.');
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Код MFA не подошёл.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const handleVerifyOtp = async () => {
     setIsSubmitting(true);
     setError(null);
     setStatus(null);
     try {
-      await verifyPhoneOtp(phone, otp);
-      setStatus('Успешно! Сессия активна и готова к работе.');
+      const verified = await verifyPhoneOtp(phone, otp);
+      if (verified) {
+        setStatus('Успешно! Сессия активна и готова к работе.');
+      } else if (mfaChallenge) {
+        setStatus('SMS/Email код принят. Подтвердите MFA.');
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Не удалось подтвердить код.');
     } finally {
@@ -72,11 +105,19 @@ export default function AuthPage() {
     setStatus(null);
     try {
       if (mode === 'login') {
-        await loginWithEmail(email, password);
-        setStatus('Вход выполнен. Продолжайте в чате.');
+        const loggedIn = await loginWithEmail(email, password);
+        if (loggedIn) {
+          setStatus('Вход выполнен. Продолжайте в чате.');
+        } else if (mfaChallenge) {
+          setStatus('Требуется подтверждение MFA. Введите код ниже.');
+        }
       } else {
-        await registerWithEmail(email, password);
-        setStatus('Аккаунт создан, вы уже вошли.');
+        const created = await registerWithEmail(email, password);
+        if (created) {
+          setStatus('Аккаунт создан, вы уже вошли.');
+        } else if (mfaChallenge) {
+          setStatus('Аккаунт создан. Подтвердите MFA, чтобы закончить.');
+        }
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Не удалось выполнить действие.');
@@ -206,31 +247,45 @@ export default function AuthPage() {
         <div className="rounded-[20px] border border-[var(--border-subtle)]/70 bg-white/70 p-4 shadow-sm backdrop-blur dark:border-slate-800 dark:bg-slate-900/70">
           <p className="text-sm font-semibold text-[var(--text-primary)]">Соцсети</p>
           <p className="text-xs text-[var(--text-muted)]">VK и Яндекс через OAuth с редиректом назад в ParkShare.</p>
-          <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-3">
-            <button
-              onClick={loginWithVK}
-              className="flex items-center justify-center gap-2 rounded-2xl border border-[var(--border-subtle)]/70 bg-[var(--bg-elevated)] px-4 py-3 text-sm font-semibold text-[var(--text-primary)] shadow-sm transition hover:-translate-y-[1px] hover:shadow-lg"
-            >
-              VK ID
-            </button>
-            <button
-              onClick={loginWithYandex}
-              className="flex items-center justify-center gap-2 rounded-2xl border border-[var(--border-subtle)]/70 bg-[var(--bg-elevated)] px-4 py-3 text-sm font-semibold text-[var(--text-primary)] shadow-sm transition hover:-translate-y-[1px] hover:shadow-lg"
-            >
-              Яндекс ID
-            </button>
-            <a
-              href="/api/auth/signin"
-              className="flex items-center justify-center gap-2 rounded-2xl border border-[var(--border-subtle)]/70 bg-[var(--bg-elevated)] px-4 py-3 text-sm font-semibold text-[var(--text-primary)] shadow-sm transition hover:-translate-y-[1px] hover:shadow-lg"
-            >
-              Google (NextAuth)
-            </a>
+          <div className="mt-3">
+            <SocialLoginButtons
+              onVK={loginWithVK}
+              onYandex={loginWithYandex}
+              onGoogle={() => {
+                window.location.href = '/api/auth/signin';
+              }}
+            />
           </div>
-          <p className="mt-2 text-[11px] text-[var(--text-muted)]">
-            OAuth перенаправит вас на страницу провайдера, а затем вернёт на этот домен с токеном. Настройте переменные VK_CLIENT_ID/VK_REDIRECT_URI и YANDEX_CLIENT_ID/YANDEX_REDIRECT_URI.
-          </p>
+          <p className="mt-2 text-[11px] text-[var(--text-muted)]">OAuth перенаправит вас к провайдеру, затем вернёт сюда. MFA запрашивается после соц-входа, если включена.</p>
         </div>
       </div>
+      {mfaChallenge && (
+        <div className="mt-4 rounded-[20px] border border-[var(--border-subtle)]/70 bg-white/80 p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900/80">
+          <div className="flex items-center gap-2 text-sm font-semibold text-[var(--text-primary)]">
+            <ShieldCheckIcon className="h-5 w-5" />
+            <span>Подтверждение MFA ({mfaChallenge.method})</span>
+          </div>
+          <p className="mt-1 text-xs text-[var(--text-muted)]">Введите код из приложения или сообщения. Мы не храним коды в браузере.</p>
+          <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+            <input
+              type="text"
+              inputMode="numeric"
+              placeholder="Код MFA"
+              value={mfaCode}
+              onChange={(e) => setMfaCode(e.target.value)}
+              className="sm:w-1/3"
+            />
+            <button
+              onClick={handleVerifyMfa}
+              disabled={!mfaCode || isSubmitting || authLoading}
+              className="rounded-2xl bg-[var(--text-primary)] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-[1px] hover:shadow-lg disabled:opacity-50"
+            >
+              Подтвердить MFA
+            </button>
+          </div>
+          <p className="mt-2 text-[11px] text-[var(--text-muted)]">Если провайдер не доставляет код — переключитесь на TOTP в настройках профиля.</p>
+        </div>
+      )}
     </div>
   );
 }

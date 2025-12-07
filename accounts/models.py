@@ -79,7 +79,35 @@ class User(AbstractUser):
         help_text=_("Пользователь подал заявку на роль владельца парковки."),
     )
 
-    # username + password остаются стандартными полями AbstractUser
+    class MFAMethod(models.TextChoices):
+        NONE = "none", _("Без MFA")
+        TOTP = "totp", _("TOTP (приложение)")
+        SMS = "sms", _("SMS")
+        EMAIL = "email", _("Email")
+
+    mfa_enabled = models.BooleanField(
+        _("MFA включена"), default=False, help_text=_("Требовать второй фактор при входе.")
+    )
+    mfa_method = models.CharField(
+        _("Метод MFA"),
+        max_length=16,
+        choices=MFAMethod.choices,
+        default=MFAMethod.NONE,
+    )
+    mfa_secret = models.CharField(
+        _("Секрет TOTP"),
+        max_length=64,
+        blank=True,
+        null=True,
+        help_text=_("Используется только для TOTP-приложений."),
+    )
+    last_password_change = models.DateTimeField(
+        _("Последняя смена пароля"),
+        blank=True,
+        null=True,
+        help_text=_("Используется для инвалидирования сессий и JWT."),
+    )
+
     REQUIRED_FIELDS: list[str] = []
 
     class Meta:
@@ -89,14 +117,8 @@ class User(AbstractUser):
     def __str__(self) -> str:
         return self.username
 
-    # Удобные свойства для расшифрованных контактов
-
     @property
     def email_plain(self) -> str:
-        """
-        Доступ к расшифрованному email.
-        В коде (и в админке) можно использовать user.email_plain.
-        """
         return self.email_encrypted or ""
 
     @email_plain.setter
@@ -111,8 +133,6 @@ class User(AbstractUser):
     def phone_plain(self, value: str) -> None:
         self.phone_encrypted = value or None
 
-    # Ролевые флаги
-
     @property
     def is_driver(self) -> bool:
         return self.role == self.Role.DRIVER
@@ -125,18 +145,11 @@ class User(AbstractUser):
     def is_admin(self) -> bool:
         return self.role == self.Role.ADMIN or self.is_superuser
 
-    # Служебные методы
-
     def update_contact_hashes(self) -> None:
-        """
-        Пересчитывает email_hash / phone_hash на основе текущих значений
-        email_plain / phone_plain.
-        """
         self.email_hash = hash_email(self.email_plain)
         self.phone_hash = hash_phone(self.phone_plain)
 
     def save(self, *args, **kwargs) -> None:
-        # Перед сохранением всегда обновляем хэши контактов
         self.update_contact_hashes()
         super().save(*args, **kwargs)
 
@@ -154,6 +167,7 @@ class LoginCode(TimeStampedUUIDModel):
         REGISTER = "register", _("Регистрация")
         LOGIN = "login", _("Вход")
         RESET_PASSWORD = "reset_password", _("Сброс пароля")
+        MFA = "mfa", _("MFA подтверждение")
 
     user = models.ForeignKey(
         User,
@@ -204,10 +218,10 @@ class LoginCode(TimeStampedUUIDModel):
         self.status = "used"
         self.save(update_fields=["is_used", "status", "updated_at"])
 
+
 class SocialAccount(models.Model):
     """
     Link between local User and external OAuth provider account.
-
     Intended for VK, Yandex ID, Google and similar providers.
     """
 
@@ -233,16 +247,8 @@ class SocialAccount(models.Model):
         max_length=255,
         help_text=_("Уникальный идентификатор пользователя в системе провайдера."),
     )
-    email = models.EmailField(
-        _("Email из профиля"),
-        blank=True,
-        null=True,
-    )
-    display_name = models.CharField(
-        _("Имя в профиле"),
-        max_length=255,
-        blank=True,
-    )
+    email = models.EmailField(_("Email из профиля"), blank=True, null=True)
+    display_name = models.CharField(_("Имя в профиле"), max_length=255, blank=True)
     extra_data = models.JSONField(
         _("Сырой профиль"),
         default=dict,
@@ -265,13 +271,10 @@ class SocialAccount(models.Model):
     def __str__(self) -> str:
         return f"{self.get_provider_display()}:{self.external_id} → {self.user_id}"
 
-class UserLevel(TimeStampedUUIDModel):
-    """Уровень пользователя по количеству завершённых бронирований."""
 
+class UserLevel(TimeStampedUUIDModel):
     name = models.CharField(max_length=64)
-    threshold = models.PositiveIntegerField(
-        default=0, help_text="Количество завершённых бронирований для уровня"
-    )
+    threshold = models.PositiveIntegerField(default=0, help_text="Количество завершённых бронирований для уровня")
     description = models.TextField(blank=True)
 
     class Meta:
@@ -284,8 +287,6 @@ class UserLevel(TimeStampedUUIDModel):
 
 
 class UserBadge(TimeStampedUUIDModel):
-    """Бейдж за активность/лояльность."""
-
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="badges", verbose_name="Пользователь"
     )
@@ -310,8 +311,6 @@ class UserBadge(TimeStampedUUIDModel):
 
 
 class PromoReward(TimeStampedUUIDModel):
-    """Заготовка под промо/бонусы."""
-
     code = models.CharField(max_length=32, unique=True)
     description = models.TextField(blank=True)
     active = models.BooleanField(default=True)

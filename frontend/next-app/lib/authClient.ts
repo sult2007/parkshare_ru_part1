@@ -12,13 +12,15 @@ export type AuthResponse = {
   message?: string;
   user?: AuthUser;
   data?: unknown;
+  mfa_required?: boolean;
+  mfa_method?: string;
+  mfa_channel?: string | null;
 };
 
 const API_BASE = process.env.NEXT_PUBLIC_AUTH_API_URL || process.env.NEXT_PUBLIC_AUTH_API_BASE;
 
 async function request<T = AuthResponse>(endpoint: string, body?: Record<string, unknown>, init?: RequestInit): Promise<T> {
   if (!API_BASE) {
-    // Demo-friendly fallback to avoid breaking UX when backend is not configured.
     return Promise.resolve({
       success: true,
       message: 'DEMO: Backend URL не задан, имитируем успешный ответ.',
@@ -28,7 +30,8 @@ async function request<T = AuthResponse>(endpoint: string, body?: Record<string,
         phone: body && 'phone' in body ? (body.phone as string) : undefined,
         name: 'Demo User',
         provider: 'demo'
-      }
+      },
+      mfa_required: false
     } as T);
   }
 
@@ -73,9 +76,13 @@ export async function logout() {
   return request<AuthResponse>('/auth/logout');
 }
 
+export async function verifyMfa(code: string) {
+  if (!code) throw new Error('Введите код MFA');
+  return request<AuthResponse>('/auth/mfa/verify', { code });
+}
+
 export async function getCurrentUser() {
   if (!API_BASE) return null;
-  // Expected backend endpoint: GET /auth/me returns { success, user }
   const response = await fetch(`${API_BASE}/auth/me`, { credentials: 'include' });
   if (!response.ok) return null;
   const data = (await response.json()) as AuthResponse;

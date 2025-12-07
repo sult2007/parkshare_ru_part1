@@ -7,20 +7,8 @@ import environ
 
 from .regions import REGION_PROFILES
 
-# ---------------------------------------------------------------------------
-# Пути
-# ---------------------------------------------------------------------------
-
-# BASE_DIR — корень репозитория: C:\Users\Sultan\Downloads\parkshare_ru_part1
 BASE_DIR = Path(__file__).resolve().parents[3]
-
-# Тут главная правка: больше не уходим на уровень выше
-PROJECT_ROOT = BASE_DIR  # C:\Users\Sultan\Downloads\parkshare_ru_part1
-
-
-# ---------------------------------------------------------------------------
-# Окружение
-# ---------------------------------------------------------------------------
+PROJECT_ROOT = BASE_DIR
 
 env = environ.Env(
     DEBUG=(bool, False),
@@ -31,7 +19,6 @@ if env_file.exists():
     environ.Env.read_env(str(env_file))
 
 DEBUG: bool = env.bool("DEBUG", default=False)
-# ОБЯЗАТЕЛЬНО: ключ только из переменной окружения / .env
 SECRET_KEY: str = env("SECRET_KEY", default=env("DJANGO_SECRET_KEY", default=""))
 if not SECRET_KEY:
     raise RuntimeError("SECRET_KEY is required. Set SECRET_KEY in environment.")
@@ -40,18 +27,11 @@ ALLOWED_HOSTS: List[str] = env.list(
     "ALLOWED_HOSTS", default=["localhost", "127.0.0.1"]
 )
 
-# Маркет/регион: RU — по умолчанию, GLOBAL — международный профиль.
 PLATFORM_MODE: str = env("PLATFORM_MODE", default="RU").upper()
-
-# ---------------------------------------------------------------------------
-# Региональные профили / карты
-# ---------------------------------------------------------------------------
 
 REGION_PROFILE: str = env("REGION_PROFILE", default="RU")
 REGION = REGION_PROFILES.get(REGION_PROFILE, REGION_PROFILES["RU"])
 
-# Провайдер карты можно переопределить через MAP_PROVIDER,
-# иначе берём primary из профиля.
 MAP_PROVIDER: str = env("MAP_PROVIDER", default=REGION["maps"]["primary"])
 MAP_PROVIDER_FALLBACK: str = env(
     "MAP_PROVIDER_FALLBACK", default=REGION["maps"].get("fallback", "leaflet")
@@ -62,26 +42,17 @@ MAPBOX_TOKEN: str = env("MAPBOX_TOKEN", default="")
 MAP_DEFAULT_CENTER = REGION["maps"].get("default_center", [55.75, 37.61])
 MAP_DEFAULT_ZOOM = REGION["maps"].get("default_zoom", 11)
 
-# ---------------------------------------------------------------------------
-# Приложения
-# ---------------------------------------------------------------------------
-
 INSTALLED_APPS = [
-    # Django
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-
-    # Сторонние
     "rest_framework",
     "corsheaders",
     "django_cryptography",
     "drf_spectacular",
-
-    # Проектные
     "accounts",
     "vehicles",
     "parking",
@@ -119,7 +90,6 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                # Глобальные настройки ParkShare: регион, карта и т.д.
                 "core.context_processors.global_settings",
             ],
         },
@@ -129,57 +99,33 @@ TEMPLATES = [
 WSGI_APPLICATION = "backend.backend.config.wsgi.application"
 ASGI_APPLICATION = "backend.backend.config.asgi.application"
 
-# ---------------------------------------------------------------------------
-# Базы данных
-# ---------------------------------------------------------------------------
-
 DATABASES = {
     "default": env.db(
         "DATABASE_URL", default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}"
     )
 }
 
-# Если используем PostgreSQL — переключаемся на PostGIS
 if DATABASES["default"]["ENGINE"] == "django.db.backends.postgresql":
     DATABASES["default"]["ENGINE"] = "django.contrib.gis.db.backends.postgis"
 
-# Опциональный read-replica для разгрузки чтения (RDS read replicas и т.п.).
 DATABASE_REPLICA_URL = env("DATABASE_REPLICA_URL", default="")
 if DATABASE_REPLICA_URL:
     DATABASES["replica"] = env.db("DATABASE_REPLICA_URL")
     if DATABASES["replica"]["ENGINE"] == "django.db.backends.postgresql":
         DATABASES["replica"]["ENGINE"] = "django.contrib.gis.db.backends.postgis"
 
-# DB router отправляет чтение в реплику, если она настроена.
 DATABASE_ROUTERS = (
     ["core.db_router.ReadReplicaRouter"] if "replica" in DATABASES else []
 )
 
-# ---------------------------------------------------------------------------
-# Пользователь / аутентификация
-# ---------------------------------------------------------------------------
-
 AUTH_USER_MODEL = "accounts.User"
 
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
-        "OPTIONS": {"min_length": 8},
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
-    },
+    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
+    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator", "OPTIONS": {"min_length": 8}},
+    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
+    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
-
-# ---------------------------------------------------------------------------
-# Локализация
-# ---------------------------------------------------------------------------
 
 LANGUAGE_CODE = env("LANGUAGE_CODE", default="ru-ru")
 TIME_ZONE = env("TIME_ZONE", default="Europe/Moscow")
@@ -187,35 +133,21 @@ USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 
-# ---------------------------------------------------------------------------
-# Статика / медиа
-# ---------------------------------------------------------------------------
-
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
-STATICFILES_DIRS = [
-    BASE_DIR / "static",
-]
+STATICFILES_DIRS = [BASE_DIR / "static"]
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
-
-# ---------------------------------------------------------------------------
-# PWA
-# ---------------------------------------------------------------------------
 
 PWA_APP_NAME = "ParkShare RU"
 PWA_APP_SHORT_NAME = "ParkShare"
 PWA_THEME_COLOR = "#0d6efd"
 PWA_BACKGROUND_COLOR = "#050816"
 
-# ---------------------------------------------------------------------------
-# DRF / OpenAPI
-# ---------------------------------------------------------------------------
-
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
+        "accounts.authentication.JWTAuthentication",
         "rest_framework.authentication.SessionAuthentication",
     ],
     "DEFAULT_PERMISSION_CLASSES": [
@@ -233,18 +165,10 @@ SPECTACULAR_SETTINGS = {
     "SERVE_INCLUDE_SCHEMA": False,
 }
 
-# ---------------------------------------------------------------------------
-# CORS
-# ---------------------------------------------------------------------------
-
 CORS_ALLOWED_ORIGINS = env.list("CORS_ALLOWED_ORIGINS", default=[])
 CORS_ALLOWED_ORIGIN_REGEXES = env.list("CORS_ALLOWED_ORIGIN_REGEXES", default=[])
 CORS_ALLOW_CREDENTIALS = True
 CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS", default=[])
-
-# ---------------------------------------------------------------------------
-# JWT
-# ---------------------------------------------------------------------------
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
@@ -258,10 +182,6 @@ SIMPLE_JWT = {
     "UPDATE_LAST_LOGIN": True,
 }
 
-# ---------------------------------------------------------------------------
-# Redis / Celery
-# ---------------------------------------------------------------------------
-
 REDIS_URL = env("REDIS_URL", default="redis://redis:6379/0")
 
 CELERY_BROKER_URL = env("CELERY_BROKER_URL", default=REDIS_URL)
@@ -272,76 +192,32 @@ CELERY_RESULT_SERIALIZER = "json"
 CELERY_TIMEZONE = TIME_ZONE
 
 CELERY_BEAT_SCHEDULE = {
-    "expire_unpaid_bookings": {
-        "task": "parking.tasks.expire_unpaid_bookings",
-        "schedule": 60 * 10,  # каждые 10 минут
-    },
-    "update_ai_models": {
-        "task": "ai.tasks.update_models",
-        "schedule": 60 * 60,  # раз в час
-    },
-    "check_stale_payments": {
-        "task": "payments.tasks.check_stale_payments",
-        "schedule": 60 * 15,  # каждые 15 минут
-    },
+    "expire_unpaid_bookings": {"task": "parking.tasks.expire_unpaid_bookings", "schedule": 60 * 10},
+    "update_ai_models": {"task": "ai.tasks.update_models", "schedule": 60 * 60},
+    "check_stale_payments": {"task": "payments.tasks.check_stale_payments", "schedule": 60 * 15},
 }
-
-# ---------------------------------------------------------------------------
-# Логи
-# ---------------------------------------------------------------------------
 
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
     "formatters": {
-        "verbose": {
-            "format": "[{asctime}] {levelname} {name} {message}",
-            "style": "{",
-        },
-        "simple": {
-            "format": "{levelname} {message}",
-            "style": "{",
-        },
+        "verbose": {"format": "[{asctime}] {levelname} {name} {message}", "style": "{"},
+        "simple": {"format": "{levelname} {message}", "style": "{"},
     },
     "handlers": {
-        "console": {
-            "class": "logging.StreamHandler",
-            "formatter": "verbose",
-        },
+        "console": {"class": "logging.StreamHandler", "formatter": "verbose"},
     },
     "loggers": {
-        "django": {
-            "handlers": ["console"],
-            "level": "INFO",
-        },
-        "parkshare": {
-            "handlers": ["console"],
-            "level": "INFO",
-        },
-        "ai": {
-            "handlers": ["console"],
-            "level": "DEBUG",
-            "propagate": False,
-        },
-        "services": {
-            "handlers": ["console"],
-            "level": "DEBUG",
-            "propagate": False,
-        },
+        "django": {"handlers": ["console"], "level": "INFO"},
+        "parkshare": {"handlers": ["console"], "level": "INFO"},
+        "ai": {"handlers": ["console"], "level": "DEBUG", "propagate": False},
+        "services": {"handlers": ["console"], "level": "DEBUG", "propagate": False},
     },
 }
-
-# ---------------------------------------------------------------------------
-# Feature / maintenance flags
-# ---------------------------------------------------------------------------
 
 MAINTENANCE_MODE = env.bool("MAINTENANCE_MODE", default=False)
 ENABLE_EXPERIMENTAL_ASSISTANT = env.bool("ENABLE_EXPERIMENTAL_ASSISTANT", default=True)
 ENABLE_AB_VARIANTS = env.bool("ENABLE_AB_VARIANTS", default=True)
-
-# ---------------------------------------------------------------------------
-# Email
-# ---------------------------------------------------------------------------
 
 EMAIL_BACKEND = env(
     "EMAIL_BACKEND",
@@ -353,15 +229,11 @@ DEFAULT_FROM_EMAIL = env(
 )
 SERVER_EMAIL = env("SERVER_EMAIL", default=DEFAULT_FROM_EMAIL)
 
-# ---------------------------------------------------------------------------
-# Безопасность (базовый уровень, детали переопределяются в production.py)
-# ---------------------------------------------------------------------------
-
 SECURE_SSL_REDIRECT = env.bool("SECURE_SSL_REDIRECT", default=False)
 SESSION_COOKIE_SECURE = env.bool("SESSION_COOKIE_SECURE", default=False)
 CSRF_COOKIE_SECURE = env.bool("CSRF_COOKIE_SECURE", default=False)
 SESSION_COOKIE_HTTPONLY = True
-CSRF_COOKIE_HTTPONLY = True
+CSRF_COOKIE_HTTPONLY = False
 SESSION_COOKIE_SAMESITE = "Lax"
 CSRF_COOKIE_SAMESITE = "Lax"
 X_FRAME_OPTIONS = "DENY"
@@ -398,44 +270,19 @@ if DEBUG:
 REFERRER_POLICY = env("REFERRER_POLICY", default="strict-origin-when-cross-origin")
 PERMISSIONS_POLICY = env(
     "PERMISSIONS_POLICY",
-    # Разрешаем геолокацию только себе, остальное по умолчанию запрещено
     default="geolocation=(self), camera=(), microphone=(), payment=()",
 )
 
-# COOP / COEP / CORP — по умолчанию выключены, чтобы не ломать
-# внешние ресурсы (карты, CDN, платёжные виджеты и т.п.).
-# Если понадобится SharedArrayBuffer и строгая изоляция — включишь
-# явно через .env.
-CROSS_ORIGIN_OPENER_POLICY = env(
-    "CROSS_ORIGIN_OPENER_POLICY", default=""
-)
-CROSS_ORIGIN_EMBEDDER_POLICY = env(
-    "CROSS_ORIGIN_EMBEDDER_POLICY", default=""
-)
-CROSS_ORIGIN_RESOURCE_POLICY = env(
-    "CROSS_ORIGIN_RESOURCE_POLICY", default=""
-)
-
-# ---------------------------------------------------------------------------
-# Rate limiting
-# ---------------------------------------------------------------------------
+CROSS_ORIGIN_OPENER_POLICY = env("CROSS_ORIGIN_OPENER_POLICY", default="")
+CROSS_ORIGIN_EMBEDDER_POLICY = env("CROSS_ORIGIN_EMBEDDER_POLICY", default="")
+CROSS_ORIGIN_RESOURCE_POLICY = env("CROSS_ORIGIN_RESOURCE_POLICY", default="")
 
 RATE_LIMIT_CACHE = env("RATE_LIMIT_CACHE", default="default")
 RATE_LIMIT_WINDOW = env.int("RATE_LIMIT_WINDOW", default=60)
 RATE_LIMIT_REQUESTS = env.int("RATE_LIMIT_REQUESTS", default=120)
-RATE_LIMIT_WHITELIST = env.list(
-    "RATE_LIMIT_WHITELIST", default=["127.0.0.1", "::1"]
-)
-
-# ---------------------------------------------------------------------------
-# django-cryptography
-# ---------------------------------------------------------------------------
+RATE_LIMIT_WHITELIST = env.list("RATE_LIMIT_WHITELIST", default=["127.0.0.1", "::1"])
 
 DJANGO_CRYPTography_KEY = SECRET_KEY
-
-# ---------------------------------------------------------------------------
-# Бизнес-настройки
-# ---------------------------------------------------------------------------
 
 VEHICLE_PLATE_SALT = env("VEHICLE_PLATE_SALT", default="change_me_vehicle_salt")
 
@@ -451,11 +298,6 @@ DEFAULT_PAYMENT_PROVIDER = env(
 )
 
 SERVICE_COMMISSION_PERCENT = env.int("SERVICE_COMMISSION_PERCENT", default=10)
-
-# This block is appended near the bottom of base.py, after business and AI settings.
-# ---------------------------------------------------------------------------
-# OTP / SMS / Metrics / Social auth
-# ---------------------------------------------------------------------------
 
 AUTH_OTP_CODE_TTL_SECONDS = env.int("AUTH_OTP_CODE_TTL_SECONDS", default=600)
 AUTH_OTP_WINDOW_SECONDS = env.int("AUTH_OTP_WINDOW_SECONDS", default=600)
@@ -482,13 +324,6 @@ SOCIAL_OAUTH_CONFIG = {
     },
 }
 SOCIAL_OAUTH_TEST_MODE = env.bool("SOCIAL_OAUTH_TEST_MODE", default=False)
-
-
-
-
-# ---------------------------------------------------------------------------
-# Кэш по умолчанию — in-memory (в продакшене можно переключить на Redis)
-# ---------------------------------------------------------------------------
 
 CACHES = {
     "default": {

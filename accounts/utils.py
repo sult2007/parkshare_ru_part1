@@ -10,18 +10,12 @@ from core.utils import normalize_phone as core_normalize_phone
 
 
 def normalize_email(email: Optional[str]) -> str:
-    """
-    Приводим email к каноничному виду:
-    - trim пробелы;
-    - приводим к нижнему регистру.
-    """
     if not email:
         return ""
     return email.strip().lower()
 
 
 def normalize_phone(phone: Optional[str]) -> str:
-    """Проксируем в core.utils.normalize_phone, чтобы не дублировать логику."""
     return core_normalize_phone(phone)
 
 
@@ -45,12 +39,6 @@ def hash_phone(phone: str) -> str:
 
 
 def hash_code(code: str) -> str:
-    """
-    Хэширует одноразовый код (SMS / email OTP).
-
-    Отдельный namespace «otp», чтобы независимая ротация не затрагивала
-    хэши email/phone.
-    """
     code = (code or "").strip()
     if not code:
         return ""
@@ -58,5 +46,27 @@ def hash_code(code: str) -> str:
 
 
 def generate_username(prefix: str = "user") -> str:
-    """Быстрый генератор уникоподобного username для passwordless-флоу."""
     return f"{prefix}_{get_random_string(10)}"
+
+
+def invalidate_other_sessions(user, keep_session_key: str | None = None) -> None:
+    from django.contrib.sessions.models import Session  # локальный импорт
+    from django.utils import timezone
+
+    now = timezone.now()
+    for session in Session.objects.filter(expire_date__gt=now):
+        data = session.get_decoded()
+        if str(data.get("_auth_user_id")) != str(user.pk):
+            continue
+        if keep_session_key and session.session_key == keep_session_key:
+            continue
+        session.delete()
+
+
+def build_totp_uri(username: str, issuer: str, secret: str) -> str:
+    from urllib.parse import quote
+
+    label = quote(f"{issuer}:{username}")
+    issuer_q = quote(issuer)
+    secret_q = quote(secret)
+    return f"otpauth://totp/{label}?secret={secret_q}&issuer={issuer_q}&digits=6"

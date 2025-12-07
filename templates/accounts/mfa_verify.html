@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Подтверждение MFA{% endblock %}
+
+{% block content %}
+<section class="ps-auth">
+    <div class="ps-auth-card ps-card ps-card--elevated ps-animate-fade-up">
+        <h1 class="ps-auth-title">Подтвердите вход</h1>
+        <p class="ps-auth-subtitle">
+            Введите код из приложения или сообщения, чтобы завершить авторизацию.
+        </p>
+
+        {% if error %}
+            <div class="ps-alert ps-alert--danger">{{ error }}</div>
+        {% endif %}
+        {% if request.GET.status == "resend" %}
+            <div class="ps-alert ps-alert--muted">Мы отправили новый код.</div>
+        {% endif %}
+
+        <form method="post" class="ps-form">
+            {% csrf_token %}
+            <div class="ps-form-row">
+                <label class="ps-form-label" for="code">Код MFA</label>
+                <input id="code" type="text" name="code" class="ps-input" maxlength="12" autofocus placeholder="123456" />
+                {% if method == "totp" %}
+                    <div class="ps-field-help">Откройте приложение-аутентификатор и введите 6-значный код.</div>
+                {% elif channel == "sms" %}
+                    <div class="ps-field-help">Мы отправили SMS с кодом. Не сообщайте его никому.</div>
+                {% elif channel == "email" %}
+                    <div class="ps-field-help">Код отправлен на ваш email. Проверьте входящие и спам.</div>
+                {% endif %}
+            </div>
+            <div class="ps-form-actions">
+                <button type="submit" class="ps-btn ps-btn-full">Подтвердить</button>
+            </div>
+        </form>
+        {% if channel %}
+            <form method="post" class="ps-form" style="margin-top: 12px;">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="resend" />
+                <button class="ps-btn ps-btn-secondary ps-btn-full" type="submit">Отправить код ещё раз</button>
+            </form>
+        {% endif %}
+        <p class="ps-text-muted" style="margin-top: 12px;">Если доступ к устройству потерян — смените пароль и переиздайте MFA в профиле.</p>
+    </div>
+</section>
+{% endblock %}

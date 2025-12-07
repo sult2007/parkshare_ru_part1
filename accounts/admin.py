@@ -21,6 +21,10 @@ class UserAdmin(DjangoUserAdmin):
                     "email_encrypted",
                     "phone_encrypted",
                     "owner_request_pending",
+                    "mfa_enabled",
+                    "mfa_method",
+                    "mfa_secret",
+                    "last_password_change",
                 )
             },
         ),
@@ -29,12 +33,14 @@ class UserAdmin(DjangoUserAdmin):
     list_display = (
         "username",
         "role",
+        "mfa_enabled",
+        "mfa_method",
         "is_active",
         "is_staff",
         "is_superuser",
         "date_joined",
     )
-    list_filter = ("role", "is_active", "is_staff", "is_superuser")
+    list_filter = ("role", "mfa_enabled", "is_active", "is_staff", "is_superuser")
     search_fields = ("username",)
 
 
