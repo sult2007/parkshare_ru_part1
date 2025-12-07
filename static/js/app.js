@@ -138,6 +138,21 @@
         }, 4000);
     }
 
+    function handleApiError(err) {
+        var message = "Что-то пошло не так. Попробуйте позже.";
+        if (!err) {
+            showToast(message, "error");
+            return;
+        }
+        if (typeof err === "string") message = err;
+        if (err.message) message = err.message;
+        if (err.response && err.response.message) message = err.response.message;
+        showToast(message, "error");
+        try {
+            document.dispatchEvent(new CustomEvent("ps-error", { detail: err }));
+        } catch (_) {}
+    }
+
     // ---------- PWA install banner ----------
 
     let deferredPrompt = null;
@@ -711,6 +726,69 @@ function initAdaptiveProbe() {
         setActive(defaultKey);
     }
 
+    // ---------- Onboarding ----------
+
+    function initOnboarding() {
+        const root = qs("[data-onboarding]");
+        if (!root) return;
+        const slides = qsa("[data-onboarding-slides] .ps-onboarding__slide", root);
+        const btnNext = qs("[data-onboarding-next]", root);
+        const btnSkip = qs("[data-onboarding-skip]", root);
+        const storageKey = "ps_onboarded";
+        let index = 0;
+
+        function isDone() {
+            try {
+                return localStorage.getItem(storageKey) === "1";
+            } catch (_) {
+                return false;
+            }
+        }
+        function markDone() {
+            try {
+                localStorage.setItem(storageKey, "1");
+            } catch (_) {}
+        }
+        function show() {
+            root.hidden = false;
+            root.classList.add("is-visible");
+            render();
+        }
+        function hide() {
+            root.classList.remove("is-visible");
+            setTimeout(function () {
+                root.hidden = true;
+            }, 200);
+        }
+        function render() {
+            slides.forEach(function (slide, i) {
+                slide.classList.toggle("is-active", i === index);
+            });
+            if (btnNext) {
+                btnNext.textContent = index >= slides.length - 1 ? "Готово" : "Далее";
+            }
+        }
+        function finish() {
+            markDone();
+            hide();
+        }
+        if (isDone()) return;
+        if (btnNext) {
+            btnNext.addEventListener("click", function () {
+                if (index < slides.length - 1) {
+                    index += 1;
+                    render();
+                } else {
+                    finish();
+                }
+            });
+        }
+        if (btnSkip) {
+            btnSkip.addEventListener("click", finish);
+        }
+        show();
+    }
+
     // ---------- Init ----------
 
     document.addEventListener("DOMContentLoaded", function () {
@@ -722,6 +800,7 @@ function initAdaptiveProbe() {
         initSpotsSheet();
         initAdaptiveProbe();
         initGeolocation();
+        initOnboarding();
         initVoiceInput();
         initPaymentMethods();
         initBottomNav();
@@ -746,4 +825,5 @@ function initAdaptiveProbe() {
     // Экспортируем showToast в глобальную область на всякий
     window.ParkShare = window.ParkShare || {};
     window.ParkShare.showToast = showToast;
+    window.ParkShare.handleApiError = handleApiError;
 })();

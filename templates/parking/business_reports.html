@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Служебные отчёты — ParkShare{% endblock %}
+
+{% block content %}
+<section class="ps-section ps-section--flush-top" data-route="bookings">
+    <div class="ps-section-header ps-section-header--stack">
+        <div>
+            <p class="ps-kicker">Бизнес</p>
+            <h1 class="ps-section-title">Отчёты по служебным поездкам</h1>
+            <p class="ps-section-subtitle">Скачайте CSV или просмотрите брони, отмеченные как служебные.</p>
+        </div>
+        <div class="ps-section-actions">
+            <a class="ps-btn ps-btn-ghost ps-btn-sm" href="?export=csv">Скачать CSV</a>
+        </div>
+    </div>
+
+    <div class="ps-card ps-card--elevated">
+        <div class="ps-card-body ps-card-body--spacing-lg">
+            {% if bookings %}
+                <ul class="ps-list ps-list--compact">
+                    {% for booking in bookings %}
+                        <li class="ps-list-item">
+                            <div class="ps-list-main">
+                                <div class="ps-list-title">{{ booking.start_at|date:"d.m H:i" }} · {{ booking.spot.lot.name }} — {{ booking.spot.name }}</div>
+                                <div class="ps-list-subtitle">
+                                    {{ booking.spot.lot.address }} · {{ booking.billing_mode }} · {{ booking.get_booking_type_display }}
+                                </div>
+                            </div>
+                            <span class="ps-badge ps-badge--neutral">{{ booking.total_price }} ₽</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <div class="ps-empty">Нет служебных поездок. Отметьте бронирование как "Служебная поездка" при создании.</div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}

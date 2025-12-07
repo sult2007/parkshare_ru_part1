@@ -1751,6 +1751,48 @@ a {
     flex-wrap: wrap;
 }
 
+/* ---------- Onboarding ---------- */
+
+.ps-onboarding {
+    position: fixed;
+    inset: 0;
+    z-index: 300;
+    display: none;
+}
+.ps-onboarding.is-visible {
+    display: block;
+}
+.ps-onboarding__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(4px);
+}
+.ps-onboarding__card {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: min(480px, 92vw);
+    background: var(--ps-bg-card);
+    border-radius: var(--ps-radius-card);
+    padding: 1.25rem;
+    box-shadow: var(--ps-shadow-card);
+}
+.ps-onboarding__slide {
+    display: none;
+    gap: 0.35rem;
+}
+.ps-onboarding__slide.is-active {
+    display: grid;
+}
+.ps-onboarding__actions {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
 /* ---------- Footer ---------- */
 
 .ps-footer {

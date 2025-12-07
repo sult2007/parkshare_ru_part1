@@ -224,6 +224,11 @@ class Booking(TimeStampedModel):
     Бронирование парковочного места.
     """
 
+    class BillingMode(models.TextChoices):
+        PAYG = "pay_as_you_go", "Поминутно/почасово"
+        PREPAID_BLOCK = "prepaid_block", "Предоплата блоком"
+        WALLET = "wallet", "Оплата кошельком"
+
     class BookingType(models.TextChoices):
         HOURLY = "hourly", "Почасовая"
         DAILY = "daily", "Суточная"
@@ -265,6 +270,12 @@ class Booking(TimeStampedModel):
         max_length=16,
         choices=BookingType.choices,
         default=BookingType.HOURLY,
+    )
+    billing_mode = models.CharField(
+        "Режим биллинга",
+        max_length=32,
+        choices=BillingMode.choices,
+        default=BillingMode.PAYG,
     )
 
     start_at = models.DateTimeField("Начало брони")

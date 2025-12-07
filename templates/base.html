@@ -146,6 +146,33 @@
             </div>
         </div>
     </div>
+
+    <div class="ps-onboarding" data-onboarding hidden>
+        <div class="ps-onboarding__backdrop"></div>
+        <div class="ps-onboarding__card">
+            <div class="ps-onboarding__slides" data-onboarding-slides>
+                <article class="ps-onboarding__slide is-active">
+                    <p class="ps-kicker">AI-консьерж</p>
+                    <h2>Ищет парковку по маршруту</h2>
+                    <p>Учитывает бюджет, EV и крытые места, запоминает предпочтения.</p>
+                </article>
+                <article class="ps-onboarding__slide">
+                    <p class="ps-kicker">Прогнозы</p>
+                    <h2>Подсказки по цене и загруженности</h2>
+                    <p>Stress index, подсказки 1/3/24h и статус мест прямо в карточках.</p>
+                </article>
+                <article class="ps-onboarding__slide">
+                    <p class="ps-kicker">PWA + оффлайн</p>
+                    <h2>Работает без сети</h2>
+                    <p>Кэширует недавние места, предлагает установить на экран, напоминает о завершении брони.</p>
+                </article>
+            </div>
+            <div class="ps-onboarding__actions">
+                <button type="button" class="ps-btn ps-btn-ghost" data-onboarding-skip>Пропустить</button>
+                <button type="button" class="ps-btn" data-onboarding-next>Далее</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script src="{% static 'js/app.js' %}"></script>

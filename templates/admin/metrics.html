@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Метрики — ParkShare{% endblock %}
+
+{% block content %}
+<section class="ps-section ps-section--flush-top">
+    <div class="ps-section-header ps-section-header--stack">
+        <div>
+            <p class="ps-kicker">Внутренний дашборд</p>
+            <h1 class="ps-section-title">Ключевые метрики</h1>
+            <p class="ps-section-subtitle">Простой срез по бронированиям и AI-сессиям. Доступно только сотрудникам.</p>
+        </div>
+    </div>
+    <div class="ps-grid ps-grid--gap-lg ps-grid--2col">
+        <article class="ps-card ps-card--elevated">
+            <div class="ps-card-header"><h2 class="ps-card-title">Воронка бронирований</h2></div>
+            <div class="ps-card-body">
+                <div class="ps-list-title">Всего бронирований: {{ total_bookings }}</div>
+                <div class="ps-list-title">Служебные брони: {{ business_bookings }}</div>
+            </div>
+        </article>
+        <article class="ps-card ps-card--elevated">
+            <div class="ps-card-header"><h2 class="ps-card-title">AI/предпочтения</h2></div>
+            <div class="ps-card-body">
+                <div class="ps-list-title">Сессий с сохранёнными предпочтениями: {{ ai_sessions }}</div>
+            </div>
+        </article>
+    </div>
+</section>
+{% endblock %}

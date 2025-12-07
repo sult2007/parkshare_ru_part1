@@ -584,6 +584,13 @@
                 lastFeatures = data.features || [];
                 updateSpotsList(data); updateStats(data);
                 try {
+                    var minimal = (data.features || []).slice(0, 20).map(function (f) {
+                        var p = f.properties || {};
+                        return { title: (p.city || "") + (p.lot_name ? ", " + p.lot_name : ""), address: p.address || "", spot_id: p.spot_id || f.id };
+                    });
+                    localStorage.setItem("ps_offline_spots", JSON.stringify(minimal));
+                } catch (_) {}
+                try {
                     var pendingFocus = sessionStorage.getItem("ps_focus_spot");
                     if (pendingFocus) {
                         sessionStorage.removeItem("ps_focus_spot");

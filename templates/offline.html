@@ -3,20 +3,40 @@
 {% block title %}Оффлайн — ParkShare RU{% endblock %}
 
 {% block content %}
-<section class="ps-section ps-section--center">
-    <div class="ps-offline-icon">☁️</div>
-    <h1 class="ps-section-title">Нет подключения к сети</h1>
-    <p class="ps-section-subtitle">
-        Вы оффлайн. Некоторые данные могут быть устаревшими или недоступными,
-        но базовые страницы и ранее открытые ресурсы всё ещё работают.
-    </p>
-    <div class="ps-offline-actions">
-        <button type="button" class="ps-btn" onclick="location.reload()">
-            Повторить попытку
-        </button>
-        <a href="{% url 'landing' %}" class="ps-btn ps-btn-secondary">
-            На главную
-        </a>
+<section class="ps-section ps-section--flush-top ps-section--center">
+    <div class="ps-card ps-card--elevated ps-card--compact">
+        <div class="ps-card-header ps-card-header--center">
+            <div class="ps-offline-icon">☁️</div>
+            <h1 class="ps-section-title">Оффлайн-режим</h1>
+            <p class="ps-section-subtitle">
+                Показываем сохранённые места и избранное. Онлайн-цены обновятся при подключении.
+            </p>
+        </div>
+        <div class="ps-card-body ps-card-body--spacing-lg" id="offline-cache">
+            <div class="ps-empty">Загрузка сохранённых данных…</div>
+        </div>
+        <div class="ps-card-body ps-card-body--spacing-lg ps-card-body--center">
+            <button type="button" class="ps-btn" onclick="location.reload()">Повторить попытку</button>
+            <a href="{% url 'landing' %}" class="ps-btn ps-btn-secondary">На главную</a>
+        </div>
     </div>
 </section>
+<script>
+    (function() {
+        const container = document.getElementById("offline-cache");
+        if (!container) return;
+        try {
+            const cached = JSON.parse(localStorage.getItem("ps_offline_spots") || "[]");
+            if (!cached.length) {
+                container.innerHTML = '<div class="ps-empty">Нет сохранённых мест. Откройте карту при сети, чтобы они появились тут.</div>';
+                return;
+            }
+            container.innerHTML = cached.map(function(item) {
+                return '<div class="ps-card ps-card--spot"><div class="ps-card-title">' + (item.title || "Место") + '</div><div class="ps-card-line ps-card-line--muted">' + (item.address || "") + '</div></div>';
+            }).join("");
+        } catch (e) {
+            container.innerHTML = '<div class="ps-empty">Не удалось загрузить сохранённые данные.</div>';
+        }
+    })();
+</script>
 {% endblock %}

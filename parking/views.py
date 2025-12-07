@@ -12,6 +12,7 @@ from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse
 from django.views.generic import TemplateView
 from django.utils import timezone
+from django.http import HttpResponse
 from rest_framework import permissions, status, viewsets
 from rest_framework.response import Response
 
@@ -479,7 +480,14 @@ class BookingConfirmView(LoginRequiredMixin, TemplateView):
 
     template_name = "parking/booking_confirm.html"
 
-    def _estimate_price(self, spot: ParkingSpot, hours: float, booking_type=None):
+    def _normalize_hours(self, hours: float, billing_mode: str) -> float:
+        if billing_mode == Booking.BillingMode.PREPAID_BLOCK:
+            blocks = max(1, math.ceil(hours / 2))
+            return blocks * 2
+        return hours
+
+    def _estimate_price(self, spot: ParkingSpot, hours: float, billing_mode: str, booking_type=None):
+        hours = self._normalize_hours(hours, billing_mode)
         start_at = timezone.now()
         end_at = start_at + timezone.timedelta(hours=hours)
         booking = Booking(
@@ -488,6 +496,7 @@ class BookingConfirmView(LoginRequiredMixin, TemplateView):
             start_at=start_at,
             end_at=end_at,
             booking_type=booking_type or Booking.BookingType.HOURLY,
+            billing_mode=billing_mode or Booking.BillingMode.PAYG,
             total_price=0,
         )
         return float(booking.calculate_price())
@@ -508,13 +517,14 @@ class BookingConfirmView(LoginRequiredMixin, TemplateView):
         user = self.request.user
         vehicles = Vehicle.objects.filter(owner=user).order_by("-created_at")
         payment_methods = PaymentMethod.objects.filter(user=user).order_by("-is_default", "-created_at")
+        billing_mode = self.request.POST.get("billing_mode") or self.request.GET.get("billing_mode") or Booking.BillingMode.PAYG
         ctx.update(
             {
                 "spot": spot,
                 "spot_estimates": {
-                    "h1": self._estimate_price(spot, 1, Booking.BookingType.HOURLY),
-                    "h3": self._estimate_price(spot, 3, Booking.BookingType.HOURLY),
-                    "h24": self._estimate_price(spot, 24, Booking.BookingType.DAILY),
+                    "h1": self._estimate_price(spot, 1, billing_mode, Booking.BookingType.HOURLY),
+                    "h3": self._estimate_price(spot, 3, billing_mode, Booking.BookingType.HOURLY),
+                    "h24": self._estimate_price(spot, 24, billing_mode, Booking.BookingType.DAILY),
                 },
                 "vehicles": vehicles,
                 "payment_methods": payment_methods,
@@ -523,6 +533,7 @@ class BookingConfirmView(LoginRequiredMixin, TemplateView):
                 "errors": kwargs.get("errors") or [],
                 "success": kwargs.get("success"),
                 "selected_hours": kwargs.get("selected_hours", 1),
+                "billing_mode": billing_mode,
             }
         )
         return ctx
@@ -533,11 +544,12 @@ class BookingConfirmView(LoginRequiredMixin, TemplateView):
         hours = float(request.POST.get("hours") or 1)
         vehicle_id = request.POST.get("vehicle_id")
         payment_method_id = request.POST.get("payment_method_id")
-        billing_mode = request.POST.get("billing_mode") or "hourly"
+        billing_mode = request.POST.get("billing_mode") or Booking.BillingMode.PAYG
         is_business = request.POST.get("is_business") == "on"
 
+        hours_norm = self._normalize_hours(hours, billing_mode)
         start_at = timezone.now()
-        end_at = start_at + timezone.timedelta(hours=hours)
+        end_at = start_at + timezone.timedelta(hours=hours_norm)
         booking_type = Booking.BookingType.DAILY if hours >= 24 else Booking.BookingType.HOURLY
 
         errors = []
@@ -557,6 +569,7 @@ class BookingConfirmView(LoginRequiredMixin, TemplateView):
             spot=spot,
             vehicle_id=vehicle_id or None,
             booking_type=booking_type,
+            billing_mode=billing_mode,
             start_at=start_at,
             end_at=end_at,
             status=Booking.Status.PENDING,
@@ -680,6 +693,72 @@ class PromoActivateView(LoginRequiredMixin, TemplateView):
 
     def get(self, request, *args, **kwargs):
         return self.render_to_response({"message": None})
+
+
+class BusinessReportsView(LoginRequiredMixin, TemplateView):
+    """Отчёты по служебным поездкам с экспортом CSV."""
+
+    template_name = "parking/business_reports.html"
+
+    def get_queryset(self):
+        user = self.request.user
+        qs = (
+            Booking.objects.filter(user=user)
+            .select_related("spot", "spot__lot")
+            .order_by("-start_at")
+        )
+        qs = [b for b in qs if (b.ai_snapshot or {}).get("business_trip")]
+        return qs
+
+    def get(self, request, *args, **kwargs):
+        qs = self.get_queryset()
+        if request.GET.get("export") == "csv":
+            rows = [
+                ["Дата", "Локация", "Адрес", "Длительность (ч)", "Стоимость", "Режим биллинга", "Бизнес"]
+            ]
+            for b in qs:
+                duration_h = round((b.end_at - b.start_at).total_seconds() / 3600, 2)
+                rows.append(
+                    [
+                        b.start_at.strftime("%Y-%m-%d %H:%M"),
+                        b.spot.lot.name,
+                        b.spot.lot.address,
+                        duration_h,
+                        float(b.total_price),
+                        b.billing_mode,
+                        (b.ai_snapshot or {}).get("business_trip", False),
+                    ]
+                )
+            content = "\n".join([",".join(map(lambda x: str(x), row)) for row in rows])
+            resp = HttpResponse(content, content_type="text/csv")
+            resp["Content-Disposition"] = 'attachment; filename="business_bookings.csv"'
+            return resp
+        return self.render_to_response({"bookings": qs})
+
+
+class MetricsDashboardView(LoginRequiredMixin, TemplateView):
+    """Внутренний дашборд для метрик/воронок (staff only)."""
+
+    template_name = "admin/metrics.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_staff:
+            return redirect("admin:login")
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs: Any):
+        ctx = super().get_context_data(**kwargs)
+        total_bookings = Booking.objects.count()
+        business_bookings = Booking.objects.filter(ai_snapshot__business_trip=True).count()
+        ai_sessions = UiEvent.objects.filter(event_type="preferences").count()
+        ctx.update(
+            {
+                "total_bookings": total_bookings,
+                "business_bookings": business_bookings,
+                "ai_sessions": ai_sessions,
+            }
+        )
+        return ctx
 
 # parking/views.py (добавить после существующих APIView/ ViewSet)
 

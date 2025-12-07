@@ -98,6 +98,8 @@ urlpatterns = [
     path("payments/methods/", parking_views.PaymentMethodsPageView.as_view(), name="payment_methods_page"),
     path("profile/settings/", parking_views.ProfileSettingsView.as_view(), name="profile_settings"),
     path("promos/activate/", parking_views.PromoActivateView.as_view(), name="promo_activate"),
+    path("business/reports/", parking_views.BusinessReportsView.as_view(), name="business_reports"),
+    path("admin/metrics-lite/", parking_views.MetricsDashboardView.as_view(), name="metrics_dashboard"),
     path("offline/", TemplateView.as_view(template_name="offline.html"), name="offline"),
     path("assistant/", TemplateView.as_view(template_name="ai/concierge.html"), name="ai_chat"),
     path("ai/", TemplateView.as_view(template_name="ai/concierge.html")),

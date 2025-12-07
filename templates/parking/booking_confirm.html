@@ -64,15 +64,22 @@
                     <div>
                         <div class="ps-form-label">Режим биллинга</div>
                         <div class="ps-chip-row">
-                            <label class="ps-chip">
-                                <input type="radio" name="billing_mode" value="hourly" hidden checked>
-                                Pay-as-you-go (почасово)
+                            <label class="ps-chip {% if billing_mode == 'pay_as_you_go' %}is-active{% endif %}">
+                                <input type="radio" name="billing_mode" value="pay_as_you_go" hidden {% if billing_mode == 'pay_as_you_go' %}checked{% endif %}>
+                                Оплата по времени
                             </label>
-                            <label class="ps-chip">
-                                <input type="radio" name="billing_mode" value="block" hidden>
-                                Предоплата блоком
+                            <label class="ps-chip {% if billing_mode == 'prepaid_block' %}is-active{% endif %}">
+                                <input type="radio" name="billing_mode" value="prepaid_block" hidden {% if billing_mode == 'prepaid_block' %}checked{% endif %}>
+                                Пакет часов (предоплата)
                             </label>
                         </div>
+                        <p class="ps-card-line ps-card-line--muted">
+                            {% if billing_mode == 'prepaid_block' %}
+                                Стоимость рассчитывается пакетами (минимум 2 часа).
+                            {% else %}
+                                Оплата по фактической длительности.
+                            {% endif %}
+                        </p>
                     </div>
                 </div>
 
