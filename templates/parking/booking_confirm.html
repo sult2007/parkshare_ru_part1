@@ -1,0 +1,124 @@
+
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Подтверждение бронирования — ParkShare{% endblock %}
+
+{% block content %}
+<section class="ps-section ps-section--flush-top" data-route="bookings">
+    <div class="ps-section-header ps-section-header--stack">
+        <div>
+            <p class="ps-kicker">Бронирование</p>
+            <h1 class="ps-section-title">Подтверждение</h1>
+            <p class="ps-section-subtitle">Проверьте место, интервал, оплату и автомобиль перед созданием брони.</p>
+        </div>
+        <div class="ps-section-actions">
+            <a href="{% url 'map_page' %}" class="ps-btn ps-btn-ghost ps-btn-sm">Назад к карте</a>
+        </div>
+    </div>
+
+    {% if errors %}
+        <div class="ps-alert ps-alert--danger">
+            <ul class="ps-list ps-list--unstyled">
+                {% for err in errors %}
+                    <li>{{ err }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+    {% if success %}
+        <div class="ps-alert ps-alert--success">{{ success }}</div>
+    {% endif %}
+
+    <div class="ps-card ps-card--elevated">
+        <form method="post" class="ps-form">
+            {% csrf_token %}
+            <input type="hidden" name="spot_id" value="{{ spot.id }}">
+            <div class="ps-card-header">
+                <div>
+                    <h2 class="ps-card-title">{{ spot.lot.name }} — {{ spot.name }}</h2>
+                    <div class="ps-card-line ps-card-line--muted">{{ spot.lot.city }}, {{ spot.lot.address }}</div>
+                </div>
+                <span class="ps-badge ps-badge--neutral">{{ spot.get_vehicle_type_display }}</span>
+            </div>
+            <div class="ps-card-body ps-card-body--spacing-lg">
+                <div class="ps-grid ps-grid--2col ps-grid--gap-md">
+                    <div>
+                        <div class="ps-form-label">Интервал</div>
+                        <div class="ps-chip-row">
+                            <label class="ps-chip {% if selected_hours|floatformat:0 == '1' %}is-active{% endif %}">
+                                <input type="radio" name="hours" value="1" {% if selected_hours|floatformat:0 == '1' %}checked{% endif %} hidden>
+                                1 час · ~{{ spot_estimates.h1|floatformat:0 }} ₽
+                            </label>
+                            <label class="ps-chip {% if selected_hours|floatformat:0 == '3' %}is-active{% endif %}">
+                                <input type="radio" name="hours" value="3" {% if selected_hours|floatformat:0 == '3' %}checked{% endif %} hidden>
+                                3 часа · ~{{ spot_estimates.h3|floatformat:0 }} ₽
+                            </label>
+                            <label class="ps-chip {% if selected_hours|floatformat:0 == '24' %}is-active{% endif %}">
+                                <input type="radio" name="hours" value="24" {% if selected_hours|floatformat:0 == '24' %}checked{% endif %} hidden>
+                                24 часа · ~{{ spot_estimates.h24|floatformat:0 }} ₽
+                            </label>
+                        </div>
+                        <p class="ps-card-line ps-card-line--muted">Стоимость будет уточнена при создании брони.</p>
+                    </div>
+                    <div>
+                        <div class="ps-form-label">Режим биллинга</div>
+                        <div class="ps-chip-row">
+                            <label class="ps-chip">
+                                <input type="radio" name="billing_mode" value="hourly" hidden checked>
+                                Pay-as-you-go (почасово)
+                            </label>
+                            <label class="ps-chip">
+                                <input type="radio" name="billing_mode" value="block" hidden>
+                                Предоплата блоком
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ps-grid ps-grid--2col ps-grid--gap-md">
+                    <div>
+                        <label class="ps-form-label">Автомобиль</label>
+                        <select class="ps-input" name="vehicle_id">
+                            {% if vehicles %}
+                                {% for vehicle in vehicles %}
+                                    <option value="{{ vehicle.id }}" {% if vehicle.id == default_vehicle.id %}selected{% endif %}>
+                                        {{ vehicle.label|default:"Мой авто" }} — {{ vehicle.get_vehicle_type_display }}
+                                    </option>
+                                {% endfor %}
+                            {% else %}
+                                <option value="">Нет сохранённых машин</option>
+                            {% endif %}
+                        </select>
+                        <div class="ps-field-help">Машина используется для пропусков и квитанций.</div>
+                    </div>
+                    <div>
+                        <label class="ps-form-label">Оплата</label>
+                        <select class="ps-input" name="payment_method_id">
+                            {% if payment_methods %}
+                                {% for method in payment_methods %}
+                                    <option value="{{ method.id }}" {% if method.id == default_payment.id %}selected{% endif %}>
+                                        {{ method.get_brand_display }} ****{{ method.last4 }} {% if method.is_default %}· осн.{% endif %}
+                                    </option>
+                                {% endfor %}
+                            {% else %}
+                                <option value="">Нет сохранённых карт — оформим как ожидание оплаты</option>
+                            {% endif %}
+                        </select>
+                        <div class="ps-field-help"><a href="{% url 'booking_confirm' %}?spot_id={{ spot.id }}">Обновить методы оплаты</a></div>
+                    </div>
+                </div>
+
+                <label class="ps-checkbox">
+                    <input type="checkbox" name="is_business">
+                    <span>Служебная поездка</span>
+                </label>
+
+                <div class="ps-form-actions">
+                    <button class="ps-btn ps-btn-primary ps-btn-full" type="submit">Подтвердить бронь</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}

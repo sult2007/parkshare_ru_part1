@@ -7,7 +7,7 @@ from django.core.cache import cache
 from django.db.models import Q
 import math
 import requests
-from django.shortcuts import redirect
+from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse
 from django.views.generic import TemplateView
 from rest_framework import permissions, status, viewsets
@@ -16,6 +16,7 @@ from rest_framework.response import Response
 from core.permissions import IsAdminOrReadOnly
 from core.utils import haversine_distance_km, parse_float
 from vehicles.models import Vehicle
+from payments.models import PaymentMethod
 
 from .models import (
     Booking,
@@ -440,6 +441,111 @@ class OwnerDashboardView(LoginRequiredMixin, TemplateView):
         ctx["spots"] = spots
         ctx["bookings"] = bookings
         return ctx
+
+
+class BookingConfirmView(LoginRequiredMixin, TemplateView):
+    """
+    Экран подтверждения бронирования с выбором интервала, оплаты и бизнес-флага.
+    """
+
+    template_name = "parking/booking_confirm.html"
+
+    def _estimate_price(self, spot: ParkingSpot, hours: float, booking_type=None):
+        start_at = timezone.now()
+        end_at = start_at + timezone.timedelta(hours=hours)
+        booking = Booking(
+            user=self.request.user,
+            spot=spot,
+            start_at=start_at,
+            end_at=end_at,
+            booking_type=booking_type or Booking.BookingType.HOURLY,
+            total_price=0,
+        )
+        return float(booking.calculate_price())
+
+    def get_spot(self):
+        spot_id = self.request.GET.get("spot_id") or self.request.POST.get("spot_id")
+        return get_object_or_404(
+            ParkingSpot,
+            pk=spot_id,
+            status=ParkingSpot.SpotStatus.ACTIVE,
+            lot__is_active=True,
+            lot__is_approved=True,
+        )
+
+    def get_context_data(self, **kwargs: Any):
+        ctx = super().get_context_data(**kwargs)
+        spot = self.get_spot()
+        user = self.request.user
+        vehicles = Vehicle.objects.filter(owner=user).order_by("-created_at")
+        payment_methods = PaymentMethod.objects.filter(user=user).order_by("-is_default", "-created_at")
+        ctx.update(
+            {
+                "spot": spot,
+                "spot_estimates": {
+                    "h1": self._estimate_price(spot, 1, Booking.BookingType.HOURLY),
+                    "h3": self._estimate_price(spot, 3, Booking.BookingType.HOURLY),
+                    "h24": self._estimate_price(spot, 24, Booking.BookingType.DAILY),
+                },
+                "vehicles": vehicles,
+                "payment_methods": payment_methods,
+                "default_vehicle": vehicles.first(),
+                "default_payment": payment_methods.first(),
+                "errors": kwargs.get("errors") or [],
+                "success": kwargs.get("success"),
+                "selected_hours": kwargs.get("selected_hours", 1),
+            }
+        )
+        return ctx
+
+    def post(self, request, *args, **kwargs):
+        spot = self.get_spot()
+        user = request.user
+        hours = float(request.POST.get("hours") or 1)
+        vehicle_id = request.POST.get("vehicle_id")
+        payment_method_id = request.POST.get("payment_method_id")
+        billing_mode = request.POST.get("billing_mode") or "hourly"
+        is_business = request.POST.get("is_business") == "on"
+
+        start_at = timezone.now()
+        end_at = start_at + timezone.timedelta(hours=hours)
+        booking_type = Booking.BookingType.DAILY if hours >= 24 else Booking.BookingType.HOURLY
+
+        errors = []
+        if not Booking.is_spot_available(spot, start_at, end_at):
+            errors.append("Место занято в выбранный период. Выберите другой интервал.")
+
+        if errors:
+            return self.render_to_response(
+                self.get_context_data(
+                    errors=errors,
+                    selected_hours=hours,
+                )
+            )
+
+        booking = Booking.objects.create(
+            user=user,
+            spot=spot,
+            vehicle_id=vehicle_id or None,
+            booking_type=booking_type,
+            start_at=start_at,
+            end_at=end_at,
+            status=Booking.Status.PENDING,
+            total_price=0,
+            ai_snapshot={"billing_mode": billing_mode, "business_trip": is_business},
+        )
+        booking.calculate_price()
+        booking.status = Booking.Status.CONFIRMED
+        booking.save(update_fields=["total_price", "status", "ai_snapshot"])
+
+        # Статус оплаты — заглушка: интеграция с провайдером может обновить позже
+        success_msg = f"Бронь #{booking.id} создана. Сумма: {booking.total_price} ₽."
+        return self.render_to_response(
+            self.get_context_data(
+                success=success_msg,
+                selected_hours=hours,
+            )
+        )
 
 # parking/views.py (добавить после существующих APIView/ ViewSet)
 

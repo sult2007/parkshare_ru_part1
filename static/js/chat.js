@@ -338,7 +338,7 @@
           try {
             sessionStorage.setItem('ps_focus_spot', spotId);
           } catch (_) {}
-          window.location.href = '/';
+          window.location.href = '/booking/confirm/?spot_id=' + encodeURIComponent(spotId);
         }
       });
     }

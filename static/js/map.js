@@ -857,20 +857,7 @@ function createBooking(spotId) {
                 }
                 if (bookBtn) {
                     var targetId = bookBtn.getAttribute("data-spot-id");
-                    var card = qs("[data-spot-card='" + targetId + "']");
-                    if (card) card.scrollIntoView({ behavior: "smooth", block: "start" });
-                    bookBtn.setAttribute("aria-busy", "true");
-                    createBooking(targetId)
-                        .then(function (data) {
-                            var price = data.total_price || "~";
-                            showToast("Бронь создана в демо-режиме. Оплата не списывается (≈ " + price + " ₽)", "success");
-                        })
-                        .catch(function (err) {
-                            if (err.message !== "auth_required") {
-                                showToast("Не удалось создать бронь: " + err.message, "error");
-                            }
-                        })
-                        .finally(function () { bookBtn.removeAttribute("aria-busy"); });
+                    window.location.href = "/booking/confirm/?spot_id=" + encodeURIComponent(targetId);
                 }
             });
         }
