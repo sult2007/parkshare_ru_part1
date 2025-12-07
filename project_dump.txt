@@ -15,8 +15,8 @@
 #   Файлы идут в том же порядке, что и в индексе.
 ################################################################################
 # Root: C:\Users\Sultan\Downloads\parkshare_ru_part1
-# Generated at: 2025-12-07 15:26:12
-# Files listed: 257
+# Generated at: 2025-12-07 17:17:33
+# Files listed: 272
 # Max single file size: NONE
 # Max total dump size: NONE
 # Code compression enabled: False
@@ -148,12 +148,21 @@ parkshare_ru_part1/
         admin.py
         apps.py
         context_processors.py
+        db_router.py
         integrations.py
         middleware.py
         models.py
+        observability.py
         pagination.py
         permissions.py
         utils.py
+        management/
+            __init__.py
+            commands/
+                __init__.py
+                migrate_safe.py
+    docs/
+        deploy.md
     drf_spectacular/
         __init__.py
         openapi.py
@@ -219,6 +228,15 @@ parkshare_ru_part1/
                 conversation-list.test.tsx
         parkmate/
             parkmate.types.ts
+    k8s/
+        beat-deployment.yaml
+        configmap.yaml
+        hpa.yaml
+        ingress.yaml
+        secret-example.yaml
+        web-deployment.yaml
+        web-service.yaml
+        worker-deployment.yaml
     nginx/
         nginx.conf
     parking/
@@ -247,6 +265,7 @@ parkshare_ru_part1/
             0006_booking_billing_mode.py
             0007_notificationsettings.py
             0008_indexes.py
+            0009_remove_booking_booking_time_idx_and_more.py
             __init__.py
         notifications/
             __init__.py
@@ -455,157 +474,172 @@ FILES INDEX:
 104. PATH=core\admin.py | LANG=python
 105. PATH=core\apps.py | LANG=python
 106. PATH=core\context_processors.py | LANG=python
-107. PATH=core\integrations.py | LANG=python
-108. PATH=core\middleware.py | LANG=python
-109. PATH=core\models.py | LANG=python
-110. PATH=core\pagination.py | LANG=python
-111. PATH=core\permissions.py | LANG=python
-112. PATH=core\utils.py | LANG=python
-113. PATH=drf_spectacular\__init__.py | LANG=python
-114. PATH=drf_spectacular\openapi.py | LANG=python
-115. PATH=drf_spectacular\views.py | LANG=python
-116. PATH=frontend\next-app\.env.local | LANG=text
-117. PATH=frontend\next-app\.eslintrc.json | LANG=json
-118. PATH=frontend\next-app\Dockerfile | LANG=text
-119. PATH=frontend\next-app\jest.config.js | LANG=javascript
-120. PATH=frontend\next-app\jest.setup.ts | LANG=typescript
-121. PATH=frontend\next-app\next-env.d.ts | LANG=typescript
-122. PATH=frontend\next-app\next.config.mjs | LANG=text
-123. PATH=frontend\next-app\package.json | LANG=json
-124. PATH=frontend\next-app\postcss.config.js | LANG=javascript
-125. PATH=frontend\next-app\tailwind.config.ts | LANG=typescript
-126. PATH=frontend\next-app\tsconfig.json | LANG=json
-127. PATH=frontend\next-app\app\globals.css | LANG=css
-128. PATH=frontend\next-app\app\layout.tsx | LANG=tsx
-129. PATH=frontend\next-app\app\(site)\layout.tsx | LANG=tsx
-130. PATH=frontend\next-app\app\(site)\page.tsx | LANG=tsx
-131. PATH=frontend\next-app\app\(site)\auth\page.tsx | LANG=tsx
-132. PATH=frontend\next-app\app\api\chat\route.ts | LANG=typescript
-133. PATH=frontend\next-app\app\embed\page.tsx | LANG=tsx
-134. PATH=frontend\next-app\components\header.tsx | LANG=tsx
-135. PATH=frontend\next-app\components\providers.tsx | LANG=tsx
-136. PATH=frontend\next-app\components\theme-provider.tsx | LANG=tsx
-137. PATH=frontend\next-app\components\theme-toggle.tsx | LANG=tsx
-138. PATH=frontend\next-app\components\chat\chat-panel.tsx | LANG=tsx
-139. PATH=frontend\next-app\components\chat\compact-chat-panel.tsx | LANG=tsx
-140. PATH=frontend\next-app\components\chat\conversation-list.tsx | LANG=tsx
-141. PATH=frontend\next-app\components\chat\markdown-message.tsx | LANG=tsx
-142. PATH=frontend\next-app\components\chat\suggested-prompts.tsx | LANG=tsx
-143. PATH=frontend\next-app\components\chat\types.ts | LANG=typescript
-144. PATH=frontend\next-app\components\pwa\register-service-worker.tsx | LANG=tsx
-145. PATH=frontend\next-app\components\widget\chat-widget.tsx | LANG=tsx
-146. PATH=frontend\next-app\context\AuthContext.tsx | LANG=tsx
-147. PATH=frontend\next-app\hooks\useAuth.ts | LANG=typescript
-148. PATH=frontend\next-app\lib\aiProvider.ts | LANG=typescript
-149. PATH=frontend\next-app\lib\authClient.ts | LANG=typescript
-150. PATH=frontend\next-app\lib\chatClient.ts | LANG=typescript
-151. PATH=frontend\next-app\lib\llmClient.ts | LANG=typescript
-152. PATH=frontend\next-app\public\manifest.webmanifest | LANG=text
-153. PATH=frontend\next-app\public\offline.html | LANG=html
-154. PATH=frontend\next-app\public\service-worker.js | LANG=javascript
-155. PATH=frontend\next-app\__tests__\chat-client.test.ts | LANG=typescript
-156. PATH=frontend\next-app\__tests__\conversation-list.test.tsx | LANG=tsx
-157. PATH=frontend\parkmate\parkmate.types.ts | LANG=typescript
-158. PATH=nginx\nginx.conf | LANG=text
-159. PATH=parking\__init__.py | LANG=python
-160. PATH=parking\admin.py | LANG=python
-161. PATH=parking\apps.py | LANG=python
-162. PATH=parking\models.py | LANG=python
-163. PATH=parking\models_notification.py | LANG=python
-164. PATH=parking\push.py | LANG=python
-165. PATH=parking\serializers.py | LANG=python
-166. PATH=parking\tasks.py | LANG=python
-167. PATH=parking\urls.py | LANG=python
-168. PATH=parking\views.py | LANG=python
-169. PATH=parking\analytics\__init__.py | LANG=python
-170. PATH=parking\management\commands\seed_demo_parking.py | LANG=python
-171. PATH=parking\management\commands\send_expiry_notifications.py | LANG=python
-172. PATH=parking\migrations\0001_initial.py | LANG=python
-173. PATH=parking\migrations\0002_parkinglot_stress_index_parkingspot_occupancy_7d.py | LANG=python
-174. PATH=parking\migrations\0003_booking_ai_fields.py | LANG=python
-175. PATH=parking\migrations\0004_favoriteparkingspot_savedplace.py | LANG=python
-176. PATH=parking\migrations\0005_pushsubscription.py | LANG=python
-177. PATH=parking\migrations\0006_booking_billing_mode.py | LANG=python
-178. PATH=parking\migrations\0007_notificationsettings.py | LANG=python
-179. PATH=parking\migrations\0008_indexes.py | LANG=python
-180. PATH=parking\migrations\__init__.py | LANG=python
-181. PATH=parking\notifications\__init__.py | LANG=python
-182. PATH=parking\tests\__init__.py | LANG=python
-183. PATH=parking\tests\test_pwa_endpoints.py | LANG=python
-184. PATH=payments\__init__.py | LANG=python
-185. PATH=payments\admin.py | LANG=python
-186. PATH=payments\apps.py | LANG=python
-187. PATH=payments\models.py | LANG=python
-188. PATH=payments\providers.py | LANG=python
-189. PATH=payments\serializers.py | LANG=python
-190. PATH=payments\tasks.py | LANG=python
-191. PATH=payments\views.py | LANG=python
-192. PATH=payments\migrations\0001_initial.py | LANG=python
-193. PATH=payments\migrations\0002_alter_payment_provider.py | LANG=python
-194. PATH=payments\migrations\0003_paymentmethod.py | LANG=python
-195. PATH=payments\migrations\__init__.py | LANG=python
-196. PATH=payments\providers\__init__.py | LANG=python
-197. PATH=payments\providers\base.py | LANG=python
-198. PATH=payments\providers\registry.py | LANG=python
-199. PATH=payments\providers\stripe.py | LANG=python
-200. PATH=payments\providers\yookassa.py | LANG=python
-201. PATH=regions\global.yml | LANG=yaml
-202. PATH=regions\ru.yml | LANG=yaml
-203. PATH=services\__init__.py | LANG=python
-204. PATH=services\llm.py | LANG=python
-205. PATH=services\llm_service\Dockerfile | LANG=text
-206. PATH=services\llm_service\main.py | LANG=python
-207. PATH=services\llm_service\requirements.txt | LANG=text
-208. PATH=static\manifest.webmanifest | LANG=text
-209. PATH=static\service-worker.js | LANG=javascript
-210. PATH=static\css\app.css | LANG=css
-211. PATH=static\css\cinematic-ui.css | LANG=css
-212. PATH=static\js\app.js | LANG=javascript
-213. PATH=static\js\chat.js | LANG=javascript
-214. PATH=static\js\map.js | LANG=javascript
-215. PATH=static\js\parkmate-ai.ts | LANG=typescript
-216. PATH=static\js\quantum-theme-manager.js | LANG=javascript
-217. PATH=static\js\theme.js | LANG=javascript
-218. PATH=static\pwa\api-client.js | LANG=javascript
-219. PATH=static\pwa\app.js | LANG=javascript
-220. PATH=static\pwa\router.js | LANG=javascript
-221. PATH=static\pwa\spots-view.js | LANG=javascript
-222. PATH=static\pwa\state-store.js | LANG=javascript
-223. PATH=static\pwa\ui-kit.js | LANG=javascript
-224. PATH=templates\base.html | LANG=html
-225. PATH=templates\offline.html | LANG=html
-226. PATH=templates\accounts\login.html | LANG=html
-227. PATH=templates\accounts\password_change.html | LANG=html
-228. PATH=templates\accounts\password_change_done.html | LANG=html
-229. PATH=templates\accounts\password_reset.html | LANG=html
-230. PATH=templates\accounts\password_reset_complete.html | LANG=html
-231. PATH=templates\accounts\password_reset_confirm.html | LANG=html
-232. PATH=templates\accounts\password_reset_done.html | LANG=html
-233. PATH=templates\accounts\password_reset_email.txt | LANG=text
-234. PATH=templates\accounts\password_reset_subject.txt | LANG=text
-235. PATH=templates\accounts\profile.html | LANG=html
-236. PATH=templates\accounts\register.html | LANG=html
-237. PATH=templates\admin\metrics.html | LANG=html
-238. PATH=templates\ai\concierge.html | LANG=html
-239. PATH=templates\parking\booking_confirm.html | LANG=html
-240. PATH=templates\parking\business_reports.html | LANG=html
-241. PATH=templates\parking\landing.html | LANG=html
-242. PATH=templates\parking\map_fullscreen.html | LANG=html
-243. PATH=templates\parking\owner_dashboard.html | LANG=html
-244. PATH=templates\parking\payment_methods.html | LANG=html
-245. PATH=templates\parking\profile_settings.html | LANG=html
-246. PATH=templates\parking\promo_activate.html | LANG=html
-247. PATH=templates\parking\pwa_install.html | LANG=html
-248. PATH=templates\parking\user_dashboard.html | LANG=html
-249. PATH=vehicles\__init__.py | LANG=python
-250. PATH=vehicles\admin.py | LANG=python
-251. PATH=vehicles\apps.py | LANG=python
-252. PATH=vehicles\models.py | LANG=python
-253. PATH=vehicles\serializers.py | LANG=python
-254. PATH=vehicles\urls.py | LANG=python
-255. PATH=vehicles\views.py | LANG=python
-256. PATH=vehicles\migrations\0001_initial.py | LANG=python
-257. PATH=vehicles\migrations\__init__.py | LANG=python
+107. PATH=core\db_router.py | LANG=python
+108. PATH=core\integrations.py | LANG=python
+109. PATH=core\middleware.py | LANG=python
+110. PATH=core\models.py | LANG=python
+111. PATH=core\observability.py | LANG=python
+112. PATH=core\pagination.py | LANG=python
+113. PATH=core\permissions.py | LANG=python
+114. PATH=core\utils.py | LANG=python
+115. PATH=core\management\__init__.py | LANG=python
+116. PATH=core\management\commands\__init__.py | LANG=python
+117. PATH=core\management\commands\migrate_safe.py | LANG=python
+118. PATH=docs\deploy.md | LANG=markdown
+119. PATH=drf_spectacular\__init__.py | LANG=python
+120. PATH=drf_spectacular\openapi.py | LANG=python
+121. PATH=drf_spectacular\views.py | LANG=python
+122. PATH=frontend\next-app\.env.local | LANG=text
+123. PATH=frontend\next-app\.eslintrc.json | LANG=json
+124. PATH=frontend\next-app\Dockerfile | LANG=text
+125. PATH=frontend\next-app\jest.config.js | LANG=javascript
+126. PATH=frontend\next-app\jest.setup.ts | LANG=typescript
+127. PATH=frontend\next-app\next-env.d.ts | LANG=typescript
+128. PATH=frontend\next-app\next.config.mjs | LANG=text
+129. PATH=frontend\next-app\package.json | LANG=json
+130. PATH=frontend\next-app\postcss.config.js | LANG=javascript
+131. PATH=frontend\next-app\tailwind.config.ts | LANG=typescript
+132. PATH=frontend\next-app\tsconfig.json | LANG=json
+133. PATH=frontend\next-app\app\globals.css | LANG=css
+134. PATH=frontend\next-app\app\layout.tsx | LANG=tsx
+135. PATH=frontend\next-app\app\(site)\layout.tsx | LANG=tsx
+136. PATH=frontend\next-app\app\(site)\page.tsx | LANG=tsx
+137. PATH=frontend\next-app\app\(site)\auth\page.tsx | LANG=tsx
+138. PATH=frontend\next-app\app\api\chat\route.ts | LANG=typescript
+139. PATH=frontend\next-app\app\embed\page.tsx | LANG=tsx
+140. PATH=frontend\next-app\components\header.tsx | LANG=tsx
+141. PATH=frontend\next-app\components\providers.tsx | LANG=tsx
+142. PATH=frontend\next-app\components\theme-provider.tsx | LANG=tsx
+143. PATH=frontend\next-app\components\theme-toggle.tsx | LANG=tsx
+144. PATH=frontend\next-app\components\chat\chat-panel.tsx | LANG=tsx
+145. PATH=frontend\next-app\components\chat\compact-chat-panel.tsx | LANG=tsx
+146. PATH=frontend\next-app\components\chat\conversation-list.tsx | LANG=tsx
+147. PATH=frontend\next-app\components\chat\markdown-message.tsx | LANG=tsx
+148. PATH=frontend\next-app\components\chat\suggested-prompts.tsx | LANG=tsx
+149. PATH=frontend\next-app\components\chat\types.ts | LANG=typescript
+150. PATH=frontend\next-app\components\pwa\register-service-worker.tsx | LANG=tsx
+151. PATH=frontend\next-app\components\widget\chat-widget.tsx | LANG=tsx
+152. PATH=frontend\next-app\context\AuthContext.tsx | LANG=tsx
+153. PATH=frontend\next-app\hooks\useAuth.ts | LANG=typescript
+154. PATH=frontend\next-app\lib\aiProvider.ts | LANG=typescript
+155. PATH=frontend\next-app\lib\authClient.ts | LANG=typescript
+156. PATH=frontend\next-app\lib\chatClient.ts | LANG=typescript
+157. PATH=frontend\next-app\lib\llmClient.ts | LANG=typescript
+158. PATH=frontend\next-app\public\manifest.webmanifest | LANG=text
+159. PATH=frontend\next-app\public\offline.html | LANG=html
+160. PATH=frontend\next-app\public\service-worker.js | LANG=javascript
+161. PATH=frontend\next-app\__tests__\chat-client.test.ts | LANG=typescript
+162. PATH=frontend\next-app\__tests__\conversation-list.test.tsx | LANG=tsx
+163. PATH=frontend\parkmate\parkmate.types.ts | LANG=typescript
+164. PATH=k8s\beat-deployment.yaml | LANG=yaml
+165. PATH=k8s\configmap.yaml | LANG=yaml
+166. PATH=k8s\hpa.yaml | LANG=yaml
+167. PATH=k8s\ingress.yaml | LANG=yaml
+168. PATH=k8s\secret-example.yaml | LANG=yaml
+169. PATH=k8s\web-deployment.yaml | LANG=yaml
+170. PATH=k8s\web-service.yaml | LANG=yaml
+171. PATH=k8s\worker-deployment.yaml | LANG=yaml
+172. PATH=nginx\nginx.conf | LANG=text
+173. PATH=parking\__init__.py | LANG=python
+174. PATH=parking\admin.py | LANG=python
+175. PATH=parking\apps.py | LANG=python
+176. PATH=parking\models.py | LANG=python
+177. PATH=parking\models_notification.py | LANG=python
+178. PATH=parking\push.py | LANG=python
+179. PATH=parking\serializers.py | LANG=python
+180. PATH=parking\tasks.py | LANG=python
+181. PATH=parking\urls.py | LANG=python
+182. PATH=parking\views.py | LANG=python
+183. PATH=parking\analytics\__init__.py | LANG=python
+184. PATH=parking\management\commands\seed_demo_parking.py | LANG=python
+185. PATH=parking\management\commands\send_expiry_notifications.py | LANG=python
+186. PATH=parking\migrations\0001_initial.py | LANG=python
+187. PATH=parking\migrations\0002_parkinglot_stress_index_parkingspot_occupancy_7d.py | LANG=python
+188. PATH=parking\migrations\0003_booking_ai_fields.py | LANG=python
+189. PATH=parking\migrations\0004_favoriteparkingspot_savedplace.py | LANG=python
+190. PATH=parking\migrations\0005_pushsubscription.py | LANG=python
+191. PATH=parking\migrations\0006_booking_billing_mode.py | LANG=python
+192. PATH=parking\migrations\0007_notificationsettings.py | LANG=python
+193. PATH=parking\migrations\0008_indexes.py | LANG=python
+194. PATH=parking\migrations\0009_remove_booking_booking_time_idx_and_more.py | LANG=python
+195. PATH=parking\migrations\__init__.py | LANG=python
+196. PATH=parking\notifications\__init__.py | LANG=python
+197. PATH=parking\tests\__init__.py | LANG=python
+198. PATH=parking\tests\test_pwa_endpoints.py | LANG=python
+199. PATH=payments\__init__.py | LANG=python
+200. PATH=payments\admin.py | LANG=python
+201. PATH=payments\apps.py | LANG=python
+202. PATH=payments\models.py | LANG=python
+203. PATH=payments\providers.py | LANG=python
+204. PATH=payments\serializers.py | LANG=python
+205. PATH=payments\tasks.py | LANG=python
+206. PATH=payments\views.py | LANG=python
+207. PATH=payments\migrations\0001_initial.py | LANG=python
+208. PATH=payments\migrations\0002_alter_payment_provider.py | LANG=python
+209. PATH=payments\migrations\0003_paymentmethod.py | LANG=python
+210. PATH=payments\migrations\__init__.py | LANG=python
+211. PATH=payments\providers\__init__.py | LANG=python
+212. PATH=payments\providers\base.py | LANG=python
+213. PATH=payments\providers\registry.py | LANG=python
+214. PATH=payments\providers\stripe.py | LANG=python
+215. PATH=payments\providers\yookassa.py | LANG=python
+216. PATH=regions\global.yml | LANG=yaml
+217. PATH=regions\ru.yml | LANG=yaml
+218. PATH=services\__init__.py | LANG=python
+219. PATH=services\llm.py | LANG=python
+220. PATH=services\llm_service\Dockerfile | LANG=text
+221. PATH=services\llm_service\main.py | LANG=python
+222. PATH=services\llm_service\requirements.txt | LANG=text
+223. PATH=static\manifest.webmanifest | LANG=text
+224. PATH=static\service-worker.js | LANG=javascript
+225. PATH=static\css\app.css | LANG=css
+226. PATH=static\css\cinematic-ui.css | LANG=css
+227. PATH=static\js\app.js | LANG=javascript
+228. PATH=static\js\chat.js | LANG=javascript
+229. PATH=static\js\map.js | LANG=javascript
+230. PATH=static\js\parkmate-ai.ts | LANG=typescript
+231. PATH=static\js\quantum-theme-manager.js | LANG=javascript
+232. PATH=static\js\theme.js | LANG=javascript
+233. PATH=static\pwa\api-client.js | LANG=javascript
+234. PATH=static\pwa\app.js | LANG=javascript
+235. PATH=static\pwa\router.js | LANG=javascript
+236. PATH=static\pwa\spots-view.js | LANG=javascript
+237. PATH=static\pwa\state-store.js | LANG=javascript
+238. PATH=static\pwa\ui-kit.js | LANG=javascript
+239. PATH=templates\base.html | LANG=html
+240. PATH=templates\offline.html | LANG=html
+241. PATH=templates\accounts\login.html | LANG=html
+242. PATH=templates\accounts\password_change.html | LANG=html
+243. PATH=templates\accounts\password_change_done.html | LANG=html
+244. PATH=templates\accounts\password_reset.html | LANG=html
+245. PATH=templates\accounts\password_reset_complete.html | LANG=html
+246. PATH=templates\accounts\password_reset_confirm.html | LANG=html
+247. PATH=templates\accounts\password_reset_done.html | LANG=html
+248. PATH=templates\accounts\password_reset_email.txt | LANG=text
+249. PATH=templates\accounts\password_reset_subject.txt | LANG=text
+250. PATH=templates\accounts\profile.html | LANG=html
+251. PATH=templates\accounts\register.html | LANG=html
+252. PATH=templates\admin\metrics.html | LANG=html
+253. PATH=templates\ai\concierge.html | LANG=html
+254. PATH=templates\parking\booking_confirm.html | LANG=html
+255. PATH=templates\parking\business_reports.html | LANG=html
+256. PATH=templates\parking\landing.html | LANG=html
+257. PATH=templates\parking\map_fullscreen.html | LANG=html
+258. PATH=templates\parking\owner_dashboard.html | LANG=html
+259. PATH=templates\parking\payment_methods.html | LANG=html
+260. PATH=templates\parking\profile_settings.html | LANG=html
+261. PATH=templates\parking\promo_activate.html | LANG=html
+262. PATH=templates\parking\pwa_install.html | LANG=html
+263. PATH=templates\parking\user_dashboard.html | LANG=html
+264. PATH=vehicles\__init__.py | LANG=python
+265. PATH=vehicles\admin.py | LANG=python
+266. PATH=vehicles\apps.py | LANG=python
+267. PATH=vehicles\models.py | LANG=python
+268. PATH=vehicles\serializers.py | LANG=python
+269. PATH=vehicles\urls.py | LANG=python
+270. PATH=vehicles\views.py | LANG=python
+271. PATH=vehicles\migrations\0001_initial.py | LANG=python
+272. PATH=vehicles\migrations\__init__.py | LANG=python
 
 
 ================================================================================
@@ -852,7 +886,10 @@ typecheck:
 test:
 \t$(PYTHON) $(MANAGE) test
 
-.PHONY: lint typecheck test
+migrate_safe:
+\t$(PYTHON) $(MANAGE) migrate_safe --apply
+
+.PHONY: lint typecheck test migrate_safe
 
 ===== CONTENT END =====
 ===== FILE END =====
@@ -3282,8 +3319,8 @@ LANG: text
 #   Файлы идут в том же порядке, что и в индексе.
 ################################################################################
 # Root: C:\Users\Sultan\Downloads\parkshare_ru_part1
-# Generated at: 2025-12-07 15:26:12
-# Files listed: 257
+# Generated at: 2025-12-07 17:17:33
+# Files listed: 272
 # Max single file size: NONE
 # Max total dump size: NONE
 # Code compression enabled: False
@@ -3415,12 +3452,21 @@ parkshare_ru_part1/
         admin.py
         apps.py
         context_processors.py
+        db_router.py
         integrations.py
         middleware.py
         models.py
+        observability.py
         pagination.py
         permissions.py
         utils.py
+        management/
+            __init__.py
+            commands/
+                __init__.py
+                migrate_safe.py
+    docs/
+        deploy.md
     drf_spectacular/
         __init__.py
         openapi.py
@@ -3486,6 +3532,15 @@ parkshare_ru_part1/
                 conversation-list.test.tsx
         parkmate/
             parkmate.types.ts
+    k8s/
+        beat-deployment.yaml
+        configmap.yaml
+        hpa.yaml
+        ingress.yaml
+        secret-example.yaml
+        web-deployment.yaml
+        web-service.yaml
+        worker-deployment.yaml
     nginx/
         nginx.conf
     parking/
@@ -3514,6 +3569,7 @@ parkshare_ru_part1/
             0006_booking_billing_mode.py
             0007_notificationsettings.py
             0008_indexes.py
+            0009_remove_booking_booking_time_idx_and_more.py
             __init__.py
         notifications/
             __init__.py
@@ -3722,157 +3778,172 @@ FILES INDEX:
 104. PATH=core\admin.py | LANG=python
 105. PATH=core\apps.py | LANG=python
 106. PATH=core\context_processors.py | LANG=python
-107. PATH=core\integrations.py | LANG=python
-108. PATH=core\middleware.py | LANG=python
-109. PATH=core\models.py | LANG=python
-110. PATH=core\pagination.py | LANG=python
-111. PATH=core\permissions.py | LANG=python
-112. PATH=core\utils.py | LANG=python
-113. PATH=drf_spectacular\__init__.py | LANG=python
-114. PATH=drf_spectacular\openapi.py | LANG=python
-115. PATH=drf_spectacular\views.py | LANG=python
-116. PATH=frontend\next-app\.env.local | LANG=text
-117. PATH=frontend\next-app\.eslintrc.json | LANG=json
-118. PATH=frontend\next-app\Dockerfile | LANG=text
-119. PATH=frontend\next-app\jest.config.js | LANG=javascript
-120. PATH=frontend\next-app\jest.setup.ts | LANG=typescript
-121. PATH=frontend\next-app\next-env.d.ts | LANG=typescript
-122. PATH=frontend\next-app\next.config.mjs | LANG=text
-123. PATH=frontend\next-app\package.json | LANG=json
-124. PATH=frontend\next-app\postcss.config.js | LANG=javascript
-125. PATH=frontend\next-app\tailwind.config.ts | LANG=typescript
-126. PATH=frontend\next-app\tsconfig.json | LANG=json
-127. PATH=frontend\next-app\app\globals.css | LANG=css
-128. PATH=frontend\next-app\app\layout.tsx | LANG=tsx
-129. PATH=frontend\next-app\app\(site)\layout.tsx | LANG=tsx
-130. PATH=frontend\next-app\app\(site)\page.tsx | LANG=tsx
-131. PATH=frontend\next-app\app\(site)\auth\page.tsx | LANG=tsx
-132. PATH=frontend\next-app\app\api\chat\route.ts | LANG=typescript
-133. PATH=frontend\next-app\app\embed\page.tsx | LANG=tsx
-134. PATH=frontend\next-app\components\header.tsx | LANG=tsx
-135. PATH=frontend\next-app\components\providers.tsx | LANG=tsx
-136. PATH=frontend\next-app\components\theme-provider.tsx | LANG=tsx
-137. PATH=frontend\next-app\components\theme-toggle.tsx | LANG=tsx
-138. PATH=frontend\next-app\components\chat\chat-panel.tsx | LANG=tsx
-139. PATH=frontend\next-app\components\chat\compact-chat-panel.tsx | LANG=tsx
-140. PATH=frontend\next-app\components\chat\conversation-list.tsx | LANG=tsx
-141. PATH=frontend\next-app\components\chat\markdown-message.tsx | LANG=tsx
-142. PATH=frontend\next-app\components\chat\suggested-prompts.tsx | LANG=tsx
-143. PATH=frontend\next-app\components\chat\types.ts | LANG=typescript
-144. PATH=frontend\next-app\components\pwa\register-service-worker.tsx | LANG=tsx
-145. PATH=frontend\next-app\components\widget\chat-widget.tsx | LANG=tsx
-146. PATH=frontend\next-app\context\AuthContext.tsx | LANG=tsx
-147. PATH=frontend\next-app\hooks\useAuth.ts | LANG=typescript
-148. PATH=frontend\next-app\lib\aiProvider.ts | LANG=typescript
-149. PATH=frontend\next-app\lib\authClient.ts | LANG=typescript
-150. PATH=frontend\next-app\lib\chatClient.ts | LANG=typescript
-151. PATH=frontend\next-app\lib\llmClient.ts | LANG=typescript
-152. PATH=frontend\next-app\public\manifest.webmanifest | LANG=text
-153. PATH=frontend\next-app\public\offline.html | LANG=html
-154. PATH=frontend\next-app\public\service-worker.js | LANG=javascript
-155. PATH=frontend\next-app\__tests__\chat-client.test.ts | LANG=typescript
-156. PATH=frontend\next-app\__tests__\conversation-list.test.tsx | LANG=tsx
-157. PATH=frontend\parkmate\parkmate.types.ts | LANG=typescript
-158. PATH=nginx\nginx.conf | LANG=text
-159. PATH=parking\__init__.py | LANG=python
-160. PATH=parking\admin.py | LANG=python
-161. PATH=parking\apps.py | LANG=python
-162. PATH=parking\models.py | LANG=python
-163. PATH=parking\models_notification.py | LANG=python
-164. PATH=parking\push.py | LANG=python
-165. PATH=parking\serializers.py | LANG=python
-166. PATH=parking\tasks.py | LANG=python
-167. PATH=parking\urls.py | LANG=python
-168. PATH=parking\views.py | LANG=python
-169. PATH=parking\analytics\__init__.py | LANG=python
-170. PATH=parking\management\commands\seed_demo_parking.py | LANG=python
-171. PATH=parking\management\commands\send_expiry_notifications.py | LANG=python
-172. PATH=parking\migrations\0001_initial.py | LANG=python
-173. PATH=parking\migrations\0002_parkinglot_stress_index_parkingspot_occupancy_7d.py | LANG=python
-174. PATH=parking\migrations\0003_booking_ai_fields.py | LANG=python
-175. PATH=parking\migrations\0004_favoriteparkingspot_savedplace.py | LANG=python
-176. PATH=parking\migrations\0005_pushsubscription.py | LANG=python
-177. PATH=parking\migrations\0006_booking_billing_mode.py | LANG=python
-178. PATH=parking\migrations\0007_notificationsettings.py | LANG=python
-179. PATH=parking\migrations\0008_indexes.py | LANG=python
-180. PATH=parking\migrations\__init__.py | LANG=python
-181. PATH=parking\notifications\__init__.py | LANG=python
-182. PATH=parking\tests\__init__.py | LANG=python
-183. PATH=parking\tests\test_pwa_endpoints.py | LANG=python
-184. PATH=payments\__init__.py | LANG=python
-185. PATH=payments\admin.py | LANG=python
-186. PATH=payments\apps.py | LANG=python
-187. PATH=payments\models.py | LANG=python
-188. PATH=payments\providers.py | LANG=python
-189. PATH=payments\serializers.py | LANG=python
-190. PATH=payments\tasks.py | LANG=python
-191. PATH=payments\views.py | LANG=python
-192. PATH=payments\migrations\0001_initial.py | LANG=python
-193. PATH=payments\migrations\0002_alter_payment_provider.py | LANG=python
-194. PATH=payments\migrations\0003_paymentmethod.py | LANG=python
-195. PATH=payments\migrations\__init__.py | LANG=python
-196. PATH=payments\providers\__init__.py | LANG=python
-197. PATH=payments\providers\base.py | LANG=python
-198. PATH=payments\providers\registry.py | LANG=python
-199. PATH=payments\providers\stripe.py | LANG=python
-200. PATH=payments\providers\yookassa.py | LANG=python
-201. PATH=regions\global.yml | LANG=yaml
-202. PATH=regions\ru.yml | LANG=yaml
-203. PATH=services\__init__.py | LANG=python
-204. PATH=services\llm.py | LANG=python
-205. PATH=services\llm_service\Dockerfile | LANG=text
-206. PATH=services\llm_service\main.py | LANG=python
-207. PATH=services\llm_service\requirements.txt | LANG=text
-208. PATH=static\manifest.webmanifest | LANG=text
-209. PATH=static\service-worker.js | LANG=javascript
-210. PATH=static\css\app.css | LANG=css
-211. PATH=static\css\cinematic-ui.css | LANG=css
-212. PATH=static\js\app.js | LANG=javascript
-213. PATH=static\js\chat.js | LANG=javascript
-214. PATH=static\js\map.js | LANG=javascript
-215. PATH=static\js\parkmate-ai.ts | LANG=typescript
-216. PATH=static\js\quantum-theme-manager.js | LANG=javascript
-217. PATH=static\js\theme.js | LANG=javascript
-218. PATH=static\pwa\api-client.js | LANG=javascript
-219. PATH=static\pwa\app.js | LANG=javascript
-220. PATH=static\pwa\router.js | LANG=javascript
-221. PATH=static\pwa\spots-view.js | LANG=javascript
-222. PATH=static\pwa\state-store.js | LANG=javascript
-223. PATH=static\pwa\ui-kit.js | LANG=javascript
-224. PATH=templates\base.html | LANG=html
-225. PATH=templates\offline.html | LANG=html
-226. PATH=templates\accounts\login.html | LANG=html
-227. PATH=templates\accounts\password_change.html | LANG=html
-228. PATH=templates\accounts\password_change_done.html | LANG=html
-229. PATH=templates\accounts\password_reset.html | LANG=html
-230. PATH=templates\accounts\password_reset_complete.html | LANG=html
-231. PATH=templates\accounts\password_reset_confirm.html | LANG=html
-232. PATH=templates\accounts\password_reset_done.html | LANG=html
-233. PATH=templates\accounts\password_reset_email.txt | LANG=text
-234. PATH=templates\accounts\password_reset_subject.txt | LANG=text
-235. PATH=templates\accounts\profile.html | LANG=html
-236. PATH=templates\accounts\register.html | LANG=html
-237. PATH=templates\admin\metrics.html | LANG=html
-238. PATH=templates\ai\concierge.html | LANG=html
-239. PATH=templates\parking\booking_confirm.html | LANG=html
-240. PATH=templates\parking\business_reports.html | LANG=html
-241. PATH=templates\parking\landing.html | LANG=html
-242. PATH=templates\parking\map_fullscreen.html | LANG=html
-243. PATH=templates\parking\owner_dashboard.html | LANG=html
-244. PATH=templates\parking\payment_methods.html | LANG=html
-245. PATH=templates\parking\profile_settings.html | LANG=html
-246. PATH=templates\parking\promo_activate.html | LANG=html
-247. PATH=templates\parking\pwa_install.html | LANG=html
-248. PATH=templates\parking\user_dashboard.html | LANG=html
-249. PATH=vehicles\__init__.py | LANG=python
-250. PATH=vehicles\admin.py | LANG=python
-251. PATH=vehicles\apps.py | LANG=python
-252. PATH=vehicles\models.py | LANG=python
-253. PATH=vehicles\serializers.py | LANG=python
-254. PATH=vehicles\urls.py | LANG=python
-255. PATH=vehicles\views.py | LANG=python
-256. PATH=vehicles\migrations\0001_initial.py | LANG=python
-257. PATH=vehicles\migrations\__init__.py | LANG=python
+107. PATH=core\db_router.py | LANG=python
+108. PATH=core\integrations.py | LANG=python
+109. PATH=core\middleware.py | LANG=python
+110. PATH=core\models.py | LANG=python
+111. PATH=core\observability.py | LANG=python
+112. PATH=core\pagination.py | LANG=python
+113. PATH=core\permissions.py | LANG=python
+114. PATH=core\utils.py | LANG=python
+115. PATH=core\management\__init__.py | LANG=python
+116. PATH=core\management\commands\__init__.py | LANG=python
+117. PATH=core\management\commands\migrate_safe.py | LANG=python
+118. PATH=docs\deploy.md | LANG=markdown
+119. PATH=drf_spectacular\__init__.py | LANG=python
+120. PATH=drf_spectacular\openapi.py | LANG=python
+121. PATH=drf_spectacular\views.py | LANG=python
+122. PATH=frontend\next-app\.env.local | LANG=text
+123. PATH=frontend\next-app\.eslintrc.json | LANG=json
+124. PATH=frontend\next-app\Dockerfile | LANG=text
+125. PATH=frontend\next-app\jest.config.js | LANG=javascript
+126. PATH=frontend\next-app\jest.setup.ts | LANG=typescript
+127. PATH=frontend\next-app\next-env.d.ts | LANG=typescript
+128. PATH=frontend\next-app\next.config.mjs | LANG=text
+129. PATH=frontend\next-app\package.json | LANG=json
+130. PATH=frontend\next-app\postcss.config.js | LANG=javascript
+131. PATH=frontend\next-app\tailwind.config.ts | LANG=typescript
+132. PATH=frontend\next-app\tsconfig.json | LANG=json
+133. PATH=frontend\next-app\app\globals.css | LANG=css
+134. PATH=frontend\next-app\app\layout.tsx | LANG=tsx
+135. PATH=frontend\next-app\app\(site)\layout.tsx | LANG=tsx
+136. PATH=frontend\next-app\app\(site)\page.tsx | LANG=tsx
+137. PATH=frontend\next-app\app\(site)\auth\page.tsx | LANG=tsx
+138. PATH=frontend\next-app\app\api\chat\route.ts | LANG=typescript
+139. PATH=frontend\next-app\app\embed\page.tsx | LANG=tsx
+140. PATH=frontend\next-app\components\header.tsx | LANG=tsx
+141. PATH=frontend\next-app\components\providers.tsx | LANG=tsx
+142. PATH=frontend\next-app\components\theme-provider.tsx | LANG=tsx
+143. PATH=frontend\next-app\components\theme-toggle.tsx | LANG=tsx
+144. PATH=frontend\next-app\components\chat\chat-panel.tsx | LANG=tsx
+145. PATH=frontend\next-app\components\chat\compact-chat-panel.tsx | LANG=tsx
+146. PATH=frontend\next-app\components\chat\conversation-list.tsx | LANG=tsx
+147. PATH=frontend\next-app\components\chat\markdown-message.tsx | LANG=tsx
+148. PATH=frontend\next-app\components\chat\suggested-prompts.tsx | LANG=tsx
+149. PATH=frontend\next-app\components\chat\types.ts | LANG=typescript
+150. PATH=frontend\next-app\components\pwa\register-service-worker.tsx | LANG=tsx
+151. PATH=frontend\next-app\components\widget\chat-widget.tsx | LANG=tsx
+152. PATH=frontend\next-app\context\AuthContext.tsx | LANG=tsx
+153. PATH=frontend\next-app\hooks\useAuth.ts | LANG=typescript
+154. PATH=frontend\next-app\lib\aiProvider.ts | LANG=typescript
+155. PATH=frontend\next-app\lib\authClient.ts | LANG=typescript
+156. PATH=frontend\next-app\lib\chatClient.ts | LANG=typescript
+157. PATH=frontend\next-app\lib\llmClient.ts | LANG=typescript
+158. PATH=frontend\next-app\public\manifest.webmanifest | LANG=text
+159. PATH=frontend\next-app\public\offline.html | LANG=html
+160. PATH=frontend\next-app\public\service-worker.js | LANG=javascript
+161. PATH=frontend\next-app\__tests__\chat-client.test.ts | LANG=typescript
+162. PATH=frontend\next-app\__tests__\conversation-list.test.tsx | LANG=tsx
+163. PATH=frontend\parkmate\parkmate.types.ts | LANG=typescript
+164. PATH=k8s\beat-deployment.yaml | LANG=yaml
+165. PATH=k8s\configmap.yaml | LANG=yaml
+166. PATH=k8s\hpa.yaml | LANG=yaml
+167. PATH=k8s\ingress.yaml | LANG=yaml
+168. PATH=k8s\secret-example.yaml | LANG=yaml
+169. PATH=k8s\web-deployment.yaml | LANG=yaml
+170. PATH=k8s\web-service.yaml | LANG=yaml
+171. PATH=k8s\worker-deployment.yaml | LANG=yaml
+172. PATH=nginx\nginx.conf | LANG=text
+173. PATH=parking\__init__.py | LANG=python
+174. PATH=parking\admin.py | LANG=python
+175. PATH=parking\apps.py | LANG=python
+176. PATH=parking\models.py | LANG=python
+177. PATH=parking\models_notification.py | LANG=python
+178. PATH=parking\push.py | LANG=python
+179. PATH=parking\serializers.py | LANG=python
+180. PATH=parking\tasks.py | LANG=python
+181. PATH=parking\urls.py | LANG=python
+182. PATH=parking\views.py | LANG=python
+183. PATH=parking\analytics\__init__.py | LANG=python
+184. PATH=parking\management\commands\seed_demo_parking.py | LANG=python
+185. PATH=parking\management\commands\send_expiry_notifications.py | LANG=python
+186. PATH=parking\migrations\0001_initial.py | LANG=python
+187. PATH=parking\migrations\0002_parkinglot_stress_index_parkingspot_occupancy_7d.py | LANG=python
+188. PATH=parking\migrations\0003_booking_ai_fields.py | LANG=python
+189. PATH=parking\migrations\0004_favoriteparkingspot_savedplace.py | LANG=python
+190. PATH=parking\migrations\0005_pushsubscription.py | LANG=python
+191. PATH=parking\migrations\0006_booking_billing_mode.py | LANG=python
+192. PATH=parking\migrations\0007_notificationsettings.py | LANG=python
+193. PATH=parking\migrations\0008_indexes.py | LANG=python
+194. PATH=parking\migrations\0009_remove_booking_booking_time_idx_and_more.py | LANG=python
+195. PATH=parking\migrations\__init__.py | LANG=python
+196. PATH=parking\notifications\__init__.py | LANG=python
+197. PATH=parking\tests\__init__.py | LANG=python
+198. PATH=parking\tests\test_pwa_endpoints.py | LANG=python
+199. PATH=payments\__init__.py | LANG=python
+200. PATH=payments\admin.py | LANG=python
+201. PATH=payments\apps.py | LANG=python
+202. PATH=payments\models.py | LANG=python
+203. PATH=payments\providers.py | LANG=python
+204. PATH=payments\serializers.py | LANG=python
+205. PATH=payments\tasks.py | LANG=python
+206. PATH=payments\views.py | LANG=python
+207. PATH=payments\migrations\0001_initial.py | LANG=python
+208. PATH=payments\migrations\0002_alter_payment_provider.py | LANG=python
+209. PATH=payments\migrations\0003_paymentmethod.py | LANG=python
+210. PATH=payments\migrations\__init__.py | LANG=python
+211. PATH=payments\providers\__init__.py | LANG=python
+212. PATH=payments\providers\base.py | LANG=python
+213. PATH=payments\providers\registry.py | LANG=python
+214. PATH=payments\providers\stripe.py | LANG=python
+215. PATH=payments\providers\yookassa.py | LANG=python
+216. PATH=regions\global.yml | LANG=yaml
+217. PATH=regions\ru.yml | LANG=yaml
+218. PATH=services\__init__.py | LANG=python
+219. PATH=services\llm.py | LANG=python
+220. PATH=services\llm_service\Dockerfile | LANG=text
+221. PATH=services\llm_service\main.py | LANG=python
+222. PATH=services\llm_service\requirements.txt | LANG=text
+223. PATH=static\manifest.webmanifest | LANG=text
+224. PATH=static\service-worker.js | LANG=javascript
+225. PATH=static\css\app.css | LANG=css
+226. PATH=static\css\cinematic-ui.css | LANG=css
+227. PATH=static\js\app.js | LANG=javascript
+228. PATH=static\js\chat.js | LANG=javascript
+229. PATH=static\js\map.js | LANG=javascript
+230. PATH=static\js\parkmate-ai.ts | LANG=typescript
+231. PATH=static\js\quantum-theme-manager.js | LANG=javascript
+232. PATH=static\js\theme.js | LANG=javascript
+233. PATH=static\pwa\api-client.js | LANG=javascript
+234. PATH=static\pwa\app.js | LANG=javascript
+235. PATH=static\pwa\router.js | LANG=javascript
+236. PATH=static\pwa\spots-view.js | LANG=javascript
+237. PATH=static\pwa\state-store.js | LANG=javascript
+238. PATH=static\pwa\ui-kit.js | LANG=javascript
+239. PATH=templates\base.html | LANG=html
+240. PATH=templates\offline.html | LANG=html
+241. PATH=templates\accounts\login.html | LANG=html
+242. PATH=templates\accounts\password_change.html | LANG=html
+243. PATH=templates\accounts\password_change_done.html | LANG=html
+244. PATH=templates\accounts\password_reset.html | LANG=html
+245. PATH=templates\accounts\password_reset_complete.html | LANG=html
+246. PATH=templates\accounts\password_reset_confirm.html | LANG=html
+247. PATH=templates\accounts\password_reset_done.html | LANG=html
+248. PATH=templates\accounts\password_reset_email.txt | LANG=text
+249. PATH=templates\accounts\password_reset_subject.txt | LANG=text
+250. PATH=templates\accounts\profile.html | LANG=html
+251. PATH=templates\accounts\register.html | LANG=html
+252. PATH=templates\admin\metrics.html | LANG=html
+253. PATH=templates\ai\concierge.html | LANG=html
+254. PATH=templates\parking\booking_confirm.html | LANG=html
+255. PATH=templates\parking\business_reports.html | LANG=html
+256. PATH=templates\parking\landing.html | LANG=html
+257. PATH=templates\parking\map_fullscreen.html | LANG=html
+258. PATH=templates\parking\owner_dashboard.html | LANG=html
+259. PATH=templates\parking\payment_methods.html | LANG=html
+260. PATH=templates\parking\profile_settings.html | LANG=html
+261. PATH=templates\parking\promo_activate.html | LANG=html
+262. PATH=templates\parking\pwa_install.html | LANG=html
+263. PATH=templates\parking\user_dashboard.html | LANG=html
+264. PATH=vehicles\__init__.py | LANG=python
+265. PATH=vehicles\admin.py | LANG=python
+266. PATH=vehicles\apps.py | LANG=python
+267. PATH=vehicles\models.py | LANG=python
+268. PATH=vehicles\serializers.py | LANG=python
+269. PATH=vehicles\urls.py | LANG=python
+270. PATH=vehicles\views.py | LANG=python
+271. PATH=vehicles\migrations\0001_initial.py | LANG=python
+272. PATH=vehicles\migrations\__init__.py | LANG=python
 
 
 ================================================================================
@@ -4119,7 +4190,10 @@ typecheck:
 test:
 \t$(PYTHON) $(MANAGE) test
 
-.PHONY: lint typecheck test
+migrate_safe:
+\t$(PYTHON) $(MANAGE) migrate_safe --apply
+
+.PHONY: lint typecheck test migrate_safe
 
 ===== CONTENT END =====
 ===== FILE END =====
@@ -11471,6 +11545,18 @@ DATABASES = {
 if DATABASES["default"]["ENGINE"] == "django.db.backends.postgresql":
     DATABASES["default"]["ENGINE"] = "django.contrib.gis.db.backends.postgis"
 
+# Опциональный read-replica для разгрузки чтения (RDS read replicas и т.п.).
+DATABASE_REPLICA_URL = env("DATABASE_REPLICA_URL", default="")
+if DATABASE_REPLICA_URL:
+    DATABASES["replica"] = env.db("DATABASE_REPLICA_URL")
+    if DATABASES["replica"]["ENGINE"] == "django.db.backends.postgresql":
+        DATABASES["replica"]["ENGINE"] = "django.contrib.gis.db.backends.postgis"
+
+# DB router отправляет чтение в реплику, если она настроена.
+DATABASE_ROUTERS = (
+    ["core.db_router.ReadReplicaRouter"] if "replica" in DATABASES else []
+)
+
 # ---------------------------------------------------------------------------
 # Пользователь / аутентификация
 # ---------------------------------------------------------------------------
@@ -12970,6 +13056,47 @@ def global_settings(request):
 
 ===== FILE START =====
 FILE_INDEX: 107
+PATH: core\db_router.py
+LANG: python
+===== CONTENT START =====
+from __future__ import annotations
+
+from django.conf import settings
+
+
+class ReadReplicaRouter:
+    """
+    Directs read queries to a replica when DATABASE_REPLICA_URL is configured.
+    Write operations always go to the primary.
+    """
+
+    replica_alias = "replica"
+
+    def _has_replica(self) -> bool:
+        return self.replica_alias in getattr(settings, "DATABASES", {})
+
+    def db_for_read(self, model, **hints):
+        if self._has_replica():
+            return self.replica_alias
+        return None
+
+    def db_for_write(self, model, **hints):
+        return "default"
+
+    def allow_relation(self, obj1, obj2, **hints):
+        return True
+
+    def allow_migrate(self, db, app_label, model_name=None, **hints):
+        if db == self.replica_alias:
+            # Migrations must run only on primary.
+            return False
+        return True
+
+===== CONTENT END =====
+===== FILE END =====
+
+===== FILE START =====
+FILE_INDEX: 108
 PATH: core\integrations.py
 LANG: python
 ===== CONTENT START =====
@@ -13108,7 +13235,7 @@ def get_integrations() -> dict:
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 108
+FILE_INDEX: 109
 PATH: core\middleware.py
 LANG: python
 ===== CONTENT START =====
@@ -13263,7 +13390,7 @@ class MaintenanceModeMiddleware(MiddlewareMixin):
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 109
+FILE_INDEX: 110
 PATH: core\models.py
 LANG: python
 ===== CONTENT START =====
@@ -13308,7 +13435,132 @@ class TimeStampedUUIDModel(TimeStampedModel, UUIDModel):
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 110
+FILE_INDEX: 111
+PATH: core\observability.py
+LANG: python
+===== CONTENT START =====
+from __future__ import annotations
+
+import json
+import logging
+import time
+import traceback
+from contextlib import contextmanager
+from contextvars import ContextVar
+from typing import Any, Dict, Optional
+from urllib import request as urlrequest
+
+from django.conf import settings
+
+request_id_ctx: ContextVar[str | None] = ContextVar("request_id", default=None)
+user_ctx: ContextVar[str | None] = ContextVar("request_user", default=None)
+
+
+def set_request_context(request_id: str | None, user_id: str | None = None) -> None:
+    request_id_ctx.set(request_id)
+    user_ctx.set(user_id)
+
+
+def clear_request_context() -> None:
+    request_id_ctx.set(None)
+    user_ctx.set(None)
+
+
+def get_request_id() -> str | None:
+    return request_id_ctx.get()
+
+
+def get_request_user() -> str | None:
+    return user_ctx.get()
+
+
+class RequestIDLogFilter(logging.Filter):
+    """Injects request_id/user_id into log records for structured logging."""
+
+    def filter(self, record: logging.LogRecord) -> bool:  # type: ignore[override]
+        record.request_id = get_request_id() or "-"
+        record.user_id = get_request_user() or getattr(record, "user", None) or "-"
+        return True
+
+
+def capture_exception(exc: BaseException, context: Optional[Dict[str, Any]] = None) -> None:
+    """
+    Lightweight error-reporting hook. Logs locally and, if SENTRY_DSN is set,
+    POSTs a minimal payload. Failures are swallowed to avoid cascading errors.
+    """
+    logger = logging.getLogger("parkshare.errors")
+    payload = {
+        "error": exc.__class__.__name__,
+        "message": str(exc),
+        "trace": traceback.format_exc(),
+        "request_id": get_request_id(),
+        "context": context or {},
+    }
+    logger.error("Exception captured", extra={"payload": payload})
+
+    dsn = getattr(settings, "SENTRY_DSN", "") or ""
+    if not dsn:
+        return
+
+    try:
+        data = json.dumps(payload).encode("utf-8")
+        req = urlrequest.Request(
+            dsn,
+            data=data,
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        urlrequest.urlopen(req, timeout=2)
+    except Exception:
+        logger.warning("Failed to forward exception to Sentry-compatible DSN")
+
+
+class Span:
+    """Minimal tracing span for timing critical operations."""
+
+    def __init__(self, name: str, attributes: Optional[Dict[str, Any]] = None):
+        self.name = name
+        self.attributes = attributes or {}
+        self.start = time.perf_counter()
+        self._logger = logging.getLogger("parkshare.tracing")
+
+    def __enter__(self):
+        self._logger.debug(
+            "span_start",
+            extra={
+                "span": self.name,
+                "attrs": self.attributes,
+                "request_id": get_request_id(),
+            },
+        )
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        duration = time.perf_counter() - self.start
+        extra = {
+            "span": self.name,
+            "duration_ms": int(duration * 1000),
+            "attrs": self.attributes,
+            "request_id": get_request_id(),
+        }
+        if exc_val:
+            extra["error"] = str(exc_val)
+        self._logger.info("span_end", extra=extra)
+
+
+@contextmanager
+def start_span(name: str, **attrs: Any):
+    if not getattr(settings, "ENABLE_TRACING", True):
+        yield None
+        return
+    with Span(name, attrs):
+        yield None
+
+===== CONTENT END =====
+===== FILE END =====
+
+===== FILE START =====
+FILE_INDEX: 112
 PATH: core\pagination.py
 LANG: python
 ===== CONTENT START =====
@@ -13333,7 +13585,7 @@ class DefaultPageNumberPagination(PageNumberPagination):
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 111
+FILE_INDEX: 113
 PATH: core\permissions.py
 LANG: python
 ===== CONTENT START =====
@@ -13409,7 +13661,7 @@ class IsOwnerObject(BasePermission):
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 112
+FILE_INDEX: 114
 PATH: core\utils.py
 LANG: python
 ===== CONTENT START =====
@@ -13417,10 +13669,12 @@ LANG: python
 
 import hashlib
 import math
+from contextlib import contextmanager
 from decimal import Decimal, ROUND_HALF_UP
 from typing import Optional
 
 from django.conf import settings
+from django.db import connections
 
 
 def hash_plate_digits(plate: str) -> str:
@@ -13539,11 +13793,187 @@ def round_price(value: float | Decimal, step: float = 10.0) -> float:
     result = scaled * step_dec
     return float(result)
 
+
+# ---------------------------------------------------------------------------
+# Read-replica helpers
+# ---------------------------------------------------------------------------
+
+
+def read_db_alias() -> str:
+    """Return replica alias if configured, otherwise default."""
+    return "replica" if "replica" in settings.DATABASES else "default"
+
+
+def read_replica_queryset(queryset):
+    """Route queryset to replica when available; no-op otherwise."""
+    alias = read_db_alias()
+    try:
+        return queryset.using(alias)
+    except Exception:
+        return queryset
+
+
+@contextmanager
+def read_replica_cursor():
+    """Context manager yielding a cursor on the replica (or default)."""
+    alias = read_db_alias()
+    conn = connections[alias]
+    with conn.cursor() as cursor:
+        yield cursor
+
 ===== CONTENT END =====
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 113
+FILE_INDEX: 115
+PATH: core\management\__init__.py
+LANG: python
+===== CONTENT START =====
+# Management package for cross-cutting operational commands (migrations, backups, retention).
+
+===== CONTENT END =====
+===== FILE END =====
+
+===== FILE START =====
+FILE_INDEX: 116
+PATH: core\management\commands\__init__.py
+LANG: python
+===== CONTENT START =====
+# Namespace for core management commands.
+
+===== CONTENT END =====
+===== FILE END =====
+
+===== FILE START =====
+FILE_INDEX: 117
+PATH: core\management\commands\migrate_safe.py
+LANG: python
+===== CONTENT START =====
+from __future__ import annotations
+
+import contextlib
+
+from django.core.management import BaseCommand, CommandError, call_command
+from django.db import connections
+
+
+class Command(BaseCommand):
+    help = (
+        "Runs migrations with a two-phase, production-safe workflow. "
+        "Phase 1 prints a plan; Phase 2 applies migrations with --noinput."
+    )
+
+    def add_arguments(self, parser):
+        parser.add_argument(
+            "--database",
+            default="default",
+            help="Database alias to migrate (default: default).",
+        )
+        parser.add_argument(
+            "--plan-only",
+            action="store_true",
+            help="Only show the migration plan without applying changes.",
+        )
+        parser.add_argument(
+            "--apply",
+            action="store_true",
+            help="Apply migrations after showing the plan (non-interactive).",
+        )
+
+    def handle(self, *args, **options):
+        database = options["database"]
+        plan_only = options["plan_only"]
+        apply = options["apply"]
+
+        self.stdout.write(self.style.NOTICE(f"Checking database connection [{database}]..."))
+        with contextlib.suppress(Exception):
+            connections[database].ensure_connection()
+
+        try:
+            self.stdout.write(self.style.NOTICE("Phase 1: migration plan"))
+            call_command("migrate", database=database, plan=True)
+        except Exception as exc:
+            raise CommandError(f"Failed to build migration plan: {exc}") from exc
+
+        if plan_only and not apply:
+            self.stdout.write(self.style.SUCCESS("Plan generated. Skipping apply (--plan-only)."))
+            return
+
+        if not apply:
+            self.stdout.write(
+                self.style.WARNING(
+                    "No --apply flag provided. Review plan above and rerun with --apply to execute."
+                )
+            )
+            return
+
+        self.stdout.write(self.style.NOTICE("Phase 2: applying migrations (non-interactive)..."))
+        try:
+            call_command("migrate", database=database, interactive=False)
+        except Exception as exc:
+            raise CommandError(f"Migration apply failed: {exc}") from exc
+
+        self.stdout.write(self.style.SUCCESS("Migrations applied successfully."))
+
+===== CONTENT END =====
+===== FILE END =====
+
+===== FILE START =====
+FILE_INDEX: 118
+PATH: docs\deploy.md
+LANG: markdown
+===== CONTENT START =====
+# Kubernetes / Helm blueprint
+
+High-availability topology for ParkShare without changing local docker-compose flows.
+
+## Components
+- `k8s/web-deployment.yaml`: Django/Gunicorn pods behind `k8s/web-service.yaml`, rolling update (maxUnavailable=0, maxSurge=1) and readiness/liveness probes on `/readyz`/`/healthz`.
+- `k8s/worker-deployment.yaml`: Celery worker replicas (HPA ready), same image/env as web.
+- `k8s/beat-deployment.yaml`: Celery beat scheduler (1 replica, non-root).
+- `k8s/hpa.yaml`: CPU-based autoscaling for web and worker, behavior tuned for graceful scale-down.
+- `k8s/configmap.yaml` / `k8s/secret-example.yaml`: non-sensitive vs secret env separation; wire to Vault/SM/SealedSecrets in real clusters.
+- `k8s/ingress.yaml`: nginx ingress with sane timeouts and TLS secret placeholder.
+
+## Deployment strategy
+- Default: RollingUpdate (0 downtime) with `maxUnavailable:0` / `maxSurge:1`. Readiness gate is `/readyz`; slow-start is handled by Gunicorn workers.
+- Blue/green: create a parallel deployment (e.g., `parkshare-web-green`) with the same selectors except color, then flip Service/Ingress selector to the new color; keep both colors for fast rollback.
+- Canary: split traffic by Ingress annotations or Gateway routes; HPA supports separate scaling for canary if selector differs.
+
+## Migration workflow (high-traffic safe)
+1) Build/push image.
+2) Run migrations out of band before traffic cutover:
+   ```bash
+   python manage.py migrate_safe --plan-only  # review plan
+   python manage.py migrate_safe --apply      # non-interactive apply
+   ```
+3) Deploy app pods (rolling or blue/green).
+4) If schema includes new columns, ship code that is backward-compatible first; avoid destructive drops until the next deploy.
+5) For locking migrations, run them in maintenance window (toggle `MAINTENANCE_MODE=true` via env/ConfigMap) or temporarily scale web to 0.
+
+## Read replicas
+- Configure `DATABASE_REPLICA_URL` to enable the read replica alias (`replica`) and router (`core.db_router.ReadReplicaRouter`).
+- Analytics/heavy read queries automatically route to the replica; writes stay on `default`. If no replica is set, everything stays on primary.
+- For explicit usage in tasks:
+  ```python
+  from core.utils import read_replica_queryset
+  qs = read_replica_queryset(MyModel.objects.all())
+  ```
+
+## Safe rollout hooks
+- Health: `/healthz` for liveness, `/readyz` for readiness.
+- Metrics: `/metrics` (when `ENABLE_METRICS=true`) for Prometheus scraping; protect via network policy or auth if exposed.
+- Celery: liveness probes run lightweight `celery inspect ping`; keep broker/Redis highly available.
+
+## Externalized services
+- PostgreSQL/PostGIS and Redis are assumed managed (RDS/Cloud SQL, MemoryDB/Elasticache). Provide URLs via secrets; no in-cluster stateful components are required.
+- Object storage/CDN for staticfiles should be mounted via bucket sync or baked into the image; `staticfiles` volume is an `emptyDir` placeholder here.
+
+===== CONTENT END =====
+===== FILE END =====
+
+===== FILE START =====
+FILE_INDEX: 119
 PATH: drf_spectacular\__init__.py
 LANG: python
 ===== CONTENT START =====
@@ -13553,7 +13983,7 @@ LANG: python
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 114
+FILE_INDEX: 120
 PATH: drf_spectacular\openapi.py
 LANG: python
 ===== CONTENT START =====
@@ -13565,7 +13995,7 @@ __all__ = ["AutoSchema"]
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 115
+FILE_INDEX: 121
 PATH: drf_spectacular\views.py
 LANG: python
 ===== CONTENT START =====
@@ -13601,7 +14031,7 @@ __all__ = [
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 116
+FILE_INDEX: 122
 PATH: frontend\next-app\.env.local
 LANG: text
 ===== CONTENT START =====
@@ -13623,7 +14053,7 @@ AI_MODEL=gpt-4o
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 117
+FILE_INDEX: 123
 PATH: frontend\next-app\.eslintrc.json
 LANG: json
 ===== CONTENT START =====
@@ -13635,7 +14065,7 @@ LANG: json
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 118
+FILE_INDEX: 124
 PATH: frontend\next-app\Dockerfile
 LANG: text
 ===== CONTENT START =====
@@ -13672,7 +14102,7 @@ CMD ["npm", "start"]
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 119
+FILE_INDEX: 125
 PATH: frontend\next-app\jest.config.js
 LANG: javascript
 ===== CONTENT START =====
@@ -13699,7 +14129,7 @@ module.exports = createJestConfig(customJestConfig);
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 120
+FILE_INDEX: 126
 PATH: frontend\next-app\jest.setup.ts
 LANG: typescript
 ===== CONTENT START =====
@@ -13743,7 +14173,7 @@ if (!global.fetch || !global.Response) {
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 121
+FILE_INDEX: 127
 PATH: frontend\next-app\next-env.d.ts
 LANG: typescript
 ===== CONTENT START =====
@@ -13757,7 +14187,7 @@ LANG: typescript
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 122
+FILE_INDEX: 128
 PATH: frontend\next-app\next.config.mjs
 LANG: text
 ===== CONTENT START =====
@@ -13862,7 +14292,7 @@ export default nextConfig;
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 123
+FILE_INDEX: 129
 PATH: frontend\next-app\package.json
 LANG: json
 ===== CONTENT START =====
@@ -13918,7 +14348,7 @@ LANG: json
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 124
+FILE_INDEX: 130
 PATH: frontend\next-app\postcss.config.js
 LANG: javascript
 ===== CONTENT START =====
@@ -13933,7 +14363,7 @@ module.exports = {
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 125
+FILE_INDEX: 131
 PATH: frontend\next-app\tailwind.config.ts
 LANG: typescript
 ===== CONTENT START =====
@@ -13963,7 +14393,7 @@ export default config;
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 126
+FILE_INDEX: 132
 PATH: frontend\next-app\tsconfig.json
 LANG: json
 ===== CONTENT START =====
@@ -14014,7 +14444,7 @@ LANG: json
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 127
+FILE_INDEX: 133
 PATH: frontend\next-app\app\globals.css
 LANG: css
 ===== CONTENT START =====
@@ -14106,7 +14536,7 @@ LANG: css
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 128
+FILE_INDEX: 134
 PATH: frontend\next-app\app\layout.tsx
 LANG: tsx
 ===== CONTENT START =====
@@ -14128,7 +14558,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 129
+FILE_INDEX: 135
 PATH: frontend\next-app\app\(site)\layout.tsx
 LANG: tsx
 ===== CONTENT START =====
@@ -14154,7 +14584,7 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 130
+FILE_INDEX: 136
 PATH: frontend\next-app\app\(site)\page.tsx
 LANG: tsx
 ===== CONTENT START =====
@@ -14202,7 +14632,7 @@ export default function HomePage() {
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 131
+FILE_INDEX: 137
 PATH: frontend\next-app\app\(site)\auth\page.tsx
 LANG: tsx
 ===== CONTENT START =====
@@ -14447,7 +14877,7 @@ export default function AuthPage() {
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 132
+FILE_INDEX: 138
 PATH: frontend\next-app\app\api\chat\route.ts
 LANG: typescript
 ===== CONTENT START =====
@@ -14488,7 +14918,7 @@ export async function POST(req: NextRequest) {
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 133
+FILE_INDEX: 139
 PATH: frontend\next-app\app\embed\page.tsx
 LANG: tsx
 ===== CONTENT START =====
@@ -14511,7 +14941,7 @@ export default function EmbedPage() {
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 134
+FILE_INDEX: 140
 PATH: frontend\next-app\components\header.tsx
 LANG: tsx
 ===== CONTENT START =====
@@ -14576,7 +15006,7 @@ export function Header() {
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 135
+FILE_INDEX: 141
 PATH: frontend\next-app\components\providers.tsx
 LANG: tsx
 ===== CONTENT START =====
@@ -14597,7 +15027,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 136
+FILE_INDEX: 142
 PATH: frontend\next-app\components\theme-provider.tsx
 LANG: tsx
 ===== CONTENT START =====
@@ -14657,7 +15087,7 @@ export function useTheme() {
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 137
+FILE_INDEX: 143
 PATH: frontend\next-app\components\theme-toggle.tsx
 LANG: tsx
 ===== CONTENT START =====
@@ -14686,7 +15116,7 @@ export function ThemeToggle() {
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 138
+FILE_INDEX: 144
 PATH: frontend\next-app\components\chat\chat-panel.tsx
 LANG: tsx
 ===== CONTENT START =====
@@ -15306,7 +15736,7 @@ const MessageBubble = React.memo(function MessageBubble({
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 139
+FILE_INDEX: 145
 PATH: frontend\next-app\components\chat\compact-chat-panel.tsx
 LANG: tsx
 ===== CONTENT START =====
@@ -15324,7 +15754,7 @@ export function CompactChatPanel() {
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 140
+FILE_INDEX: 146
 PATH: frontend\next-app\components\chat\conversation-list.tsx
 LANG: tsx
 ===== CONTENT START =====
@@ -15443,7 +15873,7 @@ export function ConversationList({ conversations, activeId, onSelect, onCreate, 
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 141
+FILE_INDEX: 147
 PATH: frontend\next-app\components\chat\markdown-message.tsx
 LANG: tsx
 ===== CONTENT START =====
@@ -15474,7 +15904,7 @@ export default function MarkdownMessage({ content }: Props) {
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 142
+FILE_INDEX: 148
 PATH: frontend\next-app\components\chat\suggested-prompts.tsx
 LANG: tsx
 ===== CONTENT START =====
@@ -15513,7 +15943,7 @@ export function SuggestedPrompts({ onSelect }: SuggestedPromptsProps) {
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 143
+FILE_INDEX: 149
 PATH: frontend\next-app\components\chat\types.ts
 LANG: typescript
 ===== CONTENT START =====
@@ -15535,7 +15965,7 @@ export interface Conversation {
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 144
+FILE_INDEX: 150
 PATH: frontend\next-app\components\pwa\register-service-worker.tsx
 LANG: tsx
 ===== CONTENT START =====
@@ -15582,7 +16012,7 @@ export function ServiceWorkerRegistrar() {
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 145
+FILE_INDEX: 151
 PATH: frontend\next-app\components\widget\chat-widget.tsx
 LANG: tsx
 ===== CONTENT START =====
@@ -15630,7 +16060,7 @@ export function ChatWidget() {
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 146
+FILE_INDEX: 152
 PATH: frontend\next-app\context\AuthContext.tsx
 LANG: tsx
 ===== CONTENT START =====
@@ -15775,7 +16205,7 @@ export function useAuthContext() {
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 147
+FILE_INDEX: 153
 PATH: frontend\next-app\hooks\useAuth.ts
 LANG: typescript
 ===== CONTENT START =====
@@ -15800,7 +16230,7 @@ export function useAuth() {
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 148
+FILE_INDEX: 154
 PATH: frontend\next-app\lib\aiProvider.ts
 LANG: typescript
 ===== CONTENT START =====
@@ -15811,7 +16241,7 @@ export type { LLMMessage as ChatMessage } from './llmClient';
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 149
+FILE_INDEX: 155
 PATH: frontend\next-app\lib\authClient.ts
 LANG: typescript
 ===== CONTENT START =====
@@ -15935,7 +16365,7 @@ export function startOAuth(provider: 'vk' | 'yandex' | 'google') {
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 150
+FILE_INDEX: 156
 PATH: frontend\next-app\lib\chatClient.ts
 LANG: typescript
 ===== CONTENT START =====
@@ -15978,7 +16408,7 @@ export async function streamChatFromApi(messages: ChatMessage[], options: Stream
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 151
+FILE_INDEX: 157
 PATH: frontend\next-app\lib\llmClient.ts
 LANG: typescript
 ===== CONTENT START =====
@@ -16130,7 +16560,7 @@ export const isLLMConfigured = () => Boolean(process.env.LLM_API_URL || process.
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 152
+FILE_INDEX: 158
 PATH: frontend\next-app\public\manifest.webmanifest
 LANG: text
 ===== CONTENT START =====
@@ -16159,7 +16589,7 @@ LANG: text
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 153
+FILE_INDEX: 159
 PATH: frontend\next-app\public\offline.html
 LANG: html
 ===== CONTENT START =====
@@ -16228,7 +16658,7 @@ LANG: html
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 154
+FILE_INDEX: 160
 PATH: frontend\next-app\public\service-worker.js
 LANG: javascript
 ===== CONTENT START =====
@@ -16307,7 +16737,7 @@ self.addEventListener('fetch', (event) => {
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 155
+FILE_INDEX: 161
 PATH: frontend\next-app\__tests__\chat-client.test.ts
 LANG: typescript
 ===== CONTENT START =====
@@ -16371,7 +16801,7 @@ describe('streamChatFromApi', () => {
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 156
+FILE_INDEX: 162
 PATH: frontend\next-app\__tests__\conversation-list.test.tsx
 LANG: tsx
 ===== CONTENT START =====
@@ -16445,7 +16875,7 @@ describe('ConversationList', () => {
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 157
+FILE_INDEX: 163
 PATH: frontend\parkmate\parkmate.types.ts
 LANG: typescript
 ===== CONTENT START =====
@@ -16499,7 +16929,374 @@ export const defaultParkMateConfig: ParkMateAI = {
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 158
+FILE_INDEX: 164
+PATH: k8s\beat-deployment.yaml
+LANG: yaml
+===== CONTENT START =====
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: parkshare-beat
+  labels:
+    app.kubernetes.io/name: parkshare
+    app.kubernetes.io/component: beat
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: parkshare
+      app.kubernetes.io/component: beat
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: parkshare
+        app.kubernetes.io/component: beat
+    spec:
+      containers:
+        - name: beat
+          image: parkshare/web:latest
+          imagePullPolicy: IfNotPresent
+          command: ["celery", "-A", "backend.backend.config", "beat", "-l", "info"]
+          envFrom:
+            - configMapRef:
+                name: parkshare-config
+            - secretRef:
+                name: parkshare-secrets
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "400m"
+              memory: "512Mi"
+          livenessProbe:
+            exec:
+              command: ["bash", "-c", "celery -A backend.backend.config inspect ping -d self"]
+            initialDelaySeconds: 30
+            periodSeconds: 120
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            allowPrivilegeEscalation: false
+
+===== CONTENT END =====
+===== FILE END =====
+
+===== FILE START =====
+FILE_INDEX: 165
+PATH: k8s\configmap.yaml
+LANG: yaml
+===== CONTENT START =====
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: parkshare-config
+  labels:
+    app.kubernetes.io/name: parkshare
+    app.kubernetes.io/component: web
+data:
+  DJANGO_SETTINGS_MODULE: backend.backend.settings.production
+  PLATFORM_MODE: RU
+  REGION_PROFILE: RU
+  ENABLE_METRICS: "true"
+  ENABLE_AB_VARIANTS: "true"
+  MAINTENANCE_MODE: "false"
+  REDIS_URL: redis://redis:6379/0
+  CELERY_BROKER_URL: redis://redis:6379/0
+  CELERY_RESULT_BACKEND: redis://redis:6379/0
+  # Используйте Vault/Secrets Manager для подстановки чувствительных значений.
+
+===== CONTENT END =====
+===== FILE END =====
+
+===== FILE START =====
+FILE_INDEX: 166
+PATH: k8s\hpa.yaml
+LANG: yaml
+===== CONTENT START =====
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: parkshare-web
+  labels:
+    app.kubernetes.io/name: parkshare
+    app.kubernetes.io/component: web
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: parkshare-web
+  minReplicas: 3
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 65
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: parkshare-worker
+  labels:
+    app.kubernetes.io/name: parkshare
+    app.kubernetes.io/component: worker
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: parkshare-worker
+  minReplicas: 2
+  maxReplicas: 8
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 120
+      policies:
+        - type: Percent
+          value: 50
+          periodSeconds: 60
+
+===== CONTENT END =====
+===== FILE END =====
+
+===== FILE START =====
+FILE_INDEX: 167
+PATH: k8s\ingress.yaml
+LANG: yaml
+===== CONTENT START =====
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: parkshare
+  labels:
+    app.kubernetes.io/name: parkshare
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
+spec:
+  rules:
+    - host: parkshare.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: parkshare-web
+                port:
+                  number: 80
+  tls:
+    - hosts:
+        - parkshare.example.com
+      secretName: parkshare-tls
+
+===== CONTENT END =====
+===== FILE END =====
+
+===== FILE START =====
+FILE_INDEX: 168
+PATH: k8s\secret-example.yaml
+LANG: yaml
+===== CONTENT START =====
+apiVersion: v1
+kind: Secret
+metadata:
+  name: parkshare-secrets
+  labels:
+    app.kubernetes.io/name: parkshare
+type: Opaque
+stringData:
+  SECRET_KEY: change-me
+  DATABASE_URL: postgres://user:pass@postgres:5432/parkshare
+  DATABASE_REPLICA_URL: ""
+  YOOKASSA_SHOP_ID: ""
+  YOOKASSA_SECRET_KEY: ""
+  STRIPE_SECRET_KEY: ""
+  STRIPE_WEBHOOK_SECRET: ""
+  LLM_API_KEY: ""
+  MAPBOX_TOKEN: ""
+  YANDEX_MAP_API_KEY: ""
+  SENTRY_DSN: ""
+
+===== CONTENT END =====
+===== FILE END =====
+
+===== FILE START =====
+FILE_INDEX: 169
+PATH: k8s\web-deployment.yaml
+LANG: yaml
+===== CONTENT START =====
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: parkshare-web
+  labels:
+    app.kubernetes.io/name: parkshare
+    app.kubernetes.io/component: web
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: parkshare
+      app.kubernetes.io/component: web
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: parkshare
+        app.kubernetes.io/component: web
+      annotations:
+        # При blue/green: создайте второй Deployment (parkshare-web-blue/green),
+        # переключите сервисом или Ingress аннотацией.
+        checksum/config: "{{ include \"configmap-hash\" . | default \"dev\" }}"
+    spec:
+      containers:
+        - name: web
+          image: parkshare/web:latest
+          imagePullPolicy: IfNotPresent
+          command: ["gunicorn", "backend.backend.config.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "4", "--timeout", "60"]
+          envFrom:
+            - configMapRef:
+                name: parkshare-config
+            - secretRef:
+                name: parkshare-secrets
+          ports:
+            - name: http
+              containerPort: 8000
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+            limits:
+              cpu: "1"
+              memory: "1Gi"
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            allowPrivilegeEscalation: false
+          volumeMounts:
+            - mountPath: /app/staticfiles
+              name: static-volume
+      volumes:
+        - name: static-volume
+          emptyDir: {}
+
+===== CONTENT END =====
+===== FILE END =====
+
+===== FILE START =====
+FILE_INDEX: 170
+PATH: k8s\web-service.yaml
+LANG: yaml
+===== CONTENT START =====
+apiVersion: v1
+kind: Service
+metadata:
+  name: parkshare-web
+  labels:
+    app.kubernetes.io/name: parkshare
+    app.kubernetes.io/component: web
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: parkshare
+    app.kubernetes.io/component: web
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8000
+
+===== CONTENT END =====
+===== FILE END =====
+
+===== FILE START =====
+FILE_INDEX: 171
+PATH: k8s\worker-deployment.yaml
+LANG: yaml
+===== CONTENT START =====
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: parkshare-worker
+  labels:
+    app.kubernetes.io/name: parkshare
+    app.kubernetes.io/component: worker
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: parkshare
+      app.kubernetes.io/component: worker
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: parkshare
+        app.kubernetes.io/component: worker
+    spec:
+      containers:
+        - name: worker
+          image: parkshare/web:latest
+          imagePullPolicy: IfNotPresent
+          command: ["celery", "-A", "backend.backend.config", "worker", "-l", "info"]
+          envFrom:
+            - configMapRef:
+                name: parkshare-config
+            - secretRef:
+                name: parkshare-secrets
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "256Mi"
+            limits:
+              cpu: "800m"
+              memory: "512Mi"
+          livenessProbe:
+            exec:
+              command: ["bash", "-c", "celery -A backend.backend.config inspect ping -d self"]
+            initialDelaySeconds: 30
+            periodSeconds: 60
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            allowPrivilegeEscalation: false
+
+===== CONTENT END =====
+===== FILE END =====
+
+===== FILE START =====
+FILE_INDEX: 172
 PATH: nginx\nginx.conf
 LANG: text
 ===== CONTENT START =====
@@ -16580,7 +17377,7 @@ http {
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 159
+FILE_INDEX: 173
 PATH: parking\__init__.py
 LANG: python
 ===== CONTENT START =====
@@ -16592,7 +17389,7 @@ default_app_config = "parking.apps.ParkingConfig"
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 160
+FILE_INDEX: 174
 PATH: parking\admin.py
 LANG: python
 ===== CONTENT START =====
@@ -16670,7 +17467,7 @@ class ComplaintAdmin(admin.ModelAdmin):
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 161
+FILE_INDEX: 175
 PATH: parking\apps.py
 LANG: python
 ===== CONTENT START =====
@@ -16688,7 +17485,7 @@ class ParkingConfig(AppConfig):
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 162
+FILE_INDEX: 176
 PATH: parking\models.py
 LANG: python
 ===== CONTENT START =====
@@ -17345,7 +18142,7 @@ class PushSubscription(TimeStampedModel):
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 163
+FILE_INDEX: 177
 PATH: parking\models_notification.py
 LANG: python
 ===== CONTENT START =====
@@ -17380,7 +18177,7 @@ class NotificationSettings(models.Model):
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 164
+FILE_INDEX: 178
 PATH: parking\push.py
 LANG: python
 ===== CONTENT START =====
@@ -17453,7 +18250,7 @@ def send_parking_notification(user, payload: dict, subscriptions: Optional[Itera
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 165
+FILE_INDEX: 179
 PATH: parking\serializers.py
 LANG: python
 ===== CONTENT START =====
@@ -17872,7 +18669,7 @@ class PushSubscriptionSerializer(serializers.ModelSerializer):
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 166
+FILE_INDEX: 180
 PATH: parking\tasks.py
 LANG: python
 ===== CONTENT START =====
@@ -17914,7 +18711,7 @@ def expire_unpaid_bookings() -> str:
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 167
+FILE_INDEX: 181
 PATH: parking\urls.py
 LANG: python
 ===== CONTENT START =====
@@ -17932,7 +18729,7 @@ urlpatterns: list = [
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 168
+FILE_INDEX: 182
 PATH: parking\views.py
 LANG: python
 ===== CONTENT START =====
@@ -18927,7 +19724,7 @@ class GeocodeAPIView(APIView):
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 169
+FILE_INDEX: 183
 PATH: parking\analytics\__init__.py
 LANG: python
 ===== CONTENT START =====
@@ -19017,7 +19814,7 @@ def compute_funnel(days: int = 7) -> Dict:
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 170
+FILE_INDEX: 184
 PATH: parking\management\commands\seed_demo_parking.py
 LANG: python
 ===== CONTENT START =====
@@ -19171,7 +19968,7 @@ class Command(BaseCommand):
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 171
+FILE_INDEX: 185
 PATH: parking\management\commands\send_expiry_notifications.py
 LANG: python
 ===== CONTENT START =====
@@ -19194,7 +19991,7 @@ class Command(BaseCommand):
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 172
+FILE_INDEX: 186
 PATH: parking\migrations\0001_initial.py
 LANG: python
 ===== CONTENT START =====
@@ -19341,7 +20138,7 @@ class Migration(migrations.Migration):
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 173
+FILE_INDEX: 187
 PATH: parking\migrations\0002_parkinglot_stress_index_parkingspot_occupancy_7d.py
 LANG: python
 ===== CONTENT START =====
@@ -19373,7 +20170,7 @@ class Migration(migrations.Migration):
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 174
+FILE_INDEX: 188
 PATH: parking\migrations\0003_booking_ai_fields.py
 LANG: python
 ===== CONTENT START =====
@@ -19402,7 +20199,7 @@ class Migration(migrations.Migration):
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 175
+FILE_INDEX: 189
 PATH: parking\migrations\0004_favoriteparkingspot_savedplace.py
 LANG: python
 ===== CONTENT START =====
@@ -19460,7 +20257,7 @@ class Migration(migrations.Migration):
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 176
+FILE_INDEX: 190
 PATH: parking\migrations\0005_pushsubscription.py
 LANG: python
 ===== CONTENT START =====
@@ -19529,7 +20326,7 @@ class Migration(migrations.Migration):
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 177
+FILE_INDEX: 191
 PATH: parking\migrations\0006_booking_billing_mode.py
 LANG: python
 ===== CONTENT START =====
@@ -19563,7 +20360,7 @@ class Migration(migrations.Migration):
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 178
+FILE_INDEX: 192
 PATH: parking\migrations\0007_notificationsettings.py
 LANG: python
 ===== CONTENT START =====
@@ -19599,7 +20396,7 @@ class Migration(migrations.Migration):
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 179
+FILE_INDEX: 193
 PATH: parking\migrations\0008_indexes.py
 LANG: python
 ===== CONTENT START =====
@@ -19635,7 +20432,50 @@ class Migration(migrations.Migration):
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 180
+FILE_INDEX: 194
+PATH: parking\migrations\0009_remove_booking_booking_time_idx_and_more.py
+LANG: python
+===== CONTENT START =====
+# Generated by Django 5.2.8 on 2025-12-07 13:45
+
+from django.db import migrations, models
+
+
+class Migration(migrations.Migration):
+
+    dependencies = [
+        ('parking', '0008_indexes'),
+    ]
+
+    operations = [
+        migrations.RemoveIndex(
+            model_name='booking',
+            name='booking_time_idx',
+        ),
+        migrations.RemoveIndex(
+            model_name='booking',
+            name='booking_billing_mode_idx',
+        ),
+        migrations.RemoveIndex(
+            model_name='parkinglot',
+            name='parkinglot_city_idx',
+        ),
+        migrations.RemoveIndex(
+            model_name='parkingspot',
+            name='spot_status_ev_cov_idx',
+        ),
+        migrations.AlterField(
+            model_name='notificationsettings',
+            name='id',
+            field=models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID'),
+        ),
+    ]
+
+===== CONTENT END =====
+===== FILE END =====
+
+===== FILE START =====
+FILE_INDEX: 195
 PATH: parking\migrations\__init__.py
 LANG: python
 ===== CONTENT START =====
@@ -19644,7 +20484,7 @@ LANG: python
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 181
+FILE_INDEX: 196
 PATH: parking\notifications\__init__.py
 LANG: python
 ===== CONTENT START =====
@@ -19723,7 +20563,7 @@ def night_restriction_stub() -> None:
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 182
+FILE_INDEX: 197
 PATH: parking\tests\__init__.py
 LANG: python
 ===== CONTENT START =====
@@ -19732,7 +20572,7 @@ LANG: python
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 183
+FILE_INDEX: 198
 PATH: parking\tests\test_pwa_endpoints.py
 LANG: python
 ===== CONTENT START =====
@@ -19781,7 +20621,7 @@ class PushSubscriptionAPITest(TestCase):
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 184
+FILE_INDEX: 199
 PATH: payments\__init__.py
 LANG: python
 ===== CONTENT START =====
@@ -19791,7 +20631,7 @@ default_app_config = "payments.apps.PaymentsConfig"
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 185
+FILE_INDEX: 200
 PATH: payments\admin.py
 LANG: python
 ===== CONTENT START =====
@@ -19829,7 +20669,7 @@ class PaymentAdmin(admin.ModelAdmin):
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 186
+FILE_INDEX: 201
 PATH: payments\apps.py
 LANG: python
 ===== CONTENT START =====
@@ -19845,7 +20685,7 @@ class PaymentsConfig(AppConfig):
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 187
+FILE_INDEX: 202
 PATH: payments\models.py
 LANG: python
 ===== CONTENT START =====
@@ -20086,7 +20926,7 @@ class PaymentMethod(TimeStampedModel):
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 188
+FILE_INDEX: 203
 PATH: payments\providers.py
 LANG: python
 ===== CONTENT START =====
@@ -20203,7 +21043,7 @@ def create_yookassa_payment(booking) -> Tuple[str, str, dict[str, Any]]:
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 189
+FILE_INDEX: 204
 PATH: payments\serializers.py
 LANG: python
 ===== CONTENT START =====
@@ -20386,7 +21226,7 @@ class PaymentMethodSerializer(serializers.ModelSerializer):
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 190
+FILE_INDEX: 205
 PATH: payments\tasks.py
 LANG: python
 ===== CONTENT START =====
@@ -20414,7 +21254,7 @@ def check_stale_payments() -> str:
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 191
+FILE_INDEX: 206
 PATH: payments\views.py
 LANG: python
 ===== CONTENT START =====
@@ -20596,7 +21436,7 @@ class StripeWebhookView(APIView):
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 192
+FILE_INDEX: 207
 PATH: payments\migrations\0001_initial.py
 LANG: python
 ===== CONTENT START =====
@@ -20647,7 +21487,7 @@ class Migration(migrations.Migration):
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 193
+FILE_INDEX: 208
 PATH: payments\migrations\0002_alter_payment_provider.py
 LANG: python
 ===== CONTENT START =====
@@ -20674,7 +21514,7 @@ class Migration(migrations.Migration):
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 194
+FILE_INDEX: 209
 PATH: payments\migrations\0003_paymentmethod.py
 LANG: python
 ===== CONTENT START =====
@@ -20718,7 +21558,7 @@ class Migration(migrations.Migration):
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 195
+FILE_INDEX: 210
 PATH: payments\migrations\__init__.py
 LANG: python
 ===== CONTENT START =====
@@ -20727,7 +21567,7 @@ LANG: python
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 196
+FILE_INDEX: 211
 PATH: payments\providers\__init__.py
 LANG: python
 ===== CONTENT START =====
@@ -20784,7 +21624,7 @@ def get_payment_provider(name: str | None = None) -> BasePaymentProvider:
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 197
+FILE_INDEX: 212
 PATH: payments\providers\base.py
 LANG: python
 ===== CONTENT START =====
@@ -20853,7 +21693,7 @@ PaymentProvider = BasePaymentProvider
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 198
+FILE_INDEX: 213
 PATH: payments\providers\registry.py
 LANG: python
 ===== CONTENT START =====
@@ -20883,7 +21723,7 @@ def get_payment_provider(provider_key: str) -> PaymentProvider:
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 199
+FILE_INDEX: 214
 PATH: payments\providers\stripe.py
 LANG: python
 ===== CONTENT START =====
@@ -20952,7 +21792,7 @@ class StripeProvider(PaymentProvider):
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 200
+FILE_INDEX: 215
 PATH: payments\providers\yookassa.py
 LANG: python
 ===== CONTENT START =====
@@ -21102,7 +21942,7 @@ class YooKassaProvider(PaymentProvider):
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 201
+FILE_INDEX: 216
 PATH: regions\global.yml
 LANG: yaml
 ===== CONTENT START =====
@@ -21137,7 +21977,7 @@ auth:
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 202
+FILE_INDEX: 217
 PATH: regions\ru.yml
 LANG: yaml
 ===== CONTENT START =====
@@ -21177,7 +22017,7 @@ pricing:
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 203
+FILE_INDEX: 218
 PATH: services\__init__.py
 LANG: python
 ===== CONTENT START =====
@@ -21186,7 +22026,7 @@ LANG: python
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 204
+FILE_INDEX: 219
 PATH: services\llm.py
 LANG: python
 ===== CONTENT START =====
@@ -21383,7 +22223,7 @@ async def check_llm_health() -> Dict[str, Any]:
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 205
+FILE_INDEX: 220
 PATH: services\llm_service\Dockerfile
 LANG: text
 ===== CONTENT START =====
@@ -21405,7 +22245,7 @@ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8002"]
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 206
+FILE_INDEX: 221
 PATH: services\llm_service\main.py
 LANG: python
 ===== CONTENT START =====
@@ -21928,7 +22768,7 @@ if __name__ == "__main__":
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 207
+FILE_INDEX: 222
 PATH: services\llm_service\requirements.txt
 LANG: text
 ===== CONTENT START =====
@@ -21943,7 +22783,7 @@ python-dotenv==1.2.1
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 208
+FILE_INDEX: 223
 PATH: static\manifest.webmanifest
 LANG: text
 ===== CONTENT START =====
@@ -22010,7 +22850,7 @@ LANG: text
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 209
+FILE_INDEX: 224
 PATH: static\service-worker.js
 LANG: javascript
 ===== CONTENT START =====
@@ -22337,7 +23177,7 @@ async function trimCache(cacheName, maxEntries) {
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 210
+FILE_INDEX: 225
 PATH: static\css\app.css
 LANG: css
 ===== CONTENT START =====
@@ -24388,7 +25228,7 @@ a {
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 211
+FILE_INDEX: 226
 PATH: static\css\cinematic-ui.css
 LANG: css
 ===== CONTENT START =====
@@ -24560,7 +25400,7 @@ body[data-quantum-theme="light"] {
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 212
+FILE_INDEX: 227
 PATH: static\js\app.js
 LANG: javascript
 ===== CONTENT START =====
@@ -25406,7 +26246,7 @@ function initAdaptiveProbe() {
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 213
+FILE_INDEX: 228
 PATH: static\js\chat.js
 LANG: javascript
 ===== CONTENT START =====
@@ -25800,7 +26640,7 @@ LANG: javascript
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 214
+FILE_INDEX: 229
 PATH: static\js\map.js
 LANG: javascript
 ===== CONTENT START =====
@@ -26700,7 +27540,7 @@ function createBooking(spotId) {
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 215
+FILE_INDEX: 230
 PATH: static\js\parkmate-ai.ts
 LANG: typescript
 ===== CONTENT START =====
@@ -26887,7 +27727,7 @@ export async function fetchAvailabilityForecast(
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 216
+FILE_INDEX: 231
 PATH: static\js\quantum-theme-manager.js
 LANG: javascript
 ===== CONTENT START =====
@@ -26976,7 +27816,7 @@ window.initQuantumThemeManager = function initQuantumThemeManager() {
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 217
+FILE_INDEX: 232
 PATH: static\js\theme.js
 LANG: javascript
 ===== CONTENT START =====
@@ -27064,7 +27904,7 @@ LANG: javascript
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 218
+FILE_INDEX: 233
 PATH: static\pwa\api-client.js
 LANG: javascript
 ===== CONTENT START =====
@@ -27333,7 +28173,7 @@ async function cachedAiFetch(path, opts, cacheKey, ttlMs = 180000) {
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 219
+FILE_INDEX: 234
 PATH: static\pwa\app.js
 LANG: javascript
 ===== CONTENT START =====
@@ -27437,7 +28277,7 @@ document.addEventListener('DOMContentLoaded', init);
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 220
+FILE_INDEX: 235
 PATH: static\pwa\router.js
 LANG: javascript
 ===== CONTENT START =====
@@ -27492,7 +28332,7 @@ export function bindConnectionBanner() {
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 221
+FILE_INDEX: 236
 PATH: static\pwa\spots-view.js
 LANG: javascript
 ===== CONTENT START =====
@@ -27604,7 +28444,7 @@ function getAiScore(spotId) {
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 222
+FILE_INDEX: 237
 PATH: static\pwa\state-store.js
 LANG: javascript
 ===== CONTENT START =====
@@ -27783,7 +28623,7 @@ export function setPushOptIn(optIn) {
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 223
+FILE_INDEX: 238
 PATH: static\pwa\ui-kit.js
 LANG: javascript
 ===== CONTENT START =====
@@ -27898,7 +28738,7 @@ export function initConnectionBadge() {
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 224
+FILE_INDEX: 239
 PATH: templates\base.html
 LANG: html
 ===== CONTENT START =====
@@ -28089,7 +28929,7 @@ LANG: html
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 225
+FILE_INDEX: 240
 PATH: templates\offline.html
 LANG: html
 ===== CONTENT START =====
@@ -28140,7 +28980,7 @@ LANG: html
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 226
+FILE_INDEX: 241
 PATH: templates\accounts\login.html
 LANG: html
 ===== CONTENT START =====
@@ -28255,7 +29095,7 @@ LANG: html
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 227
+FILE_INDEX: 242
 PATH: templates\accounts\password_change.html
 LANG: html
 ===== CONTENT START =====
@@ -28308,7 +29148,7 @@ LANG: html
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 228
+FILE_INDEX: 243
 PATH: templates\accounts\password_change_done.html
 LANG: html
 ===== CONTENT START =====
@@ -28334,7 +29174,7 @@ LANG: html
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 229
+FILE_INDEX: 244
 PATH: templates\accounts\password_reset.html
 LANG: html
 ===== CONTENT START =====
@@ -28390,7 +29230,7 @@ LANG: html
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 230
+FILE_INDEX: 245
 PATH: templates\accounts\password_reset_complete.html
 LANG: html
 ===== CONTENT START =====
@@ -28416,7 +29256,7 @@ LANG: html
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 231
+FILE_INDEX: 246
 PATH: templates\accounts\password_reset_confirm.html
 LANG: html
 ===== CONTENT START =====
@@ -28482,7 +29322,7 @@ LANG: html
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 232
+FILE_INDEX: 247
 PATH: templates\accounts\password_reset_done.html
 LANG: html
 ===== CONTENT START =====
@@ -28509,7 +29349,7 @@ LANG: html
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 233
+FILE_INDEX: 248
 PATH: templates\accounts\password_reset_email.txt
 LANG: text
 ===== CONTENT START =====
@@ -28526,7 +29366,7 @@ LANG: text
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 234
+FILE_INDEX: 249
 PATH: templates\accounts\password_reset_subject.txt
 LANG: text
 ===== CONTENT START =====
@@ -28536,7 +29376,7 @@ LANG: text
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 235
+FILE_INDEX: 250
 PATH: templates\accounts\profile.html
 LANG: html
 ===== CONTENT START =====
@@ -28595,7 +29435,7 @@ LANG: html
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 236
+FILE_INDEX: 251
 PATH: templates\accounts\register.html
 LANG: html
 ===== CONTENT START =====
@@ -28661,7 +29501,7 @@ LANG: html
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 237
+FILE_INDEX: 252
 PATH: templates\admin\metrics.html
 LANG: html
 ===== CONTENT START =====
@@ -28729,7 +29569,7 @@ LANG: html
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 238
+FILE_INDEX: 253
 PATH: templates\ai\concierge.html
 LANG: html
 ===== CONTENT START =====
@@ -28818,7 +29658,7 @@ LANG: html
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 239
+FILE_INDEX: 254
 PATH: templates\parking\booking_confirm.html
 LANG: html
 ===== CONTENT START =====
@@ -28958,7 +29798,7 @@ LANG: html
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 240
+FILE_INDEX: 255
 PATH: templates\parking\business_reports.html
 LANG: html
 ===== CONTENT START =====
@@ -29037,7 +29877,7 @@ LANG: html
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 241
+FILE_INDEX: 256
 PATH: templates\parking\landing.html
 LANG: html
 ===== CONTENT START =====
@@ -29218,7 +30058,7 @@ LANG: html
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 242
+FILE_INDEX: 257
 PATH: templates\parking\map_fullscreen.html
 LANG: html
 ===== CONTENT START =====
@@ -29359,7 +30199,7 @@ LANG: html
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 243
+FILE_INDEX: 258
 PATH: templates\parking\owner_dashboard.html
 LANG: html
 ===== CONTENT START =====
@@ -29484,7 +30324,7 @@ LANG: html
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 244
+FILE_INDEX: 259
 PATH: templates\parking\payment_methods.html
 LANG: html
 ===== CONTENT START =====
@@ -29567,7 +30407,7 @@ LANG: html
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 245
+FILE_INDEX: 260
 PATH: templates\parking\profile_settings.html
 LANG: html
 ===== CONTENT START =====
@@ -29640,7 +30480,7 @@ LANG: html
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 246
+FILE_INDEX: 261
 PATH: templates\parking\promo_activate.html
 LANG: html
 ===== CONTENT START =====
@@ -29683,7 +30523,7 @@ LANG: html
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 247
+FILE_INDEX: 262
 PATH: templates\parking\pwa_install.html
 LANG: html
 ===== CONTENT START =====
@@ -29737,7 +30577,7 @@ LANG: html
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 248
+FILE_INDEX: 263
 PATH: templates\parking\user_dashboard.html
 LANG: html
 ===== CONTENT START =====
@@ -29901,7 +30741,7 @@ LANG: html
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 249
+FILE_INDEX: 264
 PATH: vehicles\__init__.py
 LANG: python
 ===== CONTENT START =====
@@ -29910,7 +30750,7 @@ LANG: python
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 250
+FILE_INDEX: 265
 PATH: vehicles\admin.py
 LANG: python
 ===== CONTENT START =====
@@ -29939,7 +30779,7 @@ class VehicleAdmin(admin.ModelAdmin):
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 251
+FILE_INDEX: 266
 PATH: vehicles\apps.py
 LANG: python
 ===== CONTENT START =====
@@ -29957,7 +30797,7 @@ class VehiclesConfig(AppConfig):
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 252
+FILE_INDEX: 267
 PATH: vehicles\models.py
 LANG: python
 ===== CONTENT START =====
@@ -30025,7 +30865,7 @@ class Vehicle(TimeStampedModel):
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 253
+FILE_INDEX: 268
 PATH: vehicles\serializers.py
 LANG: python
 ===== CONTENT START =====
@@ -30101,7 +30941,7 @@ class VehicleSerializer(serializers.ModelSerializer):
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 254
+FILE_INDEX: 269
 PATH: vehicles\urls.py
 LANG: python
 ===== CONTENT START =====
@@ -30128,7 +30968,7 @@ urlpatterns = [
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 255
+FILE_INDEX: 270
 PATH: vehicles\views.py
 LANG: python
 ===== CONTENT START =====
@@ -30168,7 +31008,7 @@ class VehicleViewSet(viewsets.ModelViewSet):
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 256
+FILE_INDEX: 271
 PATH: vehicles\migrations\0001_initial.py
 LANG: python
 ===== CONTENT START =====
@@ -30213,7 +31053,7 @@ class Migration(migrations.Migration):
 ===== FILE END =====
 
 ===== FILE START =====
-FILE_INDEX: 257
+FILE_INDEX: 272
 PATH: vehicles\migrations\__init__.py
 LANG: python
 ===== CONTENT START =====

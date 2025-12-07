@@ -2,10 +2,12 @@
 
 import hashlib
 import math
+from contextlib import contextmanager
 from decimal import Decimal, ROUND_HALF_UP
 from typing import Optional
 
 from django.conf import settings
+from django.db import connections
 
 
 def hash_plate_digits(plate: str) -> str:
@@ -123,3 +125,31 @@ def round_price(value: float | Decimal, step: float = 10.0) -> float:
     scaled = (v / step_dec).quantize(Decimal("1"), rounding=ROUND_HALF_UP)
     result = scaled * step_dec
     return float(result)
+
+
+# ---------------------------------------------------------------------------
+# Read-replica helpers
+# ---------------------------------------------------------------------------
+
+
+def read_db_alias() -> str:
+    """Return replica alias if configured, otherwise default."""
+    return "replica" if "replica" in settings.DATABASES else "default"
+
+
+def read_replica_queryset(queryset):
+    """Route queryset to replica when available; no-op otherwise."""
+    alias = read_db_alias()
+    try:
+        return queryset.using(alias)
+    except Exception:
+        return queryset
+
+
+@contextmanager
+def read_replica_cursor():
+    """Context manager yielding a cursor on the replica (or default)."""
+    alias = read_db_alias()
+    conn = connections[alias]
+    with conn.cursor() as cursor:
+        yield cursor

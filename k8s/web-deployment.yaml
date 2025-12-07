@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: parkshare-web
+  labels:
+    app.kubernetes.io/name: parkshare
+    app.kubernetes.io/component: web
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: parkshare
+      app.kubernetes.io/component: web
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: parkshare
+        app.kubernetes.io/component: web
+      annotations:
+        # При blue/green: создайте второй Deployment (parkshare-web-blue/green),
+        # переключите сервисом или Ingress аннотацией.
+        checksum/config: "{{ include \"configmap-hash\" . | default \"dev\" }}"
+    spec:
+      containers:
+        - name: web
+          image: parkshare/web:latest
+          imagePullPolicy: IfNotPresent
+          command: ["gunicorn", "backend.backend.config.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "4", "--timeout", "60"]
+          envFrom:
+            - configMapRef:
+                name: parkshare-config
+            - secretRef:
+                name: parkshare-secrets
+          ports:
+            - name: http
+              containerPort: 8000
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+            limits:
+              cpu: "1"
+              memory: "1Gi"
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            allowPrivilegeEscalation: false
+          volumeMounts:
+            - mountPath: /app/staticfiles
+              name: static-volume
+      volumes:
+        - name: static-volume
+          emptyDir: {}

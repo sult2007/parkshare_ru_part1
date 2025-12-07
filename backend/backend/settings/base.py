@@ -140,6 +140,18 @@ DATABASES = {
 if DATABASES["default"]["ENGINE"] == "django.db.backends.postgresql":
     DATABASES["default"]["ENGINE"] = "django.contrib.gis.db.backends.postgis"
 
+# Опциональный read-replica для разгрузки чтения (RDS read replicas и т.п.).
+DATABASE_REPLICA_URL = env("DATABASE_REPLICA_URL", default="")
+if DATABASE_REPLICA_URL:
+    DATABASES["replica"] = env.db("DATABASE_REPLICA_URL")
+    if DATABASES["replica"]["ENGINE"] == "django.db.backends.postgresql":
+        DATABASES["replica"]["ENGINE"] = "django.contrib.gis.db.backends.postgis"
+
+# DB router отправляет чтение в реплику, если она настроена.
+DATABASE_ROUTERS = (
+    ["core.db_router.ReadReplicaRouter"] if "replica" in DATABASES else []
+)
+
 # ---------------------------------------------------------------------------
 # Пользователь / аутентификация
 # ---------------------------------------------------------------------------
