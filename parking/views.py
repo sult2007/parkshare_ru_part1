@@ -15,6 +15,7 @@ from django.utils import timezone
 from django.http import HttpResponse
 from rest_framework import permissions, status, viewsets
 from rest_framework.response import Response
+from rest_framework.throttling import UserRateThrottle, AnonRateThrottle
 
 from core.permissions import IsAdminOrReadOnly
 from core.utils import haversine_distance_km, parse_float
@@ -837,6 +838,7 @@ class ParkingMapAPIView(APIView):
     """
 
     permission_classes = [AllowAny]
+    throttle_classes = [UserRateThrottle, AnonRateThrottle]
 
     def get(self, request, *args, **kwargs):
         params = request.query_params

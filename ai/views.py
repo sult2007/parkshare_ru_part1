@@ -10,7 +10,8 @@ from asgiref.sync import async_to_sync
 from django.http import StreamingHttpResponse
 from django.utils import timezone
 from rest_framework import status
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
+from rest_framework.throttling import UserRateThrottle, AnonRateThrottle
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -235,6 +236,7 @@ class ChatStreamAPIView(APIView):
     """
 
     permission_classes = [AllowAny]
+    throttle_classes = [UserRateThrottle, AnonRateThrottle]
 
     def post(self, request, *args, **kwargs):
         data = request.data or {}

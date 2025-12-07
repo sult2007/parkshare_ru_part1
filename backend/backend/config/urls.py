@@ -19,6 +19,7 @@ from parking import views as parking_views
 from payments import views as payments_api
 from vehicles import views as vehicles_api
 
+from backend.health import healthz, readyz
 router = routers.DefaultRouter()
 
 # Accounts / пользователи (только API)
@@ -83,6 +84,8 @@ def manifest(request):
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("healthz", healthz, name="healthz"),
+    path("readyz", readyz, name="readyz"),
 
     # PWA файлы
     path("service-worker.js", service_worker, name="service_worker"),

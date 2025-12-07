@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 from collections import defaultdict
 from django.utils import timezone
 from django.contrib.auth import get_user_model
+from django.core.cache import cache
 
 from ai.models import UiEvent, ChatSession
 from parking.models import Booking
@@ -20,26 +21,30 @@ def _daterange(days: int):
 
 
 def compute_funnel(days: int = 7):
+    cache_key = f"analytics:funnel:{days}"
+    cached = cache.get(cache_key)
+    if cached:
+        return cached
+
     start, end = _daterange(days)
     events = UiEvent.objects.filter(created_at__date__gte=start, created_at__date__lte=end)
     funnel = {"map_open": 0, "spot_select": 0, "booking_confirm_open": 0, "booking_created": 0, "repeat_visit": 0}
     assistant_sessions = 0
     variant_counts = {"A": defaultdict(int), "B": defaultdict(int)}
 
-    for ev in events:
+    for ev in events.select_related("device_profile__user"):
         etype = ev.event_type
         if etype in funnel:
             funnel[etype] += 1
             v = variant_for_user(ev.device_profile.user) if ev.device_profile and ev.device_profile.user else "A"
             variant_counts[v][etype] += 1
 
-    bookings = Booking.objects.filter(start_at__date__gte=start, start_at__date__lte=end)
+    bookings = Booking.objects.filter(start_at__date__gte=start, start_at__date__lte=end).select_related("user")
     funnel["booking_created"] = bookings.count()
     for b in bookings:
         v = variant_for_user(b.user)
         variant_counts[v]["booking_created"] += 1
 
-    # repeat visits: users with >1 booking in range
     repeat_users = [u for u in set(bookings.values_list("user", flat=True)) if bookings.filter(user_id=u).count() > 1]
     funnel["repeat_visit"] = len(repeat_users)
     for uid in repeat_users:
@@ -58,10 +63,12 @@ def compute_funnel(days: int = 7):
         "confirm_to_booking": pct(funnel["booking_created"], funnel["booking_confirm_open"]),
     }
 
-    return {
+    payload = {
         "range": {"start": start, "end": end},
         "funnel": funnel,
         "conversions": conversions,
         "assistant_sessions": assistant_sessions,
         "variants": variant_counts,
     }
+    cache.set(cache_key, payload, 300)  # 5 minutes cache
+    return payload
