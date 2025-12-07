@@ -297,13 +297,14 @@
         const sheet = qs("[data-spots-sheet]") || qs("[data-spots-panel]");
         if (!sheet) return;
         const handle = qs("[data-sheet-handle]", sheet) || qs(".ps-bottom-sheet__handle", sheet);
+        const backBtn = qs("[data-sheet-back]", sheet);
+        const body = qs(".ps-bottom-sheet__body", sheet);
         let currentState = sheet.getAttribute("data-sheet-state") || "collapsed";
         let startY = 0;
         let startShift = 0;
-        let baseHeight = Math.min(window.innerHeight * 0.82, 760);
+        let baseHeight = 0;
         let activePointerId = null;
         const STATE_ORDER = ["collapsed", "half", "full"];
-        const COLLAPSED_HEIGHT = 72;
 
         function clamp(val, min, max) {
             return Math.max(min, Math.min(max, val));
@@ -313,29 +314,34 @@
             return isMobileWidth() && sheet.classList.contains("ps-bottom-sheet--floating");
         }
 
-        function computeBaseHeight() {
-            const viewportH = (window.visualViewport && window.visualViewport.height) || window.innerHeight;
-            return Math.min(Math.max(viewportH * 0.82, 400), 780);
+        function viewportHeight() {
+            const vv = window.visualViewport;
+            return vv ? vv.height : window.innerHeight;
+        }
+
+        function safeBottom() {
+            const vv = window.visualViewport;
+            if (!vv) return 0;
+            return Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+        }
+
+        function topOffset() {
+            const fromCss = parseInt(getComputedStyle(document.documentElement).getPropertyValue("--ps-topbar-height"), 10) || 68;
+            return Math.min(Math.max(fromCss + 8, 58), 110);
         }
 
         function apply(state, opts) {
-            currentState = state === "peek" ? "collapsed" : state;
+            currentState = STATE_ORDER.indexOf(state) >= 0 ? state : "collapsed";
             sheet.setAttribute("data-sheet-state", currentState);
             if (!isFloating()) {
                 sheet.style.removeProperty("--ps-sheet-shift");
                 sheet.style.removeProperty("height");
                 return;
             }
-            baseHeight = computeBaseHeight();
-            const rounded = Math.round(baseHeight);
-            sheet.style.height = rounded + "px";
-            sheet.style.setProperty("--ps-sheet-height", rounded + "px");
-            let collapsed = COLLAPSED_HEIGHT;
-            if ((window.visualViewport && window.visualViewport.height <= 440) || window.innerHeight <= 440) {
-                collapsed = 60;
-            }
-            const rawShift = currentState === "full" ? 0 : currentState === "half" ? baseHeight * 0.45 : baseHeight - collapsed;
-            const shift = clamp(rawShift, 0, baseHeight - 48);
+            const collapsed = parseFloat(getComputedStyle(sheet).getPropertyValue("--ps-sheet-collapsed")) || 86;
+            const rawShift = currentState === "full" ? 0 : currentState === "half" ? baseHeight * 0.46 : baseHeight - collapsed;
+            const shift = clamp(rawShift, 0, Math.max(baseHeight - 40, 0));
+            sheet.style.height = baseHeight + "px";
             sheet.style.setProperty("--ps-sheet-shift", shift + "px");
             if (opts && opts.immediate) {
                 sheet.style.transition = "none";
@@ -343,6 +349,18 @@
                     sheet.style.transition = "";
                 });
             }
+        }
+
+        function recalc(opts) {
+            const vh = viewportHeight();
+            const collapsed = Math.round(Math.min(Math.max(vh * 0.17, 62), 110));
+            baseHeight = Math.round(Math.min(Math.max(vh * 0.9, 420), Math.max(vh - 32, 420)));
+            sheet.style.setProperty("--ps-viewport-height", vh + "px");
+            sheet.style.setProperty("--ps-safe-area-bottom", safeBottom() + "px");
+            sheet.style.setProperty("--ps-sheet-collapsed", collapsed + "px");
+            sheet.style.setProperty("--ps-sheet-height", baseHeight + "px");
+            sheet.style.setProperty("--ps-sheet-top-offset", topOffset() + "px");
+            apply(currentState, { immediate: opts && opts.immediate });
         }
 
         function releasePointer(id) {
@@ -355,6 +373,7 @@
 
         function gestureStart(evt) {
             if (!isFloating()) return;
+            if (!baseHeight) recalc({ immediate: true });
             activePointerId = evt.pointerId;
             startY = evt.clientY;
             startShift = parseFloat(getComputedStyle(sheet).getPropertyValue("--ps-sheet-shift")) || baseHeight * 0.6;
@@ -370,7 +389,7 @@
         function gestureMove(evt) {
             if (!isFloating() || evt.pointerId !== activePointerId) return;
             const delta = evt.clientY - startY;
-            const nextShift = clamp(startShift + delta, 8, baseHeight - 64);
+            const nextShift = clamp(startShift + delta, 8, Math.max(baseHeight - 56, 120));
             sheet.style.setProperty("--ps-sheet-shift", nextShift + "px");
         }
 
@@ -404,9 +423,22 @@
             });
         }
 
+        if (backBtn) {
+            backBtn.addEventListener("click", function () {
+                if (!isFloating()) return;
+                apply(currentState === "full" ? "half" : "collapsed");
+            });
+        }
+
         window.addEventListener("resize", function () {
-            apply(currentState, { immediate: true });
+            recalc({ immediate: true });
         });
+
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener("resize", function () {
+                recalc({ immediate: true });
+            });
+        }
 
         document.addEventListener("ps:spot-selection", function () {
             if (!isFloating()) return;
@@ -415,9 +447,12 @@
             } else if (currentState === "half") {
                 apply("half");
             }
+            if (body) {
+                body.scrollTo({ top: 0, behavior: "smooth" });
+            }
         });
 
-        apply(currentState, { immediate: true });
+        recalc({ immediate: true });
     }
 
 // ---------- Adaptive AI probe ----------

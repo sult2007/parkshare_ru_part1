@@ -5,7 +5,7 @@ describe('SocialLoginButtons', () => {
   it('renders provider buttons', () => {
     render(<SocialLoginButtons />);
     expect(screen.getByText(/Sign in with Google/i)).toBeInTheDocument();
-    expect(screen.getByText(/Continue with VK/i)).toBeInTheDocument();
-    expect(screen.getByText(/Yandex ID/i)).toBeInTheDocument();
+    expect(screen.getByText(/Войти через VK ID/i)).toBeInTheDocument();
+    expect(screen.getByText(/Войти через Яндекс ID/i)).toBeInTheDocument();
   });
 });

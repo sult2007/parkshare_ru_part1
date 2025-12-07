@@ -107,6 +107,12 @@ class User(AbstractUser):
         null=True,
         help_text=_("Используется для инвалидирования сессий и JWT."),
     )
+    last_mfa_change = models.DateTimeField(
+        _("Последнее изменение MFA"),
+        blank=True,
+        null=True,
+        help_text=_("Используется для инвалидирования сессий и токенов после изменения MFA."),
+    )
 
     REQUIRED_FIELDS: list[str] = []
 

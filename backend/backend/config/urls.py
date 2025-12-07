@@ -21,6 +21,8 @@ from payments import views as payments_api
 from vehicles import views as vehicles_api
 
 from ..health import healthz, readyz
+
+ENABLE_LABS = getattr(settings, "ENABLE_LAB_ENDPOINTS", False)
 router = routers.DefaultRouter()
 
 router.register(r"accounts/users", accounts_api.UserViewSet, basename="user")
@@ -48,6 +50,32 @@ router.register(
 router.register(
     r"payments/methods", payments_api.PaymentMethodViewSet, basename="payment-method-nested"
 )
+
+api_v1_patterns = [
+    path("", include(router.urls)),
+    path("search/", parking_views.ParkingSearchAPIView.as_view(), name="v1_search"),
+    path("details/<uuid:spot_id>/", parking_views.ParkingDetailsAPIView.as_view(), name="v1_details"),
+    path("booking/start/", parking_views.BookingStartAPIView.as_view(), name="v1_booking_start"),
+    path("booking/extend/", parking_views.BookingExtendAPIView.as_view(), name="v1_booking_extend"),
+    path("booking/stop/", parking_views.BookingStopAPIView.as_view(), name="v1_booking_stop"),
+    path("booking/active/", parking_views.ActiveBookingAPIView.as_view(), name="v1_booking_active"),
+    path("assistant/chat/", ai_api.ChatStreamAPIView.as_view(), name="v1_assistant_chat"),
+    path("auth/token/", accounts_api.TokenObtainPairView.as_view(), name="v1_token_obtain_pair"),
+    path("auth/token/refresh/", accounts_api.TokenRefreshSlidingView.as_view(), name="v1_token_refresh"),
+    path("auth/register/", accounts_api.UserViewSet.as_view({"post": "register"}), name="v1_auth_register"),
+    path("auth/login/", accounts_api.UserViewSet.as_view({"post": "login"}), name="v1_auth_login"),
+    path("auth/logout/", accounts_api.UserViewSet.as_view({"post": "logout"}), name="v1_auth_logout"),
+    path("auth/mfa/verify/", accounts_api.AuthMFAVerifyView.as_view(), name="v1_auth_mfa_verify"),
+    path("auth/mfa/setup/", accounts_api.AuthMFASetupView.as_view(), name="v1_auth_mfa_setup"),
+    path("auth/mfa/activate/", accounts_api.AuthMFAActivateView.as_view(), name="v1_auth_mfa_activate"),
+    path("auth/mfa/disable/", accounts_api.AuthMFADisableView.as_view(), name="v1_auth_mfa_disable"),
+    path("auth/otp/request/", accounts_api.AuthOTPRequestView.as_view(), name="v1_auth_otp_request"),
+    path("auth/otp/verify/", accounts_api.AuthOTPVerifyView.as_view(), name="v1_auth_otp_verify"),
+    path("ai/chat/", ai_api.ChatStreamAPIView.as_view(), name="v1_ai_chat_stream"),
+    path("ai/parkmate/config/", ai_api.ParkMateConfigAPIView.as_view(), name="v1_parkmate_config"),
+    path("parking/map/", parking_views.ParkingMapAPIView.as_view(), name="v1_parking_map"),
+    path("geocode/", parking_views.GeocodeAPIView.as_view(), name="v1_geocode"),
+]
 
 
 @never_cache
@@ -106,6 +134,7 @@ urlpatterns = [
     path("auth/oauth/<str:provider>/callback/", accounts_api.SocialOAuthCallbackView.as_view(), name="oauth_callback"),
 
     path("api/", include(router.urls)),
+    path("api/v1/", include((api_v1_patterns, "api_v1"), namespace="api_v1")),
 
     path(
         "api/auth/token/",
@@ -138,13 +167,6 @@ urlpatterns = [
         name="api-docs-redoc",
     ),
 
-    path("api/ai/recommendations/", ai_api.RecommendationsAPIView.as_view(), name="ai_recommendations"),
-    path("api/ai/stress-index/", ai_api.StressIndexAPIView.as_view(), name="ai_stress_index"),
-    path("api/ai/departure-assistant/", ai_api.DepartureAssistantAPIView.as_view(), name="ai_departure_assistant"),
-    path("api/ai/parkmate/config/", ai_api.ParkMateConfigAPIView.as_view(), name="parkmate_config"),
-    path("api/ai/parkmate/price-forecast/", ai_api.ParkMatePriceForecastAPIView.as_view(), name="parkmate_price_forecast"),
-    path("api/chat/", ai_api.ChatStreamAPIView.as_view(), name="ai_chat_stream"),
-    path("api/ai/llm/health/", ai_api.LLMServiceHealthAPIView.as_view(), name="ai_llm_health"),
     path("api/parking/map/", parking_views.ParkingMapAPIView.as_view(), name="parking_map"),
     path("api/geocode/", parking_views.GeocodeAPIView.as_view(), name="geocode"),
 
@@ -153,6 +175,17 @@ urlpatterns = [
 
     path("api-auth/", include("rest_framework.urls")),
 ]
+
+if ENABLE_LABS:
+    urlpatterns += [
+        path("api/ai/recommendations/", ai_api.RecommendationsAPIView.as_view(), name="ai_recommendations"),
+        path("api/ai/stress-index/", ai_api.StressIndexAPIView.as_view(), name="ai_stress_index"),
+        path("api/ai/departure-assistant/", ai_api.DepartureAssistantAPIView.as_view(), name="ai_departure_assistant"),
+        path("api/ai/parkmate/config/", ai_api.ParkMateConfigAPIView.as_view(), name="parkmate_config"),
+        path("api/ai/parkmate/price-forecast/", ai_api.ParkMatePriceForecastAPIView.as_view(), name="parkmate_price_forecast"),
+        path("api/chat/", ai_api.ChatStreamAPIView.as_view(), name="ai_chat_stream"),
+        path("api/ai/llm/health/", ai_api.LLMServiceHealthAPIView.as_view(), name="ai_llm_health"),
+    ]
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

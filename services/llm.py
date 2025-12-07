@@ -6,7 +6,10 @@ import logging
 import os
 from typing import Any, Dict, Iterable, List
 
-import httpx
+try:
+    import httpx
+except Exception:  # pragma: no cover - optional dependency
+    httpx = None  # type: ignore
 
 logger = logging.getLogger(__name__)
 
@@ -62,6 +65,8 @@ async def parse_search_query(query: str) -> Dict[str, Any]:
     """
     if not query or not query.strip():
         raise ValueError("query must be non-empty")
+    if httpx is None:
+        raise LLMClientError("LLM client is disabled: httpx is not installed")
 
     retries = int(os.getenv("LLM_CLIENT_RETRIES", DEFAULT_RETRIES))
     timeout_value = float(os.getenv("LLM_CLIENT_TIMEOUT", DEFAULT_TIMEOUT))
@@ -152,6 +157,9 @@ async def parse_search_query(query: str) -> Dict[str, Any]:
 
 async def check_llm_health() -> Dict[str, Any]:
     """Check health endpoints of the LLM service for diagnostics."""
+    if httpx is None:
+        return {"ok": False, "detail": "httpx not installed"}
+
     timeout_value = float(os.getenv("LLM_CLIENT_TIMEOUT", DEFAULT_TIMEOUT))
     timeout = httpx.Timeout(timeout_value, connect=CONNECT_TIMEOUT)
 

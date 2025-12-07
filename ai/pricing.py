@@ -3,11 +3,16 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-import joblib
 import numpy as np
 from django.conf import settings
 from django.utils import timezone
-from sklearn.ensemble import RandomForestRegressor
+
+try:  # optional heavy deps (sklearn/joblib) guarded for minimal envs
+    import joblib
+    from sklearn.ensemble import RandomForestRegressor
+except Exception:  # pragma: no cover - fallback when deps missing
+    joblib = None
+    RandomForestRegressor = None
 
 from core.utils import round_price
 from parking.models import ParkingSpot
@@ -20,6 +25,8 @@ def train_pricing_model(df=None) -> Optional[RandomForestRegressor]:
     """
     Обучает простую RandomForest-модель для оценки цены за час.
     """
+    if RandomForestRegressor is None or joblib is None:
+        return None
     if df is None:
         df = bookings_dataframe()
     if df.empty or len(df) < 20:
@@ -43,6 +50,8 @@ def train_pricing_model(df=None) -> Optional[RandomForestRegressor]:
 
 
 def load_pricing_model() -> Optional[RandomForestRegressor]:
+    if RandomForestRegressor is None or joblib is None:
+        return None
     if not MODEL_PATH.exists():
         return None
     try:

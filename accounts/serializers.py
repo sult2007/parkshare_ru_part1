@@ -130,12 +130,14 @@ class RegisterSerializer(serializers.Serializer):
     Регистрация через API.
     """
 
-    username = serializers.CharField(max_length=150)
+    username = serializers.CharField(max_length=150, required=False, allow_blank=True)
     password = serializers.CharField(write_only=True, min_length=8)
     email = serializers.EmailField(required=False, allow_blank=True)
     phone = serializers.CharField(required=False, allow_blank=True)
 
     def validate_username(self, value: str) -> str:
+        if not value:
+            return generate_username("user")
         if User.objects.filter(username=value).exists():
             raise serializers.ValidationError(
                 _("Пользователь с таким логином уже существует.")
@@ -174,8 +176,9 @@ class RegisterSerializer(serializers.Serializer):
     def create(self, validated_data: dict) -> User:
         email = validated_data.pop("email", "")
         phone = validated_data.pop("phone", "")
+        username = validated_data.get("username") or generate_username("user")
 
-        user = User(username=validated_data["username"])
+        user = User(username=username)
         user.set_password(validated_data["password"])
 
         if email:

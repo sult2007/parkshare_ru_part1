@@ -1,34 +1,19 @@
 import { ChatMessage } from './aiProvider';
+import { apiRequest, type AssistantResponse } from './apiClient';
 
 type StreamChatOptions = {
-  fetcher?: typeof fetch;
   onChunk?: (chunk: string) => void;
   signal?: AbortSignal;
 };
 
 export async function streamChatFromApi(messages: ChatMessage[], options: StreamChatOptions = {}) {
-  const fetcher = options.fetcher ?? fetch;
-  const response = await fetcher('/api/chat', {
+  const response = await apiRequest<AssistantResponse>('/assistant/chat/', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ messages, stream: true }),
+    body: { messages, structured: true },
     signal: options.signal
   });
-
-  if (!response.ok || !response.body) {
-    const errorText = await response.text();
-    throw new Error(errorText || 'Failed to reach chat API');
+  if (response.reply && options.onChunk) {
+    options.onChunk(response.reply);
   }
-
-  const reader = response.body.getReader();
-  const decoder = new TextDecoder();
-
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    const textChunk = decoder.decode(value, { stream: true });
-    options.onChunk?.(textChunk);
-  }
+  return response;
 }

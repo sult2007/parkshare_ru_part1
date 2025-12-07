@@ -72,6 +72,38 @@ def _issue_tokens(user: User) -> dict[str, str]:
     }
 
 
+def _set_token_cookies(response: Response, tokens: dict[str, str]) -> None:
+    """
+    Выставляет httpOnly‑cookie для access/refresh, чтобы фронт (Next/Django) мог рефрешить без локального хранилища.
+    """
+    access_ttl = int(getattr(settings, "AUTH_ACCESS_COOKIE_AGE", 300))
+    refresh_ttl = int(getattr(settings, "AUTH_REFRESH_COOKIE_AGE", 60 * 60 * 24 * 14))
+    secure = getattr(settings, "AUTH_COOKIE_SECURE", not settings.DEBUG)
+    response.set_cookie(
+        "ps_access",
+        tokens.get("access", ""),
+        max_age=access_ttl,
+        httponly=True,
+        secure=secure,
+        samesite="Lax",
+        path="/",
+    )
+    response.set_cookie(
+        "ps_refresh",
+        tokens.get("refresh", ""),
+        max_age=refresh_ttl,
+        httponly=True,
+        secure=secure,
+        samesite="Lax",
+        path="/",
+    )
+
+
+def _clear_token_cookies(response: Response) -> None:
+    response.delete_cookie("ps_access", path="/")
+    response.delete_cookie("ps_refresh", path="/")
+
+
 def _clear_pre_auth(session) -> None:
     for key in (
         "pre_auth_user_id",
@@ -90,7 +122,47 @@ def _finalize_auth(request: HttpRequest, user: User) -> dict[str, str]:
     """
     _clear_pre_auth(request.session)
     auth_login(request, user)
+    try:
+        request.session.cycle_key()
+    except Exception:
+        pass
+    if getattr(settings, "AUTH_ROTATE_SESSIONS_ON_LOGIN", True):
+        try:
+            invalidate_other_sessions(user, keep_session_key=request.session.session_key)
+        except Exception:
+            logger.warning("Failed to rotate user sessions", exc_info=True)
     return _issue_tokens(user)
+
+
+def _complete_login_response(
+    request: HttpRequest,
+    user: User,
+    payload: Optional[dict[str, Any]] = None,
+    status_code: int = status.HTTP_200_OK,
+) -> Response:
+    tokens = _finalize_auth(request, user)
+    data = {"user": UserProfileSerializer(user).data, **tokens}
+    if payload:
+        data.update(payload)
+    response = Response(data, status=status_code)
+    _set_token_cookies(response, tokens)
+    return response
+
+
+def _otp_satisfies_mfa(user: User, channel: str) -> bool:
+    """
+    Единое правило: SMS/email‑OTP засчитывается как фактор только если метод MFA совпадает с каналом
+    и MFA уже включена. TOTP всегда требует отдельного подтверждения.
+    """
+    if not getattr(user, "mfa_enabled", False):
+        return True
+    if user.mfa_method == User.MFAMethod.TOTP:
+        return False
+    if user.mfa_method == User.MFAMethod.SMS and channel == LoginCode.Channel.PHONE:
+        return True
+    if user.mfa_method == User.MFAMethod.EMAIL and channel == LoginCode.Channel.EMAIL:
+        return True
+    return False
 
 
 def _get_pre_auth_user(request: HttpRequest) -> Optional[User]:
@@ -324,7 +396,10 @@ class MFASettingsView(LoginRequiredMixin, View):
             is_valid = _verify_totp(user, code) if user.mfa_method == User.MFAMethod.TOTP else _verify_mfa_code(user, code)
             if is_valid:
                 user.mfa_enabled = True
-                user.save(update_fields=["mfa_enabled"])
+                user.last_mfa_change = timezone.now()
+                user.save(update_fields=["mfa_enabled", "last_mfa_change"])
+                invalidate_other_sessions(user, keep_session_key=request.session.session_key)
+                request.session.cycle_key()
                 request.session.pop("mfa_setup_secret", None)
                 status_msg = "MFA успешно включена."
             else:
@@ -333,7 +408,10 @@ class MFASettingsView(LoginRequiredMixin, View):
             user.mfa_enabled = False
             user.mfa_method = User.MFAMethod.NONE
             user.mfa_secret = None
-            user.save(update_fields=["mfa_enabled", "mfa_method", "mfa_secret"])
+            user.last_mfa_change = timezone.now()
+            user.save(update_fields=["mfa_enabled", "mfa_method", "mfa_secret", "last_mfa_change"])
+            invalidate_other_sessions(user, keep_session_key=request.session.session_key)
+            request.session.cycle_key()
             request.session.pop("mfa_setup_secret", None)
             status_msg = "MFA выключена."
 
@@ -443,7 +521,9 @@ class SecurePasswordChangeView(auth_views.PasswordChangeView):
 def logout_view(request: HttpRequest) -> HttpResponse:
     _clear_pre_auth(request.session)
     auth_logout(request)
-    return redirect("landing")
+    response = redirect("landing")
+    _clear_token_cookies(response)  # type: ignore[arg-type]
+    return response
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -500,9 +580,7 @@ class UserViewSet(viewsets.ModelViewSet):
         serializer = RegisterSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user: User = serializer.save()
-        auth_login(request, user)
-        data = UserProfileSerializer(user).data
-        return Response(data, status=status.HTTP_201_CREATED)
+        return _complete_login_response(request, user, status_code=status.HTTP_201_CREATED)
 
     @action(detail=False, methods=["post"], url_path="login")
     def login(self, request):
@@ -516,20 +594,19 @@ class UserViewSet(viewsets.ModelViewSet):
                 {
                     **challenge,
                     "detail": "Требуется подтверждение второго фактора.",
+                    "mfa_required": True,
                 },
                 status=status.HTTP_200_OK,
             )
 
-        auth_login(request, user)
-        data = UserProfileSerializer(user).data
-        return Response(data, status=status.HTTP_200_OK)
+        return _complete_login_response(request, user, status_code=status.HTTP_200_OK)
 
     @action(detail=False, methods=["post"], url_path="logout")
     def logout(self, request):
+        response = Response({"detail": "Вы вышли из системы."}, status=status.HTTP_200_OK)
+        _clear_token_cookies(response)
         auth_logout(request)
-        return Response(
-            {"detail": "Вы вышли из системы."}, status=status.HTTP_200_OK
-        )
+        return response
 
     @action(detail=False, methods=["post"], url_path="change-password")
     def change_password(self, request):
@@ -585,22 +662,29 @@ class TokenObtainPairView(APIView):
                 {
                     **challenge,
                     "detail": "MFA требуется перед выдачей токенов.",
+                    "mfa_required": True,
                 },
                 status=status.HTTP_200_OK,
             )
 
-        tokens = _issue_tokens(user)
-        return Response(
-            {
-                **tokens,
-                "user": UserProfileSerializer(user).data,
-            },
-            status=status.HTTP_200_OK,
-        )
+        return _complete_login_response(request, user, status_code=status.HTTP_200_OK)
 
 
 class TokenRefreshSlidingView(TokenRefreshView):
     permission_classes = [permissions.AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        refresh_cookie = request.COOKIES.get("ps_refresh")
+        if refresh_cookie and not request.data.get("refresh"):
+            try:
+                request.data._mutable = True  # type: ignore[attr-defined]
+            except Exception:
+                pass
+            request.data["refresh"] = refresh_cookie
+        response = super().post(request, *args, **kwargs)
+        if hasattr(response, "data") and isinstance(response.data, dict):
+            _set_token_cookies(response, response.data)
+        return response
 
 
 class AuthOTPRequestView(APIView):
@@ -757,20 +841,19 @@ class AuthOTPVerifyView(APIView):
         code_obj.status = "used"
         code_obj.save(update_fields=["is_used", "status", "attempts", "updated_at"])
 
-        if user.mfa_enabled and user.mfa_method != User.MFAMethod.NONE:
+        if user.mfa_enabled and not _otp_satisfies_mfa(user, channel):
             request.session["post_auth_redirect"] = request.data.get("next")
             challenge = _require_mfa(request, user, reason="otp_login")
             return Response(
                 {
                     **challenge,
                     "detail": "Необходим второй фактор (MFA).",
+                    "mfa_required": True,
                 },
                 status=status.HTTP_200_OK,
             )
 
-        auth_login(request, user)
-        tokens = _issue_tokens(user)
-        return Response(tokens, status=status.HTTP_200_OK)
+        return _complete_login_response(request, user, status_code=status.HTTP_200_OK)
 
 
 class AuthMFAVerifyView(APIView):
@@ -796,15 +879,10 @@ class AuthMFAVerifyView(APIView):
             return Response({"detail": "Неверный код MFA."}, status=status.HTTP_400_BAD_REQUEST)
 
         next_url = request.session.get("post_auth_redirect") or request.session.get("oauth_next")
-        tokens = _finalize_auth(request, user)
-        payload = {
-            "detail": "MFA подтверждена.",
-            "user": UserProfileSerializer(user).data,
-            **tokens,
-        }
+        extra = {"detail": "MFA подтверждена."}
         if next_url:
-            payload["next"] = next_url
-        return Response(payload, status=status.HTTP_200_OK)
+            extra["next"] = next_url
+        return _complete_login_response(request, user, payload=extra, status_code=status.HTTP_200_OK)
 
 
 class AuthMFASetupView(APIView):
@@ -878,7 +956,10 @@ class AuthMFAActivateView(APIView):
             return Response({"detail": "Код не подошёл."}, status=status.HTTP_400_BAD_REQUEST)
 
         user.mfa_enabled = True
-        user.save(update_fields=["mfa_enabled"])
+        user.last_mfa_change = timezone.now()
+        user.save(update_fields=["mfa_enabled", "last_mfa_change"])
+        invalidate_other_sessions(user, keep_session_key=request.session.session_key)
+        request.session.cycle_key()
         request.session.pop("mfa_setup_secret", None)
         return Response(
             {
@@ -901,7 +982,10 @@ class AuthMFADisableView(APIView):
         user.mfa_enabled = False
         user.mfa_method = User.MFAMethod.NONE
         user.mfa_secret = None
-        user.save(update_fields=["mfa_enabled", "mfa_method", "mfa_secret"])
+        user.last_mfa_change = timezone.now()
+        user.save(update_fields=["mfa_enabled", "mfa_method", "mfa_secret", "last_mfa_change"])
+        invalidate_other_sessions(user, keep_session_key=request.session.session_key)
+        request.session.cycle_key()
         _clear_pre_auth(request.session)
         return Response({"detail": "MFA отключена."}, status=status.HTTP_200_OK)
 
@@ -971,25 +1055,34 @@ class SocialOAuthCallbackView(APIView):
         social_account.save()
 
         next_url = request.session.get("oauth_next") or request.GET.get("next")
+        expects_json = "application/json" in (request.headers.get("Accept") or "").lower()
 
         if user.mfa_enabled and user.mfa_method != User.MFAMethod.NONE:
             request.session["post_auth_redirect"] = next_url
-            _require_mfa(request, user, reason="oauth")
+            challenge = _require_mfa(request, user, reason="oauth")
+            if expects_json:
+                return Response(
+                    {
+                        **challenge,
+                        "mfa_required": True,
+                        "detail": "Для соц-входа включён второй фактор.",
+                    },
+                    status=status.HTTP_200_OK,
+                )
             return redirect(reverse("accounts:mfa_verify"))
 
-        auth_login(request, user)
-        tokens = _issue_tokens(user)
-        request.session.pop("oauth_next", None)
-        if next_url:
-            return redirect(next_url)
-        return Response(
-            {
-                "detail": "Вход выполнен через социальную сеть.",
-                "user": UserProfileSerializer(user).data,
-                **tokens,
-            },
-            status=status.HTTP_200_OK,
+        response = _complete_login_response(
+            request,
+            user,
+            payload={"detail": "Вход выполнен через социальную сеть.", "provider": provider},
+            status_code=status.HTTP_200_OK,
         )
+        request.session.pop("oauth_next", None)
+        if next_url and not expects_json:
+            return redirect(next_url)
+        if next_url:
+            response.data["next"] = next_url  # type: ignore[index]
+        return response
 
     def _resolve_user(self, request: HttpRequest, profile: dict) -> User:
         if request.user.is_authenticated:

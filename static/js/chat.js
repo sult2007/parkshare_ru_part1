@@ -91,10 +91,12 @@
 
     const messagesEl = qs('[data-ai-messages]', chatRoot);
     const suggestionsEl = qs('[data-ai-suggestions]', chatRoot);
+    const actionsEl = qs('[data-ai-actions]', chatRoot);
+    const sessionsEl = qs('[data-ai-sessions]', chatRoot);
+    const alertsEl = qs('[data-ai-alerts]', chatRoot);
     const textarea = qs('#ai-input', chatRoot);
     const sendBtn = qs('[data-ai-send]', chatRoot);
     const clearBtn = qs('[data-ai-clear]', chatRoot);
-    const stopBtn = qs('[data-ai-stop]', chatRoot);
     const statusEl = qs('[data-ai-status]', chatRoot);
     const regenerateBtn = qs('[data-ai-regenerate]', chatRoot);
     const promptButtons = qsa('[data-ai-prompt]');
@@ -103,8 +105,7 @@
     const storage = storageKey(userId, historyKey);
 
     let state = loadState(storage) || { messages: [createWelcomeMessage()] };
-    let isStreaming = false;
-    let abortController = null;
+    let isLoading = false;
 
     function persist() {
       saveState(storage, state);
@@ -118,7 +119,7 @@
     messagesEl.scrollTop = messagesEl.scrollHeight;
     if (regenerateBtn) {
       const hasUserMessages = state.messages.some(function (m) { return m.role === 'user'; });
-      regenerateBtn.hidden = !hasUserMessages || isStreaming;
+      regenerateBtn.hidden = !hasUserMessages || isLoading;
     }
     persist();
   }
@@ -180,8 +181,124 @@
         .join("");
     }
 
+    function renderAlerts(list) {
+      if (!alertsEl) return;
+      if (!list || !list.length) {
+        alertsEl.hidden = true;
+        alertsEl.innerHTML = '';
+        return;
+      }
+      alertsEl.hidden = false;
+      alertsEl.innerHTML = list
+        .map(function (alert) {
+          var minutes = alert.minutes_left || 0;
+          return (
+            '<div class="ps-card ps-card--spot ps-animate-fade-up ps-card-line--muted">' +
+            '<div class="ps-card-body">' +
+            '<div class="ps-spot-price">Сессия заканчивается через ~' + minutes + ' мин.</div>' +
+            '<div class="ps-card-line ps-card-line--muted">' + (alert.spot || '') + '</div>' +
+            '</div>' +
+            '</div>'
+          );
+        })
+        .join('');
+    }
+
+    function renderActions(list) {
+      if (!actionsEl) return;
+      if (!list || !list.length) {
+        actionsEl.hidden = true;
+        actionsEl.innerHTML = '';
+        return;
+      }
+      actionsEl.hidden = false;
+      actionsEl.innerHTML = list
+        .map(function (action, idx) {
+          var key = action.booking_id || action.spot_id || idx;
+          var label = action.type === 'booking_start' ? 'Начать парковку' : action.type === 'booking_extend' ? 'Продлить' : action.type === 'booking_stop' ? 'Завершить' : 'Действие';
+          return (
+            '<button class="ps-chip" data-ai-action="' + action.type + '" data-action-key="' + key + '" data-spot-id="' + (action.spot_id || '') + '" data-booking-id="' + (action.booking_id || '') + '" data-extend-min="' + (action.extend_minutes || '') + '" data-duration="' + (action.duration_minutes || '') + '">' +
+            label +
+            '</button>'
+          );
+        })
+        .join('');
+    }
+
+    function renderSessions(list) {
+      if (!sessionsEl) return;
+      if (!list || !list.length) {
+        sessionsEl.hidden = true;
+        sessionsEl.innerHTML = '';
+        return;
+      }
+      sessionsEl.hidden = false;
+      sessionsEl.innerHTML = list
+        .map(function (session) {
+          var minutes = Math.max(0, Math.floor((session.remaining_seconds || 0) / 60));
+          return (
+            '<div class="ps-card ps-card--spot ps-animate-fade-up">' +
+            '<div class="ps-card-header"><div class="ps-card-title">' + session.spot_name + ' · ' + session.lot_name + '</div></div>' +
+            '<div class="ps-card-body">' +
+            '<div class="ps-spot-meta">Осталось ~' + minutes + ' мин</div>' +
+            '<div class="ps-card-actions">' +
+            '<button class="ps-btn ps-btn-secondary ps-btn-sm" data-ai-action="booking_extend" data-booking-id="' + session.id + '">+30 мин</button>' +
+            '<button class="ps-btn ps-btn-primary ps-btn-sm" data-ai-action="booking_stop" data-booking-id="' + session.id + '">Завершить</button>' +
+            '</div>' +
+            '</div>' +
+            '</div>'
+          );
+        })
+        .join('');
+    }
+
+    function csrfToken() {
+      const match = document.cookie.match(/csrftoken=([^;]+)/);
+      return match ? match[1] : '';
+    }
+
+    async function performActionFromButton(btn) {
+      const type = btn.getAttribute('data-ai-action');
+      const spotId = btn.getAttribute('data-spot-id');
+      const bookingId = btn.getAttribute('data-booking-id');
+      const extendMin = parseInt(btn.getAttribute('data-extend-min') || '30', 10);
+      const duration = parseInt(btn.getAttribute('data-duration') || '60', 10);
+      try {
+        if (type === 'booking_start' && spotId) {
+          await fetch('/api/v1/booking/start/', {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken() },
+            body: JSON.stringify({ spot_id: spotId, duration_minutes: duration })
+          });
+        } else if (type === 'booking_extend' && bookingId) {
+          await fetch('/api/v1/booking/extend/', {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken() },
+            body: JSON.stringify({ booking_id: bookingId, extend_minutes: extendMin || 30 })
+          });
+        } else if (type === 'booking_stop' && bookingId) {
+          await fetch('/api/v1/booking/stop/', {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken() },
+            body: JSON.stringify({ booking_id: bookingId })
+          });
+        } else if (type === 'focus_map' && spotId) {
+          try { sessionStorage.setItem('ps_focus_spot', spotId); } catch (_) {}
+          window.location.href = '/';
+        } else if (type === 'book' && spotId) {
+          window.location.href = '/booking/confirm/?spot_id=' + encodeURIComponent(spotId);
+        }
+        setStatus('Готово. Действие выполнено.', 'info');
+      } catch (err) {
+        setStatus('Не удалось выполнить действие', 'error');
+      }
+    }
+
   function handleSend() {
-      if (!textarea || !textarea.value.trim() || isStreaming) return;
+      if (!textarea || !textarea.value.trim() || isLoading) return;
       const text = textarea.value.trim();
       textarea.value = '';
       const userMsg = addMessage('user', text);
@@ -192,7 +309,7 @@
     }
 
     function handleRegenerate() {
-      if (isStreaming) return;
+      if (isLoading) return;
       let lastUserIndex = -1;
       for (let i = state.messages.length - 1; i >= 0; i--) {
         if (state.messages[i].role === 'user') {
@@ -230,13 +347,13 @@
         }
         return;
       }
-      isStreaming = true;
-      stopBtn && (stopBtn.hidden = true);
+      isLoading = true;
       setStatus('Генерируем ответ…', 'info');
       try {
-        const resp = await fetch('/api/chat/', {
+        const resp = await fetch('/api/v1/assistant/chat/', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
           body: JSON.stringify({ messages: payload, structured: true })
         });
 
@@ -249,76 +366,43 @@
             try { detail = await resp.text(); } catch (__) { /* ignore */ }
           }
           if (window.ParkShare && window.ParkShare.handleApiError) {
-            window.ParkShare.handleApiError({ message: detail || 'LLM недоступен. Настройте /api/chat/' });
+            window.ParkShare.handleApiError({ message: detail || 'Ассистент недоступен.' });
           }
-          throw new Error(detail || 'LLM недоступен. Настройте /api/chat/');
+          throw new Error(detail || 'Ассистент недоступен.');
         }
 
-        const contentType = resp.headers.get('content-type') || '';
-        if (contentType.indexOf('application/json') !== -1) {
-          const data = await resp.json();
-          updateMessage(assistantMsg.id, function (msg) {
-            return { ...msg, content: data.reply || '' };
-          });
-          render();
-          renderSuggestions(data);
-          setStatus('Готово. Можно задавать следующий вопрос.', 'info');
-          isStreaming = false;
-          return;
-        }
-
-        // Fallback: stream text
-        abortController = new AbortController();
-        isStreaming = true;
-        stopBtn && (stopBtn.hidden = false);
-        setStatus('Генерируем ответ…', 'info');
-        const reader = resp.body.getReader();
-        const decoder = new TextDecoder();
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          const chunk = decoder.decode(value, { stream: true });
-          updateMessage(assistantMsg.id, function (msg) {
-            return { ...msg, content: (msg.content || '') + chunk };
-          });
-          render();
-        }
+        const data = await resp.json();
+        updateMessage(assistantMsg.id, function (msg) {
+          return { ...msg, content: data.reply || '' };
+        });
+        render();
+        renderSuggestions(data);
+        renderActions(data.actions || []);
+        renderSessions(data.sessions || []);
+        renderAlerts(data.alerts || []);
         setStatus('Готово. Можно задавать следующий вопрос.', 'info');
       } catch (error) {
-        if (error.name === 'AbortError') {
-          setStatus('Остановлено пользователем.', 'info');
-        } else {
-          console.warn('Chat error', error);
-          if (window.ParkShare && window.ParkShare.handleApiError) {
-            window.ParkShare.handleApiError(error);
-          }
-          updateMessage(assistantMsg.id, function (msg) {
-            return { ...msg, content: 'Сервис временно недоступен. Проверьте /api/chat/ или ключи LLM.' };
-          });
-          setStatus('Ошибка сети или LLM. Попробуйте ещё раз.', 'error');
+        console.warn('Chat error', error);
+        if (window.ParkShare && window.ParkShare.handleApiError) {
+          window.ParkShare.handleApiError(error);
         }
+        updateMessage(assistantMsg.id, function (msg) {
+          return { ...msg, content: 'Сервис временно недоступен. Попробуйте позже.' };
+        });
+        setStatus('Ошибка сети или LLM. Попробуйте ещё раз.', 'error');
       } finally {
-        isStreaming = false;
-        stopBtn && (stopBtn.hidden = true);
-        abortController = null;
+        isLoading = false;
         render();
       }
-    }
-
-    function handleStop() {
-      if (abortController) {
-        abortController.abort();
-        abortController = null;
-      }
-      isStreaming = false;
-      stopBtn && (stopBtn.hidden = true);
-      setStatus('Остановлено пользователем.', 'info');
     }
 
     function handleClear() {
       state = { messages: [createWelcomeMessage()] };
       setStatus('История очищена. Новый диалог.', 'info');
       renderSuggestions({ suggestions: [] });
+      renderActions([]);
+      renderSessions([]);
+      renderAlerts([]);
       render();
     }
 
@@ -355,9 +439,16 @@
       });
     }
 
+    if (actionsEl) {
+      actionsEl.addEventListener('click', function (e) {
+        const btn = e.target.closest('[data-ai-action]');
+        if (!btn) return;
+        performActionFromButton(btn);
+      });
+    }
+
     sendBtn && sendBtn.addEventListener('click', handleSend);
     clearBtn && clearBtn.addEventListener('click', handleClear);
-    stopBtn && stopBtn.addEventListener('click', handleStop);
     regenerateBtn && regenerateBtn.addEventListener('click', handleRegenerate);
 
     promptButtons.forEach(function (btn) {

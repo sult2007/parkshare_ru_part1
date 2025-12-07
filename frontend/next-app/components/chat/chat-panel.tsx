@@ -9,14 +9,13 @@ import {
   ArrowPathIcon,
   Bars3Icon,
   ClipboardIcon,
-  StopCircleIcon,
   ExclamationTriangleIcon
 } from '@heroicons/react/24/outline';
 import { ChatMessage } from '@/lib/aiProvider';
 import { Conversation, MessageWithId } from './types';
 import { ConversationList } from './conversation-list';
 import { SuggestedPrompts } from './suggested-prompts';
-import { streamChatFromApi } from '@/lib/chatClient';
+import { apiRequest, type AssistantAction, type AssistantResponse, type BookingSession } from '@/lib/apiClient';
 import { useAuth } from '@/hooks/useAuth';
 
 const MarkdownMessage = dynamic(() => import('./markdown-message'), {
@@ -57,13 +56,17 @@ export function ChatPanel() {
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [isStreaming, setIsStreaming] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [sessions, setSessions] = useState<BookingSession[]>([]);
+  const [alerts, setAlerts] = useState<{ booking_id?: string; type: string; minutes_left?: number; spot?: string }[]>([]);
+  const [actions, setActions] = useState<AssistantAction[]>([]);
+  const [sessionsFetchedAt, setSessionsFetchedAt] = useState<number | null>(null);
+  const [actionRunning, setActionRunning] = useState<string | null>(null);
+  const [tick, setTick] = useState(0);
   const chatEndRef = useRef<HTMLDivElement | null>(null);
   const lastStorageKey = useRef<string | null>(null);
-  const abortRef = useRef<AbortController | null>(null);
 
   const storageKey = useMemo(() => storageKeyForUser(user?.id), [user?.id]);
 
@@ -102,6 +105,15 @@ export function ChatPanel() {
   }, []);
 
   useEffect(() => {
+    const id = setInterval(() => setTick((t) => t + 1), 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  useEffect(() => {
+    void fetchSessions();
+  }, [fetchSessions]);
+
+  useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
   }, [conversations, activeConversationId]);
 
@@ -109,6 +121,18 @@ export function ChatPanel() {
     () => conversations.find((conv) => conv.id === activeConversationId) ?? null,
     [conversations, activeConversationId]
   );
+
+  const bookingActions = useMemo(
+    () => actions.filter((a) => a.type === 'booking_start' || a.type === 'booking_extend' || a.type === 'booking_stop'),
+    [actions]
+  );
+
+  const actionLabel = useCallback((action: AssistantAction) => {
+    if (action.type === 'booking_start') return 'Начать парковку';
+    if (action.type === 'booking_extend') return 'Продлить сессию';
+    if (action.type === 'booking_stop') return 'Завершить сессию';
+    return 'Действие';
+  }, []);
 
   const updateConversation = useCallback(
     (id: string, updater: (conversation: Conversation) => Conversation) => {
@@ -122,6 +146,21 @@ export function ChatPanel() {
     setConversations((prev) => [conversation, ...prev]);
     setActiveConversationId(conversation.id);
   }, []);
+
+  const fetchSessions = useCallback(async () => {
+    if (!isAuthenticated) {
+      setSessions([]);
+      setSessionsFetchedAt(Date.now());
+      return;
+    }
+    try {
+      const response = await apiRequest<{ results: BookingSession[] }>('/booking/active/', { method: 'GET' });
+      setSessions(response.results || []);
+      setSessionsFetchedAt(Date.now());
+    } catch (error) {
+      console.warn('Failed to load active sessions', error);
+    }
+  }, [isAuthenticated]);
 
   const handleRename = useCallback((id: string, name: string) => {
     updateConversation(id, (conv) => ({ ...conv, title: name, updatedAt: Date.now() }));
@@ -145,12 +184,83 @@ export function ChatPanel() {
     setShowSidebar(false);
   }, []);
 
+  const deliverAssistantReply = useCallback(
+    (conversationId: string, assistantMessageId: string, reply: string) => {
+      updateConversation(conversationId, (conv) => ({
+        ...conv,
+        messages: conv.messages.map((msg) => (msg.id === assistantMessageId ? { ...msg, content: reply } : msg)),
+        updatedAt: Date.now()
+      }));
+    },
+    [updateConversation]
+  );
+
+  const requestAssistant = useCallback(
+    async (conversationId: string, assistantMessageId: string, history: ChatMessage[]) => {
+      const response = await apiRequest<AssistantResponse>('/assistant/chat/', {
+        method: 'POST',
+        body: { messages: history, structured: true }
+      });
+      deliverAssistantReply(conversationId, assistantMessageId, response.reply || 'Сервис временно недоступен.');
+      setActions(response.actions || []);
+      setAlerts(response.alerts || []);
+      if (response.sessions) {
+        setSessions(response.sessions);
+        setSessionsFetchedAt(Date.now());
+      }
+      return response;
+    },
+    [deliverAssistantReply]
+  );
+
+  const handleAction = useCallback(
+    async (action: AssistantAction) => {
+      const actionKey = action.booking_id || action.spot_id || action.type;
+      setActionRunning(actionKey || null);
+      try {
+        if (action.type === 'booking_start' && action.spot_id) {
+          await apiRequest('/booking/start/', {
+            method: 'POST',
+            body: { spot_id: action.spot_id, duration_minutes: action.duration_minutes || 60 }
+          });
+        } else if (action.type === 'booking_extend' && action.booking_id) {
+          await apiRequest('/booking/extend/', {
+            method: 'POST',
+            body: { booking_id: action.booking_id, extend_minutes: action.extend_minutes || 30 }
+          });
+        } else if (action.type === 'booking_stop' && action.booking_id) {
+          await apiRequest('/booking/stop/', { method: 'POST', body: { booking_id: action.booking_id } });
+        } else if (action.type === 'focus_map' && action.spot_id) {
+          try {
+            sessionStorage.setItem('ps_focus_spot', action.spot_id);
+          } catch (err) {
+            console.warn('Cannot persist focus spot', err);
+          }
+          window.location.href = '/';
+        } else if (action.type === 'book' && action.spot_id) {
+          window.location.href = `/booking/confirm/?spot_id=${encodeURIComponent(action.spot_id)}`;
+        }
+        await fetchSessions();
+      } catch (err) {
+        console.error('Action failed', err);
+        setErrorMessage(err instanceof Error ? err.message : 'Не удалось выполнить действие ассистента.');
+      } finally {
+        setActionRunning(null);
+      }
+    },
+    [fetchSessions]
+  );
+
+  const computeRemaining = useCallback(
+    (session: BookingSession) => {
+      const elapsed = sessionsFetchedAt ? Math.floor((Date.now() - sessionsFetchedAt) / 1000) : 0;
+      return Math.max(0, session.remaining_seconds - elapsed);
+    },
+    [sessionsFetchedAt]
+  );
+
   const handleSend = useCallback(async () => {
     if (!currentConversation || !input.trim() || isLoading) return;
-
-    abortRef.current?.abort();
-    const controller = new AbortController();
-    abortRef.current = controller;
     const userMessage: MessageWithId = {
       id: crypto.randomUUID(),
       role: 'user',
@@ -160,10 +270,9 @@ export function ChatPanel() {
 
     setInput('');
     setIsLoading(true);
-    setIsStreaming(true);
     setErrorMessage(null);
 
-    const payloadMessages: ChatMessage[] = currentConversation.messages
+    const historyPayload: ChatMessage[] = currentConversation.messages
       .concat(userMessage)
       .slice(-MAX_HISTORY)
       .map(({ id, createdAt, ...rest }) => rest as ChatMessage);
@@ -181,38 +290,19 @@ export function ChatPanel() {
     }));
 
     try {
-      await streamChatFromApi(payloadMessages, {
-        signal: controller.signal,
-        onChunk: (textChunk: string) =>
-          updateConversation(currentConversation.id, (conv) => ({
-            ...conv,
-            messages: conv.messages.map((msg) =>
-              msg.id === assistantMessage.id ? { ...msg, content: msg.content + textChunk } : msg
-            ),
-            updatedAt: Date.now()
-          }))
-      });
+      await requestAssistant(currentConversation.id, assistantMessage.id, historyPayload);
     } catch (error) {
       console.error(error);
-      setErrorMessage('We could not reach the concierge right now. Please retry or check your connection.');
-      updateConversation(currentConversation.id, (conv) => ({
-        ...conv,
-        messages: conv.messages.map((msg) =>
-          msg.id === assistantMessage.id
-            ? {
-                ...msg,
-                content: 'Something went wrong reaching the AI. Please confirm your API key and try again.'
-              }
-            : msg
-        ),
-        updatedAt: Date.now()
-      }));
+      setErrorMessage('Мы не смогли обратиться к ассистенту. Попробуйте снова или проверьте подключение.');
+      deliverAssistantReply(
+        currentConversation.id,
+        assistantMessage.id,
+        'Ассистент временно недоступен. Проверьте подключение или авторизацию и повторите.'
+      );
     } finally {
       setIsLoading(false);
-      setIsStreaming(false);
-      abortRef.current = null;
     }
-  }, [currentConversation, input, isLoading, updateConversation]);
+  }, [currentConversation, input, isLoading, requestAssistant, deliverAssistantReply, updateConversation]);
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (event.key === 'Enter' && !event.shiftKey) {
@@ -220,12 +310,6 @@ export function ChatPanel() {
       void handleSend();
     }
   };
-
-  const handleAbort = useCallback(() => {
-    abortRef.current?.abort();
-    setIsLoading(false);
-    setIsStreaming(false);
-  }, []);
 
   const handleClear = useCallback(() => {
     if (!currentConversation) return;
@@ -236,6 +320,8 @@ export function ChatPanel() {
     }));
     setInput('');
     setErrorMessage(null);
+    setActions([]);
+    setAlerts([]);
   }, [currentConversation, updateConversation]);
 
   const handleRegenerate = useCallback(
@@ -249,11 +335,7 @@ export function ChatPanel() {
       const userIndex = historyBefore.length - 1 - lastUserIndex;
       const historyToSend = currentConversation.messages.slice(0, userIndex + 1);
 
-      abortRef.current?.abort();
-      const controller = new AbortController();
-      abortRef.current = controller;
       setIsLoading(true);
-      setIsStreaming(true);
       setErrorMessage(null);
 
       const assistantMessage: MessageWithId = { id: crypto.randomUUID(), role: 'assistant', content: '', createdAt: Date.now() };
@@ -266,34 +348,23 @@ export function ChatPanel() {
       const payloadMessages: ChatMessage[] = historyToSend.map(({ id, createdAt, ...rest }) => rest as ChatMessage);
 
       try {
-        await streamChatFromApi(payloadMessages, {
-          signal: controller.signal,
-          onChunk: (chunk) =>
-            updateConversation(currentConversation.id, (conv) => ({
-              ...conv,
-              messages: conv.messages.map((msg) =>
-                msg.id === assistantMessage.id ? { ...msg, content: msg.content + chunk } : msg
-              ),
-              updatedAt: Date.now()
-            }))
-        });
+        await requestAssistant(currentConversation.id, assistantMessage.id, payloadMessages);
       } catch (error) {
         console.error(error);
         setErrorMessage('Не удалось перегенерировать ответ. Попробуйте снова.');
+        deliverAssistantReply(currentConversation.id, assistantMessage.id, 'Ассистент недоступен. Повторите позже.');
       } finally {
         setIsLoading(false);
-        setIsStreaming(false);
-        abortRef.current = null;
       }
     },
-    [currentConversation, isLoading, updateConversation]
+    [currentConversation, isLoading, requestAssistant, updateConversation, deliverAssistantReply]
   );
 
   const handlePrefill = useCallback((prompt: string) => {
     setInput(prompt);
   }, []);
 
-  const sendDisabled = isLoading || isStreaming || !input.trim();
+  const sendDisabled = isLoading || !input.trim();
 
   return (
     <div className="relative flex min-h-[70vh] flex-1 flex-col overflow-hidden rounded-[28px] border border-[var(--border-subtle)]/80 bg-gradient-to-br from-white via-[var(--bg-surface)] to-white p-4 shadow-[0_18px_42px_rgba(15,23,42,0.08)] dark:border-slate-800/80 dark:from-slate-950 dark:via-slate-900 dark:to-indigo-950/40">
@@ -340,7 +411,7 @@ export function ChatPanel() {
             <ClockIcon className="h-4 w-4" />
             <span>Контекст до 14 сообщений. Профиль влияет на подсказки и историю.</span>
           </div>
-          {isStreaming && (
+          {isLoading && (
             <div className="inline-flex items-center gap-2 rounded-full bg-indigo-50 px-3 py-1 text-[11px] font-semibold text-indigo-700 shadow-sm dark:bg-indigo-900/50 dark:text-indigo-100">
               <span className="h-2 w-2 animate-pulse rounded-full bg-indigo-500" />
               Генерируем ответ
@@ -386,6 +457,91 @@ export function ChatPanel() {
         )}
       </div>
 
+      {alerts.length > 0 && (
+        <div className="mb-3 grid gap-2">
+          {alerts.map((alert) => {
+            const remaining = alert.minutes_left ?? 0;
+            return (
+              <div
+                key={`${alert.booking_id}-${alert.type}`}
+                className="flex items-center justify-between gap-2 rounded-2xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800 shadow-sm dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-100"
+              >
+                <div className="flex items-center gap-2">
+                  <ExclamationTriangleIcon className="h-4 w-4" />
+                  <p>
+                    {alert.type === 'booking_expiring'
+                      ? `Бронь ${alert.spot || ''} заканчивается через ~${remaining} мин.`
+                      : 'Обратите внимание на сессию парковки.'}
+                  </p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {sessions.length > 0 && (
+        <div className="mb-4 space-y-2 rounded-3xl border border-[var(--border-subtle)]/70 bg-white/80 p-3 shadow-sm dark:border-slate-800 dark:bg-slate-900/60">
+          <div className="flex items-center justify-between gap-2">
+            <p className="text-sm font-semibold text-[var(--text-primary)]">Активные сессии парковки</p>
+            <button
+              className="text-xs font-semibold text-[var(--text-muted)] underline decoration-dotted underline-offset-4"
+              onClick={() => void fetchSessions()}
+            >
+              Обновить
+            </button>
+          </div>
+          <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
+            {sessions.map((session) => {
+              const remaining = computeRemaining(session);
+              const minutes = Math.max(0, Math.floor(remaining / 60));
+              const isExpiring = minutes <= 15;
+              return (
+                <div
+                  key={session.id}
+                  className="flex flex-col gap-2 rounded-2xl border border-[var(--border-subtle)]/80 bg-[var(--bg-elevated)] p-3 shadow-sm dark:border-slate-800 dark:bg-slate-900/70"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <p className="text-sm font-semibold text-[var(--text-primary)]">
+                        {session.spot_name} · {session.lot_name}
+                      </p>
+                      <p className="text-[11px] text-[var(--text-muted)]">Статус: {session.status}</p>
+                    </div>
+                    <span
+                      className={`rounded-full px-2 py-1 text-[11px] font-semibold ${
+                        isExpiring
+                          ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-100'
+                          : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-100'
+                      }`}
+                    >
+                      ~{minutes} мин
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      disabled={isLoading || actionRunning === session.id}
+                      onClick={() => void handleAction({ type: 'booking_extend', booking_id: session.id, extend_minutes: 30 })}
+                      className="rounded-full border border-[var(--border-subtle)]/70 bg-white px-3 py-1 text-xs font-semibold text-[var(--text-primary)] shadow-sm transition hover:-translate-y-[1px] dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 disabled:opacity-50"
+                    >
+                      +30 мин
+                    </button>
+                    <button
+                      disabled={isLoading || actionRunning === session.id}
+                      onClick={() => void handleAction({ type: 'booking_stop', booking_id: session.id })}
+                      className="rounded-full border border-red-200 bg-red-50 px-3 py-1 text-xs font-semibold text-red-700 shadow-sm transition hover:-translate-y-[1px] dark:border-red-800 dark:bg-red-950/40 dark:text-red-100 disabled:opacity-50"
+                    >
+                      Завершить
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+
       <div className="grid h-full grid-cols-1 gap-4 lg:grid-cols-[320px,1fr]">
         <div className="hidden lg:block">
           <ConversationList
@@ -399,6 +555,26 @@ export function ChatPanel() {
         </div>
         <div className="flex flex-col overflow-hidden rounded-[22px] border border-[var(--border-subtle)]/80 bg-[var(--bg-elevated)] shadow-[0_16px_36px_rgba(15,23,42,0.08)] backdrop-blur dark:border-slate-800/70 dark:bg-slate-900/70">
           <div className="flex-1 space-y-4 overflow-y-auto px-4 py-6">
+            {bookingActions.length > 0 && (
+              <div className="rounded-2xl border border-[var(--border-subtle)]/70 bg-white/80 p-3 shadow-sm dark:border-slate-800 dark:bg-slate-900/60">
+                <p className="mb-2 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--text-muted)]">Быстрые действия</p>
+                <div className="flex flex-wrap gap-2">
+                  {bookingActions.map((action, idx) => {
+                    const key = action.booking_id || action.spot_id || `${action.type}-${idx}`;
+                    return (
+                      <button
+                        key={key}
+                        disabled={isLoading || actionRunning === key}
+                        onClick={() => void handleAction(action)}
+                        className="rounded-full border border-[var(--border-subtle)]/70 bg-white px-3 py-2 text-xs font-semibold text-[var(--text-primary)] shadow-sm transition hover:-translate-y-[1px] dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 disabled:opacity-50"
+                      >
+                        {actionLabel(action)}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
             {currentConversation && currentConversation.messages.length <= 1 ? (
               <div className="flex flex-col gap-3 rounded-2xl border border-dashed border-slate-200 bg-white/60 p-4 text-sm text-slate-700 shadow-sm dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-200">
                 <p className="font-semibold text-slate-900 dark:text-slate-50">Начните новый диалог</p>
@@ -462,15 +638,6 @@ export function ChatPanel() {
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 dark:text-slate-400">
                     <span>Enter — отправить • Shift+Enter — перенос строки</span>
-                    {isStreaming && (
-                      <button
-                        onClick={handleAbort}
-                        className="inline-flex items-center gap-1 rounded-full border border-slate-200 px-3 py-1 text-[11px] font-semibold text-slate-700 transition hover:-translate-y-[1px] hover:border-red-200 hover:text-red-600 dark:border-slate-700 dark:text-slate-200"
-                      >
-                        <StopCircleIcon className="h-3.5 w-3.5" />
-                        Остановить
-                      </button>
-                    )}
                   </div>
                   <div className="flex items-center gap-2">
                     <button
@@ -492,7 +659,7 @@ export function ChatPanel() {
               </div>
               {isLoading && (
                 <p className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
-                  <span className="h-2 w-2 animate-pulse rounded-full bg-indigo-500" /> Потоковый ответ…
+                  <span className="h-2 w-2 animate-pulse rounded-full bg-indigo-500" /> Запрашиваем ассистента…
                 </p>
               )}
             </div>

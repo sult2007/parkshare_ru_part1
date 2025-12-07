@@ -1,3 +1,5 @@
+import { apiRequest } from './apiClient';
+
 export type AuthUser = {
   id: string;
   email?: string;
@@ -8,7 +10,7 @@ export type AuthUser = {
 };
 
 export type AuthResponse = {
-  success: boolean;
+  success?: boolean;
   message?: string;
   user?: AuthUser;
   data?: unknown;
@@ -17,106 +19,54 @@ export type AuthResponse = {
   mfa_channel?: string | null;
 };
 
-const API_BASE = process.env.NEXT_PUBLIC_AUTH_API_URL || process.env.NEXT_PUBLIC_AUTH_API_BASE;
+export async function requestOtp(identifier: string) {
+  if (!identifier) throw new Error('Введите номер телефона или email');
+  return apiRequest<AuthResponse>('/auth/otp/request/', { method: 'POST', body: { identifier, purpose: 'login' } });
+}
 
-async function request<T = AuthResponse>(endpoint: string, body?: Record<string, unknown>, init?: RequestInit): Promise<T> {
-  if (!API_BASE) {
-    return Promise.resolve({
-      success: true,
-      message: 'DEMO: Backend URL не задан, имитируем успешный ответ.',
-      user: {
-        id: 'demo-user',
-        email: body && 'email' in body ? (body.email as string) : undefined,
-        phone: body && 'phone' in body ? (body.phone as string) : undefined,
-        name: 'Demo User',
-        provider: 'demo'
-      },
-      mfa_required: false
-    } as T);
-  }
-
-  const response = await fetch(`${API_BASE}${endpoint}`, {
+export async function verifyOtp(identifier: string, code: string) {
+  if (!identifier || !code) throw new Error('Введите контакт и код');
+  return apiRequest<AuthResponse>('/auth/otp/verify/', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
-    body: body ? JSON.stringify(body) : undefined,
-    ...init
+    body: { identifier, code, purpose: 'login' }
   });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(errorText || 'Auth request failed');
-  }
-
-  return response.json();
 }
 
-export async function requestOtp(phone: string) {
-  if (!phone) throw new Error('Введите номер телефона');
-  return request<AuthResponse>('/auth/otp/request', { phone });
-}
-
-export async function verifyOtp(phone: string, code: string) {
-  if (!phone || !code) throw new Error('Введите телефон и код');
-  return request<AuthResponse>('/auth/otp/verify', { phone, code });
-}
-
-export async function loginWithEmailPassword(email: string, password: string) {
-  if (!email || !password) throw new Error('Нужны почта и пароль');
-  return request<AuthResponse>('/auth/email/login', { email, password });
+export async function loginWithEmailPassword(identifier: string, password: string) {
+  if (!identifier || !password) throw new Error('Нужны логин/email/телефон и пароль');
+  return apiRequest<AuthResponse>('/auth/token/', { method: 'POST', body: { identifier, password } });
 }
 
 export async function registerWithEmailPassword(email: string, password: string, name?: string) {
   if (!email || !password) throw new Error('Укажите почту и пароль');
-  return request<AuthResponse>('/auth/email/register', { email, password, name });
+  return apiRequest<AuthResponse>('/auth/register/', { method: 'POST', body: { email, password, name } });
 }
 
 export async function logout() {
-  if (!API_BASE) return { success: true, message: 'DEMO: лог-аут выполнен локально.' };
-  return request<AuthResponse>('/auth/logout');
+  return apiRequest<AuthResponse>('/auth/logout/', { method: 'POST' });
 }
 
 export async function verifyMfa(code: string) {
   if (!code) throw new Error('Введите код MFA');
-  return request<AuthResponse>('/auth/mfa/verify', { code });
+  return apiRequest<AuthResponse>('/auth/mfa/verify/', { method: 'POST', body: { code } });
 }
 
 export async function getCurrentUser() {
-  if (!API_BASE) return null;
-  const response = await fetch(`${API_BASE}/auth/me`, { credentials: 'include' });
-  if (!response.ok) return null;
-  const data = (await response.json()) as AuthResponse;
-  return data.user ?? null;
+  try {
+    const data = await apiRequest<AuthUser>('/accounts/users/me/', { method: 'GET' });
+    return data ?? null;
+  } catch {
+    return null;
+  }
 }
 
-function buildOAuthUrl(provider: 'vk' | 'yandex') {
-  const redirectUriParam =
-    provider === 'vk'
-      ? process.env.NEXT_PUBLIC_VK_REDIRECT_URI
-      : process.env.NEXT_PUBLIC_YANDEX_REDIRECT_URI;
-  const clientIdParam =
-    provider === 'vk' ? process.env.NEXT_PUBLIC_VK_CLIENT_ID : process.env.NEXT_PUBLIC_YANDEX_CLIENT_ID;
-
-  if (clientIdParam && redirectUriParam) {
-    const redirect = encodeURIComponent(redirectUriParam);
-    return provider === 'vk'
-      ? `https://id.vk.com/authorize?client_id=${clientIdParam}&redirect_uri=${redirect}&response_type=code`
-      : `https://oauth.yandex.ru/authorize?response_type=code&client_id=${clientIdParam}&redirect_uri=${redirect}`;
-  }
-
-  const base = API_BASE || '';
+function buildOAuthUrl(provider: 'vk' | 'yandex' | 'google') {
+  const base = process.env.NEXT_PUBLIC_AUTH_API_URL || process.env.NEXT_PUBLIC_AUTH_API_BASE || '/api';
   const returnTo = encodeURIComponent(typeof window !== 'undefined' ? window.location.href : '/');
-  return `${base}/auth/oauth/${provider}?redirect_uri=${returnTo}`;
+  return `${base}/auth/oauth/${provider}/start/?next=${returnTo}`;
 }
 
 export function startOAuth(provider: 'vk' | 'yandex' | 'google') {
-  if (provider === 'google') {
-    const base = API_BASE || '';
-    const redirect = encodeURIComponent(typeof window !== 'undefined' ? window.location.href : '/');
-    window.location.href = `${base}/auth/oauth/google?redirect_uri=${redirect}`;
-    return;
-  }
-
   const url = buildOAuthUrl(provider);
   window.location.href = url;
 }

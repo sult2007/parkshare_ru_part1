@@ -1,13 +1,11 @@
 import type { NextRequest } from 'next/server';
-import { streamChat, type LLMMessage } from '@/lib/llmClient';
 
 export const runtime = 'nodejs';
 
 export async function POST(req: NextRequest) {
-  let payload: { messages?: LLMMessage[]; stream?: boolean };
-
+  let body: any = {};
   try {
-    payload = await req.json();
+    body = await req.json();
   } catch {
     return new Response(JSON.stringify({ error: 'Invalid JSON body' }), {
       status: 400,
@@ -15,18 +13,21 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  const messages = payload.messages;
+  const apiBase = process.env.NEXT_PUBLIC_API_BASE || process.env.API_BASE || 'http://localhost:8000/api/v1';
+  const endpoint = `${apiBase.replace(/\/$/, '')}/assistant/chat/`;
+  const resp = await fetch(endpoint, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+    credentials: 'include'
+  });
 
-  if (!messages || !Array.isArray(messages) || messages.length === 0) {
-    return new Response(JSON.stringify({ error: 'No messages provided' }), {
-      status: 400,
-      headers: { 'Content-Type': 'application/json' }
-    });
-  }
-
-  const stream = await streamChat(messages, { stream: payload.stream !== false });
-
-  return new Response(stream, {
-    headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' }
+  const text = await resp.text();
+  return new Response(text, {
+    status: resp.status,
+    headers: {
+      'Content-Type': resp.headers.get('content-type') || 'application/json',
+      'Cache-Control': 'no-store'
+    }
   });
 }

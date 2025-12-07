@@ -107,16 +107,28 @@
         <!-- Bottom sheet with three states: collapsed/half/full -->
 
         <div class="ps-bottom-sheet ps-bottom-sheet--floating" data-spots-panel data-spots-sheet data-sheet-state="collapsed">
-            <div class="ps-bottom-sheet__handle" data-sheet-handle></div>
+            <div class="ps-bottom-sheet__handle" data-sheet-handle aria-label="Потянуть шторку"></div>
             <div class="ps-bottom-sheet__header">
-                <div>
+                <div class="ps-bottom-sheet__title">
                     <div class="ps-section-title-sm">Парковки рядом с маршрутом</div>
-                    <div class="ps-text-muted">
-                        Свободных: <span data-spots-count>0</span>,
-                        ср. цена <span data-avg-price>—</span>
+                    <div class="ps-bottom-sheet__metrics" data-sheet-metrics>
+                        <span class="ps-bottom-sheet__metric">
+                            <svg class="ps-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3.5h8.2a5.3 5.3 0 0 1 0 10.6H9.5v6.4H6V3.5Zm3.5 3v4.5h4.7a2.2 2.2 0 1 0 0-4.5H9.5Z" fill="currentColor"/></svg>
+                            <strong data-spots-count>0</strong>
+                            <span class="ps-text-muted">свободно</span>
+                        </span>
+                        <span class="ps-bottom-sheet__metric">
+                            <svg class="ps-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Zm.9 5c1.6 0 2.6.9 2.6 2.3 0 1.3-1 2.2-2.6 2.2h-2v2.1H9V8h3.9Zm-2 .9v2.7h1.9c.8 0 1.3-.5 1.3-1.3 0-.8-.5-1.4-1.3-1.4H10.9Z" fill="currentColor"/></svg>
+                            <strong data-avg-price>—</strong>
+                            <span class="ps-text-muted">средняя цена</span>
+                        </span>
                     </div>
                 </div>
                 <div class="ps-bottom-sheet__actions">
+                    <button type="button" class="ps-sheet-back" data-sheet-back aria-label="Назад к карте">
+                        <svg class="ps-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m11 5-6 7 6 7h3l-6-7 6-7h-3Z" fill="currentColor"/></svg>
+                        <span>К карте</span>
+                    </button>
                     <button type="button" class="ps-btn ps-btn-ghost ps-btn-sm" data-reset-filters>Сбросить</button>
                 </div>
             </div>

@@ -3,6 +3,8 @@ from __future__ import annotations
 from typing import Any, Iterable, List
 import uuid
 import logging
+import hashlib
+import json
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.cache import cache
@@ -15,8 +17,10 @@ from django.views.generic import TemplateView
 from django.utils import timezone
 from django.http import HttpResponse
 from rest_framework import permissions, status, viewsets
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.throttling import UserRateThrottle, AnonRateThrottle
+from rest_framework.views import APIView
 
 from core.metrics import record_booking_event
 from core.permissions import IsAdminOrReadOnly
@@ -60,6 +64,26 @@ def api_error(code: str, message: str, status_code=status.HTTP_400_BAD_REQUEST, 
 def wants_json(request):
     accept = request.headers.get("Accept", "")
     return "application/json" in accept or request.content_type == "application/json"
+
+
+def serialize_booking_session(booking: "Booking") -> dict[str, Any]:
+    """
+    Унифицированный DTO активной сессии для ассистента и мобильных клиентов.
+    """
+    now = timezone.now()
+    remaining = max(0, int((booking.end_at - now).total_seconds()))
+    return {
+        "id": str(booking.id),
+        "spot_id": str(booking.spot_id),
+        "spot_name": booking.spot.name,
+        "lot_name": booking.spot.lot.name,
+        "status": booking.status,
+        "start_at": booking.start_at,
+        "end_at": booking.end_at,
+        "remaining_seconds": remaining,
+        "is_paid": booking.is_paid,
+        "can_extend": booking.status in (Booking.Status.ACTIVE, Booking.Status.CONFIRMED),
+    }
 
 
 # =======================
@@ -285,6 +309,249 @@ class BookingViewSet(viewsets.ModelViewSet):
         except Exception:
             pass
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class ParkingSearchAPIView(APIView):
+    permission_classes = [AllowAny]
+    throttle_classes = [UserRateThrottle, AnonRateThrottle]
+
+    def get(self, request, *args, **kwargs):
+        params = request.query_params
+        cache_key = "v1:search:" + hashlib.sha256(
+            json.dumps(sorted(params.items()), ensure_ascii=True).encode("utf-8")
+        ).hexdigest()
+        if not request.user.is_authenticated:
+            cached = cache.get(cache_key)
+            if cached:
+                return Response(cached)
+
+        qs = (
+            ParkingSpot.objects.filter(
+                status=ParkingSpot.SpotStatus.ACTIVE,
+                lot__is_active=True,
+                lot__is_approved=True,
+            )
+            .select_related("lot")
+        )
+
+        query = (params.get("q") or "").strip()
+        if query:
+            qs = qs.filter(Q(lot__name__icontains=query) | Q(lot__address__icontains=query) | Q(name__icontains=query))
+
+        city = params.get("city")
+        if city:
+            qs = qs.filter(lot__city__iexact=city)
+
+        vehicle_type = params.get("vehicle_type")
+        if vehicle_type:
+            qs = qs.filter(vehicle_type=vehicle_type)
+
+        max_price = parse_float(params.get("max_price"))
+        if max_price is not None:
+            qs = qs.filter(hourly_price__lte=max_price)
+
+        has_ev = params.get("has_ev") == "1" or params.get("ev") == "true"
+        if has_ev:
+            qs = qs.filter(has_ev_charging=True)
+
+        covered = params.get("covered") == "1" or params.get("covered") == "true"
+        if covered:
+            qs = qs.filter(is_covered=True)
+
+        lat = parse_float(params.get("lat"))
+        lng = parse_float(params.get("lng"))
+        radius_km = parse_float(params.get("radius_km")) or 5
+        radius_km = min(radius_km, 25)
+        if lat is not None and lng is not None:
+            lat_delta = radius_km / 111
+            lng_delta = radius_km / max(1, 111 * math.cos(math.radians(lat)))
+            qs = qs.filter(
+                lot__latitude__gte=lat - lat_delta,
+                lot__latitude__lte=lat + lat_delta,
+                lot__longitude__gte=lng - lng_delta,
+                lot__longitude__lte=lng + lng_delta,
+            )
+
+        try:
+            limit = min(int(params.get("limit") or 50), 100)
+        except (TypeError, ValueError):
+            limit = 50
+
+        results = list(qs[:limit])
+        if params.get("format") == "geojson":
+            features = []
+            for spot in results:
+                lat = getattr(spot.lot, "latitude", None)
+                lng = getattr(spot.lot, "longitude", None)
+                if lat is None or lng is None:
+                    continue
+                features.append(
+                    {
+                        "id": str(spot.id),
+                        "type": "Feature",
+                        "geometry": {"type": "Point", "coordinates": [lng, lat]},
+                        "properties": {
+                            "spot_id": str(spot.id),
+                            "lot_id": str(spot.lot_id),
+                            "lot_name": spot.lot.name,
+                            "city": spot.lot.city,
+                            "address": spot.lot.address,
+                            "name": spot.name,
+                            "vehicle_type": spot.vehicle_type,
+                            "has_ev_charging": spot.has_ev_charging,
+                            "is_covered": spot.is_covered,
+                            "is_24_7": spot.is_24_7,
+                            "hourly_price": float(spot.hourly_price),
+                            "nightly_price": float(spot.nightly_price or 0),
+                            "daily_price": float(spot.daily_price or 0),
+                            "monthly_price": float(spot.monthly_price or 0),
+                            "status": spot.status,
+                            "allow_dynamic_pricing": spot.allow_dynamic_pricing,
+                            "occupancy_7d": float(spot.occupancy_7d or 0.0),
+                            "stress_index": float(spot.lot.stress_index or 0.0),
+                        },
+                    }
+                )
+            payload = {"type": "FeatureCollection", "features": features}
+            if not request.user.is_authenticated:
+                cache.set(cache_key, payload, 60)
+            return Response(payload, status=status.HTTP_200_OK)
+
+        data = ParkingSpotSerializer(results, many=True, context={"request": request}).data
+        payload = {"count": len(data), "results": data}
+        if not request.user.is_authenticated:
+            cache.set(cache_key, payload, 60)
+        return Response(payload, status=status.HTTP_200_OK)
+
+
+class ParkingDetailsAPIView(APIView):
+    permission_classes = [AllowAny]
+    throttle_classes = [UserRateThrottle, AnonRateThrottle]
+
+    def get(self, request, spot_id: uuid.UUID, *args, **kwargs):
+        cache_key = f"v1:details:{spot_id}"
+        if not request.user.is_authenticated:
+            cached = cache.get(cache_key)
+            if cached:
+                return Response(cached)
+
+        spot = get_object_or_404(
+            ParkingSpot.objects.select_related("lot"),
+            pk=spot_id,
+            status=ParkingSpot.SpotStatus.ACTIVE,
+            lot__is_active=True,
+            lot__is_approved=True,
+        )
+        data = ParkingSpotSerializer(spot, context={"request": request}).data
+        payload = {"spot": data}
+        if not request.user.is_authenticated:
+            cache.set(cache_key, payload, 120)
+        return Response(payload, status=status.HTTP_200_OK)
+
+
+class BookingStartAPIView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        spot_id = request.data.get("spot_id")
+        try:
+            duration_minutes = max(15, int(request.data.get("duration_minutes") or 60))
+        except (TypeError, ValueError):
+            duration_minutes = 60
+        spot = get_object_or_404(
+            ParkingSpot,
+            pk=spot_id,
+            status=ParkingSpot.SpotStatus.ACTIVE,
+            lot__is_active=True,
+            lot__is_approved=True,
+        )
+        start_at = timezone.now()
+        end_at = start_at + timezone.timedelta(minutes=duration_minutes)
+        if not Booking.is_spot_available(spot, start_at, end_at):
+            return api_error("spot_unavailable", "Место занято в выбранный период.", status.HTTP_409_CONFLICT)
+
+        booking = Booking.objects.create(
+            user=request.user,
+            spot=spot,
+            start_at=start_at,
+            end_at=end_at,
+            booking_type=Booking.BookingType.HOURLY,
+            billing_mode=request.data.get("billing_mode") or Booking.BillingMode.PAYG,
+            status=Booking.Status.ACTIVE,
+            total_price=0,
+            currency="RUB",
+        )
+        booking.calculate_price()
+        booking.status = Booking.Status.ACTIVE
+        booking.save(update_fields=["total_price", "status", "updated_at"])
+        record_booking_event("started")
+        payload = serialize_booking_session(booking)
+        return Response({"booking": payload}, status=status.HTTP_201_CREATED)
+
+
+class BookingExtendAPIView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        booking_id = request.data.get("booking_id")
+        try:
+            extend_minutes = max(5, int(request.data.get("extend_minutes") or 30))
+        except (TypeError, ValueError):
+            extend_minutes = 30
+        booking = get_object_or_404(
+            Booking.objects.select_related("spot", "spot__lot"),
+            pk=booking_id,
+            user=request.user,
+        )
+        if booking.status not in (Booking.Status.ACTIVE, Booking.Status.CONFIRMED):
+            return api_error("invalid_status", "Продление доступно только для активных броней.")
+
+        new_end = booking.end_at + timezone.timedelta(minutes=extend_minutes)
+        if not Booking.is_spot_available(booking.spot, booking.start_at, new_end, exclude_booking_id=booking.id):
+            return api_error("spot_unavailable", "Место недоступно в новое время.", status.HTTP_409_CONFLICT)
+
+        booking.end_at = new_end
+        booking.status = Booking.Status.ACTIVE
+        booking.calculate_price()
+        booking.save(update_fields=["end_at", "total_price", "status", "updated_at"])
+        record_booking_event("extended")
+        return Response({"booking": serialize_booking_session(booking)}, status=status.HTTP_200_OK)
+
+
+class BookingStopAPIView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        booking_id = request.data.get("booking_id")
+        booking = get_object_or_404(
+            Booking.objects.select_related("spot", "spot__lot"),
+            pk=booking_id,
+            user=request.user,
+        )
+        if booking.status in (Booking.Status.COMPLETED, Booking.Status.CANCELLED, Booking.Status.EXPIRED):
+            return api_error("invalid_status", "Бронь уже завершена или отменена.")
+
+        booking.end_at = timezone.now()
+        booking.status = Booking.Status.COMPLETED
+        booking.save(update_fields=["end_at", "status", "updated_at"])
+        record_booking_event("stopped")
+        return Response({"booking": serialize_booking_session(booking)}, status=status.HTTP_200_OK)
+
+
+class ActiveBookingAPIView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        qs = (
+            Booking.objects.filter(
+                user=request.user,
+                status__in=[Booking.Status.ACTIVE, Booking.Status.CONFIRMED],
+            )
+            .select_related("spot", "spot__lot")
+            .order_by("end_at")
+        )
+        sessions = [serialize_booking_session(b) for b in qs]
+        return Response({"count": len(sessions), "results": sessions}, status=status.HTTP_200_OK)
 
 
 class WaitlistViewSet(viewsets.ModelViewSet):
@@ -847,15 +1114,6 @@ class MetricsDashboardView(LoginRequiredMixin, TemplateView):
         ctx["last30"] = compute_funnel(30)
         return ctx
 
-# parking/views.py (добавить после существующих APIView/ ViewSet)
-
-from rest_framework.views import APIView
-from rest_framework.permissions import AllowAny
-from rest_framework.response import Response
-from ai.orchestrator import AvailabilityDecision
-from .models import ParkingSpot
-
-
 class ParkingMapAPIView(APIView):
     """
     Лёгкий эндпоинт для карты:
@@ -873,6 +1131,10 @@ class ParkingMapAPIView(APIView):
         covered = params.get("covered") == "true"
         is_24_7 = params.get("is_24_7") == "true"
         ai_only = params.get("ai_recommended") == "true"
+        cache_key = f"parking_map:{only_free}:{has_ev}:{covered}:{is_24_7}:{ai_only}:{params.get('min_price')}:{params.get('max_price')}"
+        cached = cache.get(cache_key)
+        if cached:
+            return Response(cached)
 
         try:
             min_price = float(params.get("min_price") or 0)
@@ -946,12 +1208,12 @@ class ParkingMapAPIView(APIView):
                 }
             )
 
-        return Response(
-            {
-                "type": "FeatureCollection",
-                "features": features,
-            }
-        )
+        payload = {
+            "type": "FeatureCollection",
+            "features": features,
+        }
+        cache.set(cache_key, payload, 30)
+        return Response(payload)
 
 
 class GeocodeAPIView(APIView):

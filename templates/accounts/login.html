@@ -6,27 +6,6 @@
 {% block content %}
 <section class="ps-auth">
     <div class="ps-auth-card ps-card ps-card--elevated ps-animate-fade-up">
-        <style>
-            .ps-social-grid { display: grid; gap: 12px; }
-            .ps-social-btn { position: relative; display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 14px; border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 12px 30px rgba(15,23,42,0.08); text-decoration: none; transition: transform .12s ease, box-shadow .12s ease; }
-            .ps-social-btn.is-disabled { opacity: .65; pointer-events: none; }
-            .ps-social-btn:hover { transform: translateY(-1px); box-shadow: 0 16px 36px rgba(15,23,42,0.12); }
-            .ps-social-btn--google { background: #fff; color: #1f2937; }
-            .ps-social-btn--vk { background: #4C75A3; color: #fff; }
-            .ps-social-btn--yandex { background: #fff; color: #111; border-color: rgba(0,0,0,0.12); }
-            .ps-social-icon { width: 38px; height: 38px; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; }
-            .ps-social-btn--google .ps-social-icon { background: #fff; border: 1px solid rgba(0,0,0,0.08); }
-            .ps-social-btn--vk .ps-social-icon { background: rgba(255,255,255,0.18); }
-            .ps-social-btn--yandex .ps-social-icon { background: #ffcc00; color: #111; }
-            .ps-social-text { display: flex; flex-direction: column; line-height: 1.2; }
-            .ps-social-text small { color: rgba(255,255,255,0.8); }
-            .ps-social-btn--google .ps-social-text small, .ps-social-btn--yandex .ps-social-text small { color: #4b5563; }
-            .ps-social-tip { margin-left: auto; font-weight: 700; font-size: 12px; width: 20px; height: 20px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.12); color: #111; }
-            .ps-social-btn--vk .ps-social-tip { background: rgba(255,255,255,0.16); color: #fff; }
-            .google-g { width: 20px; height: 20px; display: inline-block; background: conic-gradient(from 90deg at 50% 50%, #4285F4 0deg 90deg, #34A853 90deg 180deg, #FBBC05 180deg 270deg, #EA4335 270deg 360deg); -webkit-mask: radial-gradient(circle at 50% 50%, transparent 7px, #000 8px); mask: radial-gradient(circle at 50% 50%, transparent 7px, #000 8px); border-radius: 4px; }
-            .vk-icon { font-weight: 800; letter-spacing: 0.5px; }
-            .yandex-icon { font-weight: 800; font-size: 18px; }
-        </style>
         <h1 class="ps-auth-title">Вход</h1>
         <p class="ps-auth-subtitle">
             Выберите удобный способ: пароль, одноразовый код или соцсети.
@@ -98,36 +77,42 @@
             <div class="ps-auth-panel" data-auth-panel="social">
                 <div class="ps-auth-placeholder">
                     <p class="ps-text-muted">Выберите провайдера. Мы запрашиваем только email и имя — ничего не публикуем.</p>
-                    <div class="ps-social-grid">
-                        <a class="ps-social-btn ps-social-btn--google" data-social="google" href="{% url 'oauth_start' 'google' %}?next={{ request.path }}">
-                            <span class="ps-social-icon" aria-hidden="true">
-                                <span class="google-g"></span>
+                    <div class="ps-social-banners">
+                        <a class="ps-social-banner ps-social-banner--google" data-social="google" href="{% url 'oauth_start' 'google' %}?next={{ request.path }}">
+                            <span class="ps-social-banner__stripe" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" role="presentation">
+                                    <path fill="#4285F4" d="M21.6 12.23c0-.8-.07-1.6-.21-2.36H12v4.48h5.36a4.6 4.6 0 0 1-2 3.02v2.5h3.24c1.9-1.75 3-4.33 3-7.64Z"/>
+                                    <path fill="#34A853" d="M12 22c2.7 0 4.96-.9 6.62-2.43l-3.24-2.5c-.9.6-2.06.96-3.38.96-2.6 0-4.8-1.76-5.58-4.12H3.08v2.59A10 10 0 0 0 12 22Z"/>
+                                    <path fill="#FBBC05" d="M6.42 13.91c-.2-.6-.32-1.24-.32-1.91s.12-1.32.32-1.91V7.5H3.08A10 10 0 0 0 2 12c0 1.6.38 3.1 1.08 4.5l3.34-2.59Z"/>
+                                    <path fill="#EA4335" d="M12 6.08c1.46 0 2.77.5 3.8 1.47l2.84-2.84C16.96 2.9 14.7 2 12 2 7.92 2 4.36 4.3 3.08 7.5l3.34 2.59C7.2 7.84 9.4 6.08 12 6.08Z"/>
+                                </svg>
                             </span>
-                            <span class="ps-social-text">
-                                <strong>Sign in with Google</strong>
-                                <small>Быстрый вход по аккаунту Google</small>
+                            <span class="ps-social-banner__text">
+                                <span class="ps-social-banner__title">Sign in with Google</span>
+                                <span class="ps-social-banner__hint">Быстрый вход по аккаунту Google</span>
                             </span>
-                            <span class="ps-social-tip" title="Доступ: имя и email. Мы не публикуем записи.">i</span>
                         </a>
-                        <a class="ps-social-btn ps-social-btn--vk" data-social="vk" href="{% url 'oauth_start' 'vk' %}?next={{ request.path }}">
-                            <span class="ps-social-icon" aria-hidden="true">
-                                <span class="vk-icon">VK</span>
+                        <a class="ps-social-banner ps-social-banner--vk" data-social="vk" href="{% url 'oauth_start' 'vk' %}?next={{ request.path }}">
+                            <span class="ps-social-banner__stripe" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" role="presentation" fill="#fff">
+                                    <path d="M3.5 7h2.7l2.2 4 2.1-4h2.4l-1.4 4.3 3.2-4.3h2.6l-4.2 5.3 3.8 5.7h-2.7l-2.3-3.5-2.3 3.5H8.9l3.8-5.4L7.6 7H3.5Z"/>
+                                </svg>
                             </span>
-                            <span class="ps-social-text">
-                                <strong>Continue with VK</strong>
-                                <small>Авторизация через VK ID</small>
+                            <span class="ps-social-banner__text">
+                                <span class="ps-social-banner__title">Войти через VK ID</span>
+                                <span class="ps-social-banner__hint">Имя и email, без публикаций</span>
                             </span>
-                            <span class="ps-social-tip" title="Доступ: имя и email. Сообщения и посты не затрагиваются.">i</span>
                         </a>
-                        <a class="ps-social-btn ps-social-btn--yandex" data-social="yandex" href="{% url 'oauth_start' 'yandex' %}?next={{ request.path }}">
-                            <span class="ps-social-icon" aria-hidden="true">
-                                <span class="yandex-icon">Я</span>
+                        <a class="ps-social-banner ps-social-banner--yandex" data-social="yandex" href="{% url 'oauth_start' 'yandex' %}?next={{ request.path }}">
+                            <span class="ps-social-banner__stripe" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" role="presentation">
+                                    <path d="M8 3h3.6l2 6.3L15.6 3H19l-3.5 8V21h-2.6v-5.5L8 3Z" fill="#111"/>
+                                </svg>
                             </span>
-                            <span class="ps-social-text">
-                                <strong>Войти через Yandex ID</strong>
-                                <small>Никаких публикаций, только данные профиля</small>
+                            <span class="ps-social-banner__text">
+                                <span class="ps-social-banner__title">Войти через Яндекс ID</span>
+                                <span class="ps-social-banner__hint">Только профиль, без сторонних прав</span>
                             </span>
-                            <span class="ps-social-tip" title="Доступ: имя, email. Ничего не публикуем.">i</span>
                         </a>
                     </div>
                     <p class="ps-text-muted">Если провайдер недоступен, попробуйте другой или войдите по коду/MFA.</p>
@@ -226,10 +211,9 @@
         socialLinks.forEach(function (link) {
             link.addEventListener('click', function () {
                 socialLinks.forEach(function (l) { l.classList.add('is-disabled'); });
-                var strong = link.querySelector('.ps-social-text strong');
-                if (strong) {
-                    strong.textContent = 'Перенаправляем...';
-                }
+                var title = link.querySelector('.ps-social-banner__title');
+                if (title) { title.textContent = 'Перенаправляем...'; }
+                link.setAttribute('aria-busy', 'true');
             });
         });
     })();

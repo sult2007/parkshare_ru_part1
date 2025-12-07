@@ -15,9 +15,10 @@ from rest_framework.throttling import UserRateThrottle, AnonRateThrottle
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from parking.models import ParkingLot, ParkingSpot
+from parking.models import Booking, ParkingLot, ParkingSpot
 from ai.pricing import recommend_price_for_spot
 from ai.models import DeviceProfile, UiEvent
+from core.metrics import record_assistant_tool
 from services.llm import check_llm_health
 from ai.chat.parking_assistant import generate_chat_reply
 from ai import tools
@@ -28,6 +29,50 @@ def api_error(code: str, message: str, status_code=status.HTTP_400_BAD_REQUEST, 
 
 logger = logging.getLogger(__name__)
 
+
+
+def _active_sessions_payload(user) -> tuple[list[dict], list[dict]]:
+    """
+    Собирает активные сессии бронирования и предупреждения об окончании.
+    """
+    if not user or not user.is_authenticated:
+        return [], []
+
+    sessions: list[dict] = []
+    alerts: list[dict] = []
+    now = timezone.now()
+    qs = (
+        Booking.objects.filter(
+            user=user,
+            status__in=[Booking.Status.ACTIVE, Booking.Status.CONFIRMED],
+        )
+        .select_related("spot", "spot__lot")
+        .order_by("end_at")
+    )
+    for b in qs:
+        remaining = max(0, int((b.end_at - now).total_seconds()))
+        sessions.append(
+            {
+                "id": str(b.id),
+                "spot_id": str(b.spot_id),
+                "spot_name": b.spot.name,
+                "lot_name": b.spot.lot.name,
+                "end_at": b.end_at,
+                "status": b.status,
+                "remaining_seconds": remaining,
+                "is_paid": b.is_paid,
+            }
+        )
+        if remaining <= 900:
+            alerts.append(
+                {
+                    "type": "booking_expiring",
+                    "booking_id": str(b.id),
+                    "spot": b.spot.name,
+                    "minutes_left": max(1, remaining // 60),
+                }
+            )
+    return sessions, alerts
 
 
 class RecommendationsAPIView(APIView):
@@ -288,6 +333,7 @@ class ChatStreamAPIView(APIView):
             return response
 
         suggestions = reply_payload.get("suggestions") or []
+        sessions, alerts = _active_sessions_payload(request.user)
         actions = []
         for item in suggestions:
             actions.append(
@@ -306,12 +352,40 @@ class ChatStreamAPIView(APIView):
                     "title": item.get("title"),
                 }
             )
+            actions.append(
+                {
+                    "type": "booking_start",
+                    "spot_id": item.get("spot_id"),
+                    "title": item.get("title"),
+                    "duration_minutes": 60,
+                }
+            )
+
+        for session in sessions:
+            actions.append(
+                {
+                    "type": "booking_extend",
+                    "booking_id": session["id"],
+                    "extend_minutes": 30,
+                }
+            )
+            actions.append(
+                {
+                    "type": "booking_stop",
+                    "booking_id": session["id"],
+                }
+            )
+
+        if actions:
+            record_assistant_tool("booking_cta")
 
         payload = {
             "reply": reply_text,
             "suggestions": suggestions,
             "actions": actions,
             "preferences": stored_prefs,
+            "sessions": sessions,
+            "alerts": alerts,
         }
         response = Response(payload, status=status.HTTP_200_OK)
         response.set_cookie("ps_device_id", device_id, max_age=60 * 60 * 24 * 365)

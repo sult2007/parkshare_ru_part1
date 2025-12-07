@@ -575,7 +575,9 @@
     function fetchFeatures(provider) {
         if (!provider) return;
         provider.setLoading(true);
-        var url = "/api/parking/map/" + buildQuery(readFilters());
+        var query = readFilters();
+        query.format = "geojson";
+        var url = "/api/v1/search/" + buildQuery(query);
         return fetch(url, { headers: { "Accept": "application/json" } })
             .then(function (resp) { if (!resp.ok) throw new Error("Map API error"); return resp.json(); })
             .then(function (data) {
