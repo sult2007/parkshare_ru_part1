@@ -144,9 +144,15 @@
             showToast(message, "error");
             return;
         }
-        if (typeof err === "string") message = err;
-        if (err.message) message = err.message;
-        if (err.response && err.response.message) message = err.response.message;
+        if (typeof err === "string") {
+            message = err;
+        } else if (err.message) {
+            message = err.message;
+        } else if (err.code && err.message) {
+            message = err.message;
+        } else if (err.response && err.response.message) {
+            message = err.response.message;
+        }
         showToast(message, "error");
         try {
             document.dispatchEvent(new CustomEvent("ps-error", { detail: err }));

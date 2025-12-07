@@ -280,6 +280,9 @@
           setStatus('Остановлено пользователем.', 'info');
         } else {
           console.warn('Chat error', error);
+          if (window.ParkShare && window.ParkShare.handleApiError) {
+            window.ParkShare.handleApiError(error);
+          }
           updateMessage(assistantMsg.id, function (msg) {
             return { ...msg, content: 'Сервис временно недоступен. Проверьте /api/chat/ или ключи LLM.' };
           });

@@ -23,7 +23,7 @@
             <h2 class="ps-card-title">Предпочтения парковки</h2>
             <form method="post">
                 {% csrf_token %}
-                <button class="ps-btn ps-btn-ghost ps-btn-sm" type="submit">Сбросить</button>
+                <button class="ps-btn ps-btn-ghost ps-btn-sm" name="reset_prefs" value="1" type="submit">Сбросить</button>
             </form>
         </div>
         <div class="ps-card-body ps-card-body--spacing-lg">
@@ -39,6 +39,26 @@
                 <div class="ps-empty">Пока нет сохранённых предпочтений. Ассистент запомнит их из вашего диалога.</div>
             {% endif %}
         </div>
+    </div>
+
+    <div class="ps-card">
+        <div class="ps-card-header">
+            <h2 class="ps-card-title">Уведомления</h2>
+        </div>
+        <form method="post" class="ps-card-body ps-card-body--spacing-lg">
+            {% csrf_token %}
+            <label class="ps-checkbox">
+                <input type="checkbox" name="notify_booking_expiry" {% if notifications.notify_booking_expiry %}checked{% endif %}>
+                <span>Напоминать о завершении брони</span>
+            </label>
+            <label class="ps-checkbox">
+                <input type="checkbox" name="notify_night_restrictions" {% if notifications.notify_night_restrictions %}checked{% endif %}>
+                <span>Ночные ограничения парковки</span>
+            </label>
+            <div class="ps-form-actions">
+                <button class="ps-btn ps-btn-primary" type="submit">Сохранить</button>
+            </div>
+        </form>
     </div>
 </section>
 {% endblock %}

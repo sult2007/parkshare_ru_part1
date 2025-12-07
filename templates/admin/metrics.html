@@ -25,5 +25,23 @@
             </div>
         </article>
     </div>
+    <div class="ps-grid ps-grid--gap-lg ps-grid--2col">
+        <article class="ps-card">
+            <div class="ps-card-header"><h2 class="ps-card-title">Последние 7 дней</h2></div>
+            <div class="ps-card-body">
+                <div class="ps-list-title">Бронирований: {{ last7.bookings|default:0 }}</div>
+                <div class="ps-list-title">Служебных: {{ last7.business|default:0 }}</div>
+                <div class="ps-list-title">Вариант A/B: {{ last7.variant.A|default:0 }} / {{ last7.variant.B|default:0 }}</div>
+            </div>
+        </article>
+        <article class="ps-card">
+            <div class="ps-card-header"><h2 class="ps-card-title">Последние 30 дней</h2></div>
+            <div class="ps-card-body">
+                <div class="ps-list-title">Бронирований: {{ last30.bookings|default:0 }}</div>
+                <div class="ps-list-title">Служебных: {{ last30.business|default:0 }}</div>
+                <div class="ps-list-title">Вариант A/B: {{ last30.variant.A|default:0 }} / {{ last30.variant.B|default:0 }}</div>
+            </div>
+        </article>
+    </div>
 </section>
 {% endblock %}

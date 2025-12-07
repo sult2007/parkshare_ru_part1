@@ -21,6 +21,10 @@ from services.llm import check_llm_health
 from ai.chat.parking_assistant import generate_chat_reply
 from ai import tools
 
+
+def api_error(code: str, message: str, status_code=status.HTTP_400_BAD_REQUEST, details=None):
+    return Response({"code": code, "message": message, "details": details or {}}, status=status_code)
+
 logger = logging.getLogger(__name__)
 
 
@@ -236,7 +240,7 @@ class ChatStreamAPIView(APIView):
         data = request.data or {}
         messages = data.get("messages") or []
         if not isinstance(messages, list) or not messages:
-            return Response({"code": "bad_request", "message": "messages is required"}, status=status.HTTP_400_BAD_REQUEST)
+            return api_error("bad_request", "messages is required")
 
         prefer_structured = bool(data.get("structured", True))
         stream_text = bool(data.get("stream"))

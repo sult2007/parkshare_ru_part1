@@ -22,6 +22,7 @@ from vehicles.models import Vehicle
 from payments.models import PaymentMethod
 from ai import tools as ai_tools
 from ai.models import DeviceProfile, UiEvent
+from parking.models_notification import NotificationSettings
 from accounts.models import UserLevel, UserBadge, PromoReward
 
 from .models import (
@@ -44,6 +45,15 @@ from .serializers import (
     SavedPlaceSerializer,
     WaitlistEntrySerializer,
 )
+
+
+def api_error(code: str, message: str, status_code=status.HTTP_400_BAD_REQUEST, details=None):
+    return Response({"code": code, "message": message, "details": details or {}}, status=status_code)
+
+
+def wants_json(request):
+    accept = request.headers.get("Accept", "")
+    return "application/json" in accept or request.content_type == "application/json"
 
 
 # =======================
@@ -609,18 +619,26 @@ class ProfileSettingsView(LoginRequiredMixin, TemplateView):
         ctx = super().get_context_data(**kwargs)
         profile = _get_device_profile(self.request)
         prefs = ai_tools.load_preferences(profile)
+        notif, _ = NotificationSettings.objects.get_or_create(user=self.request.user)
         ctx.update(
             {
                 "preferences": prefs,
                 "success": kwargs.get("success"),
+                "notifications": notif,
             }
         )
         return ctx
 
     def post(self, request, *args, **kwargs):
         profile = _get_device_profile(request)
-        UiEvent.objects.filter(device_profile=profile, event_type="preferences").delete()
-        return self.render_to_response(self.get_context_data(success="Предпочтения сброшены"))
+        if "reset_prefs" in request.POST:
+            UiEvent.objects.filter(device_profile=profile, event_type="preferences").delete()
+            return self.render_to_response(self.get_context_data(success="Предпочтения сброшены"))
+        notif, _ = NotificationSettings.objects.get_or_create(user=request.user)
+        notif.notify_booking_expiry = request.POST.get("notify_booking_expiry") == "on"
+        notif.notify_night_restrictions = request.POST.get("notify_night_restrictions") == "on"
+        notif.save(update_fields=["notify_booking_expiry", "notify_night_restrictions"])
+        return self.render_to_response(self.get_context_data(success="Настройки уведомлений обновлены"))
 
 
 class PaymentMethodsPageView(LoginRequiredMixin, TemplateView):
@@ -688,7 +706,11 @@ class PromoActivateView(LoginRequiredMixin, TemplateView):
             reward = PromoReward.objects.get(code__iexact=code, active=True)
             message = f"Промокод применён: {reward.description or 'бонус'}"
         except PromoReward.DoesNotExist:
+            if wants_json(request):
+                return api_error("invalid_promo", "Промокод недействителен или исчерпан.", status.HTTP_400_BAD_REQUEST)
             message = "Промокод недействителен или исчерпан."
+        if wants_json(request):
+            return Response({"message": message}, status=status.HTTP_200_OK)
         return self.render_to_response({"message": message})
 
     def get(self, request, *args, **kwargs):
@@ -778,9 +800,31 @@ class MetricsDashboardView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs: Any):
         ctx = super().get_context_data(**kwargs)
+        now = timezone.now()
+        span_7 = now - timezone.timedelta(days=7)
+        span_30 = now - timezone.timedelta(days=30)
+
         total_bookings = Booking.objects.count()
         business_bookings = Booking.objects.filter(ai_snapshot__business_trip=True).count()
         ai_sessions = UiEvent.objects.filter(event_type="preferences").count()
+
+        def variant_for_user(user):
+            return "B" if (hash(str(user.id)) % 2) else "A"
+
+        def aggregate(span_start):
+            qs = Booking.objects.filter(start_at__gte=span_start)
+            by_variant = {"A": 0, "B": 0}
+            for b in qs.select_related("user"):
+                v = variant_for_user(b.user)
+                by_variant[v] += 1
+            return {
+                "bookings": qs.count(),
+                "business": qs.filter(ai_snapshot__business_trip=True).count(),
+                "variant": by_variant,
+            }
+
+        ctx["last7"] = aggregate(span_7)
+        ctx["last30"] = aggregate(span_30)
         ctx.update(
             {
                 "total_bookings": total_bookings,
