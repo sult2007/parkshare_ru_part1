@@ -174,7 +174,7 @@
         if (!this._map) return;
         if (this._highlight) this._highlight.remove();
         this._highlight = L.circleMarker([lat, lng], { color: "#fbbf24", radius: 14, weight: 3 }).addTo(this._map);
-        this._map.setView([lat, lng], 15);
+        this._map.panTo([lat, lng], { animate: true, duration: 0.35, easeLinearity: 0.2 });
     };
 
     LeafletMapProvider.prototype.onInteraction = function (start, end) {
@@ -476,6 +476,9 @@
 
     function notifySelection(spotId, coords) {
         activeSpotId = spotId;
+        try {
+            document.dispatchEvent(new CustomEvent("ps:spot-selection", { detail: { spotId: spotId, coords: coords } }));
+        } catch (_) {}
         selectionSubscribers.forEach(function (fn) { fn(spotId, coords); });
     }
 
@@ -611,7 +614,7 @@
                 "<span class='ps-pill ps-pill--accent'><svg class='ps-icon' viewBox='0 0 24 24'><use href='" + statusIcon + "'></use></svg>" + statusLabel + "</span>"
             ];
             if (p.has_ev_charging) pills.push("<span class='ps-pill ps-pill--success'><svg class='ps-icon' viewBox='0 0 24 24'><use href='#ps-ic-ev'></use></svg>EV</span>");
-            if (p.is_covered) pills.push("<span class='ps-pill'><svg class='ps-icon' viewBox='0 0 24 24'><use href='#ps-ic-paid'></use></svg>Крытая</span>");
+            if (p.is_covered) pills.push("<span class='ps-pill'><svg class='ps-icon' viewBox='0 0 24 24'><use href='#ps-ic-covered'></use></svg>Крытая</span>");
             if (p.is_24_7) pills.push("<span class='ps-pill'>24/7</span>");
             return [
                 "<article class='ps-card ps-card--spot ps-animate-fade-up ps-animate-stagger' data-spot-card='" + spotId + "'>",
@@ -646,7 +649,7 @@
         });
         var activeCard = qs("[data-spot-card='" + idStr + "']");
         if (activeCard && typeof activeCard.scrollIntoView === "function") {
-            activeCard.scrollIntoView({ behavior: "smooth", block: "nearest" });
+            activeCard.scrollIntoView({ behavior: "smooth", block: "center" });
         }
     }
 

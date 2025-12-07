@@ -1112,8 +1112,22 @@ a {
     color: var(--ps-text-primary);
 }
 
+.ps-legend-icon--allowed {
+    background: var(--ps-accent-soft);
+}
+
 .ps-legend-icon--paid {
     background: rgba(79, 195, 255, 0.2);
+}
+
+.ps-legend-icon--forbidden {
+    background: rgba(239, 68, 68, 0.18);
+    color: var(--ps-danger);
+}
+
+.ps-legend-icon--covered {
+    background: var(--ps-border-subtle);
+    color: var(--ps-text-secondary);
 }
 
 .ps-legend-icon--ev {

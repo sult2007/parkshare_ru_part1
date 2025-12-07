@@ -279,7 +279,9 @@
         let currentState = sheet.getAttribute("data-sheet-state") || "half";
         let startY = 0;
         let startShift = 0;
-        let baseHeight = Math.min(window.innerHeight * 0.72, 720);
+        let baseHeight = Math.min(window.innerHeight * 0.82, 760);
+        let activePointerId = null;
+        const STATE_ORDER = ["collapsed", "half", "full"];
 
         function clamp(val, min, max) {
             return Math.max(min, Math.min(max, val));
@@ -289,17 +291,23 @@
             return isMobileWidth() && sheet.classList.contains("ps-bottom-sheet--floating");
         }
 
+        function computeBaseHeight() {
+            const viewportH = (window.visualViewport && window.visualViewport.height) || window.innerHeight;
+            return Math.min(Math.max(viewportH * 0.82, 420), 760);
+        }
+
         function apply(state, opts) {
-            currentState = state;
-            sheet.setAttribute("data-sheet-state", state);
+            currentState = state === "peek" ? "collapsed" : state;
+            sheet.setAttribute("data-sheet-state", currentState);
             if (!isFloating()) {
                 sheet.style.removeProperty("--ps-sheet-shift");
                 sheet.style.removeProperty("height");
                 return;
             }
-            baseHeight = Math.min(window.innerHeight * 0.72, 720);
-            sheet.style.height = baseHeight + "px";
-            const shift = state === "full" ? 8 : state === "half" ? baseHeight * 0.45 : baseHeight * 0.68;
+            baseHeight = computeBaseHeight();
+            sheet.style.height = Math.round(baseHeight) + "px";
+            const rawShift = currentState === "full" ? 8 : currentState === "half" ? baseHeight * 0.48 : baseHeight * 0.72;
+            const shift = clamp(rawShift, 6, baseHeight - 64);
             sheet.style.setProperty("--ps-sheet-shift", shift + "px");
             if (opts && opts.immediate) {
                 sheet.style.transition = "none";
@@ -309,51 +317,74 @@
             }
         }
 
+        function releasePointer(id) {
+            if (id !== null && sheet.hasPointerCapture && sheet.hasPointerCapture(id)) {
+                sheet.releasePointerCapture(id);
+            }
+            sheet.style.transition = "";
+            activePointerId = null;
+        }
+
         function gestureStart(evt) {
             if (!isFloating()) return;
+            activePointerId = evt.pointerId;
             startY = evt.clientY;
-            const currentShift =
-                parseFloat(getComputedStyle(sheet).getPropertyValue("--ps-sheet-shift")) || baseHeight * 0.6;
-            startShift = currentShift;
-            sheet.setPointerCapture(evt.pointerId);
-            window.addEventListener("pointermove", gestureMove);
+            startShift = parseFloat(getComputedStyle(sheet).getPropertyValue("--ps-sheet-shift")) || baseHeight * 0.6;
+            sheet.style.transition = "none";
+            if (sheet.setPointerCapture) {
+                sheet.setPointerCapture(activePointerId);
+            }
+            window.addEventListener("pointermove", gestureMove, { passive: true });
             window.addEventListener("pointerup", gestureEnd);
+            window.addEventListener("pointercancel", gestureEnd);
         }
 
         function gestureMove(evt) {
-            if (!isFloating()) return;
+            if (!isFloating() || evt.pointerId !== activePointerId) return;
             const delta = evt.clientY - startY;
             const nextShift = clamp(startShift + delta, 8, baseHeight - 64);
             sheet.style.setProperty("--ps-sheet-shift", nextShift + "px");
         }
 
-        function gestureEnd() {
-            if (!isFloating()) return;
+        function gestureEnd(evt) {
+            if (!isFloating() || (evt && evt.pointerId !== activePointerId)) {
+                releasePointer(activePointerId);
+                return;
+            }
             window.removeEventListener("pointermove", gestureMove);
             window.removeEventListener("pointerup", gestureEnd);
-            const shift =
-                parseFloat(getComputedStyle(sheet).getPropertyValue("--ps-sheet-shift")) || baseHeight * 0.6;
+            window.removeEventListener("pointercancel", gestureEnd);
+            const shift = parseFloat(getComputedStyle(sheet).getPropertyValue("--ps-sheet-shift")) || baseHeight * 0.6;
             const ratio = shift / baseHeight;
             if (ratio < 0.25) {
                 apply("full");
-            } else if (ratio < 0.58) {
+            } else if (ratio < 0.6) {
                 apply("half");
             } else {
                 apply("collapsed");
             }
+            releasePointer(activePointerId);
         }
 
         if (handle) {
             handle.addEventListener("pointerdown", gestureStart);
             handle.addEventListener("click", function () {
                 if (!isFloating()) return;
-                const next = currentState === "full" ? "half" : "full";
+                const idx = STATE_ORDER.indexOf(currentState);
+                const next = STATE_ORDER[(idx + 1) % STATE_ORDER.length] || "half";
                 apply(next);
             });
         }
 
         window.addEventListener("resize", function () {
             apply(currentState, { immediate: true });
+        });
+
+        document.addEventListener("ps:spot-selection", function () {
+            if (!isFloating()) return;
+            if (currentState === "collapsed") {
+                apply("half");
+            }
         });
 
         apply(currentState, { immediate: true });
@@ -424,6 +455,93 @@ function initAdaptiveProbe() {
                     }
                 );
             });
+        });
+    }
+
+    // ---------- Voice search (Web Speech API) ----------
+
+    function initVoiceInput() {
+        const trigger = qs("[data-voice-input]");
+        const inputs = qsa("[data-geocode-input]");
+        if (!trigger || !inputs.length) return;
+
+        const submit = qs("[data-geocode-submit]");
+        const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+        if (!Recognition) {
+            trigger.addEventListener("click", function () {
+                showToast("Голосовой ввод недоступен на этом устройстве", "info");
+            });
+            trigger.setAttribute("aria-disabled", "true");
+            return;
+        }
+
+        const recognition = new Recognition();
+        recognition.lang = "ru-RU";
+        recognition.continuous = false;
+        recognition.interimResults = false;
+
+        let listening = false;
+        const defaultPlaceholder = inputs[0].getAttribute("placeholder") || "";
+
+        function setListeningUi() {
+            listening = true;
+            trigger.classList.add("is-active");
+            trigger.setAttribute("aria-pressed", "true");
+            inputs.forEach(function (input) {
+                input.placeholder = "Слушаю…";
+            });
+        }
+
+        function clearListeningUi() {
+            listening = false;
+            trigger.classList.remove("is-active");
+            trigger.setAttribute("aria-pressed", "false");
+            inputs.forEach(function (input) {
+                input.placeholder = defaultPlaceholder;
+            });
+        }
+
+        function stopListening() {
+            if (!listening) return;
+            try {
+                recognition.stop();
+            } catch (_) {
+                /* ignore */
+            }
+        }
+
+        recognition.onstart = setListeningUi;
+        recognition.onend = clearListeningUi;
+        recognition.onerror = function () {
+            clearListeningUi();
+            showToast("Не удалось распознать речь. Попробуйте ещё раз.", "error");
+        };
+        recognition.onresult = function (event) {
+            const transcript = event.results && event.results[0] && event.results[0][0] ? event.results[0][0].transcript : "";
+            if (transcript) {
+                inputs.forEach(function (input) {
+                    input.value = transcript;
+                    input.dispatchEvent(new Event("input", { bubbles: true }));
+                });
+                if (submit) {
+                    submit.click();
+                }
+            }
+            stopListening();
+        };
+
+        trigger.addEventListener("click", function () {
+            if (listening) {
+                stopListening();
+                return;
+            }
+            try {
+                recognition.start();
+            } catch (err) {
+                clearListeningUi();
+                showToast("Голосовой ввод недоступен сейчас", "info");
+            }
         });
     }
 
@@ -604,6 +722,7 @@ function initAdaptiveProbe() {
         initSpotsSheet();
         initAdaptiveProbe();
         initGeolocation();
+        initVoiceInput();
         initPaymentMethods();
         initBottomNav();
 
