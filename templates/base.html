@@ -43,6 +43,23 @@
 </head>
 <body class="ps-body" data-user-id="{% if user.is_authenticated %}{{ user.id }}{% endif %}">
 <div class="ps-app">
+    <svg aria-hidden="true" focusable="false" style="position:absolute;width:0;height:0;overflow:hidden">
+        <symbol id="ps-ic-allowed" viewBox="0 0 24 24">
+            <path d="M6 3.5h8.2a5.3 5.3 0 0 1 0 10.6H9.5v6.4H6V3.5Zm3.5 3v4.5h4.7a2.2 2.2 0 1 0 0-4.5H9.5Z" fill="currentColor"/>
+        </symbol>
+        <symbol id="ps-ic-paid" viewBox="0 0 24 24">
+            <path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Zm.9 5c1.6 0 2.6.9 2.6 2.3 0 1.3-1 2.2-2.6 2.2h-2v2.1H9V8h3.9Zm-2 .9v2.7h1.9c.8 0 1.3-.5 1.3-1.3 0-.8-.5-1.4-1.3-1.4H10.9Z" fill="currentColor"/>
+        </symbol>
+        <symbol id="ps-ic-forbidden" viewBox="0 0 24 24">
+            <path d="M12 3.2a8.8 8.8 0 1 1 0 17.6A8.8 8.8 0 0 1 12 3.2Zm0 2a6.8 6.8 0 0 0-5.3 10.9l9.4-9.4A6.8 6.8 0 0 0 12 5.2Zm0 13.6a6.8 6.8 0 0 0 5.3-10.9l-9.4 9.4a6.8 6.8 0 0 0 4.1 1.5Z" fill="currentColor"/>
+        </symbol>
+        <symbol id="ps-ic-ev" viewBox="0 0 24 24">
+            <path d="m13.4 2-7 12.5h4.7L10.6 22 18 9.5h-4.6L13.4 2Z" fill="currentColor"/>
+        </symbol>
+        <symbol id="ps-ic-locate" viewBox="0 0 24 24">
+            <path d="M12 4.8a7.2 7.2 0 1 1 0 14.4 7.2 7.2 0 0 1 0-14.4Zm0 2a5.2 5.2 0 1 0 0 10.4 5.2 5.2 0 0 0 0-10.4Zm0 2.7a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5Z" fill="currentColor"/>
+        </symbol>
+    </svg>
     <header class="ps-topbar">
         <div class="ps-topbar__safe">
             <div class="ps-topbar__row">

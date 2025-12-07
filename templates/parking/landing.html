@@ -31,93 +31,103 @@
         <div class="ps-search-icon" aria-hidden="true">
             <svg class="ps-icon" viewBox="0 0 24 24"><path d="M15.5 14h-.8l-.3-.3a6 6 0 1 0-.7.7l.3.3v.8l4.5 4.5 1.5-1.5-4.5-4.5Zm-5.5 0a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9Z" fill="currentColor"/></svg>
         </div>
-        <input type="search" class="ps-search-input" placeholder="Искать парковку" data-geocode-input>
+        <input type="search" class="ps-search-input" placeholder="Адрес, метро или точка на маршруте" data-geocode-input>
         <div class="ps-search-actions">
             <button type="button" class="ps-icon-btn ps-icon-btn--ghost" data-geocode-submit aria-label="Найти">
                 <svg class="ps-icon" viewBox="0 0 24 24"><path d="m5 12.5 13.5-5.4a.5.5 0 0 1 .7.46L18 19.1a.5.5 0 0 1-.76.35l-4.34-3.07a1 1 0 0 0-1.16 0L7.4 18.9A.5.5 0 0 1 6.64 18L5 13.03a.5.5 0 0 1 0-.53Z" fill="currentColor"/></svg>
             </button>
-            <button type="button" class="ps-icon-btn ps-icon-btn--ghost" title="Голосовой ввод">
+            <button type="button" class="ps-icon-btn ps-icon-btn--ghost" title="Голосовой ввод" data-voice-input>
                 <svg class="ps-icon" viewBox="0 0 24 24"><path d="M12 3a3 3 0 0 0-3 3v5a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3Zm-1 15.9V21h2v-2.1a6.5 6.5 0 0 0 5-6.3h-2a4.5 4.5 0 1 1-9 0H5a6.5 6.5 0 0 0 5 6.3Z" fill="currentColor"/></svg>
             </button>
         </div>
     </div>
 
-    <div class="ps-map-card ps-map-panel" data-map-panel>
-        <div class="ps-map-wrapper">
-            <div id="map" class="ps-map"></div>
-            <div class="ps-map-overlay"></div>
-            <div class="ps-map-loading" data-map-loading>Обновляем карту…</div>
-            <div class="ps-map-floating-actions" aria-label="Действия карты">
-                <button class="ps-map-action" type="button" data-fill-location title="Моё местоположение" aria-label="Моё местоположение">
-                    <svg class="ps-icon" viewBox="0 0 24 24"><path d="M12 3.5 9.6 10H4l5 4-2 6.5L12 16l5 4.5-2-6.5 5-4h-5.6L12 3.5Z" fill="currentColor"/></svg>
-                </button>
-                <button class="ps-map-action" type="button" data-reset-filters title="Сбросить фильтры" aria-label="Сбросить фильтры">
-                    <svg class="ps-icon" viewBox="0 0 24 24"><path d="M12 5a7 7 0 0 1 6.9 6H21l-2.7 3-2.7-3H17A5 5 0 1 0 7 12H5.5A6.5 6.5 0 0 1 12 5Zm6 4h-1.5a4.5 4.5 0 0 0-9 0H6a6 6 0 0 1 12 0Zm-6 10a7 7 0 0 1-6.9-6H3l2.7-3 2.7 3H7a5 5 0 0 0 10 0h1.5A6.5 6.5 0 0 1 12 19Z" fill="currentColor"/></svg>
-                </button>
-                <button class="ps-map-action" type="button" data-map-theme title="Светлая / тёмная карта" aria-pressed="false">
-                    <svg class="ps-icon" viewBox="0 0 24 24"><path d="M12 3a9 9 0 0 0 0 18c2.9 0 5.5-1.4 7.1-3.5A7 7 0 0 1 12 4.9V3Zm0 2.9A7 7 0 0 1 17.8 17 7 7 0 1 1 12 5.9Z" fill="currentColor"/></svg>
-                </button>
+    <div class="ps-map-stack">
+        <div class="ps-map-card ps-map-panel" data-map-panel>
+            <div class="ps-map-wrapper">
+                <div id="map" class="ps-map"></div>
+                <div class="ps-map-overlay"></div>
+                <div class="ps-map-loading" data-map-loading>Обновляем карту…</div>
+                <div class="ps-map-floating-actions" aria-label="Действия карты">
+                    <button class="ps-map-action" type="button" data-fill-location title="Моё местоположение" aria-label="Моё местоположение">
+                        <svg class="ps-icon" viewBox="0 0 24 24"><use href="#ps-ic-locate"></use></svg>
+                    </button>
+                    <button class="ps-map-action" type="button" data-reset-filters title="Сбросить фильтры" aria-label="Сбросить фильтры">
+                        <svg class="ps-icon" viewBox="0 0 24 24"><path d="M12 5a7 7 0 0 1 6.9 6H21l-2.7 3-2.7-3H17A5 5 0 1 0 7 12H5.5A6.5 6.5 0 0 1 12 5Zm6 4h-1.5a4.5 4.5 0 0 0-9 0H6a6 6 0 0 1 12 0Zm-6 10a7 7 0 0 1-6.9-6H3l2.7-3 2.7 3H7a5 5 0 0 0 10 0h1.5A6.5 6.5 0 0 1 12 19Z" fill="currentColor"/></svg>
+                    </button>
+                    <button class="ps-map-action" type="button" data-map-theme title="Светлая / тёмная карта" aria-pressed="false">
+                        <svg class="ps-icon" viewBox="0 0 24 24"><path d="M12 3a9 9 0 0 0 0 18c2.9 0 5.5-1.4 7.1-3.5A7 7 0 0 1 12 4.9V3Zm0 2.9A7 7 0 0 1 17.8 17 7 7 0 1 1 12 5.9Z" fill="currentColor"/></svg>
+                    </button>
+                </div>
+            </div>
+            <div class="ps-map-controls">
+                <div class="ps-map-chips" data-filter-chips>
+                    <label class="ps-chip" data-chip-toggle>
+                        <input type="checkbox" name="only_free" hidden>
+                        <span>Только свободные</span>
+                    </label>
+                    <label class="ps-chip" data-chip-toggle>
+                        <input type="checkbox" name="ai_recommended" hidden>
+                        <span>AI-рекомендации</span>
+                    </label>
+                    <label class="ps-chip" data-chip-toggle>
+                        <input type="checkbox" name="ev" hidden>
+                        <span>EV-зарядка</span>
+                    </label>
+                    <label class="ps-chip" data-chip-toggle>
+                        <input type="checkbox" name="covered" hidden>
+                        <span>Крытая</span>
+                    </label>
+                    <label class="ps-chip" data-chip-toggle>
+                        <input type="checkbox" name="is_24_7" hidden>
+                        <span>24/7</span>
+                    </label>
+                </div>
+                <div class="ps-map-filters" data-map-filters-container>
+                    <form class="ps-map-filters-card" data-map-filters>
+                        <div class="ps-map-filters-row ps-map-filters-row--slider">
+                            <div class="ps-filter-slider" data-price-slider></div>
+                            <div class="ps-filter-price" data-price-display>Цена: от 0 ₽ до 1500 ₽</div>
+                        </div>
+                    </form>
+                </div>
+                <div class="ps-geocode-suggestions" data-geocode-suggestions></div>
+                <div class="ps-map-legend">
+                    <div class="ps-legend-item"><span class="ps-legend-icon ps-legend-icon--allowed"><svg class="ps-icon" viewBox="0 0 24 24"><use href="#ps-ic-allowed"></use></svg></span>Свободно</div>
+                    <div class="ps-legend-item"><span class="ps-legend-icon ps-legend-icon--paid"><svg class="ps-icon" viewBox="0 0 24 24"><use href="#ps-ic-paid"></use></svg></span>Платная</div>
+                    <div class="ps-legend-item"><span class="ps-legend-icon ps-legend-icon--ev"><svg class="ps-icon" viewBox="0 0 24 24"><use href="#ps-ic-ev"></use></svg></span>EV-зарядка</div>
+                </div>
+                <div class="ps-map-cta">
+                    <a class="ps-link ps-link-arrow" href="{% url 'map_page' %}">Открыть карту полностью</a>
+                </div>
             </div>
         </div>
-        <div class="ps-map-controls">
-            <div class="ps-map-chips" data-filter-chips>
-                <label class="ps-chip" data-chip-toggle>
-                    <input type="checkbox" name="only_free" hidden>
-                    <span>Только свободные</span>
-                </label>
-                <label class="ps-chip" data-chip-toggle>
-                    <input type="checkbox" name="ai_recommended" hidden>
-                    <span>AI-рекомендации</span>
-                </label>
-                <label class="ps-chip" data-chip-toggle>
-                    <input type="checkbox" name="ev" hidden>
-                    <span>EV-зарядка</span>
-                </label>
-                <label class="ps-chip" data-chip-toggle>
-                    <input type="checkbox" name="covered" hidden>
-                    <span>Крытая</span>
-                </label>
-                <label class="ps-chip" data-chip-toggle>
-                    <input type="checkbox" name="is_24_7" hidden>
-                    <span>24/7</span>
-                </label>
-            </div>
-            <div class="ps-map-filters" data-map-filters-container>
-                <form class="ps-map-filters-card" data-map-filters>
-                    <div class="ps-map-filters-row ps-map-filters-row--slider">
-                        <div class="ps-filter-slider" data-price-slider></div>
-                        <div class="ps-filter-price" data-price-display>Цена: от 0 ₽ до 1500 ₽</div>
-                    </div>
-                </form>
-            </div>
-            <div class="ps-geocode-suggestions" data-geocode-suggestions></div>
-            <div class="ps-route-hint" data-route-hint>Постройте мини-маршрут до выбранной точки.</div>
-            <div class="ps-map-cta">
-                <a class="ps-link ps-link-arrow" href="{% url 'map_page' %}">Открыть карту полностью</a>
-            </div>
-        </div>
-    </div>
 
-    <div class="ps-section ps-reco-section">
-        <div class="ps-section-header ps-section-header--stack">
-            <div>
-                <p class="ps-kicker">Рекомендации</p>
-                <h2 class="ps-section-title">Рядом с вами</h2>
-                <p class="ps-section-subtitle">Динамические цены, фильтры и быстрые действия.</p>
+        <div class="ps-bottom-sheet ps-bottom-sheet--floating" data-spots-panel data-spots-sheet data-sheet-state="half">
+            <div class="ps-bottom-sheet__handle" data-sheet-handle></div>
+            <div class="ps-bottom-sheet__header">
+                <div>
+                    <div class="ps-section-title-sm">Парковки рядом с маршрутом</div>
+                    <div class="ps-text-muted">Свободных: <span data-spots-count>{{ spots_total|default:0 }}</span>, ср. цена <span data-avg-price>—</span></div>
+                </div>
+                <div class="ps-bottom-sheet__actions">
+                    <button type="button" class="ps-btn ps-btn-ghost ps-btn-sm" data-reset-filters>Сбросить</button>
+                </div>
             </div>
-        </div>
-        <div class="ps-spots-panel" data-spots-panel>
-            <div class="ps-spots-list" data-spots-list>
-                <div class="ps-card ps-card--spot ps-card--skeleton">
-                    <div class="ps-skeleton-line ps-skeleton-line--lg"></div>
-                    <div class="ps-skeleton-line"></div>
-                    <div class="ps-skeleton-line ps-skeleton-line--short"></div>
+            <div class="ps-bottom-sheet__body">
+                <div class="ps-spots-list" data-spots-list>
+                    <div class="ps-card ps-card--spot ps-card--skeleton">
+                        <div class="ps-skeleton-line ps-skeleton-line--lg"></div>
+                        <div class="ps-skeleton-line"></div>
+                        <div class="ps-skeleton-line ps-skeleton-line--short"></div>
+                    </div>
+                    <div class="ps-card ps-card--spot ps-card--skeleton">
+                        <div class="ps-skeleton-line ps-skeleton-line--lg"></div>
+                        <div class="ps-skeleton-line"></div>
+                        <div class="ps-skeleton-line ps-skeleton-line--short"></div>
+                    </div>
                 </div>
-                <div class="ps-card ps-card--spot ps-card--skeleton">
-                    <div class="ps-skeleton-line ps-skeleton-line--lg"></div>
-                    <div class="ps-skeleton-line"></div>
-                    <div class="ps-skeleton-line ps-skeleton-line--short"></div>
-                </div>
+                <div class="ps-route-hint" data-route-hint>Постройте мини-маршрут до выбранной точки.</div>
             </div>
         </div>
     </div>
@@ -127,8 +137,8 @@
             <div class="ps-card-header">
                 <div>
                     <p class="ps-kicker">AI Concierge</p>
-                    <div class="ps-card-title">AI-консьерж по парковке</div>
-                    <p class="ps-card-line ps-card-line--muted">Персональные подсказки, маршруты и сценарии поддержки в реальном времени.</p>
+                    <div class="ps-card-title">Ассистент на связи</div>
+                    <p class="ps-card-line ps-card-line--muted">Диалог, поиск вдоль маршрута, быстрые брони и продление парковки.</p>
                 </div>
                 <span class="ps-badge ps-badge--neutral">Потоковый чат</span>
             </div>

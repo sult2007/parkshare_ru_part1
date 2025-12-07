@@ -273,29 +273,90 @@
     // ---------- Spots bottom sheet (mobile) ----------
 
     function initSpotsSheet() {
-        const panel = qs("[data-spots-panel]");
-        if (!panel) return;
-        const triggers = qsa("[data-open-spots]");
+        const sheet = qs("[data-spots-sheet]") || qs("[data-spots-panel]");
+        if (!sheet) return;
+        const handle = qs("[data-sheet-handle]", sheet) || qs(".ps-bottom-sheet__handle", sheet);
+        let currentState = sheet.getAttribute("data-sheet-state") || "half";
+        let startY = 0;
+        let startShift = 0;
+        let baseHeight = Math.min(window.innerHeight * 0.72, 720);
 
-        function setState(open) {
-            panel.classList.toggle("is-sheet-open", open);
-            if (open) {
-                panel.scrollIntoView({ behavior: "smooth" });
+        function clamp(val, min, max) {
+            return Math.max(min, Math.min(max, val));
+        }
+
+        function isFloating() {
+            return isMobileWidth() && sheet.classList.contains("ps-bottom-sheet--floating");
+        }
+
+        function apply(state, opts) {
+            currentState = state;
+            sheet.setAttribute("data-sheet-state", state);
+            if (!isFloating()) {
+                sheet.style.removeProperty("--ps-sheet-shift");
+                sheet.style.removeProperty("height");
+                return;
+            }
+            baseHeight = Math.min(window.innerHeight * 0.72, 720);
+            sheet.style.height = baseHeight + "px";
+            const shift = state === "full" ? 8 : state === "half" ? baseHeight * 0.45 : baseHeight * 0.68;
+            sheet.style.setProperty("--ps-sheet-shift", shift + "px");
+            if (opts && opts.immediate) {
+                sheet.style.transition = "none";
+                requestAnimationFrame(function () {
+                    sheet.style.transition = "";
+                });
             }
         }
 
-        triggers.forEach(function (btn) {
-            btn.addEventListener("click", function () {
-                const next = !panel.classList.contains("is-sheet-open");
-                setState(next);
+        function gestureStart(evt) {
+            if (!isFloating()) return;
+            startY = evt.clientY;
+            const currentShift =
+                parseFloat(getComputedStyle(sheet).getPropertyValue("--ps-sheet-shift")) || baseHeight * 0.6;
+            startShift = currentShift;
+            sheet.setPointerCapture(evt.pointerId);
+            window.addEventListener("pointermove", gestureMove);
+            window.addEventListener("pointerup", gestureEnd);
+        }
+
+        function gestureMove(evt) {
+            if (!isFloating()) return;
+            const delta = evt.clientY - startY;
+            const nextShift = clamp(startShift + delta, 8, baseHeight - 64);
+            sheet.style.setProperty("--ps-sheet-shift", nextShift + "px");
+        }
+
+        function gestureEnd() {
+            if (!isFloating()) return;
+            window.removeEventListener("pointermove", gestureMove);
+            window.removeEventListener("pointerup", gestureEnd);
+            const shift =
+                parseFloat(getComputedStyle(sheet).getPropertyValue("--ps-sheet-shift")) || baseHeight * 0.6;
+            const ratio = shift / baseHeight;
+            if (ratio < 0.25) {
+                apply("full");
+            } else if (ratio < 0.58) {
+                apply("half");
+            } else {
+                apply("collapsed");
+            }
+        }
+
+        if (handle) {
+            handle.addEventListener("pointerdown", gestureStart);
+            handle.addEventListener("click", function () {
+                if (!isFloating()) return;
+                const next = currentState === "full" ? "half" : "full";
+                apply(next);
             });
-        });
+        }
 
         window.addEventListener("resize", function () {
-            if (!isMobileWidth()) {
-                panel.classList.remove("is-sheet-open");
-            }
+            apply(currentState, { immediate: true });
         });
+
+        apply(currentState, { immediate: true });
     }
 
 // ---------- Adaptive AI probe ----------

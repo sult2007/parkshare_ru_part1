@@ -16,6 +16,9 @@
     try { storedTheme = localStorage.getItem("ps-theme"); } catch (_) {}
     var isNight = (dataTheme || storedTheme || (prefersDark ? "dark" : "light")) === "dark";
     var lastFeatures = [];
+    var featureIndex = {};
+    var selectionSubscribers = [];
+    var activeSpotId = null;
     var userLocation = null;
 
     function distanceKm(a, b) {
@@ -76,6 +79,8 @@
         this._currentTile = "day";
         this._activeRoute = null;
         this._highlight = null;
+        this._markers = {};
+        this._activeMarker = null;
     }
     LeafletMapProvider.prototype = Object.create(BaseMapProvider.prototype);
 
@@ -99,12 +104,14 @@
         if (!this._map || !this._markersLayer) return;
         var layer = this._markersLayer;
         layer.clearLayers();
+        this._markers = {};
         var bounds = [];
         (fc.features || []).forEach(function (feature) {
             var coords = feature.geometry && feature.geometry.coordinates;
             if (!coords) return;
             var lng = coords[0], lat = coords[1];
             var p = feature.properties || {};
+            var spotId = String(p.spot_id || feature.id || p.id || "");
             var stress = p.stress_index || 0;
             var color = stress >= 0.8 ? "#ef4444" : stress >= 0.6 ? "#f59e0b" : "#0ea5e9";
             var isHot = p.hourly_price && stress < 0.6;
@@ -129,8 +136,12 @@
             });
             marker.bindPopup(buildPopupHtml(p, color), { className: "ps-map-popup-card" });
             marker.addTo(layer);
+            this._markers[spotId] = marker;
+            marker.on("click", function () {
+                notifySelection(spotId, { lat: lat, lng: lng });
+            });
             bounds.push([lat, lng]);
-        });
+        }, this);
         lastFeatures = fc.features || [];
         if (bounds.length) this._map.fitBounds(bounds, { padding: [72, 72] });
     };
@@ -183,6 +194,18 @@
         this._map.setView([lat, lng], zoom || this._map.getZoom());
     };
 
+    LeafletMapProvider.prototype.setActiveMarkerById = function (spotId) {
+        if (!this._markers) return;
+        if (this._activeMarker && this._activeMarker._icon) {
+            this._activeMarker._icon.classList.remove("is-active");
+        }
+        var marker = this._markers[spotId];
+        if (marker && marker._icon) {
+            marker._icon.classList.add("is-active");
+            this._activeMarker = marker;
+        }
+    };
+
     // ---------- Yandex Maps ----------
     function YandexMapProvider(options) {
         BaseMapProvider.call(this, options);
@@ -194,6 +217,8 @@
         this._theme = options.theme || "day";
         this._mapTypesReady = false;
         this._heatLayer = null;
+        this._markers = {};
+        this._activePlacemark = null;
     }
     YandexMapProvider.prototype = Object.create(BaseMapProvider.prototype);
 
@@ -294,6 +319,7 @@
         if (!this._map || !this._ready) { this._pending = fc; return; }
         this._ensureLayouts();
         this._clusterer.removeAll();
+        this._markers = {};
         var bounds = [];
         var features = fc.features || [];
         var prices = features.map(function (f) { return f.properties && f.properties.hourly_price; }).filter(function (v) { return typeof v === "number"; });
@@ -304,6 +330,7 @@
             var coords = feature.geometry && feature.geometry.coordinates; if (!coords) return;
             var lng = coords[0], lat = coords[1];
             var p = feature.properties || {};
+            var spotId = String(p.spot_id || feature.id || p.id || "");
             var stress = p.stress_index || 0;
             var allowAi = !!p.allow_dynamic_pricing;
             var color = allowAi ? "#22c55e" : "#0ea5e9";
@@ -327,9 +354,18 @@
                 hideIconOnBalloonOpen: false,
                 balloonPanelMaxMapArea: 0,
             });
-            placemark.events.add("balloonopen", function () { self._setActive(placemark); self._map.panTo([lat, lng], { flying: true, duration: 400 }); });
+            placemark.events.add("balloonopen", function () {
+                self._setActive(placemark);
+                notifySelection(spotId, { lat: lat, lng: lng });
+                self._map.panTo([lat, lng], { flying: true, duration: 400 });
+            });
+            placemark.events.add("click", function () {
+                self._setActive(placemark);
+                notifySelection(spotId, { lat: lat, lng: lng });
+            });
             placemark.events.add("balloonclose", function () { self._setActive(null); });
             self._clusterer.add(placemark);
+            self._markers[spotId] = placemark;
             bounds.push([lat, lng]);
         });
 
@@ -344,6 +380,14 @@
         }
         this._activePlacemark = placemark;
         if (placemark) { placemark.properties.set("markerActive", "ps-map-marker--active"); placemark.options.set("zIndex", 2200); }
+    };
+
+    YandexMapProvider.prototype.setActiveMarkerById = function (spotId) {
+        if (!this._markers) return;
+        var target = this._markers[spotId];
+        if (target) {
+            this._setActive(target);
+        }
     };
 
     YandexMapProvider.prototype.toggleTheme = function (mode) {
@@ -408,13 +452,14 @@
         if (props.is_24_7) badges.push("<span class='ps-badge'>24/7</span>");
         var occupancy = Math.min(100, Math.round((props.occupancy_7d || 0) * 100));
         var stressTone = occupancy > 80 ? "danger" : occupancy > 60 ? "warn" : "ok";
+        var estimate = estimatePricing(props);
         return [
             "<div class='ps-map-popup ps-map-popup--" + stressTone + "'>",
             "  <header class='ps-map-popup-head'>",
             "    <div class='ps-map-popup-title'>" + (props.city || "") + (props.lot_name ? ", " + props.lot_name : "") + (props.name ? " — " + props.name : "") + "</div>",
             "    <div class='ps-map-popup-meta'>" + (props.address || "Адрес уточняется") + "</div>",
             "  </header>",
-            "  <div class='ps-map-popup-price'>от <strong>" + (props.hourly_price || "?") + " ₽/час</strong></div>",
+            "  <div class='ps-map-popup-price'>от <strong>" + (props.hourly_price || "?") + " ₽/час</strong><div class='ps-map-popup-meta'>~" + estimate.h3 + " ₽ за 3 часа · ~" + estimate.h24 + " ₽/сутки</div></div>",
             "  <div class='ps-map-popup-badges'>" + badges.join(" ") + "</div>",
             "  <div class='ps-map-popup-meter'><span style='width:" + occupancy + "%; background:" + color + "'></span><div class='ps-map-popup-meter-label'>загруженность " + occupancy + "%</div></div>",
             "  <div class='ps-map-popup-actions'>",
@@ -423,6 +468,59 @@
             "  </div>",
             "</div>"
         ].join("");
+    }
+
+    function registerSelectionHandler(fn) {
+        selectionSubscribers.push(fn);
+    }
+
+    function notifySelection(spotId, coords) {
+        activeSpotId = spotId;
+        selectionSubscribers.forEach(function (fn) { fn(spotId, coords); });
+    }
+
+    function indexFeatures(fc) {
+        featureIndex = {};
+        (fc.features || []).forEach(function (f) {
+            var p = f.properties || {};
+            var id = String(p.spot_id || f.id || p.id || "");
+            if (id) featureIndex[id] = f;
+        });
+    }
+
+    function findFeature(id) {
+        if (!id) return null;
+        return featureIndex[id] || (lastFeatures || []).find(function (f) {
+            var pid = f.properties && (f.properties.spot_id || f.properties.id);
+            return String(pid || f.id || "") === String(id);
+        }) || null;
+    }
+
+    function estimatePricing(props) {
+        var hourly = Number(props.hourly_price) || 0;
+        var nightly = Number(props.nightly_price) || 0;
+        var daily = Number(props.daily_price) || 0;
+        var oneHour = hourly || Math.max(nightly / 10, daily / 24, 0);
+        var threeHours = hourly ? hourly * 3 : oneHour * 3;
+        var day = daily || (hourly ? hourly * 12 : threeHours * 2.5);
+        return {
+            h1: Math.round(oneHour),
+            h3: Math.round(threeHours),
+            h24: Math.round(day)
+        };
+    }
+
+    function buildStressHint(props) {
+        var stress = props.stress_index || 0;
+        var occupancy = props.occupancy_7d || 0;
+        if (stress > 0.7 || occupancy > 0.75) {
+            return "Сейчас высокая загруженность, лучше рассмотреть альтернативы.";
+        }
+        if (stress > 0.45 || occupancy > 0.55) {
+            var uplift = Math.round(Math.max(stress, occupancy) * 30);
+            return "В этом районе обычно дороже на ~" + (uplift || 10) + "%.";
+        }
+        return "Обычно свободно, бронируйте без ожидания.";
     }
 
     function createProvider() {
@@ -479,6 +577,7 @@
             .then(function (resp) { if (!resp.ok) throw new Error("Map API error"); return resp.json(); })
             .then(function (data) {
                 provider.setFeatures(data);
+                indexFeatures(data);
                 lastFeatures = data.features || [];
                 updateSpotsList(data); updateStats(data);
             })
@@ -489,11 +588,12 @@
     function updateStats(fc) {
         var features = fc.features || [];
         var prices = features.map(function (f) { return f.properties && f.properties.hourly_price; }).filter(function (p) { return typeof p === "number"; });
-        var avgEl = qs("[data-avg-price]"); var countEl = qs("[data-spots-count]");
-        if (countEl) countEl.textContent = String(features.length);
-        if (!avgEl) return; if (!prices.length) { avgEl.textContent = "—"; return; }
+        var avgEls = qsa("[data-avg-price]"); var countEls = qsa("[data-spots-count]");
+        countEls.forEach(function (el) { el.textContent = String(features.length); });
+        if (!avgEls.length) return; if (!prices.length) { avgEls.forEach(function (el) { el.textContent = "—"; }); return; }
         var sum = prices.reduce(function (acc, p) { return acc + p; }, 0);
-        avgEl.textContent = (Math.round((sum / prices.length) / 10) * 10) + " ₽/час";
+        var value = (Math.round((sum / prices.length) / 10) * 10) + " ₽/час";
+        avgEls.forEach(function (el) { el.textContent = value; });
     }
 
     function updateSpotsList(fc) {
@@ -501,23 +601,53 @@
         var features = fc.features || [];
         if (!features.length) { container.innerHTML = "<div class='ps-empty'><p>Подходящих мест пока нет. Попробуйте изменить фильтры.</p></div>"; return; }
         container.innerHTML = features.map(function (f) {
-            var p = f.properties || {}, tags = [];
-            if (p.has_ev_charging) tags.push("EV");
-            if (p.is_covered) tags.push("Крытая");
-            if (p.is_24_7) tags.push("24/7");
+            var p = f.properties || {};
+            var spotId = p.spot_id || f.id || "";
             var badge = p.allow_dynamic_pricing ? "<span class='ps-badge ps-badge--success'>AI‑тариф</span>" : "";
-            var tagLine = tags.length ? "<div class='ps-card-line ps-card-line--muted'>" + tags.join(" • ") + "</div>" : "";
+            var estimate = estimatePricing(p);
+            var statusIcon = (p.status && p.status !== "active") ? "#ps-ic-forbidden" : (p.hourly_price ? "#ps-ic-paid" : "#ps-ic-allowed");
+            var statusLabel = (p.status && p.status !== "active") ? "Ограничена" : (p.hourly_price ? "Платная" : "Разрешена");
+            var pills = [
+                "<span class='ps-pill ps-pill--accent'><svg class='ps-icon' viewBox='0 0 24 24'><use href='" + statusIcon + "'></use></svg>" + statusLabel + "</span>"
+            ];
+            if (p.has_ev_charging) pills.push("<span class='ps-pill ps-pill--success'><svg class='ps-icon' viewBox='0 0 24 24'><use href='#ps-ic-ev'></use></svg>EV</span>");
+            if (p.is_covered) pills.push("<span class='ps-pill'><svg class='ps-icon' viewBox='0 0 24 24'><use href='#ps-ic-paid'></use></svg>Крытая</span>");
+            if (p.is_24_7) pills.push("<span class='ps-pill'>24/7</span>");
             return [
-                "<article class='ps-card ps-card--spot ps-animate-fade-up ps-animate-stagger' data-spot-card='" + (p.spot_id || f.id || "") + "'>",
+                "<article class='ps-card ps-card--spot ps-animate-fade-up ps-animate-stagger' data-spot-card='" + spotId + "'>",
                 "  <div class='ps-card-header'><div class='ps-card-title'>" + (p.city || "") + (p.lot_name ? ", " + p.lot_name : "") + (p.name ? " — " + p.name : "") + "</div>" + badge + "</div>",
                 "  <div class='ps-card-body'>",
-                "    <div class='ps-card-line'>от " + (p.hourly_price || "?") + " ₽/час</div>",
-                tagLine,
+                "    <div class='ps-spot-meta'>" + pills.join("") + "</div>",
+                "    <div class='ps-spot-price'>от " + (p.hourly_price || "?") + " ₽/час</div>",
+                "    <div class='ps-spot-estimate'>Оценка: ~" + estimate.h3 + " ₽ за 3 часа · ~" + estimate.h24 + " ₽/сутки</div>",
                 "    <div class='ps-card-line ps-card-line--muted'>" + (p.address || "Адрес будет уточнён") + "</div>",
+                "    <div class='ps-card-line ps-card-line--muted'>" + buildStressHint(p) + "</div>",
                 "  </div>",
                 "</article>"
             ].join("");
         }).join("");
+        if (activeSpotId) {
+            setActiveCard(activeSpotId);
+        }
+    }
+
+    function featureCoordsById(spotId) {
+        var match = findFeature(spotId);
+        if (match && match.geometry && match.geometry.coordinates) {
+            return { lat: match.geometry.coordinates[1], lng: match.geometry.coordinates[0] };
+        }
+        return null;
+    }
+
+    function setActiveCard(spotId) {
+        var idStr = String(spotId || "");
+        qsa("[data-spot-card]").forEach(function (card) {
+            card.classList.toggle("is-active", card.getAttribute("data-spot-card") === idStr);
+        });
+        var activeCard = qs("[data-spot-card='" + idStr + "']");
+        if (activeCard && typeof activeCard.scrollIntoView === "function") {
+            activeCard.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        }
     }
 
     function initPriceSlider(onChange) {
@@ -613,6 +743,15 @@
             var next = e.detail && e.detail.theme;
             if (next) applyMapTheme(next, provider, mapContainer, true);
         });
+        registerSelectionHandler(function (spotId, coords) {
+            var point = coords || featureCoordsById(spotId);
+            if (provider.setActiveMarkerById) provider.setActiveMarkerById(spotId);
+            setActiveCard(spotId);
+            if (point) {
+                if (provider.focusOn) provider.focusOn(point.lat, point.lng);
+                drawRoute(provider, point);
+            }
+        });
 
         var filtersForm = qs("[data-map-filters]");
         if (filtersForm) filtersForm.addEventListener("change", function () { fetchFeatures(provider); });
@@ -702,8 +841,8 @@ function createBooking(spotId) {
                 var bookBtn = e.target.closest("[data-spot-id]");
                 if (focusBtn) {
                     var id = focusBtn.getAttribute("data-focus-spot");
-                    var match = (lastFeatures || []).find(function (f) { var fid = String(f.id); var pid = f.properties && f.properties.spot_id ? String(f.properties.spot_id) : null; return id && (fid === id || pid === id); });
-                    if (match && match.geometry) { var coords = match.geometry.coordinates; var latlng = { lat: coords[1], lng: coords[0] }; if (provider.focusOn) provider.focusOn(latlng.lat, latlng.lng); drawRoute(provider, latlng); }
+                    var coords = featureCoordsById(id);
+                    notifySelection(id, coords);
                 }
                 if (bookBtn) {
                     var targetId = bookBtn.getAttribute("data-spot-id");
@@ -729,8 +868,8 @@ function createBooking(spotId) {
             list.addEventListener("click", function (e) {
                 var card = e.target.closest("[data-spot-card]"); if (!card) return;
                 var id = card.getAttribute("data-spot-card");
-                var match = (lastFeatures || []).find(function (f) { var fid = String(f.id); var pid = f.properties && f.properties.spot_id ? String(f.properties.spot_id) : null; return id && (fid === id || pid === id); });
-                if (match && match.geometry) { var coords = match.geometry.coordinates; var latlng = { lat: coords[1], lng: coords[0] }; if (provider.focusOn) provider.focusOn(latlng.lat, latlng.lng); drawRoute(provider, latlng); }
+                var coords = featureCoordsById(id);
+                notifySelection(id, coords);
             });
         });
     });
