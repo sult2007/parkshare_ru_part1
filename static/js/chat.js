@@ -242,6 +242,9 @@
           } catch (_) {
             try { detail = await resp.text(); } catch (__) { /* ignore */ }
           }
+          if (window.ParkShare && window.ParkShare.handleApiError) {
+            window.ParkShare.handleApiError({ message: detail || 'LLM недоступен. Настройте /api/chat/' });
+          }
           throw new Error(detail || 'LLM недоступен. Настройте /api/chat/');
         }
 

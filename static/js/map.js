@@ -599,7 +599,11 @@
                     }
                 } catch (_) {}
             })
-            .catch(function () {})
+            .catch(function (err) {
+                if (window.ParkShare && window.ParkShare.handleApiError) {
+                    window.ParkShare.handleApiError(err);
+                }
+            })
             .finally(function () { provider.setLoading(false); });
     }
 
@@ -720,7 +724,9 @@
                     var list = data.results || [];
                     if (suggestions) suggestions.innerHTML = list.map(function (item) { return "<button type='button' data-geocode-choice data-lat='" + item.lat + "' data-lng='" + item.lng + "'>" + item.title + "</button>"; }).join("");
                 })
-                .catch(function () {});
+                .catch(function (err) {
+                    if (window.ParkShare && window.ParkShare.handleApiError) window.ParkShare.handleApiError(err);
+                });
         }
 
         inputs.forEach(function (input) {

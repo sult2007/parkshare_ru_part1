@@ -29,17 +29,29 @@
         <article class="ps-card">
             <div class="ps-card-header"><h2 class="ps-card-title">Последние 7 дней</h2></div>
             <div class="ps-card-body">
-                <div class="ps-list-title">Бронирований: {{ last7.bookings|default:0 }}</div>
-                <div class="ps-list-title">Служебных: {{ last7.business|default:0 }}</div>
-                <div class="ps-list-title">Вариант A/B: {{ last7.variant.A|default:0 }} / {{ last7.variant.B|default:0 }}</div>
+                <div class="ps-list-title">map_open: {{ last7.funnel.map_open|default:0 }}</div>
+                <div class="ps-list-title">spot_select: {{ last7.funnel.spot_select|default:0 }}</div>
+                <div class="ps-list-title">booking_confirm_open: {{ last7.funnel.booking_confirm_open|default:0 }}</div>
+                <div class="ps-list-title">booking_created: {{ last7.funnel.booking_created|default:0 }}</div>
+                <div class="ps-list-title">repeat_visit: {{ last7.funnel.repeat_visit|default:0 }}</div>
+                <div class="ps-list-title">map→spot: {{ last7.conversions.map_to_spot }}%</div>
+                <div class="ps-list-title">spot→confirm: {{ last7.conversions.spot_to_confirm }}%</div>
+                <div class="ps-list-title">confirm→booking: {{ last7.conversions.confirm_to_booking }}%</div>
+                <div class="ps-list-title">A/B bookings: {{ last7.variants.A.booking_created|default:0 }} / {{ last7.variants.B.booking_created|default:0 }}</div>
             </div>
         </article>
         <article class="ps-card">
             <div class="ps-card-header"><h2 class="ps-card-title">Последние 30 дней</h2></div>
             <div class="ps-card-body">
-                <div class="ps-list-title">Бронирований: {{ last30.bookings|default:0 }}</div>
-                <div class="ps-list-title">Служебных: {{ last30.business|default:0 }}</div>
-                <div class="ps-list-title">Вариант A/B: {{ last30.variant.A|default:0 }} / {{ last30.variant.B|default:0 }}</div>
+                <div class="ps-list-title">map_open: {{ last30.funnel.map_open|default:0 }}</div>
+                <div class="ps-list-title">spot_select: {{ last30.funnel.spot_select|default:0 }}</div>
+                <div class="ps-list-title">booking_confirm_open: {{ last30.funnel.booking_confirm_open|default:0 }}</div>
+                <div class="ps-list-title">booking_created: {{ last30.funnel.booking_created|default:0 }}</div>
+                <div class="ps-list-title">repeat_visit: {{ last30.funnel.repeat_visit|default:0 }}</div>
+                <div class="ps-list-title">map→spot: {{ last30.conversions.map_to_spot }}%</div>
+                <div class="ps-list-title">spot→confirm: {{ last30.conversions.spot_to_confirm }}%</div>
+                <div class="ps-list-title">confirm→booking: {{ last30.conversions.confirm_to_booking }}%</div>
+                <div class="ps-list-title">A/B bookings: {{ last30.variants.A.booking_created|default:0 }} / {{ last30.variants.B.booking_created|default:0 }}</div>
             </div>
         </article>
     </div>

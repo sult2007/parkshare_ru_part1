@@ -23,6 +23,7 @@ from payments.models import PaymentMethod
 from ai import tools as ai_tools
 from ai.models import DeviceProfile, UiEvent
 from parking.models_notification import NotificationSettings
+from parking import analytics
 from accounts.models import UserLevel, UserBadge, PromoReward
 
 from .models import (
@@ -633,11 +634,15 @@ class ProfileSettingsView(LoginRequiredMixin, TemplateView):
         profile = _get_device_profile(request)
         if "reset_prefs" in request.POST:
             UiEvent.objects.filter(device_profile=profile, event_type="preferences").delete()
+            if wants_json(request):
+                return Response({"message": "Предпочтения сброшены"}, status=status.HTTP_200_OK)
             return self.render_to_response(self.get_context_data(success="Предпочтения сброшены"))
         notif, _ = NotificationSettings.objects.get_or_create(user=request.user)
         notif.notify_booking_expiry = request.POST.get("notify_booking_expiry") == "on"
         notif.notify_night_restrictions = request.POST.get("notify_night_restrictions") == "on"
         notif.save(update_fields=["notify_booking_expiry", "notify_night_restrictions"])
+        if wants_json(request):
+            return Response({"message": "Настройки уведомлений обновлены"}, status=status.HTTP_200_OK)
         return self.render_to_response(self.get_context_data(success="Настройки уведомлений обновлены"))
 
 
@@ -661,9 +666,15 @@ class PaymentMethodsPageView(LoginRequiredMixin, TemplateView):
         user = request.user
         if "delete_id" in request.POST:
             PaymentMethod.objects.filter(user=user, id=request.POST.get("delete_id")).delete()
+            if wants_json(request):
+                return Response({"message": "Метод оплаты удалён"}, status=status.HTTP_200_OK)
             return self.render_to_response(self.get_context_data(success="Метод оплаты удалён"))
 
         card = (request.POST.get("card_number") or "").replace(" ", "")
+        if len(card) < 12:
+            if wants_json(request):
+                return api_error("invalid_card", "Некорректный номер карты")
+            return self.render_to_response(self.get_context_data(success="Некорректный номер карты"))
         last4 = card[-4:] if len(card) >= 4 else "0000"
         exp = (request.POST.get("exp") or "").split("/")
         try:
@@ -684,6 +695,8 @@ class PaymentMethodsPageView(LoginRequiredMixin, TemplateView):
             is_default=is_default,
             token_masked=f"stub_{last4}_{timezone.now().timestamp()}",
         )
+        if wants_json(request):
+            return Response({"message": "Метод оплаты добавлен"}, status=status.HTTP_200_OK)
         return self.render_to_response(self.get_context_data(success="Метод оплаты добавлен"))
 
     def get_context_data(self, **kwargs: Any):
@@ -800,38 +813,11 @@ class MetricsDashboardView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs: Any):
         ctx = super().get_context_data(**kwargs)
-        now = timezone.now()
-        span_7 = now - timezone.timedelta(days=7)
-        span_30 = now - timezone.timedelta(days=30)
-
-        total_bookings = Booking.objects.count()
-        business_bookings = Booking.objects.filter(ai_snapshot__business_trip=True).count()
-        ai_sessions = UiEvent.objects.filter(event_type="preferences").count()
-
-        def variant_for_user(user):
-            return "B" if (hash(str(user.id)) % 2) else "A"
-
-        def aggregate(span_start):
-            qs = Booking.objects.filter(start_at__gte=span_start)
-            by_variant = {"A": 0, "B": 0}
-            for b in qs.select_related("user"):
-                v = variant_for_user(b.user)
-                by_variant[v] += 1
-            return {
-                "bookings": qs.count(),
-                "business": qs.filter(ai_snapshot__business_trip=True).count(),
-                "variant": by_variant,
-            }
-
-        ctx["last7"] = aggregate(span_7)
-        ctx["last30"] = aggregate(span_30)
-        ctx.update(
-            {
-                "total_bookings": total_bookings,
-                "business_bookings": business_bookings,
-                "ai_sessions": ai_sessions,
-            }
-        )
+        ctx["total_bookings"] = Booking.objects.count()
+        ctx["business_bookings"] = Booking.objects.filter(ai_snapshot__business_trip=True).count()
+        ctx["ai_sessions"] = UiEvent.objects.filter(event_type="preferences").count()
+        ctx["last7"] = analytics.compute_funnel(7)
+        ctx["last30"] = analytics.compute_funnel(30)
         return ctx
 
 # parking/views.py (добавить после существующих APIView/ ViewSet)

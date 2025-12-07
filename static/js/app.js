@@ -140,23 +140,23 @@
 
     function handleApiError(err) {
         var message = "Что-то пошло не так. Попробуйте позже.";
-        if (!err) {
-            showToast(message, "error");
+        function notify(msg) {
+            showToast(msg || message, "error");
+            try { document.dispatchEvent(new CustomEvent("ps-error", { detail: err })); } catch (_) {}
+        }
+        if (!err) return notify(message);
+        if (typeof Response !== "undefined" && err instanceof Response) {
+            err.json().then(function (data) {
+                var msg = (data && (data.message || data.detail)) || message;
+                notify(msg);
+            }).catch(function () { notify(message); });
             return;
         }
-        if (typeof err === "string") {
-            message = err;
-        } else if (err.message) {
-            message = err.message;
-        } else if (err.code && err.message) {
-            message = err.message;
-        } else if (err.response && err.response.message) {
-            message = err.response.message;
-        }
-        showToast(message, "error");
-        try {
-            document.dispatchEvent(new CustomEvent("ps-error", { detail: err }));
-        } catch (_) {}
+        if (typeof err === "string") return notify(err);
+        if (err.code && err.message) return notify(err.message);
+        if (err.message) return notify(err.message);
+        if (err.response && err.response.message) return notify(err.response.message);
+        notify(message);
     }
 
     // ---------- PWA install banner ----------
@@ -619,7 +619,9 @@ function initAdaptiveProbe() {
             fetch(PAYMENT_METHODS_ENDPOINT, { credentials: "include" })
                 .then(function (resp) { return resp.json(); })
                 .then(function (data) { renderPaymentMethods(data.results || data, container); })
-                .catch(function () { showToast("Не удалось загрузить способы оплаты", "error"); });
+                .catch(function (err) {
+                    if (window.ParkShare && window.ParkShare.handleApiError) window.ParkShare.handleApiError(err);
+                });
         }
 
         if (form) {
@@ -655,7 +657,7 @@ function initAdaptiveProbe() {
                         form.reset();
                         loadMethods();
                     })
-                    .catch(function () { showToast("Не удалось сохранить карту", "error"); });
+                    .catch(function (err) { (window.ParkShare && window.ParkShare.handleApiError) ? window.ParkShare.handleApiError(err) : showToast("Не удалось сохранить карту", "error"); });
             });
         }
 
@@ -676,7 +678,7 @@ function initAdaptiveProbe() {
                     })
                         .then(function (resp) { return resp.json(); })
                         .then(function () { showToast("Карта выбрана по умолчанию", "success"); loadMethods(); })
-                        .catch(function () { showToast("Не удалось обновить карту", "error"); });
+                        .catch(function (err) { (window.ParkShare && window.ParkShare.handleApiError) ? window.ParkShare.handleApiError(err) : showToast("Не удалось обновить карту", "error"); });
                 }
                 if (delBtn) {
                     const id = delBtn.getAttribute("data-payment-delete");
@@ -687,7 +689,7 @@ function initAdaptiveProbe() {
                     })
                         .then(function (resp) { if (!resp.ok) throw new Error(); })
                         .then(function () { showToast("Карта удалена", "info"); loadMethods(); })
-                        .catch(function () { showToast("Не удалось удалить карту", "error"); });
+                        .catch(function (err) { (window.ParkShare && window.ParkShare.handleApiError) ? window.ParkShare.handleApiError(err) : showToast("Не удалось удалить карту", "error"); });
                 }
             });
         }
