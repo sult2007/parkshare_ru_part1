@@ -25,7 +25,7 @@ from payments.models import PaymentMethod
 from ai import tools as ai_tools
 from ai.models import DeviceProfile, UiEvent
 from parking.models_notification import NotificationSettings
-from parking import analytics
+from parking.analytics import compute_funnel
 
 logger = logging.getLogger(__name__)
 from accounts.models import UserLevel, UserBadge, PromoReward
@@ -556,6 +556,8 @@ class BookingConfirmView(LoginRequiredMixin, TemplateView):
     def post(self, request, *args, **kwargs):
         spot = self.get_spot()
         user = request.user
+        if getattr(settings, "MAINTENANCE_MODE", False):
+            return api_error("maintenance", "Сервис временно недоступен для бронирования.", status.HTTP_503_SERVICE_UNAVAILABLE)
         hours = float(request.POST.get("hours") or 1)
         vehicle_id = request.POST.get("vehicle_id")
         payment_method_id = request.POST.get("payment_method_id")
@@ -669,6 +671,10 @@ class PaymentMethodsPageView(LoginRequiredMixin, TemplateView):
 
     def post(self, request, *args, **kwargs):
         user = request.user
+        if getattr(settings, "MAINTENANCE_MODE", False):
+            if wants_json(request):
+                return api_error("maintenance", "Сервис недоступен для изменения оплаты.", status.HTTP_503_SERVICE_UNAVAILABLE)
+            return self.render_to_response(self.get_context_data(success="Сервис недоступен для изменения оплаты."))
         if "delete_id" in request.POST:
             PaymentMethod.objects.filter(user=user, id=request.POST.get("delete_id")).delete()
             if wants_json(request):
@@ -721,6 +727,10 @@ class PromoActivateView(LoginRequiredMixin, TemplateView):
 
     def post(self, request, *args, **kwargs):
         code = (request.POST.get("code") or "").strip()
+        if len(code) > 64:
+            if wants_json(request):
+                return api_error("invalid_promo", "Промокод слишком длинный.", status.HTTP_400_BAD_REQUEST)
+            code = code[:64]
         message = "Промокод недействителен или исчерпан."
         try:
             reward = PromoReward.objects.get(code__iexact=code, active=True)
@@ -824,8 +834,8 @@ class MetricsDashboardView(LoginRequiredMixin, TemplateView):
         ctx["total_bookings"] = Booking.objects.count()
         ctx["business_bookings"] = Booking.objects.filter(ai_snapshot__business_trip=True).count()
         ctx["ai_sessions"] = UiEvent.objects.filter(event_type="preferences").count()
-        ctx["last7"] = analytics.compute_funnel(7)
-        ctx["last30"] = analytics.compute_funnel(30)
+        ctx["last7"] = compute_funnel(7)
+        ctx["last30"] = compute_funnel(30)
         return ctx
 
 # parking/views.py (добавить после существующих APIView/ ViewSet)
@@ -951,14 +961,17 @@ class GeocodeAPIView(APIView):
             return Response(cached)
 
         url = "https://nominatim.openstreetmap.org/search"
-        resp = requests.get(
-            url,
-            params={"q": query, "format": "json", "limit": 5, "addressdetails": 1},
-            headers={"User-Agent": "ParkShare-RU/1.0"},
-            timeout=10,
-        )
-        resp.raise_for_status()
-        data = resp.json()
+        try:
+            resp = requests.get(
+                url,
+                params={"q": query, "format": "json", "limit": 5, "addressdetails": 1},
+                headers={"User-Agent": "ParkShare-RU/1.0"},
+                timeout=5,
+            )
+            resp.raise_for_status()
+            data = resp.json()
+        except Exception:
+            return api_error("geocode_unavailable", "Геокодер временно недоступен", status.HTTP_503_SERVICE_UNAVAILABLE)
         results = [
             {
                 "title": item.get("display_name"),

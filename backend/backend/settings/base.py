@@ -93,6 +93,7 @@ MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "core.middleware.SecurityHeadersMiddleware",
+    "core.middleware.MaintenanceModeMiddleware",
     "django.middleware.gzip.GZipMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -314,6 +315,14 @@ LOGGING = {
         },
     },
 }
+
+# ---------------------------------------------------------------------------
+# Feature / maintenance flags
+# ---------------------------------------------------------------------------
+
+MAINTENANCE_MODE = env.bool("MAINTENANCE_MODE", default=False)
+ENABLE_EXPERIMENTAL_ASSISTANT = env.bool("ENABLE_EXPERIMENTAL_ASSISTANT", default=True)
+ENABLE_AB_VARIANTS = env.bool("ENABLE_AB_VARIANTS", default=True)
 
 # ---------------------------------------------------------------------------
 # Email

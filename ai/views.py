@@ -249,6 +249,8 @@ class ChatStreamAPIView(APIView):
 
         last = messages[-1] if isinstance(messages[-1], dict) else {}
         user_text = (last.get("content") or "").strip()
+        if len(user_text) > 5000:
+            return api_error("input_too_long", "Запрос слишком длинный", status.HTTP_400_BAD_REQUEST)
         history = [m for m in messages[:-1] if isinstance(m, dict)]
         reply_text = "Сервис временно недоступен. Попробуйте позже."
 

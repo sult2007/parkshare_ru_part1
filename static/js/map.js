@@ -717,6 +717,10 @@
         }
 
         function search(query) {
+            if (typeof navigator !== "undefined" && navigator.onLine === false) {
+                if (window.ParkShare && window.ParkShare.handleApiError) window.ParkShare.handleApiError({ message: "Нет подключения. Поиск недоступен оффлайн." });
+                return;
+            }
             if (!query) return;
             fetch("/api/geocode/?q=" + encodeURIComponent(query))
                 .then(function (resp) { return resp.json(); })

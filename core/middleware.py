@@ -6,6 +6,7 @@ from typing import Callable
 from django.conf import settings
 from django.core.cache import caches
 from django.http import HttpRequest, HttpResponse, JsonResponse
+from django.utils.deprecation import MiddlewareMixin
 
 
 # core/middleware.py
@@ -128,3 +129,18 @@ class RateLimitMiddleware:
             self.cache.set(cache_key, current, timeout=self.window)
 
         return current > self.limit
+
+
+class MaintenanceModeMiddleware(MiddlewareMixin):
+    """Блокирует изменения в режиме обслуживания, разрешая безопасное чтение карты и статики."""
+
+    def process_view(self, request: HttpRequest, view_func, view_args, view_kwargs):
+        maintenance = getattr(settings, "MAINTENANCE_MODE", False)
+        if not maintenance:
+            return None
+        if request.method in ("POST", "PUT", "PATCH", "DELETE"):
+            return JsonResponse(
+                {"code": "maintenance", "message": "Сервис временно обслуживается. Попробуйте позже.", "details": {}},
+                status=503,
+            )
+        return None

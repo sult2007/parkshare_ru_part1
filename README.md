@@ -41,12 +41,15 @@ mypy ai parking
 - `make test` — все тесты
 - `make lint` — ruff
 - `make typecheck` — mypy на основных пакетах
+- `python manage.py send_expiry_notifications --minutes 30` — напоминания о завершении брони
+- health/ready: `/healthz`, `/readyz`
 
 ## Конфигурация (env)
 - MAP_PROVIDER / YANDEX_MAP_API_KEY
 - LLM_PROVIDER / LLM_API_URL / LLM_API_KEY (для ассистента)
 - PUSH_PUBLIC_KEY / PUSH_PRIVATE_KEY (если используете WebPush)
 - Billing/Payments: провайдеры/ключи (YooKassa и др.) из `.env`
+- Флаги: MAINTENANCE_MODE, ENABLE_EXPERIMENTAL_ASSISTANT, ENABLE_AB_VARIANTS
 
 ## Основные ссылки
 - Карта: `/`

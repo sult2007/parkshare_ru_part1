@@ -10,11 +10,14 @@ from django.core.cache import cache
 
 from ai.models import UiEvent, ChatSession
 from parking.models import Booking
+from django.conf import settings
 
 User = get_user_model()
 
 
 def variant_for_user(user) -> str:
+    if not getattr(settings, "ENABLE_AB_VARIANTS", True):
+        return "A"
     return "B" if (hash(str(user.id)) % 2) else "A"
 
 

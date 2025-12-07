@@ -224,6 +224,12 @@
       const payload = baseHistory.map(function (m) {
         return { role: m.role, content: m.content };
       });
+      if (typeof navigator !== "undefined" && navigator.onLine === false) {
+        if (window.ParkShare && window.ParkShare.handleApiError) {
+          window.ParkShare.handleApiError({ message: 'Нет подключения. Попробуйте позже.' });
+        }
+        return;
+      }
       isStreaming = true;
       stopBtn && (stopBtn.hidden = true);
       setStatus('Генерируем ответ…', 'info');
