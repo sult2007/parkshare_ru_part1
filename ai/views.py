@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import uuid
 from typing import Any
 
 from asgiref.sync import async_to_sync
@@ -18,6 +19,7 @@ from ai.pricing import recommend_price_for_spot
 from ai.models import DeviceProfile, UiEvent
 from services.llm import check_llm_health
 from ai.chat.parking_assistant import generate_chat_reply
+from ai import tools
 
 logger = logging.getLogger(__name__)
 
@@ -234,27 +236,78 @@ class ChatStreamAPIView(APIView):
         data = request.data or {}
         messages = data.get("messages") or []
         if not isinstance(messages, list) or not messages:
-            return Response({"detail": "messages is required"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"code": "bad_request", "message": "messages is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        prefer_structured = bool(data.get("structured", True))
+        stream_text = bool(data.get("stream"))
 
         last = messages[-1] if isinstance(messages[-1], dict) else {}
         user_text = (last.get("content") or "").strip()
         history = [m for m in messages[:-1] if isinstance(m, dict)]
         reply_text = "Сервис временно недоступен. Попробуйте позже."
+
+        # device profile for preferences memory
+        device_id = request.COOKIES.get("ps_device_id") or f"ps_{uuid.uuid4().hex}"
+        profile, _ = DeviceProfile.objects.get_or_create(
+            device_id=device_id,
+            user=request.user if request.user.is_authenticated else None,
+            defaults={"layout_profile": DeviceProfile.LayoutProfile.COMPACT},
+        )
+
+        detected_prefs = tools.detect_preferences(user_text)
+        if detected_prefs:
+            tools.persist_preferences(profile, detected_prefs)
+        stored_prefs = tools.load_preferences(profile)
+
         try:
             reply_payload = generate_chat_reply(
                 user_text,
                 history,
                 request.user if request.user.is_authenticated else None,
+                preferences=stored_prefs,
             )
             reply_text = (reply_payload.get("reply") or reply_text).strip()
         except Exception as exc:  # pragma: no cover - внешние сервисы
             logger.warning("Chat reply failed", exc_info=exc)
+            reply_payload = {"reply": reply_text, "suggestions": []}
 
-        def stream():
-            for token in reply_text.split():
-                yield (token + " ").encode("utf-8")
+        if stream_text and not prefer_structured:
+            response = StreamingHttpResponse(
+                (token + " " for token in reply_text.split()),
+                content_type="text/plain; charset=utf-8",
+            )
+            response.set_cookie("ps_device_id", device_id, max_age=60 * 60 * 24 * 365)
+            return response
 
-        return StreamingHttpResponse(stream(), content_type="text/plain; charset=utf-8")
+        suggestions = reply_payload.get("suggestions") or []
+        actions = []
+        for item in suggestions:
+            actions.append(
+                {
+                    "type": "focus_map",
+                    "spot_id": item.get("spot_id"),
+                    "coords": item.get("coords"),
+                    "title": item.get("title"),
+                    "price": item.get("price"),
+                }
+            )
+            actions.append(
+                {
+                    "type": "book",
+                    "spot_id": item.get("spot_id"),
+                    "title": item.get("title"),
+                }
+            )
+
+        payload = {
+            "reply": reply_text,
+            "suggestions": suggestions,
+            "actions": actions,
+            "preferences": stored_prefs,
+        }
+        response = Response(payload, status=status.HTTP_200_OK)
+        response.set_cookie("ps_device_id", device_id, max_age=60 * 60 * 24 * 365)
+        return response
 
 
 # ===== ParkMate AI — конфиг и предсказания (price/availability) =====

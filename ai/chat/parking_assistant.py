@@ -216,6 +216,16 @@ def _spot_payload(spot: ParkingSpot) -> dict[str, Any]:
         "distance_m": getattr(spot, "distance_km", None) * 1000 if getattr(spot, "distance_km", None) else None,
         "tags": tags,
         "occupancy_now": float(getattr(spot, "occupancy_7d", 0.0) or 0.0),
+        "features": {
+            "ev": spot.has_ev_charging,
+            "covered": spot.is_covered,
+            "is_24_7": spot.is_24_7,
+            "allow_dynamic_pricing": getattr(spot, "allow_dynamic_pricing", False),
+        },
+        "coords": {
+            "lat": spot.lot.latitude,
+            "lng": spot.lot.longitude,
+        },
     }
 
 
@@ -288,7 +298,25 @@ def _reply_payload(spots: list[ParkingSpot], context: dict[str, Any], reasoning:
     }
 
 
-def _handle_llm_flow(text: str):
+def _filter_by_preferences(spots: list[ParkingSpot], prefs: Optional[dict[str, Any]]):
+    if not prefs:
+        return spots
+    filtered = spots
+    if prefs.get("prefers_ev"):
+        filtered = [s for s in filtered if s.has_ev_charging]
+    if prefs.get("prefers_covered"):
+        filtered = [s for s in filtered if s.is_covered]
+    budget = prefs.get("budget_max")
+    if budget:
+        try:
+            limit = float(budget)
+            filtered = [s for s in filtered if float(s.hourly_price or 0) <= limit]
+        except (TypeError, ValueError):
+            pass
+    return filtered or spots
+
+
+def _handle_llm_flow(text: str, preferences: Optional[dict[str, Any]] = None):
     parsed = _parse_with_llm(text)
     if not parsed:
         logger.debug(
@@ -299,7 +327,7 @@ def _handle_llm_flow(text: str):
 
     qs = _apply_llm_filters(_build_base_queryset(), parsed)
     qs = qs.order_by("lot__stress_index", "hourly_price")[:12]
-    spots = list(qs)
+    spots = _filter_by_preferences(list(qs), preferences)
 
     area_hint = None
     if parsed.get("near_metro"):
@@ -319,17 +347,18 @@ def _handle_llm_flow(text: str):
         reasoning_parts.append("отфильтровано по бюджету")
     context["intents"] = []
 
+    context["preferences_applied"] = bool(preferences)
     return _reply_payload(spots, context, ", ".join(reasoning_parts))
 
 
-def _handle_rule_based_flow(lowered: str):
+def _handle_rule_based_flow(lowered: str, preferences: Optional[dict[str, Any]] = None):
     qs, intents = _apply_intents(_build_base_queryset(), lowered)
     budget = _extract_budget(lowered)
     if budget:
         qs = qs.filter(hourly_price__lte=budget)
 
     qs = qs.order_by("lot__stress_index", "hourly_price")[:12]
-    spots = list(qs)
+    spots = _filter_by_preferences(list(qs), preferences)
 
     area_hint = None
     metro_match = re.search(r"метро\s+([\wёЁ\-\s]+)", lowered)
@@ -352,10 +381,11 @@ def _handle_rule_based_flow(lowered: str):
     if time_hint_parsed:
         why.append(f"учёл интервал {time_hint_parsed}")
     reasoning = ", ".join(why) if why else "использовал ближайшие и менее загруженные места"
+    context["preferences_applied"] = bool(preferences)
     return _reply_payload(spots, context, reasoning)
 
 
-def generate_chat_reply(message: str, history: Optional[List[dict]], user: Optional[User]) -> dict[str, Any]:
+def generate_chat_reply(message: str, history: Optional[List[dict]], user: Optional[User], preferences: Optional[dict[str, Any]] = None) -> dict[str, Any]:
     text = (message or "").strip()
     logger.info(
         "Incoming parking chat message",
@@ -376,18 +406,18 @@ def generate_chat_reply(message: str, history: Optional[List[dict]], user: Optio
     lowered = text.lower()
 
     try:
-        llm_response = _handle_llm_flow(text)
+        llm_response = _handle_llm_flow(text, preferences=preferences)
         if llm_response:
             return llm_response
     except Exception as exc:  # pragma: no cover - непредвиденная ошибка
         logger.exception("LLM flow errored, forcing rule-based fallback", exc_info=exc)
-        fallback = _handle_rule_based_flow(lowered)
+        fallback = _handle_rule_based_flow(lowered, preferences=preferences)
         fallback["reason"] = (fallback.get("reason") or "") + " · AI сервис недоступен, используем эвристику"
         fallback["reply"] = fallback.get("reply") or "Работаю в упрощённом режиме без внешнего AI, но покажу подходящие места."
         return fallback
 
     logger.info("Falling back to rule-based parser")
-    response = _handle_rule_based_flow(lowered)
+    response = _handle_rule_based_flow(lowered, preferences=preferences)
     if not response.get("suggestions"):
         response["reply"] = (
             "Не очень понял запрос. Попробуйте формат: ‘Курская, парковка с 9 до 11, до 300 ₽/час, с зарядкой EV’."

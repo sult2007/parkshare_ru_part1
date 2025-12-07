@@ -583,6 +583,14 @@
                 indexFeatures(data);
                 lastFeatures = data.features || [];
                 updateSpotsList(data); updateStats(data);
+                try {
+                    var pendingFocus = sessionStorage.getItem("ps_focus_spot");
+                    if (pendingFocus) {
+                        sessionStorage.removeItem("ps_focus_spot");
+                        var coords = featureCoordsById(pendingFocus);
+                        if (coords) { notifySelection(pendingFocus, coords); }
+                    }
+                } catch (_) {}
             })
             .catch(function () {})
             .finally(function () { provider.setLoading(false); });

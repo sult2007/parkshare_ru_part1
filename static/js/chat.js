@@ -90,6 +90,7 @@
     if (!chatRoot) return;
 
     const messagesEl = qs('[data-ai-messages]', chatRoot);
+    const suggestionsEl = qs('[data-ai-suggestions]', chatRoot);
     const textarea = qs('#ai-input', chatRoot);
     const sendBtn = qs('[data-ai-send]', chatRoot);
     const clearBtn = qs('[data-ai-clear]', chatRoot);
@@ -147,6 +148,38 @@
       });
     }
 
+    function renderSuggestions(payload) {
+      if (!suggestionsEl) return;
+      const suggestions = (payload && payload.suggestions) || [];
+      if (!suggestions.length) {
+        suggestionsEl.hidden = true;
+        suggestionsEl.innerHTML = "";
+        return;
+      }
+      suggestionsEl.hidden = false;
+      suggestionsEl.innerHTML = suggestions
+        .map(function (item) {
+          const tags = (item.tags || []).map(function (t) {
+            return '<span class="ps-pill ps-pill--ghost">' + t + "</span>";
+          }).join("");
+          const price = item.price ? "от " + item.price + " ₽/час" : "Цена уточняется";
+          return (
+            '<article class="ps-card ps-card--spot ps-animate-fade-up" data-ai-suggestion="' + item.spot_id + '">' +
+            '<div class="ps-card-header"><div class="ps-card-title">' + (item.title || "Парковка") + '</div></div>' +
+            '<div class="ps-card-body">' +
+            '<div class="ps-spot-meta">' + tags + '</div>' +
+            '<div class="ps-spot-price">' + price + '</div>' +
+            '<div class="ps-card-actions">' +
+            '<button class="ps-btn ps-btn-secondary ps-btn-sm" data-ai-map="' + item.spot_id + '">Показать на карте</button>' +
+            '<button class="ps-btn ps-btn-primary ps-btn-sm" data-ai-book="' + item.spot_id + '">Забронировать</button>' +
+            '</div>' +
+            '</div>' +
+            '</article>'
+          );
+        })
+        .join("");
+    }
+
   function handleSend() {
       if (!textarea || !textarea.value.trim() || isStreaming) return;
       const text = textarea.value.trim();
@@ -191,33 +224,47 @@
       const payload = baseHistory.map(function (m) {
         return { role: m.role, content: m.content };
       });
-      abortController = new AbortController();
       isStreaming = true;
-      stopBtn && (stopBtn.hidden = false);
+      stopBtn && (stopBtn.hidden = true);
       setStatus('Генерируем ответ…', 'info');
-
       try {
         const resp = await fetch('/api/chat/', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ messages: payload }),
-          signal: abortController.signal
+          body: JSON.stringify({ messages: payload, structured: true })
         });
 
-        if (!resp.ok || !resp.body) {
+        if (!resp.ok) {
           let detail = '';
           try {
             const errJson = await resp.json();
-            detail = errJson.detail || '';
+            detail = errJson.detail || errJson.message || '';
           } catch (_) {
             try { detail = await resp.text(); } catch (__) { /* ignore */ }
           }
           throw new Error(detail || 'LLM недоступен. Настройте /api/chat/');
         }
 
+        const contentType = resp.headers.get('content-type') || '';
+        if (contentType.indexOf('application/json') !== -1) {
+          const data = await resp.json();
+          updateMessage(assistantMsg.id, function (msg) {
+            return { ...msg, content: data.reply || '' };
+          });
+          render();
+          renderSuggestions(data);
+          setStatus('Готово. Можно задавать следующий вопрос.', 'info');
+          isStreaming = false;
+          return;
+        }
+
+        // Fallback: stream text
+        abortController = new AbortController();
+        isStreaming = true;
+        stopBtn && (stopBtn.hidden = false);
+        setStatus('Генерируем ответ…', 'info');
         const reader = resp.body.getReader();
         const decoder = new TextDecoder();
-
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
@@ -259,6 +306,7 @@
     function handleClear() {
       state = { messages: [createWelcomeMessage()] };
       setStatus('История очищена. Новый диалог.', 'info');
+      renderSuggestions({ suggestions: [] });
       render();
     }
 
@@ -273,6 +321,27 @@
         handleRegenerate();
       }
     });
+
+    if (suggestionsEl) {
+      suggestionsEl.addEventListener('click', function (e) {
+        const mapBtn = e.target.closest('[data-ai-map]');
+        const bookBtn = e.target.closest('[data-ai-book]');
+        if (mapBtn) {
+          const spotId = mapBtn.getAttribute('data-ai-map');
+          try {
+            sessionStorage.setItem('ps_focus_spot', spotId);
+          } catch (_) {}
+          window.location.href = '/';
+        }
+        if (bookBtn) {
+          const spotId = bookBtn.getAttribute('data-ai-book');
+          try {
+            sessionStorage.setItem('ps_focus_spot', spotId);
+          } catch (_) {}
+          window.location.href = '/';
+        }
+      });
+    }
 
     sendBtn && sendBtn.addEventListener('click', handleSend);
     clearBtn && clearBtn.addEventListener('click', handleClear);

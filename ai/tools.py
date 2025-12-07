@@ -14,6 +14,7 @@ from django.utils.dateparse import parse_datetime
 
 from core.utils import haversine_distance_km
 from parking.models import Booking, FavoriteParkingSpot, ParkingSpot
+from ai.models import DeviceProfile, UiEvent
 
 User = get_user_model()
 logger = logging.getLogger(__name__)
@@ -77,7 +78,7 @@ def search_parking(params: dict[str, Any], user: Optional[User] = None) -> list[
     radius_km = params.get("radius_km") or 5
     budget = params.get("max_price") or params.get("budget")
 
-    if params.get("has_ev"):
+    if params.get("has_ev") or params.get("ev"):
         qs = qs.filter(has_ev_charging=True)
     if params.get("covered"):
         qs = qs.filter(is_covered=True)
@@ -234,3 +235,48 @@ def toggle_favorite(user: User, spot_id: str) -> dict[str, Any]:
     if not created:
         fav.delete()
     return {"spot_id": str(spot.id), "favorite": created}
+
+
+# -------- Preferences helpers (lightweight, stored in UiEvent) --------
+
+
+def detect_preferences(text: str) -> dict[str, Any]:
+    lowered = (text or "").lower()
+    prefs: dict[str, Any] = {}
+    if "крыт" in lowered or "подзем" in lowered:
+        prefs["prefers_covered"] = True
+    if "ев" in lowered or "заряд" in lowered or "электро" in lowered:
+        prefs["prefers_ev"] = True
+    if "ноч" in lowered:
+        prefs["prefers_night"] = True
+    if "деш" in lowered or "дёш" in lowered or "бюдж" in lowered:
+        prefs["budget_tier"] = "budget"
+    if "преми" in lowered or "дорог" in lowered:
+        prefs["budget_tier"] = "premium"
+    import re
+
+    price_match = re.search(r"(\d{2,5})\s*(?:₽|р|руб)", lowered)
+    if price_match:
+        try:
+            prefs["budget_max"] = int(price_match.group(1))
+        except ValueError:
+            pass
+    return prefs
+
+
+def persist_preferences(profile: DeviceProfile, prefs: dict[str, Any]) -> None:
+    if not prefs:
+        return
+    try:
+        UiEvent.objects.create(device_profile=profile, event_type="preferences", payload=prefs)
+    except Exception:  # pragma: no cover - безопасный фолбэк
+        logger.warning("Failed to persist preferences", exc_info=True)
+
+
+def load_preferences(profile: DeviceProfile) -> dict[str, Any]:
+    try:
+        event = UiEvent.objects.filter(device_profile=profile, event_type="preferences").order_by("-created_at").first()
+        return event.payload or {} if event else {}
+    except Exception:  # pragma: no cover
+        logger.warning("Failed to load preferences", exc_info=True)
+        return {}
