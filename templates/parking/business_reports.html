@@ -14,6 +14,37 @@
         </div>
     </div>
 
+    <div class="ps-grid ps-grid--gap-lg ps-grid--2col">
+        <article class="ps-card ps-card--elevated">
+            <div class="ps-card-header"><h2 class="ps-card-title">Фильтры</h2></div>
+            <form class="ps-card-body ps-card-body--spacing-lg" method="get">
+                <div class="ps-form-row ps-form-row--inline">
+                    <label class="ps-form-label">Начало</label>
+                    <input class="ps-input" type="date" name="start" value="{{ filters.start }}">
+                </div>
+                <div class="ps-form-row ps-form-row--inline">
+                    <label class="ps-form-label">Окончание</label>
+                    <input class="ps-input" type="date" name="end" value="{{ filters.end }}">
+                </div>
+                <div class="ps-form-row ps-form-row--inline">
+                    <label class="ps-form-label">Город</label>
+                    <input class="ps-input" type="text" name="city" value="{{ filters.city }}">
+                </div>
+                <div class="ps-form-actions">
+                    <button class="ps-btn ps-btn-primary ps-btn-full" type="submit">Применить</button>
+                </div>
+            </form>
+        </article>
+        <article class="ps-card ps-card--elevated">
+            <div class="ps-card-header"><h2 class="ps-card-title">Итоги</h2></div>
+            <div class="ps-card-body">
+                <div class="ps-list-title">Всего бронирований: {{ total_count|default:0 }}</div>
+                <div class="ps-list-title">Общая длительность: {{ total_duration|default:0 }} ч</div>
+                <div class="ps-list-title">Общая сумма: {{ total_cost|default:0 }} ₽</div>
+            </div>
+        </article>
+    </div>
+
     <div class="ps-card ps-card--elevated">
         <div class="ps-card-body ps-card-body--spacing-lg">
             {% if bookings %}

@@ -352,8 +352,26 @@ class Booking(TimeStampedModel):
             return Decimal("0.00")
 
         delta = self.end_at - self.start_at
-        total_hours = Decimal(delta.total_seconds()) / Decimal(3600)
-        total_days = Decimal(delta.total_seconds()) / Decimal(86400)
+        total_seconds = Decimal(delta.total_seconds())
+        total_hours = total_seconds / Decimal(3600)
+        total_days = total_seconds / Decimal(86400)
+
+        billing_mode = getattr(self, "billing_mode", self.BillingMode.PAYG)
+        if billing_mode == self.BillingMode.PAYG:
+            # Округляем вверх до 15-минутных слотов для поминутной/почасовой оплаты
+            slots = (total_seconds / Decimal(900)).to_integral_value(rounding=ROUND_UP)
+            total_hours = (slots * Decimal("0.25")).quantize(Decimal("0.25"))
+        elif billing_mode == self.BillingMode.PREPAID_BLOCK:
+            hours = float(total_hours)
+            if hours <= 2:
+                total_hours = Decimal("2")
+            elif hours <= 4:
+                total_hours = Decimal("4")
+            elif hours <= 24:
+                total_hours = Decimal("24")
+            else:
+                days = (Decimal(hours) / Decimal("24")).to_integral_value(rounding=ROUND_UP)
+                total_hours = days * Decimal("24")
 
         base_price = Decimal("0.00")
 

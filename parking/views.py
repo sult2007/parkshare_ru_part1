@@ -700,7 +700,7 @@ class BusinessReportsView(LoginRequiredMixin, TemplateView):
 
     template_name = "parking/business_reports.html"
 
-    def get_queryset(self):
+    def get_queryset(self, start=None, end=None, city=None):
         user = self.request.user
         qs = (
             Booking.objects.filter(user=user)
@@ -708,10 +708,30 @@ class BusinessReportsView(LoginRequiredMixin, TemplateView):
             .order_by("-start_at")
         )
         qs = [b for b in qs if (b.ai_snapshot or {}).get("business_trip")]
+        if start:
+            qs = [b for b in qs if b.start_at.date() >= start]
+        if end:
+            qs = [b for b in qs if b.start_at.date() <= end]
+        if city:
+            qs = [b for b in qs if b.spot.lot.city.lower() == city.lower()]
         return qs
 
     def get(self, request, *args, **kwargs):
-        qs = self.get_queryset()
+        start_param = request.GET.get("start")
+        end_param = request.GET.get("end")
+        city = request.GET.get("city") or None
+        start = end = None
+        if start_param:
+            try:
+                start = timezone.datetime.fromisoformat(start_param).date()
+            except ValueError:
+                start = None
+        if end_param:
+            try:
+                end = timezone.datetime.fromisoformat(end_param).date()
+            except ValueError:
+                end = None
+        qs = self.get_queryset(start, end, city)
         if request.GET.get("export") == "csv":
             rows = [
                 ["Дата", "Локация", "Адрес", "Длительность (ч)", "Стоимость", "Режим биллинга", "Бизнес"]
@@ -733,7 +753,17 @@ class BusinessReportsView(LoginRequiredMixin, TemplateView):
             resp = HttpResponse(content, content_type="text/csv")
             resp["Content-Disposition"] = 'attachment; filename="business_bookings.csv"'
             return resp
-        return self.render_to_response({"bookings": qs})
+        total_duration = sum((b.end_at - b.start_at).total_seconds() / 3600 for b in qs)
+        total_cost = sum(float(b.total_price) for b in qs)
+        return self.render_to_response(
+            {
+                "bookings": qs,
+                "total_count": len(qs),
+                "total_duration": round(total_duration, 2),
+                "total_cost": round(total_cost, 2),
+                "filters": {"start": start_param, "end": end_param, "city": city},
+            }
+        )
 
 
 class MetricsDashboardView(LoginRequiredMixin, TemplateView):
