@@ -20,6 +20,7 @@
     <div class="ps-chip-row">
         <span class="ps-chip ps-chip--soft">Роль: {{ user.get_role_display }}</span>
         <span class="ps-chip ps-chip--soft">Брони: {{ bookings|length }}</span>
+        <a class="ps-chip ps-chip--ghost" href="{% url 'profile_settings' %}">Предпочтения</a>
     </div>
 
     <div class="ps-grid ps-grid--gap-lg ps-grid--2col">
@@ -34,11 +35,15 @@
                 </p>
                 <div class="ps-progress-block">
                     <div class="ps-progress-header">
-                        <span class="ps-badge">Уровень 1 · Новичок</span>
-                        <span class="ps-progress-label">До следующего уровня: 3 бронирования</span>
+                        <span class="ps-badge">Уровень {{ level.threshold|default:0 }} · {{ level.name|default:"Новичок" }}</span>
+                        {% if next_level %}
+                            <span class="ps-progress-label">До следующего уровня: {{ level_remaining }} бронирования</span>
+                        {% else %}
+                            <span class="ps-progress-label">Максимальный уровень достигнут</span>
+                        {% endif %}
                     </div>
                     <div class="ps-progress">
-                        <div class="ps-progress-bar" style="width: 45%"></div>
+                        <div class="ps-progress-bar" style="width: {{ level_progress|default:0 }}%"></div>
                     </div>
                 </div>
                 <a href="{% url 'accounts:profile' %}" class="ps-btn ps-btn-full">
@@ -52,34 +57,8 @@
                 <h2 class="ps-card-title">Способы оплаты</h2>
             </div>
             <div class="ps-card-body ps-card-body--spacing-lg">
-                <div class="ps-payment-list" data-payment-methods>
-                    <div class="ps-empty">Карты ещё не добавлены. Подключите карту, чтобы бронировать без ввода данных.</div>
-                </div>
-                <form class="ps-form ps-form-compact" method="post" action="#" data-payment-method-form>
-                    <div class="ps-form-row">
-                        <label class="ps-form-label">Номер карты / токен</label>
-                        <input class="ps-input" type="text" name="card_number" placeholder="**** **** **** 1234" autocomplete="off">
-                        <div class="ps-field-help">Данные токенизируются у провайдера, мы храним только маску.</div>
-                    </div>
-                    <div class="ps-form-row ps-form-row--inline">
-                        <input class="ps-input" type="text" name="exp" placeholder="MM/YY">
-                        <input class="ps-input" type="text" name="label" placeholder="Личная / Работа">
-                    </div>
-                    <div class="ps-form-row ps-form-row--inline">
-                        <select class="ps-input" name="provider">
-                            <option value="sber">Сбербанк</option>
-                            <option value="tinkoff">Тинькофф</option>
-                            <option value="other">YooKassa / другое</option>
-                        </select>
-                        <label class="ps-checkbox ps-checkbox--inline">
-                            <input type="checkbox" name="is_default">
-                            <span>Сделать по умолчанию</span>
-                        </label>
-                    </div>
-                    <div class="ps-form-actions">
-                        <button class="ps-btn ps-btn-primary ps-btn-full" type="submit">Сохранить карту</button>
-                    </div>
-                </form>
+                <p class="ps-card-line">Перейдите, чтобы добавить/удалить карту и настроить Apple/Google Pay.</p>
+                <a class="ps-btn ps-btn-secondary ps-btn-full" href="{% url 'payment_methods_page' %}">Управлять способами оплаты</a>
             </div>
         </article>
 
@@ -108,6 +87,35 @@
                     </li>
                 {% endfor %}
             </ul>
+        </article>
+    </div>
+
+    <div class="ps-grid ps-grid--gap-lg ps-grid--2col">
+        <article class="ps-card">
+            <div class="ps-card-header">
+                <h2 class="ps-card-title">Бейджи</h2>
+            </div>
+            <div class="ps-card-body ps-card-body--spacing-lg">
+                {% if badges %}
+                    <div class="ps-chip-row">
+                        {% for badge in badges %}
+                            <span class="ps-chip ps-chip--soft">{{ badge.title }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="ps-empty">Пока без бейджей. Выполните бронирования, чтобы заработать их.</div>
+                {% endif %}
+            </div>
+        </article>
+
+        <article class="ps-card">
+            <div class="ps-card-header">
+                <h2 class="ps-card-title">Промокоды</h2>
+            </div>
+            <div class="ps-card-body ps-card-body--spacing-lg">
+                <p class="ps-card-line ps-card-line--muted">Активируйте промокод для скидки или бонусного времени.</p>
+                <a class="ps-btn ps-btn-primary ps-btn-full" href="{% url 'promo_activate' %}">Активировать промокод</a>
+            </div>
         </article>
     </div>
 

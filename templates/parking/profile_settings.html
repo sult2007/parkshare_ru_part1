@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Настройки профиля — ParkShare{% endblock %}
+
+{% block content %}
+<section class="ps-section ps-section--flush-top" data-route="bookings">
+    <div class="ps-section-header ps-section-header--stack">
+        <div>
+            <p class="ps-kicker">Профиль</p>
+            <h1 class="ps-section-title">Предпочтения и уведомления</h1>
+            <p class="ps-section-subtitle">Ассистент использует эти данные для персонализации поиска парковок.</p>
+        </div>
+        <div class="ps-section-actions">
+            <a href="{% url 'user_dashboard' %}" class="ps-btn ps-btn-ghost ps-btn-sm">Назад в кабинет</a>
+        </div>
+    </div>
+
+    {% if success %}
+        <div class="ps-alert ps-alert--success">{{ success }}</div>
+    {% endif %}
+
+    <div class="ps-card ps-card--elevated">
+        <div class="ps-card-header">
+            <h2 class="ps-card-title">Предпочтения парковки</h2>
+            <form method="post">
+                {% csrf_token %}
+                <button class="ps-btn ps-btn-ghost ps-btn-sm" type="submit">Сбросить</button>
+            </form>
+        </div>
+        <div class="ps-card-body ps-card-body--spacing-lg">
+            {% if preferences %}
+                <div class="ps-chip-row">
+                    {% if preferences.budget_max %}<span class="ps-chip ps-chip--soft">Бюджет: до {{ preferences.budget_max }} ₽/ч</span>{% endif %}
+                    {% if preferences.budget_tier %}<span class="ps-chip ps-chip--soft">Тариф: {{ preferences.budget_tier }}</span>{% endif %}
+                    {% if preferences.prefers_ev %}<span class="ps-chip ps-chip--success">EV-зарядка</span>{% endif %}
+                    {% if preferences.prefers_covered %}<span class="ps-chip">Крытая</span>{% endif %}
+                    {% if preferences.prefers_night %}<span class="ps-chip ps-chip--ghost">Ночная парковка</span>{% endif %}
+                </div>
+            {% else %}
+                <div class="ps-empty">Пока нет сохранённых предпочтений. Ассистент запомнит их из вашего диалога.</div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}

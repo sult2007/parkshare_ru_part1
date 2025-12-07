@@ -97,7 +97,7 @@
                         <select class="ps-input" name="payment_method_id">
                             {% if payment_methods %}
                                 {% for method in payment_methods %}
-                                    <option value="{{ method.id }}" {% if method.id == default_payment.id %}selected{% endif %}>
+                                    <option value="{{ method.id }}" {% if default_payment and method.id == default_payment.id %}selected{% endif %}>
                                         {{ method.get_brand_display }} ****{{ method.last4 }} {% if method.is_default %}· осн.{% endif %}
                                     </option>
                                 {% endfor %}
@@ -105,7 +105,7 @@
                                 <option value="">Нет сохранённых карт — оформим как ожидание оплаты</option>
                             {% endif %}
                         </select>
-                        <div class="ps-field-help"><a href="{% url 'booking_confirm' %}?spot_id={{ spot.id }}">Обновить методы оплаты</a></div>
+                        <div class="ps-field-help"><a href="{% url 'payment_methods_page' %}">Обновить методы оплаты</a></div>
                     </div>
                 </div>
 

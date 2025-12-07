@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Способы оплаты — ParkShare{% endblock %}
+
+{% block content %}
+<section class="ps-section ps-section--flush-top" data-route="bookings">
+    <div class="ps-section-header ps-section-header--stack">
+        <div>
+            <p class="ps-kicker">Оплата</p>
+            <h1 class="ps-section-title">Способы оплаты</h1>
+            <p class="ps-section-subtitle">Добавьте карту или кошелёк для быстрых бронирований. Apple/Google Pay поддерживается, если доступно в браузере.</p>
+        </div>
+        <div class="ps-section-actions">
+            <a class="ps-btn ps-btn-ghost ps-btn-sm" href="{% url 'map_page' %}">К карте</a>
+        </div>
+    </div>
+
+    {% if success %}
+        <div class="ps-alert ps-alert--success">{{ success }}</div>
+    {% endif %}
+
+    <div class="ps-grid ps-grid--2col ps-grid--gap-lg">
+        <article class="ps-card ps-card--elevated">
+            <div class="ps-card-header">
+                <h2 class="ps-card-title">Мои методы</h2>
+            </div>
+            <div class="ps-card-body ps-card-body--spacing-lg">
+                {% if methods %}
+                    <ul class="ps-list ps-list--compact">
+                        {% for method in methods %}
+                            <li class="ps-list-item">
+                                <div class="ps-list-main">
+                                    <div class="ps-list-title">{{ method.get_brand_display }} ****{{ method.last4 }}</div>
+                                    <div class="ps-list-subtitle">Срок: {{ method.exp_month }}/{{ method.exp_year }} {% if method.is_default %}· осн.{% endif %}</div>
+                                </div>
+                                <form method="post" class="ps-inline-form">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="delete_id" value="{{ method.id }}">
+                                    <button type="submit" class="ps-btn ps-btn-ghost ps-btn-sm">Удалить</button>
+                                </form>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <div class="ps-empty">Пока нет карт. Добавьте первую, чтобы оплачивать бронирования быстрее.</div>
+                {% endif %}
+            </div>
+        </article>
+
+        <article class="ps-card">
+            <div class="ps-card-header">
+                <h2 class="ps-card-title">Добавить метод оплаты</h2>
+            </div>
+            <form method="post" class="ps-form ps-card-body ps-card-body--spacing-lg">
+                {% csrf_token %}
+                <div class="ps-form-row">
+                    <label class="ps-form-label">Номер карты</label>
+                    <input class="ps-input" type="text" name="card_number" placeholder="4111 1111 1111 1111" required>
+                </div>
+                <div class="ps-form-row ps-form-row--inline">
+                    <input class="ps-input" type="text" name="exp" placeholder="MM/YY" required>
+                    <input class="ps-input" type="text" name="label" placeholder="Личная / Работа">
+                </div>
+                <label class="ps-checkbox">
+                    <input type="checkbox" name="is_default">
+                    <span>Сделать основным</span>
+                </label>
+                <div class="ps-form-actions">
+                    <button type="submit" class="ps-btn ps-btn-primary ps-btn-full">Сохранить</button>
+                </div>
+            </form>
+        </article>
+    </div>
+</section>
+{% endblock %}

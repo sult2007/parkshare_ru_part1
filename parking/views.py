@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import Any, Iterable, List
+import uuid
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.cache import cache
@@ -10,6 +11,7 @@ import requests
 from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse
 from django.views.generic import TemplateView
+from django.utils import timezone
 from rest_framework import permissions, status, viewsets
 from rest_framework.response import Response
 
@@ -17,6 +19,9 @@ from core.permissions import IsAdminOrReadOnly
 from core.utils import haversine_distance_km, parse_float
 from vehicles.models import Vehicle
 from payments.models import PaymentMethod
+from ai import tools as ai_tools
+from ai.models import DeviceProfile, UiEvent
+from accounts.models import UserLevel, UserBadge, PromoReward
 
 from .models import (
     Booking,
@@ -391,6 +396,23 @@ class UserDashboardView(LoginRequiredMixin, TemplateView):
 
     template_name = "parking/user_dashboard.html"
 
+    def _level_progress(self, user, completed_count: int):
+        levels = list(UserLevel.objects.all().order_by("threshold"))
+        current = None
+        next_level = None
+        for lvl in levels:
+            if completed_count >= lvl.threshold:
+                current = lvl
+            elif completed_count < lvl.threshold and not next_level:
+                next_level = lvl
+        remaining = max(0, (next_level.threshold - completed_count)) if next_level else 0
+        progress = 100
+        if next_level and next_level.threshold:
+            prev_threshold = current.threshold if current else 0
+            span = next_level.threshold - prev_threshold
+            progress = int(min(100, max(0, ((completed_count - prev_threshold) / span) * 100)))
+        return current, next_level, remaining, progress
+
     def get_context_data(self, **kwargs: Any):
         ctx = super().get_context_data(**kwargs)
         user = self.request.user
@@ -400,8 +422,15 @@ class UserDashboardView(LoginRequiredMixin, TemplateView):
             .select_related("spot", "spot__lot")
             .order_by("-start_at")
         )
+        completed_count = bookings.filter(status__in=[Booking.Status.COMPLETED, Booking.Status.CONFIRMED, Booking.Status.ACTIVE]).count()
+        current_level, next_level, remaining, progress = self._level_progress(user, completed_count)
         ctx["vehicles"] = vehicles
         ctx["bookings"] = bookings
+        ctx["badges"] = UserBadge.objects.filter(user=user)
+        ctx["level"] = current_level
+        ctx["next_level"] = next_level
+        ctx["level_remaining"] = remaining
+        ctx["level_progress"] = progress
         return ctx
 
 
@@ -546,6 +575,111 @@ class BookingConfirmView(LoginRequiredMixin, TemplateView):
                 selected_hours=hours,
             )
         )
+
+
+def _get_device_profile(request):
+    device_id = request.COOKIES.get("ps_device_id") or f"ps_{uuid.uuid4().hex}"
+    profile, _ = DeviceProfile.objects.get_or_create(
+        device_id=device_id,
+        user=request.user if request.user.is_authenticated else None,
+        defaults={"layout_profile": DeviceProfile.LayoutProfile.COMPACT},
+    )
+    return profile
+
+
+class ProfileSettingsView(LoginRequiredMixin, TemplateView):
+    """Настройки профиля: предпочтения парковки и уведомления."""
+
+    template_name = "parking/profile_settings.html"
+
+    def get_context_data(self, **kwargs: Any):
+        ctx = super().get_context_data(**kwargs)
+        profile = _get_device_profile(self.request)
+        prefs = ai_tools.load_preferences(profile)
+        ctx.update(
+            {
+                "preferences": prefs,
+                "success": kwargs.get("success"),
+            }
+        )
+        return ctx
+
+    def post(self, request, *args, **kwargs):
+        profile = _get_device_profile(request)
+        UiEvent.objects.filter(device_profile=profile, event_type="preferences").delete()
+        return self.render_to_response(self.get_context_data(success="Предпочтения сброшены"))
+
+
+class PaymentMethodsPageView(LoginRequiredMixin, TemplateView):
+    """Страница управления способами оплаты (минимальная заглушка)."""
+
+    template_name = "parking/payment_methods.html"
+
+    def _detect_brand(self, card_number: str) -> str:
+        if card_number.startswith("4"):
+            return PaymentMethod.Brand.VISA
+        if card_number.startswith("5"):
+            return PaymentMethod.Brand.MASTERCARD
+        if card_number.startswith("220"):
+            return PaymentMethod.Brand.MIR
+        if card_number.startswith("62"):
+            return PaymentMethod.Brand.UNIONPAY
+        return PaymentMethod.Brand.OTHER
+
+    def post(self, request, *args, **kwargs):
+        user = request.user
+        if "delete_id" in request.POST:
+            PaymentMethod.objects.filter(user=user, id=request.POST.get("delete_id")).delete()
+            return self.render_to_response(self.get_context_data(success="Метод оплаты удалён"))
+
+        card = (request.POST.get("card_number") or "").replace(" ", "")
+        last4 = card[-4:] if len(card) >= 4 else "0000"
+        exp = (request.POST.get("exp") or "").split("/")
+        try:
+            exp_month = int(exp[0]) if exp else 1
+            exp_year = int(exp[1]) if len(exp) > 1 else 30
+        except ValueError:
+            exp_month, exp_year = 1, 30
+        label = request.POST.get("label") or "Моя карта"
+        brand = self._detect_brand(card)
+        is_default = request.POST.get("is_default") == "on"
+        PaymentMethod.objects.create(
+            user=user,
+            label=label,
+            brand=brand,
+            last4=last4,
+            exp_month=exp_month,
+            exp_year=exp_year,
+            is_default=is_default,
+            token_masked=f"stub_{last4}_{timezone.now().timestamp()}",
+        )
+        return self.render_to_response(self.get_context_data(success="Метод оплаты добавлен"))
+
+    def get_context_data(self, **kwargs: Any):
+        ctx = super().get_context_data(**kwargs)
+        methods = PaymentMethod.objects.filter(user=self.request.user).order_by("-is_default", "-created_at")
+        ctx["methods"] = methods
+        ctx["success"] = kwargs.get("success")
+        return ctx
+
+
+class PromoActivateView(LoginRequiredMixin, TemplateView):
+    """Простая активация промокода."""
+
+    template_name = "parking/promo_activate.html"
+
+    def post(self, request, *args, **kwargs):
+        code = (request.POST.get("code") or "").strip()
+        message = "Промокод недействителен или исчерпан."
+        try:
+            reward = PromoReward.objects.get(code__iexact=code, active=True)
+            message = f"Промокод применён: {reward.description or 'бонус'}"
+        except PromoReward.DoesNotExist:
+            message = "Промокод недействителен или исчерпан."
+        return self.render_to_response({"message": message})
+
+    def get(self, request, *args, **kwargs):
+        return self.render_to_response({"message": None})
 
 # parking/views.py (добавить после существующих APIView/ ViewSet)
 

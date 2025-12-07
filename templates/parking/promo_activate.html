@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Промокоды — ParkShare{% endblock %}
+
+{% block content %}
+<section class="ps-section ps-section--flush-top" data-route="bookings">
+    <div class="ps-section-header ps-section-header--stack">
+        <div>
+            <p class="ps-kicker">Бонусы</p>
+            <h1 class="ps-section-title">Активация промокода</h1>
+            <p class="ps-section-subtitle">Получите скидку или бесплатное время парковки.</p>
+        </div>
+        <div class="ps-section-actions">
+            <a href="{% url 'user_dashboard' %}" class="ps-btn ps-btn-ghost ps-btn-sm">Личный кабинет</a>
+        </div>
+    </div>
+
+    {% if message %}
+        <div class="ps-alert ps-alert--info">{{ message }}</div>
+    {% endif %}
+
+    <div class="ps-card ps-card--elevated">
+        <form method="post" class="ps-form ps-card-body ps-card-body--spacing-lg">
+            {% csrf_token %}
+            <div class="ps-form-row">
+                <label class="ps-form-label">Промокод</label>
+                <input class="ps-input" type="text" name="code" placeholder="PROMO2024">
+            </div>
+            <div class="ps-form-actions">
+                <button class="ps-btn ps-btn-primary ps-btn-full" type="submit">Активировать</button>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}
