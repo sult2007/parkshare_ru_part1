@@ -102,15 +102,19 @@
                 <div class="ps-map-cta">
                     <a class="ps-link ps-link-arrow" href="{% url 'map_page' %}">Открыть карту полностью</a>
                 </div>
-            </div>
         </div>
+    </div>
+        <!-- Bottom sheet with three states: collapsed/half/full -->
 
-        <div class="ps-bottom-sheet ps-bottom-sheet--floating" data-spots-panel data-spots-sheet data-sheet-state="half">
+        <div class="ps-bottom-sheet ps-bottom-sheet--floating" data-spots-panel data-spots-sheet data-sheet-state="collapsed">
             <div class="ps-bottom-sheet__handle" data-sheet-handle></div>
             <div class="ps-bottom-sheet__header">
                 <div>
                     <div class="ps-section-title-sm">Парковки рядом с маршрутом</div>
-                    <div class="ps-text-muted">Свободных: <span data-spots-count>{{ spots_total|default:0 }}</span>, ср. цена <span data-avg-price>—</span></div>
+                    <div class="ps-text-muted">
+                        Свободных: <span data-spots-count>0</span>,
+                        ср. цена <span data-avg-price>—</span>
+                    </div>
                 </div>
                 <div class="ps-bottom-sheet__actions">
                     <button type="button" class="ps-btn ps-btn-ghost ps-btn-sm" data-reset-filters>Сбросить</button>
@@ -118,21 +122,14 @@
             </div>
             <div class="ps-bottom-sheet__body">
                 <div class="ps-spots-list" data-spots-list>
-                    <div class="ps-card ps-card--spot ps-card--skeleton">
-                        <div class="ps-skeleton-line ps-skeleton-line--lg"></div>
-                        <div class="ps-skeleton-line"></div>
-                        <div class="ps-skeleton-line ps-skeleton-line--short"></div>
-                    </div>
-                    <div class="ps-card ps-card--spot ps-card--skeleton">
-                        <div class="ps-skeleton-line ps-skeleton-line--lg"></div>
-                        <div class="ps-skeleton-line"></div>
-                        <div class="ps-skeleton-line ps-skeleton-line--short"></div>
+                    <div class="ps-empty">
+                        <p>Подходящих мест пока нет. Попробуйте изменить фильтры.</p>
                     </div>
                 </div>
                 <div class="ps-route-hint" data-route-hint>Постройте мини-маршрут до выбранной точки.</div>
             </div>
         </div>
-    </div>
+
 
     <div class="ps-section">
         <div class="ps-card ps-card--elevated ps-assistant-card">

@@ -297,12 +297,13 @@
         const sheet = qs("[data-spots-sheet]") || qs("[data-spots-panel]");
         if (!sheet) return;
         const handle = qs("[data-sheet-handle]", sheet) || qs(".ps-bottom-sheet__handle", sheet);
-        let currentState = sheet.getAttribute("data-sheet-state") || "half";
+        let currentState = sheet.getAttribute("data-sheet-state") || "collapsed";
         let startY = 0;
         let startShift = 0;
         let baseHeight = Math.min(window.innerHeight * 0.82, 760);
         let activePointerId = null;
         const STATE_ORDER = ["collapsed", "half", "full"];
+        const COLLAPSED_HEIGHT = 72;
 
         function clamp(val, min, max) {
             return Math.max(min, Math.min(max, val));
@@ -314,7 +315,7 @@
 
         function computeBaseHeight() {
             const viewportH = (window.visualViewport && window.visualViewport.height) || window.innerHeight;
-            return Math.min(Math.max(viewportH * 0.82, 420), 760);
+            return Math.min(Math.max(viewportH * 0.82, 400), 780);
         }
 
         function apply(state, opts) {
@@ -326,9 +327,15 @@
                 return;
             }
             baseHeight = computeBaseHeight();
-            sheet.style.height = Math.round(baseHeight) + "px";
-            const rawShift = currentState === "full" ? 8 : currentState === "half" ? baseHeight * 0.48 : baseHeight * 0.72;
-            const shift = clamp(rawShift, 6, baseHeight - 64);
+            const rounded = Math.round(baseHeight);
+            sheet.style.height = rounded + "px";
+            sheet.style.setProperty("--ps-sheet-height", rounded + "px");
+            let collapsed = COLLAPSED_HEIGHT;
+            if ((window.visualViewport && window.visualViewport.height <= 440) || window.innerHeight <= 440) {
+                collapsed = 60;
+            }
+            const rawShift = currentState === "full" ? 0 : currentState === "half" ? baseHeight * 0.45 : baseHeight - collapsed;
+            const shift = clamp(rawShift, 0, baseHeight - 48);
             sheet.style.setProperty("--ps-sheet-shift", shift + "px");
             if (opts && opts.immediate) {
                 sheet.style.transition = "none";
@@ -404,6 +411,8 @@
         document.addEventListener("ps:spot-selection", function () {
             if (!isFloating()) return;
             if (currentState === "collapsed") {
+                apply("half");
+            } else if (currentState === "half") {
                 apply("half");
             }
         });

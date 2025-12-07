@@ -50,6 +50,7 @@ mypy ai parking
 - PUSH_PUBLIC_KEY / PUSH_PRIVATE_KEY (если используете WebPush)
 - Billing/Payments: провайдеры/ключи (YooKassa и др.) из `.env`
 - Флаги: MAINTENANCE_MODE, ENABLE_EXPERIMENTAL_ASSISTANT, ENABLE_AB_VARIANTS
+- Auth: OTP (AUTH_OTP_*), SMS_PROVIDER/SMS_DEFAULT_FROM, OAuth (VK/Yandex/Google client id/secret), ENABLE_METRICS для `/metrics`
 
 ## Основные ссылки
 - Карта: `/`

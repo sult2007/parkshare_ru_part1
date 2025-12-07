@@ -5,6 +5,7 @@ from rest_framework import mixins, permissions, status, viewsets
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from core.metrics import record_payment_event
 from .models import Payment, PaymentMethod
 from .serializers import PaymentMethodSerializer, PaymentSerializer
 from .providers.registry import get_payment_provider
@@ -44,7 +45,11 @@ class PaymentViewSet(
         return qs.filter(payer=user)
 
     def perform_create(self, serializer: PaymentSerializer) -> None:
-        serializer.save()
+        payment = serializer.save()
+        try:
+            record_payment_event(getattr(payment, "provider", None), "created")
+        except Exception:
+            pass
 
 
 class PaymentMethodViewSet(

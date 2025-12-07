@@ -1,52 +1,66 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Регистрация — ParkShare RU{% endblock %}
+{% block title %}Регистрация в ParkShare RU{% endblock %}
 
 {% block content %}
 <section class="ps-auth">
     <div class="ps-auth-card ps-card ps-card--elevated ps-animate-fade-up">
         <h1 class="ps-auth-title">Регистрация</h1>
         <p class="ps-auth-subtitle">
-            Создайте аккаунт, чтобы бронировать парковки и управлять местами.
+            Создайте аккаунт, чтобы бронировать парковки и получать рекомендации.
         </p>
 
-        <form method="post" class="ps-form">
-            {% csrf_token %}
-            {% if form.non_field_errors %}
-                <div class="ps-alert ps-alert--danger">
-                    {{ form.non_field_errors }}
-                </div>
-            {% endif %}
+        <div class="ps-auth-tabs" data-auth-switcher>
+            <button type="button" class="is-active" data-auth-target="form">По паролю</button>
+            <button type="button" data-auth-target="social">VK / Яндекс / Google</button>
+        </div>
 
-            {% for field in form.visible_fields %}
-                <div class="ps-form-row">
-                    <label class="ps-form-label" for="{{ field.id_for_label }}">
-                        {{ field.label }}
-                    </label>
-                    {{ field }}
-                    {% if field.help_text %}
-                        <div class="ps-field-help">{{ field.help_text }}</div>
+        <div class="ps-auth-panels">
+            <div class="ps-auth-panel is-active" data-auth-panel="form">
+                <form method="post" class="ps-form">
+                    {% csrf_token %}
+                    {% if form.non_field_errors %}
+                        <div class="ps-alert ps-alert--danger">
+                            {{ form.non_field_errors }}
+                        </div>
                     {% endif %}
-                    {% for error in field.errors %}
-                        <div class="ps-field-error">{{ error }}</div>
+
+                    {% for field in form.visible_fields %}
+                        <div class="ps-form-row">
+                            <label class="ps-form-label" for="{{ field.id_for_label }}">
+                                {{ field.label }}
+                            </label>
+                            {{ field }}
+                            {% if field.help_text %}
+                                <div class="ps-field-help">{{ field.help_text }}</div>
+                            {% endif %}
+                            {% for error in field.errors %}
+                                <div class="ps-field-error">{{ error }}</div>
+                            {% endfor %}
+                        </div>
                     {% endfor %}
+
+                    <div class="ps-form-actions">
+                        <button type="submit" class="ps-btn ps-btn-full">
+                            Зарегистрироваться
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="ps-auth-panel" data-auth-panel="social">
+                <div class="ps-auth-placeholder">
+                    <p>Создайте аккаунт через соцсеть — без пароля.</p>
+                    <div class="ps-auth-social">
+                        <a class="ps-btn ps-btn-ghost ps-btn-full" href="{% url 'oauth_start' 'vk' %}?next={{ request.path }}">VK</a>
+                        <a class="ps-btn ps-btn-ghost ps-btn-full" href="{% url 'oauth_start' 'yandex' %}?next={{ request.path }}">Яндекс ID</a>
+                        <a class="ps-btn ps-btn-ghost ps-btn-full" href="{% url 'oauth_start' 'google' %}?next={{ request.path }}">Google</a>
+                    </div>
+                    <p class="ps-text-muted">Email и телефон будут запрошены только с вашего согласия.</p>
                 </div>
-            {% endfor %}
-
-            <div class="ps-form-actions">
-                <button type="submit" class="ps-btn ps-btn-full">
-                    Зарегистрироваться
-                </button>
             </div>
-
-            <div class="ps-auth-alt">
-                <button type="button" class="ps-btn ps-btn-ghost" title="Скоро">Регистрация по коду</button>
-                <button type="button" class="ps-btn ps-btn-ghost" title="Скоро">Госуслуги</button>
-                <button type="button" class="ps-btn ps-btn-ghost" title="Скоро">Google</button>
-                <!-- TODO: подключить быструю регистрацию через code/ESIA/OAuth -->
-            </div>
-        </form>
+        </div>
 
         <div class="ps-auth-footer">
             Уже есть аккаунт?
@@ -54,4 +68,24 @@
         </div>
     </div>
 </section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    (function () {
+        const root = document.querySelector('[data-auth-switcher]');
+        if (!root) return;
+        const buttons = Array.from(root.querySelectorAll('[data-auth-target]'));
+        const panels = Array.from(document.querySelectorAll('[data-auth-panel]'));
+        buttons.forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                const target = btn.getAttribute('data-auth-target');
+                buttons.forEach(function (b) { b.classList.toggle('is-active', b === btn); });
+                panels.forEach(function (panel) {
+                    panel.classList.toggle('is-active', panel.getAttribute('data-auth-panel') === target);
+                });
+            });
+        });
+    })();
+</script>
 {% endblock %}

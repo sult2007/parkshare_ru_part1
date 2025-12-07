@@ -1,5 +1,7 @@
 # accounts/serializers.py
 
+from __future__ import annotations
+
 from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
 from django.utils.translation import gettext_lazy as _
@@ -7,8 +9,8 @@ from rest_framework import serializers
 
 from core.utils import normalize_phone
 from .auth import find_user_by_identifier
-from .models import User, LoginCode
-from .utils import normalize_email, hash_email, hash_phone
+from .models import LoginCode, SocialAccount, User
+from .utils import generate_username, hash_code, hash_email, hash_phone, normalize_email
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -39,6 +41,14 @@ class UserSerializer(serializers.ModelSerializer):
         return bool(obj.phone_plain)
 
 
+class SocialAccountSerializer(serializers.ModelSerializer):
+    """Вывод связанных соц-аккаунтов в профиле."""
+
+    class Meta:
+        model = SocialAccount
+        fields = ("id", "provider", "external_id", "email", "display_name", "last_login_at")
+
+
 class UserProfileSerializer(serializers.ModelSerializer):
     """
     Профиль текущего пользователя.
@@ -55,10 +65,11 @@ class UserProfileSerializer(serializers.ModelSerializer):
         allow_blank=True,
         required=False,
     )
+    social_accounts = SocialAccountSerializer(many=True, read_only=True)
 
     class Meta:
         model = User
-        fields = ("id", "username", "role", "email", "phone")
+        fields = ("id", "username", "role", "email", "phone", "social_accounts")
 
     def validate_phone(self, value: str) -> str:
         """
@@ -193,7 +204,6 @@ class LoginSerializer(serializers.Serializer):
                 code="authorization",
             )
 
-        # authenticate нужен для проверки пароля и backend'а аутентификации
         auth_user = authenticate(
             username=user.username,
             password=password,
@@ -257,27 +267,57 @@ class PasswordResetRequestSerializer(serializers.Serializer):
 
 
 class OTPRequestSerializer(serializers.Serializer):
-    """
-    Запрос кода подтверждения для email/телефона.
-    """
-
-    identifier = serializers.CharField(
-        label=_("Email или телефон"),
-    )
+    identifier = serializers.CharField(label=_("Email или телефон"))
     purpose = serializers.ChoiceField(
         choices=LoginCode.Purpose.choices,
         default=LoginCode.Purpose.LOGIN,
     )
+
+    def validate_identifier(self, value: str) -> str:
+        value = (value or "").strip()
+        if not value:
+            raise serializers.ValidationError(_("Укажите email или телефон."))
+        if "@" in value:
+            normalized = normalize_email(value)
+            if not normalized:
+                raise serializers.ValidationError(_("Некорректный email."))
+            return normalized
+        normalized_phone = normalize_phone(value)
+        if not normalized_phone:
+            raise serializers.ValidationError(_("Некорректный номер телефона. Используйте формат +7..."))
+        return normalized_phone
+
+    def get_channel(self) -> str:
+        identifier = self.validated_data.get("identifier", "")
+        if "@" in identifier:
+            return LoginCode.Channel.EMAIL
+        return LoginCode.Channel.PHONE
 
 
 class OTPVerifySerializer(serializers.Serializer):
-    """
-    Проверка кода и выдача JWT/сессии.
-    """
-
     identifier = serializers.CharField(label=_("Email или телефон"))
-    code = serializers.CharField(label=_("Код"), max_length=8)
+    code = serializers.CharField(label=_("Код из сообщения"), max_length=12)
     purpose = serializers.ChoiceField(
         choices=LoginCode.Purpose.choices,
         default=LoginCode.Purpose.LOGIN,
     )
+
+    def validate_identifier(self, value: str) -> str:
+        value = (value or "").strip()
+        if not value:
+            raise serializers.ValidationError(_("Укажите email или телефон."))
+        if "@" in value:
+            normalized = normalize_email(value)
+            if not normalized:
+                raise serializers.ValidationError(_("Некорректный email."))
+            return normalized
+        normalized_phone = normalize_phone(value)
+        if not normalized_phone:
+            raise serializers.ValidationError(_("Некорректный номер телефона. Используйте формат +7..."))
+        return normalized_phone
+
+    def get_channel(self) -> str:
+        identifier = self.validated_data.get("identifier", "")
+        if "@" in identifier:
+            return LoginCode.Channel.EMAIL
+        return LoginCode.Channel.PHONE

@@ -32,7 +32,9 @@ if env_file.exists():
 
 DEBUG: bool = env.bool("DEBUG", default=False)
 # ОБЯЗАТЕЛЬНО: ключ только из переменной окружения / .env
-SECRET_KEY: str = env("SECRET_KEY")
+SECRET_KEY: str = env("SECRET_KEY", default=env("DJANGO_SECRET_KEY", default=""))
+if not SECRET_KEY:
+    raise RuntimeError("SECRET_KEY is required. Set SECRET_KEY in environment.")
 
 ALLOWED_HOSTS: List[str] = env.list(
     "ALLOWED_HOSTS", default=["localhost", "127.0.0.1"]
@@ -90,6 +92,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "core.middleware.RateLimitMiddleware",
+    "core.metrics.RequestMetricsMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "core.middleware.SecurityHeadersMiddleware",
@@ -448,6 +451,40 @@ DEFAULT_PAYMENT_PROVIDER = env(
 )
 
 SERVICE_COMMISSION_PERCENT = env.int("SERVICE_COMMISSION_PERCENT", default=10)
+
+# This block is appended near the bottom of base.py, after business and AI settings.
+# ---------------------------------------------------------------------------
+# OTP / SMS / Metrics / Social auth
+# ---------------------------------------------------------------------------
+
+AUTH_OTP_CODE_TTL_SECONDS = env.int("AUTH_OTP_CODE_TTL_SECONDS", default=600)
+AUTH_OTP_WINDOW_SECONDS = env.int("AUTH_OTP_WINDOW_SECONDS", default=600)
+AUTH_OTP_MAX_PER_WINDOW = env.int("AUTH_OTP_MAX_PER_WINDOW", default=5)
+AUTH_OTP_MAX_ATTEMPTS = env.int("AUTH_OTP_MAX_ATTEMPTS", default=5)
+
+SMS_PROVIDER = env.str("SMS_PROVIDER", default="console")
+SMS_DEFAULT_FROM = env.str("SMS_DEFAULT_FROM", default="ParkShare")
+
+ENABLE_METRICS = env.bool("ENABLE_METRICS", default=True)
+
+SOCIAL_OAUTH_CONFIG = {
+    "vk": {
+        "client_id": env.str("VK_OAUTH_CLIENT_ID", default=""),
+        "client_secret": env.str("VK_OAUTH_CLIENT_SECRET", default=""),
+    },
+    "yandex": {
+        "client_id": env.str("YANDEX_OAUTH_CLIENT_ID", default=""),
+        "client_secret": env.str("YANDEX_OAUTH_CLIENT_SECRET", default=""),
+    },
+    "google": {
+        "client_id": env.str("GOOGLE_OAUTH_CLIENT_ID", default=""),
+        "client_secret": env.str("GOOGLE_OAUTH_CLIENT_SECRET", default=""),
+    },
+}
+SOCIAL_OAUTH_TEST_MODE = env.bool("SOCIAL_OAUTH_TEST_MODE", default=False)
+
+
+
 
 # ---------------------------------------------------------------------------
 # Кэш по умолчанию — in-memory (в продакшене можно переключить на Redis)

@@ -1305,80 +1305,6 @@ a {
     border: none;
 }
 
-.ps-bottom-sheet {
-    position: relative;
-    background: var(--ps-bg-card);
-    border: 1px solid var(--ps-border-subtle);
-    border-radius: var(--ps-radius-card);
-    box-shadow: var(--ps-shadow-card);
-    display: grid;
-    grid-template-rows: auto 1fr;
-    min-height: 260px;
-}
-
-.ps-bottom-sheet--floating {
-    box-shadow: 0 18px 42px rgba(0, 0, 0, 0.22);
-}
-
-.ps-bottom-sheet[data-sheet-state="full"] .ps-bottom-sheet__handle {
-    background: var(--ps-accent);
-}
-
-.ps-bottom-sheet__handle {
-    width: 52px;
-    height: 5px;
-    border-radius: 999px;
-    background: var(--ps-border-subtle);
-    margin: 8px auto;
-}
-
-.ps-bottom-sheet__header {
-    display: flex;
-    justify-content: space-between;
-    padding: 0 1rem 0.5rem;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.ps-bottom-sheet__actions {
-    display: flex;
-    gap: 0.5rem;
-}
-
-.ps-bottom-sheet__body {
-    padding: 0 1rem 1rem;
-    overflow: auto;
-}
-
-.ps-bottom-sheet__footer {
-    padding: 0.75rem 0;
-}
-
-@media (max-width: 768px) {
-    .ps-bottom-sheet--floating {
-        position: fixed;
-        left: max(0.5rem, env(safe-area-inset-left));
-        right: max(0.5rem, env(safe-area-inset-right));
-        bottom: calc(var(--ps-bottom-bar-height) - 6px);
-        height: 72vh;
-        max-height: calc(100vh - var(--ps-topbar-height) - 28px);
-        transform: translateY(var(--ps-sheet-shift, 40vh));
-        transition: transform 0.25s ease, box-shadow 0.2s ease;
-        z-index: 90;
-    }
-    .ps-bottom-sheet--floating[data-sheet-state="full"] {
-        --ps-sheet-shift: 8px;
-    }
-    .ps-bottom-sheet--floating[data-sheet-state="half"] {
-        --ps-sheet-shift: 32vh;
-    }
-    .ps-bottom-sheet--floating[data-sheet-state="collapsed"] {
-        --ps-sheet-shift: 48vh;
-    }
-    .ps-bottom-sheet__body {
-        padding-bottom: 1.25rem;
-    }
-}
 
 /* ---------- Recommendations & cards ---------- */
 
@@ -2036,7 +1962,89 @@ a {
         flex-direction: column;
         width: 100%;
     }
-    .ps-map {
+.ps-map {
         height: clamp(240px, 46vh, 340px);
+    }
+}
+
+/* ---------- Bottom sheet (mobile) ---------- */
+
+.ps-bottom-sheet {
+    position: relative;
+    background: var(--ps-bg-card);
+    border: 1px solid var(--ps-border-subtle);
+    border-radius: 20px 20px 12px 12px;
+    box-shadow: var(--ps-shadow-card);
+    display: grid;
+    grid-template-rows: auto 1fr;
+    min-height: 220px;
+}
+
+.ps-bottom-sheet__handle {
+    width: 48px;
+    height: 5px;
+    border-radius: 999px;
+    background: var(--ps-border-subtle);
+    margin: 8px auto 6px auto;
+}
+
+.ps-bottom-sheet__header {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 1rem 0.5rem;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.ps-bottom-sheet__actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.ps-bottom-sheet__body {
+    padding: 0 1rem 1rem;
+    overflow: auto;
+}
+
+@media (max-width: 900px) {
+    .ps-bottom-sheet--floating {
+        position: fixed;
+        left: max(0.5rem, env(safe-area-inset-left));
+        right: max(0.5rem, env(safe-area-inset-right));
+        bottom: calc(var(--ps-bottom-bar-height, 70px) - 8px);
+        height: var(--ps-sheet-height, 78vh);
+        max-height: calc(100vh - 64px);
+        transform: translateY(var(--ps-sheet-shift, 0px));
+        transition: transform 0.25s ease, height 0.2s ease, box-shadow 0.25s ease;
+        z-index: 90;
+        box-shadow: 0 18px 42px rgba(0, 0, 0, 0.22);
+    }
+
+    .ps-bottom-sheet--floating[data-sheet-state="collapsed"] {
+        --ps-sheet-collapsed: 66px;
+        --ps-sheet-shift: calc(var(--ps-sheet-height, 78vh) - var(--ps-sheet-collapsed));
+    }
+
+    .ps-bottom-sheet--floating[data-sheet-state="half"] {
+        --ps-sheet-shift: calc(var(--ps-sheet-height, 78vh) * 0.45);
+    }
+
+    .ps-bottom-sheet--floating[data-sheet-state="full"] {
+        --ps-sheet-shift: 0px;
+        height: calc(100vh - var(--ps-topbar-height, 56px));
+        max-height: calc(100vh - var(--ps-topbar-height, 56px));
+    }
+
+    .ps-bottom-sheet__body {
+        padding-bottom: max(env(safe-area-inset-bottom, 0px) + 10px, 18px);
+    }
+}
+
+@media (max-height: 430px) {
+    .ps-bottom-sheet--floating {
+        height: var(--ps-sheet-height, 70vh);
+    }
+    .ps-bottom-sheet--floating[data-sheet-state="collapsed"] {
+        --ps-sheet-collapsed: 56px;
     }
 }

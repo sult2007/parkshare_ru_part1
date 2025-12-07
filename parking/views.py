@@ -18,6 +18,7 @@ from rest_framework import permissions, status, viewsets
 from rest_framework.response import Response
 from rest_framework.throttling import UserRateThrottle, AnonRateThrottle
 
+from core.metrics import record_booking_event
 from core.permissions import IsAdminOrReadOnly
 from core.utils import haversine_distance_km, parse_float
 from vehicles.models import Vehicle
@@ -261,6 +262,10 @@ class BookingViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         booking = serializer.save()
+        try:
+            record_booking_event("created")
+        except Exception:
+            pass
         return booking
 
     def destroy(self, request, *args, **kwargs):
@@ -275,6 +280,10 @@ class BookingViewSet(viewsets.ModelViewSet):
             )
         instance.status = Booking.Status.CANCELLED
         instance.save(update_fields=["status"])
+        try:
+            record_booking_event("cancelled")
+        except Exception:
+            pass
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 

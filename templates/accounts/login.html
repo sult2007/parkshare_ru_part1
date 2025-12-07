@@ -1,21 +1,20 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Вход — ParkShare RU{% endblock %}
+{% block title %}Вход в ParkShare RU{% endblock %}
 
 {% block content %}
 <section class="ps-auth">
     <div class="ps-auth-card ps-card ps-card--elevated ps-animate-fade-up">
         <h1 class="ps-auth-title">Вход</h1>
         <p class="ps-auth-subtitle">
-            Войдите, чтобы управлять своими бронированиями и машинами.
+            Выберите удобный способ: пароль, одноразовый код или соцсети.
         </p>
 
         <div class="ps-auth-tabs" data-auth-switcher>
-            <button type="button" class="is-active" data-auth-target="password">Email/Пароль</button>
-            <button type="button" data-auth-target="google" aria-disabled="true" title="Google появится позже">Google</button>
-            <button type="button" data-auth-target="sms">SMS</button>
-            <button type="button" data-auth-target="esia">Госуслуги</button>
+            <button type="button" class="is-active" data-auth-target="password">Пароль</button>
+            <button type="button" data-auth-target="otp">SMS / Email</button>
+            <button type="button" data-auth-target="social">VK / Яндекс / Google</button>
         </div>
 
         <div class="ps-auth-panels">
@@ -53,31 +52,44 @@
                 </form>
             </div>
 
-            <div class="ps-auth-panel" data-auth-panel="google">
+            <div class="ps-auth-panel" data-auth-panel="otp">
                 <div class="ps-auth-placeholder">
-                    <p>Вход через Google скоро появится. В дев-режиме используйте email/пароль.</p>
-                    <button type="button" class="ps-btn ps-btn-secondary" disabled aria-disabled="true">Google</button>
+                    <p>Получите одноразовый код по SMS или email. Телефон вводите в формате +7.</p>
+                    <div class="ps-form-row">
+                        <label class="ps-form-label" for="otp-identifier">Телефон или email</label>
+                        <input id="otp-identifier" type="text" data-otp-identifier class="ps-input" placeholder="+7 999 000 11 22">
+                    </div>
+                    <div class="ps-form-row ps-form-row--inline">
+                        <button type="button" class="ps-btn ps-btn-secondary" data-otp-request>Запросить код</button>
+                        <span class="ps-text-muted" data-otp-status></span>
+                    </div>
+                    <div class="ps-form-row">
+                        <label class="ps-form-label" for="otp-code">Код из сообщения</label>
+                        <input id="otp-code" type="text" class="ps-input" data-otp-code maxlength="6" inputmode="numeric">
+                    </div>
+                    <div class="ps-form-actions">
+                        <button type="button" class="ps-btn ps-btn-full" data-otp-verify>Войти по коду</button>
+                    </div>
+                    <div class="ps-alert ps-alert--muted" data-otp-hint hidden></div>
                 </div>
             </div>
 
-            <div class="ps-auth-panel" data-auth-panel="sms">
+            <div class="ps-auth-panel" data-auth-panel="social">
                 <div class="ps-auth-placeholder">
-                    <p>Вход по SMS-коду в разработке.</p>
-                    <button type="button" class="ps-btn ps-btn-secondary" disabled>Получить код</button>
-                </div>
-            </div>
-
-            <div class="ps-auth-panel" data-auth-panel="esia">
-                <div class="ps-auth-placeholder">
-                    <p>Поддержка Госуслуг скоро будет доступна.</p>
-                    <button type="button" class="ps-btn ps-btn-secondary" disabled>Перейти в Госуслуги</button>
+                    <p>Быстрый вход через соцсети:</p>
+                    <div class="ps-auth-social">
+                        <a class="ps-btn ps-btn-ghost ps-btn-full" href="{% url 'oauth_start' 'vk' %}?next={{ request.path }}">Войти через VK</a>
+                        <a class="ps-btn ps-btn-ghost ps-btn-full" href="{% url 'oauth_start' 'yandex' %}?next={{ request.path }}">Войти через Яндекс</a>
+                        <a class="ps-btn ps-btn-ghost ps-btn-full" href="{% url 'oauth_start' 'google' %}?next={{ request.path }}">Войти через Google</a>
+                    </div>
+                    <p class="ps-text-muted">Мы не запрашиваем доступ к личным сообщениям и не публикуем ничего от вашего имени.</p>
                 </div>
             </div>
         </div>
 
         <div class="ps-auth-footer">
             Нет аккаунта?
-            <a href="{% url 'accounts:register' %}">Зарегистрироваться</a>
+            <a href="{% url 'accounts:register' %}">Зарегистрируйтесь</a>
             <br>
             <a href="{% url 'accounts:password_reset' %}">Забыли пароль?</a>
         </div>
@@ -101,6 +113,66 @@
                 });
             });
         });
+
+        function csrf() {
+            const m = document.cookie.match(/csrftoken=([^;]+)/);
+            return m ? m[1] : "";
+        }
+        const idInput = document.querySelector('[data-otp-identifier]');
+        const codeInput = document.querySelector('[data-otp-code]');
+        const statusLabel = document.querySelector('[data-otp-status]');
+        const hint = document.querySelector('[data-otp-hint]');
+        const requestBtn = document.querySelector('[data-otp-request]');
+        const verifyBtn = document.querySelector('[data-otp-verify]');
+        function setStatus(text, isError) {
+            if (!statusLabel) return;
+            statusLabel.textContent = text || "";
+            statusLabel.classList.toggle('ps-text-danger', !!isError);
+        }
+        if (requestBtn && idInput) {
+            requestBtn.addEventListener('click', function () {
+                setStatus("Отправляем...", false);
+                fetch("{% url 'auth_otp_request' %}", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": csrf(),
+                    },
+                    body: JSON.stringify({ identifier: idInput.value, purpose: "login" }),
+                }).then(function (resp) { return resp.json().then(function (data) { return { status: resp.status, data: data }; }); })
+                    .then(function (payload) {
+                        if (payload.status >= 400) throw payload.data;
+                        setStatus("Код отправлен. Проверьте сообщения.", false);
+                        if (hint) { hint.hidden = false; hint.textContent = "Код действует ограниченное время. Не сообщайте его никому."; }
+                    })
+                    .catch(function (err) {
+                        const msg = (err && (err.detail || err.message)) || "Не удалось отправить код";
+                        setStatus(msg, true);
+                    });
+            });
+        }
+        if (verifyBtn && idInput && codeInput) {
+            verifyBtn.addEventListener('click', function () {
+                setStatus("Проверяем...", false);
+                fetch("{% url 'auth_otp_verify' %}", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": csrf(),
+                    },
+                    body: JSON.stringify({ identifier: idInput.value, code: codeInput.value, purpose: "login" }),
+                }).then(function (resp) { return resp.json().then(function (data) { return { status: resp.status, data: data }; }); })
+                    .then(function (payload) {
+                        if (payload.status >= 400) throw payload.data;
+                        setStatus("Готово! Перезагружаем страницу…", false);
+                        window.location.href = "{{ request.GET.next|default:'/' }}";
+                    })
+                    .catch(function (err) {
+                        const msg = (err && (err.detail || err.message)) || "Код не подошёл";
+                        setStatus(msg, true);
+                    });
+            });
+        }
     })();
 </script>
 {% endblock %}

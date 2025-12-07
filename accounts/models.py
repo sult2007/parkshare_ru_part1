@@ -2,6 +2,7 @@
 
 import uuid
 
+from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils import timezone
@@ -10,7 +11,6 @@ from django_cryptography.fields import encrypt
 
 from core.models import TimeStampedUUIDModel
 from .utils import hash_email, hash_phone
-
 
 class User(AbstractUser):
     """
@@ -177,6 +177,13 @@ class LoginCode(TimeStampedUUIDModel):
     )
     expires_at = models.DateTimeField(_("Истекает в"))
     is_used = models.BooleanField(_("Использован"), default=False)
+    attempts = models.PositiveSmallIntegerField(_("Попыток ввода"), default=0)
+    status = models.CharField(
+        _("Статус"),
+        max_length=16,
+        default="pending",
+        help_text=_("pending/used/expired/blocked"),
+    )
 
     class Meta:
         verbose_name = _("Код подтверждения")
@@ -192,6 +199,71 @@ class LoginCode(TimeStampedUUIDModel):
     def is_expired(self) -> bool:
         return timezone.now() >= self.expires_at
 
+    def mark_used(self) -> None:
+        self.is_used = True
+        self.status = "used"
+        self.save(update_fields=["is_used", "status", "updated_at"])
+
+class SocialAccount(models.Model):
+    """
+    Link between local User and external OAuth provider account.
+
+    Intended for VK, Yandex ID, Google and similar providers.
+    """
+
+    class Provider(models.TextChoices):
+        VK = "vk", "VK"
+        YANDEX = "yandex", "Yandex"
+        GOOGLE = "google", "Google"
+
+    id = models.BigAutoField(primary_key=True)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="social_accounts",
+        verbose_name=_("Пользователь"),
+    )
+    provider = models.CharField(
+        _("Провайдер"),
+        max_length=32,
+        choices=Provider.choices,
+    )
+    external_id = models.CharField(
+        _("Внешний ID"),
+        max_length=255,
+        help_text=_("Уникальный идентификатор пользователя в системе провайдера."),
+    )
+    email = models.EmailField(
+        _("Email из профиля"),
+        blank=True,
+        null=True,
+    )
+    display_name = models.CharField(
+        _("Имя в профиле"),
+        max_length=255,
+        blank=True,
+    )
+    extra_data = models.JSONField(
+        _("Сырой профиль"),
+        default=dict,
+        blank=True,
+        help_text=_("Небольшой JSON с частью профиля, не содержащей чувствительные данные."),
+    )
+    last_login_at = models.DateTimeField(_("Последний вход"), default=timezone.now)
+    created_at = models.DateTimeField(_("Создано"), auto_now_add=True)
+    updated_at = models.DateTimeField(_("Обновлено"), auto_now=True)
+
+    class Meta:
+        verbose_name = _("Социальный аккаунт")
+        verbose_name_plural = _("Социальные аккаунты")
+        unique_together = [("provider", "external_id")]
+        indexes = [
+            models.Index(fields=["provider", "external_id"]),
+            models.Index(fields=["user", "provider"]),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.get_provider_display()}:{self.external_id} → {self.user_id}"
 
 class UserLevel(TimeStampedUUIDModel):
     """Уровень пользователя по количеству завершённых бронирований."""

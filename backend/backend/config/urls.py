@@ -15,6 +15,7 @@ from rest_framework import routers
 
 from accounts import views as accounts_api
 from ai import views as ai_api
+from core.metrics import metrics_view
 from parking import views as parking_views
 from payments import views as payments_api
 from vehicles import views as vehicles_api
@@ -86,6 +87,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("healthz", healthz, name="healthz"),
     path("readyz", readyz, name="readyz"),
+    path("metrics", metrics_view, name="metrics"),
 
     # PWA файлы
     path("service-worker.js", service_worker, name="service_worker"),
@@ -110,6 +112,13 @@ urlpatterns = [
     # Auth страницы (регистрация/логин/сброс пароля)
     path("accounts/", include("accounts.urls")),
 
+    # Passwordless auth (OTP via email/SMS) + profile
+    path("auth/otp/request/", accounts_api.AuthOTPRequestView.as_view(), name="auth_otp_request"),
+    path("auth/otp/verify/", accounts_api.AuthOTPVerifyView.as_view(), name="auth_otp_verify"),
+    path("auth/oauth/<str:provider>/start/", accounts_api.SocialOAuthStartView.as_view(), name="oauth_start"),
+    path("auth/oauth/<str:provider>/callback/", accounts_api.SocialOAuthCallbackView.as_view(), name="oauth_callback"),
+
+
     # API (DRF router)
     path("api/", include(router.urls)),
 
@@ -128,6 +137,7 @@ urlpatterns = [
     # OTP / auth
     path("api/auth/request-code/", accounts_api.AuthOTPRequestView.as_view(), name="auth_request_code"),
     path("api/auth/verify-code/", accounts_api.AuthOTPVerifyView.as_view(), name="auth_verify_code"),
+    path("api/accounts/social-accounts/<int:pk>/", accounts_api.SocialAccountDetailView.as_view(), name="social_account_unlink"),
 
     # OpenAPI / документация
     path("api/schema/", SpectacularAPIView.as_view(), name="api-schema"),
