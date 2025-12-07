@@ -17,6 +17,11 @@
             <a href="{% url 'map_page' %}" class="ps-btn ps-btn-secondary ps-btn-sm">К карте</a>
         </div>
     </div>
+    <div class="ps-chip-row">
+        <span class="ps-chip ps-chip--soft">Объектов: {{ lots|length }}</span>
+        <span class="ps-chip ps-chip--soft">Мест: {{ spots|length }}</span>
+        <span class="ps-chip ps-chip--soft">Брони: {{ bookings|length }}</span>
+    </div>
 
     <div class="ps-grid ps-grid--gap-lg ps-grid--2col">
         <article class="ps-card ps-card--elevated">

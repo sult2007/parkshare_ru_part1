@@ -10,12 +10,11 @@
 
     var MAP_CONFIG = window.PARKSHARE_MAP_PROVIDER || {};
     var priceRange = [0, 1500];
-    var MAP_THEME_KEY = "ps-map-theme";
-    var storedTheme = null;
-    try { storedTheme = localStorage.getItem(MAP_THEME_KEY); } catch (_) {}
     var prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
     var dataTheme = document.documentElement.getAttribute("data-theme");
-    var isNight = (storedTheme || dataTheme || (prefersDark ? "dark" : "light")) === "dark";
+    var storedTheme = null;
+    try { storedTheme = localStorage.getItem("ps-theme"); } catch (_) {}
+    var isNight = (dataTheme || storedTheme || (prefersDark ? "dark" : "light")) === "dark";
     var lastFeatures = [];
     var userLocation = null;
 
@@ -43,8 +42,6 @@
                 document.documentElement.setAttribute("data-theme", mode);
                 try { localStorage.setItem("ps-theme", mode); } catch (_) {}
             }
-        } else {
-            document.documentElement.setAttribute("data-theme", mode);
         }
 
         var btn = qs("[data-map-theme]");
@@ -54,7 +51,6 @@
             btn.classList.toggle("is-active", isDark);
         }
 
-        try { localStorage.setItem(MAP_THEME_KEY, mode); } catch (_) {}
         isNight = mode === "dark";
         if (provider && provider.toggleTheme) provider.toggleTheme(isNight ? "night" : "day");
     }
@@ -111,7 +107,26 @@
             var p = feature.properties || {};
             var stress = p.stress_index || 0;
             var color = stress >= 0.8 ? "#ef4444" : stress >= 0.6 ? "#f59e0b" : "#0ea5e9";
-            var marker = L.circleMarker([lat, lng], { radius: 12, weight: 2, color: color, fillColor: color, fillOpacity: 0.92 });
+            var isHot = p.hourly_price && stress < 0.6;
+            var freeLabel = (p.free_places === 0 || p.free_places) ? p.free_places : null;
+            var label = freeLabel != null ? String(freeLabel) : "P";
+            var textColor = (color === "#ef4444" || color === "#f59e0b") ? "#ffffff" : "#04121f";
+            var markerHtml = [
+                "<div class='ps-map-marker" + (isHot ? " ps-map-marker--hot" : "") + "'>",
+                "  <div class='ps-map-marker__halo'></div>",
+                "  <div class='ps-map-marker__body' style='background:" + color + "; color:" + textColor + "'>",
+                "    <span class='ps-map-marker__value'>" + label + "</span>",
+                "  </div>",
+                "</div>"
+            ].join("");
+            var marker = L.marker([lat, lng], {
+                icon: L.divIcon({
+                    className: "ps-map-marker-wrap",
+                    html: markerHtml,
+                    iconSize: [46, 46],
+                    iconAnchor: [23, 23],
+                })
+            });
             marker.bindPopup(buildPopupHtml(p, color), { className: "ps-map-popup-card" });
             marker.addTo(layer);
             bounds.push([lat, lng]);
@@ -201,7 +216,7 @@
         var markerTpl = [
             "<div class='ps-map-marker {{properties.markerActive}} {{properties.markerHot ? \"ps-map-marker--hot\" : ''}}'>",
             "  <div class='ps-map-marker__halo'></div>",
-            "  <div class='ps-map-marker__body' style='background: {{properties.markerColor}}'>",
+            "  <div class='ps-map-marker__body' style='background: {{properties.markerColor}}; color: {{properties.markerTextColor}}'>",
             "    <span class='ps-map-marker__value'>{{properties.markerLabel}}</span>",
             "  </div>",
             "</div>"
@@ -294,7 +309,9 @@
             var color = allowAi ? "#22c55e" : "#0ea5e9";
             if (stress > 0.7) color = "#ef4444"; else if (stress > 0.45) color = "#f59e0b";
             var isHot = avgPrice && p.hourly_price && p.hourly_price < avgPrice * 0.75;
-            var label = p.free_places != null ? p.free_places + " св." : (p.hourly_price ? p.hourly_price + " ₽" : "?" );
+            var freeLabel = (p.free_places === 0 || p.free_places) ? p.free_places : null;
+            var label = freeLabel != null ? String(freeLabel) : "P";
+            var textColor = (color === "#ef4444" || color === "#f59e0b") ? "#ffffff" : "#04121f";
             var popupHtml = buildPopupHtml(p, color);
             var placemark = new ymaps.Placemark([lat, lng], {
                 hintContent: (p.lot_name || "") + (p.name ? " — " + p.name : ""),
@@ -302,6 +319,7 @@
                 markerColor: color,
                 markerLabel: label,
                 markerHot: isHot,
+                markerTextColor: textColor,
                 stress_index: stress,
             }, {
                 iconLayout: self._markerLayout,
@@ -484,13 +502,17 @@
         if (!features.length) { container.innerHTML = "<div class='ps-empty'><p>Подходящих мест пока нет. Попробуйте изменить фильтры.</p></div>"; return; }
         container.innerHTML = features.map(function (f) {
             var p = f.properties || {}, tags = [];
-            if (p.has_ev_charging) tags.push("⚡ EV"); if (p.is_covered) tags.push("🛡 крытая"); if (p.is_24_7) tags.push("⏰ 24/7");
+            if (p.has_ev_charging) tags.push("EV");
+            if (p.is_covered) tags.push("Крытая");
+            if (p.is_24_7) tags.push("24/7");
             var badge = p.allow_dynamic_pricing ? "<span class='ps-badge ps-badge--success'>AI‑тариф</span>" : "";
+            var tagLine = tags.length ? "<div class='ps-card-line ps-card-line--muted'>" + tags.join(" • ") + "</div>" : "";
             return [
                 "<article class='ps-card ps-card--spot ps-animate-fade-up ps-animate-stagger' data-spot-card='" + (p.spot_id || f.id || "") + "'>",
                 "  <div class='ps-card-header'><div class='ps-card-title'>" + (p.city || "") + (p.lot_name ? ", " + p.lot_name : "") + (p.name ? " — " + p.name : "") + "</div>" + badge + "</div>",
                 "  <div class='ps-card-body'>",
-                "    <div class='ps-card-line'>от " + (p.hourly_price || "?") + " ₽/час" + (tags.length ? " · " + tags.join(" · ") : "") + "</div>",
+                "    <div class='ps-card-line'>от " + (p.hourly_price || "?") + " ₽/час</div>",
+                tagLine,
                 "    <div class='ps-card-line ps-card-line--muted'>" + (p.address || "Адрес будет уточнён") + "</div>",
                 "  </div>",
                 "</article>"

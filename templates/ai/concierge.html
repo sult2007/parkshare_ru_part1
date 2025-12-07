@@ -4,15 +4,19 @@
 
 {% block content %}
 <section class="ps-section ps-section--flush-top" data-route="assistant">
-    <div class="ps-section-header ps-section-header--stack">
+    <div class="ps-landing__head">
         <div>
-            <p class="ps-kicker">Ассистент</p>
-            <h1 class="ps-section-title">AI-консьерж ParkShare</h1>
-            <p class="ps-section-subtitle">Поможет найти место, построить маршрут или подсказать скрипты для гостей.</p>
+            <h1 class="ps-landing__title">Ассистент</h1>
+            <p class="ps-landing__subtitle">Потоковый AI-консьерж для поиска парковки и скриптов поддержки.</p>
         </div>
-        <div class="ps-section-actions">
-            <a href="{% url 'landing' %}" class="ps-btn ps-btn-secondary ps-btn-sm">К карте</a>
+        <div class="ps-chip-row">
+            <span class="ps-chip ps-chip--soft">{% if user.is_authenticated %}{{ user.username }}{% else %}Гостевой режим{% endif %}</span>
+            <span class="ps-chip ps-chip--soft">Реальный чат</span>
         </div>
+    </div>
+
+    <div class="ps-section-actions ps-section-actions--link">
+        <a href="{% url 'landing' %}" class="ps-link ps-link-arrow">К карте</a>
     </div>
 
     <div class="ps-ai-grid">
@@ -27,7 +31,7 @@
                     <button type="button" class="ps-chip" data-ai-prompt>Что добавить в онбординг партнёра, чтобы повысить NPS?</button>
                     <button type="button" class="ps-chip" data-ai-prompt>Сделай контрольный чек-лист для запуска новой парковки на выходные.</button>
                 </div>
-                <div class="ps-hint">Гостевой режим сохраняет историю в браузере. Авторизация привяжет её к аккаунту.</div>
+                <div class="ps-hint">История сохраняется в браузере. Авторизация привяжет её к аккаунту.</div>
             </div>
         </div>
 
@@ -36,7 +40,7 @@
                 <div>
                     <p class="ps-kicker">Concierge</p>
                     <p class="ps-ai-title">AI-чат ParkShare</p>
-                    <p class="ps-ai-subtitle">Спроси про цены, места, маршруты или сценарии для гостей.</p>
+                    <p class="ps-ai-subtitle">Спроси про цены, маршруты и сценарии для гостей.</p>
                 </div>
                 <div class="ps-ai-actions">
                     <button type="button" class="ps-btn ps-btn-ghost ps-btn-sm" data-ai-clear>Очистить</button>
@@ -45,13 +49,16 @@
             </div>
 
             <div class="ps-ai-chat__body">
+                <div class="ps-ai-prompts ps-ai-prompts--inline" data-ai-prompts>
+                    <button type="button" class="ps-chip ps-chip--ghost" data-ai-prompt>Где припарковаться рядом?</button>
+                    <button type="button" class="ps-chip ps-chip--ghost" data-ai-prompt>Построй маршрут до центра</button>
+                </div>
                 <div class="ps-ai-status" data-ai-status>История сохраняется локально. Готов к диалогу.</div>
                 <div class="ps-ai-messages" data-ai-messages></div>
             </div>
 
             <div class="ps-ai-input">
-                <label class="ps-form-label" for="ai-input">Введите запрос</label>
-                <textarea id="ai-input" class="ps-input" rows="3" placeholder="Как оптимизировать тарифы на выходные?"></textarea>
+                <textarea id="ai-input" class="ps-input" rows="3" placeholder="Опиши задачу или попроси маршрут…"></textarea>
                 <div class="ps-ai-input__actions">
                     <div class="ps-ai-hint">Enter — отправить, Shift+Enter — перенос строки</div>
                     <div class="ps-ai-buttons">

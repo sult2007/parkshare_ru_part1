@@ -15,20 +15,30 @@
 {% endblock %}
 
 {% block content %}
-<section class="ps-section ps-stack" data-route="map">
-    <div class="ps-stack">
-        <div class="ps-search-bar" data-search-bar>
-            <div class="ps-search-icon" aria-hidden="true">
-                <svg class="ps-icon" viewBox="0 0 24 24"><path d="M15.5 14h-.8l-.3-.3a6 6 0 1 0-.7.7l.3.3v.8l4.5 4.5 1.5-1.5-4.5-4.5Zm-5.5 0a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9Z" fill="currentColor"/></svg>
-            </div>
-            <input type="search" class="ps-search-input" placeholder="Искать парковку" data-geocode-input>
-            <button type="button" class="ps-search-voice" title="Голосовой ввод">
-                <svg class="ps-icon" viewBox="0 0 24 24"><path d="M12 3a3 3 0 0 0-3 3v5a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3Zm-1 15.9V21h2v-2.1a6.5 6.5 0 0 0 5-6.3h-2a4.5 4.5 0 1 1-9 0H5a6.5 6.5 0 0 0 5 6.3Z" fill="currentColor"/></svg>
-            </button>
+<section class="ps-section ps-section--flush-top ps-landing" data-route="map">
+    <div class="ps-landing__head">
+        <div>
+            <h1 class="ps-landing__title">ParkShare</h1>
+            <p class="ps-landing__subtitle">Умная парковка рядом с вами</p>
         </div>
         <div class="ps-chip-row">
             <span class="ps-chip ps-chip--soft">Свободно: <strong data-spots-count>{{ spots_total|default:0 }}</strong></span>
             <span class="ps-chip ps-chip--soft">Средняя цена: <strong data-avg-price>—</strong></span>
+        </div>
+    </div>
+
+    <div class="ps-search-bar ps-search-bar--pill" data-search-bar>
+        <div class="ps-search-icon" aria-hidden="true">
+            <svg class="ps-icon" viewBox="0 0 24 24"><path d="M15.5 14h-.8l-.3-.3a6 6 0 1 0-.7.7l.3.3v.8l4.5 4.5 1.5-1.5-4.5-4.5Zm-5.5 0a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9Z" fill="currentColor"/></svg>
+        </div>
+        <input type="search" class="ps-search-input" placeholder="Искать парковку" data-geocode-input>
+        <div class="ps-search-actions">
+            <button type="button" class="ps-icon-btn ps-icon-btn--ghost" data-geocode-submit aria-label="Найти">
+                <svg class="ps-icon" viewBox="0 0 24 24"><path d="m5 12.5 13.5-5.4a.5.5 0 0 1 .7.46L18 19.1a.5.5 0 0 1-.76.35l-4.34-3.07a1 1 0 0 0-1.16 0L7.4 18.9A.5.5 0 0 1 6.64 18L5 13.03a.5.5 0 0 1 0-.53Z" fill="currentColor"/></svg>
+            </button>
+            <button type="button" class="ps-icon-btn ps-icon-btn--ghost" title="Голосовой ввод">
+                <svg class="ps-icon" viewBox="0 0 24 24"><path d="M12 3a3 3 0 0 0-3 3v5a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3Zm-1 15.9V21h2v-2.1a6.5 6.5 0 0 0 5-6.3h-2a4.5 4.5 0 1 1-9 0H5a6.5 6.5 0 0 0 5 6.3Z" fill="currentColor"/></svg>
+            </button>
         </div>
     </div>
 
@@ -49,49 +59,47 @@
                 </button>
             </div>
         </div>
-        <div class="ps-map-topbar">
-            <input type="text" class="ps-input ps-input--pill" placeholder="Адрес, метро или место" data-geocode-input>
-            <button class="ps-btn ps-btn-primary ps-btn-sm" type="button" data-geocode-submit>Найти</button>
-        </div>
-        <div class="ps-map-chips" data-filter-chips>
-            <label class="ps-chip" data-chip-toggle>
-                <input type="checkbox" name="only_free" hidden>
-                <span>Только свободные</span>
-            </label>
-            <label class="ps-chip" data-chip-toggle>
-                <input type="checkbox" name="ai_recommended" hidden>
-                <span>AI-рекомендации</span>
-            </label>
-            <label class="ps-chip" data-chip-toggle>
-                <input type="checkbox" name="ev" hidden>
-                <span>EV-зарядка</span>
-            </label>
-            <label class="ps-chip" data-chip-toggle>
-                <input type="checkbox" name="covered" hidden>
-                <span>Крытая</span>
-            </label>
-            <label class="ps-chip" data-chip-toggle>
-                <input type="checkbox" name="is_24_7" hidden>
-                <span>24/7</span>
-            </label>
-        </div>
-        <div class="ps-geocode-suggestions" data-geocode-suggestions></div>
-        <div class="ps-map-filters" data-map-filters-container>
-            <form class="ps-map-filters-card" data-map-filters>
-                <div class="ps-map-filters-row ps-map-filters-row--slider">
-                    <div class="ps-filter-slider" data-price-slider></div>
-                    <div class="ps-filter-price" data-price-display>Цена: от 0 ₽ до 1500 ₽</div>
-                </div>
-            </form>
-        </div>
-        <div class="ps-route-hint" data-route-hint>Постройте мини-маршрут до выбранной точки.</div>
-        <div class="ps-map-cta">
-            <a class="ps-btn ps-btn-secondary ps-btn-full" href="{% url 'map_page' %}">Открыть карту полностью</a>
+        <div class="ps-map-controls">
+            <div class="ps-map-chips" data-filter-chips>
+                <label class="ps-chip" data-chip-toggle>
+                    <input type="checkbox" name="only_free" hidden>
+                    <span>Только свободные</span>
+                </label>
+                <label class="ps-chip" data-chip-toggle>
+                    <input type="checkbox" name="ai_recommended" hidden>
+                    <span>AI-рекомендации</span>
+                </label>
+                <label class="ps-chip" data-chip-toggle>
+                    <input type="checkbox" name="ev" hidden>
+                    <span>EV-зарядка</span>
+                </label>
+                <label class="ps-chip" data-chip-toggle>
+                    <input type="checkbox" name="covered" hidden>
+                    <span>Крытая</span>
+                </label>
+                <label class="ps-chip" data-chip-toggle>
+                    <input type="checkbox" name="is_24_7" hidden>
+                    <span>24/7</span>
+                </label>
+            </div>
+            <div class="ps-map-filters" data-map-filters-container>
+                <form class="ps-map-filters-card" data-map-filters>
+                    <div class="ps-map-filters-row ps-map-filters-row--slider">
+                        <div class="ps-filter-slider" data-price-slider></div>
+                        <div class="ps-filter-price" data-price-display>Цена: от 0 ₽ до 1500 ₽</div>
+                    </div>
+                </form>
+            </div>
+            <div class="ps-geocode-suggestions" data-geocode-suggestions></div>
+            <div class="ps-route-hint" data-route-hint>Постройте мини-маршрут до выбранной точки.</div>
+            <div class="ps-map-cta">
+                <a class="ps-link ps-link-arrow" href="{% url 'map_page' %}">Открыть карту полностью</a>
+            </div>
         </div>
     </div>
 
-    <div class="ps-section">
-        <div class="ps-section-header">
+    <div class="ps-section ps-reco-section">
+        <div class="ps-section-header ps-section-header--stack">
             <div>
                 <p class="ps-kicker">Рекомендации</p>
                 <h2 class="ps-section-title">Рядом с вами</h2>
@@ -115,20 +123,16 @@
     </div>
 
     <div class="ps-section">
-        <div class="ps-card ps-card--elevated">
+        <div class="ps-card ps-card--elevated ps-assistant-card">
             <div class="ps-card-header">
                 <div>
                     <p class="ps-kicker">AI Concierge</p>
                     <div class="ps-card-title">AI-консьерж по парковке</div>
+                    <p class="ps-card-line ps-card-line--muted">Персональные подсказки, маршруты и сценарии поддержки в реальном времени.</p>
                 </div>
                 <span class="ps-badge ps-badge--neutral">Потоковый чат</span>
             </div>
             <div class="ps-card-body">
-                <p class="ps-card-line ps-card-line--muted">
-                    Персональные подсказки, маршруты и сценарии поддержки в режиме реального времени. Работает для гостей и владельцев.
-                </p>
-            </div>
-            <div class="ps-map-cta">
                 <a class="ps-btn ps-btn-full" href="{% url 'ai_chat' %}">Открыть ассистента</a>
             </div>
         </div>

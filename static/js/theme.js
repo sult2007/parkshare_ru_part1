@@ -17,6 +17,18 @@
     return prefersDark ? "dark" : "light";
   }
 
+  function setMetaTheme(theme) {
+    var meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) {
+      meta.setAttribute("content", theme === "dark" ? "#050910" : "#f4f6fb");
+    }
+    try {
+      document.documentElement.style.colorScheme = theme;
+    } catch (_) {
+      /* ignore */
+    }
+  }
+
   function updateToggle(theme) {
     var toggles = document.querySelectorAll("[data-theme-toggle]");
     toggles.forEach(function (btn) {
@@ -27,31 +39,37 @@
 
   function setTheme(theme) {
     var next = theme === "dark" ? "dark" : "light";
-    document.documentElement.dataset.theme = next;
+    if (document.documentElement.dataset.theme !== next) {
+      document.documentElement.dataset.theme = next;
+    }
     try {
       localStorage.setItem(STORAGE_KEY, next);
     } catch (_) {
       /* ignore */
     }
     updateToggle(next);
+    setMetaTheme(next);
     document.dispatchEvent(new CustomEvent("ps-theme-changed", { detail: { theme: next } }));
+    return next;
+  }
+
+  function toggleTheme() {
+    var current = document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light";
+    return setTheme(current === "dark" ? "light" : "dark");
   }
 
   function initToggle() {
     var toggles = document.querySelectorAll("[data-theme-toggle]");
-    var initial = readInitialTheme();
-    setTheme(initial);
+    var initial = setTheme(readInitialTheme());
     if (!toggles.length) return;
     toggles.forEach(function (btn) {
-      btn.addEventListener("click", function () {
-        var current = document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light";
-        setTheme(current === "dark" ? "light" : "dark");
-      });
+      btn.addEventListener("click", toggleTheme);
     });
   }
 
   window.ThemeController = {
     setTheme: setTheme,
+    toggle: toggleTheme,
     current: function () {
       return document.documentElement.getAttribute("data-theme") || readInitialTheme();
     },

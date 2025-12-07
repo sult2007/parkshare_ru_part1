@@ -109,14 +109,18 @@
       saveState(storage, state);
     }
 
-    function render() {
-      messagesEl.innerHTML = '';
-      state.messages.forEach(function (msg) {
-        messagesEl.appendChild(renderMessage(msg));
-      });
-      messagesEl.scrollTop = messagesEl.scrollHeight;
-      persist();
+  function render() {
+    messagesEl.innerHTML = '';
+    state.messages.forEach(function (msg) {
+      messagesEl.appendChild(renderMessage(msg));
+    });
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+    if (regenerateBtn) {
+      const hasUserMessages = state.messages.some(function (m) { return m.role === 'user'; });
+      regenerateBtn.hidden = !hasUserMessages || isStreaming;
     }
+    persist();
+  }
 
     function setStatus(text, tone) {
       if (!statusEl) return;
@@ -124,12 +128,12 @@
       statusEl.classList.toggle('is-error', tone === 'error');
     }
 
-    function lastUserMessage() {
+  function lastUserMessage() {
       for (let i = state.messages.length - 1; i >= 0; i--) {
         if (state.messages[i].role === 'user') return state.messages[i];
       }
       return null;
-    }
+  }
 
     function addMessage(role, content) {
       const msg = { id: crypto.randomUUID(), role, content, createdAt: Date.now() };
@@ -143,21 +147,35 @@
       });
     }
 
-    function handleSend() {
+  function handleSend() {
       if (!textarea || !textarea.value.trim() || isStreaming) return;
       const text = textarea.value.trim();
       textarea.value = '';
       const userMsg = addMessage('user', text);
       const assistant = addMessage('assistant', '');
       render();
-      streamToApi(userMsg, assistant);
+      const history = state.messages.filter(function (msg) { return msg.id !== assistant.id; });
+      streamToApi(userMsg, assistant, history);
     }
 
     function handleRegenerate() {
-      const lastUser = lastUserMessage();
-      if (!lastUser || isStreaming) return;
-      textarea.value = lastUser.content;
-      handleSend();
+      if (isStreaming) return;
+      let lastUserIndex = -1;
+      for (let i = state.messages.length - 1; i >= 0; i--) {
+        if (state.messages[i].role === 'user') {
+          lastUserIndex = i;
+          break;
+        }
+      }
+      if (lastUserIndex === -1) return;
+      // Оставляем историю до последнего пользовательского сообщения
+      state.messages = state.messages.slice(0, lastUserIndex + 1);
+      const userMsg = state.messages[lastUserIndex];
+      const assistant = addMessage('assistant', '');
+      const history = state.messages.filter(function (msg) { return msg.id !== assistant.id; });
+      setStatus('Генерируем новый ответ…', 'info');
+      render();
+      streamToApi(userMsg, assistant, history);
     }
 
     function handleCopy(targetId) {
@@ -166,8 +184,11 @@
       navigator.clipboard.writeText(msg.content).catch(function () {});
     }
 
-    async function streamToApi(userMsg, assistantMsg) {
-      const payload = state.messages.map(function (m) {
+  async function streamToApi(userMsg, assistantMsg, historyOverride) {
+      const baseHistory = (historyOverride && historyOverride.length ? historyOverride : state.messages).filter(function (msg) {
+        return !(assistantMsg && msg.id === assistantMsg.id);
+      });
+      const payload = baseHistory.map(function (m) {
         return { role: m.role, content: m.content };
       });
       abortController = new AbortController();
@@ -184,7 +205,14 @@
         });
 
         if (!resp.ok || !resp.body) {
-          throw new Error('LLM недоступен. Настройте /api/chat/');
+          let detail = '';
+          try {
+            const errJson = await resp.json();
+            detail = errJson.detail || '';
+          } catch (_) {
+            try { detail = await resp.text(); } catch (__) { /* ignore */ }
+          }
+          throw new Error(detail || 'LLM недоступен. Настройте /api/chat/');
         }
 
         const reader = resp.body.getReader();
@@ -201,11 +229,15 @@
         }
         setStatus('Готово. Можно задавать следующий вопрос.', 'info');
       } catch (error) {
-        console.warn('Chat error', error);
-        updateMessage(assistantMsg.id, function (msg) {
-          return { ...msg, content: 'Сервис временно недоступен. Проверьте /api/chat/ или ключи LLM.' };
-        });
-        setStatus('Ошибка сети или LLM. Попробуйте ещё раз.', 'error');
+        if (error.name === 'AbortError') {
+          setStatus('Остановлено пользователем.', 'info');
+        } else {
+          console.warn('Chat error', error);
+          updateMessage(assistantMsg.id, function (msg) {
+            return { ...msg, content: 'Сервис временно недоступен. Проверьте /api/chat/ или ключи LLM.' };
+          });
+          setStatus('Ошибка сети или LLM. Попробуйте ещё раз.', 'error');
+        }
       } finally {
         isStreaming = false;
         stopBtn && (stopBtn.hidden = true);

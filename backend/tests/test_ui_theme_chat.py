@@ -12,10 +12,12 @@ class UIThemeTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "ParkShare")
         self.assertContains(response, "data-theme-toggle")
+        self.assertContains(response, "data-search-bar")
         self.assertContains(response, "data-map-panel")
         self.assertContains(response, "data-spots-list")
         self.assertContains(response, "Рекомендации")
         self.assertContains(response, 'data-nav="assistant"')
+        self.assertContains(response, "data-geocode-input")
 
     def test_map_page_renders(self):
         response = self.client.get(reverse("map_page"))
@@ -27,6 +29,7 @@ class UIThemeTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "data-ai-chat")
         self.assertContains(response, "ps-ai-prompts")
+        self.assertContains(response, "data-ai-send")
 
     def test_bookings_page_for_user(self):
         User = get_user_model()
@@ -59,3 +62,8 @@ class ChatAPITests(TestCase):
         response = self.client.post("/api/chat/", data=payload, content_type="application/json")
         self.assertEqual(response.status_code, 200)
         self.assertIn("text/plain", response.headers.get("Content-Type", ""))
+
+    def test_chat_api_rejects_wrong_type(self):
+        payload = {"messages": "not-a-list"}
+        response = self.client.post("/api/chat/", data=payload, content_type="application/json")
+        self.assertEqual(response.status_code, 400)

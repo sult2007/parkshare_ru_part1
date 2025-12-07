@@ -17,6 +17,10 @@
             <a href="{% url 'map_page' %}" class="ps-btn ps-btn-secondary ps-btn-sm">Открыть карту</a>
         </div>
     </div>
+    <div class="ps-chip-row">
+        <span class="ps-chip ps-chip--soft">Роль: {{ user.get_role_display }}</span>
+        <span class="ps-chip ps-chip--soft">Брони: {{ bookings|length }}</span>
+    </div>
 
     <div class="ps-grid ps-grid--gap-lg ps-grid--2col">
         <article class="ps-card ps-card--elevated">
@@ -126,6 +130,10 @@
                         </div>
                         <div class="ps-reco-meta">
                             Сумма: {{ booking.total_price }} ₽
+                        </div>
+                        <div class="ps-reco-actions">
+                            <a href="{% url 'map_page' %}" class="ps-btn ps-btn-secondary ps-btn-sm">На карте</a>
+                            <a href="{% url 'ai_chat' %}" class="ps-btn ps-btn-ghost ps-btn-sm">Спросить ассистента</a>
                         </div>
                     </div>
                     <span class="ps-chip ps-chip--soft">{{ booking.get_status_display }}</span>

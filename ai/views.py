@@ -239,8 +239,16 @@ class ChatStreamAPIView(APIView):
         last = messages[-1] if isinstance(messages[-1], dict) else {}
         user_text = (last.get("content") or "").strip()
         history = [m for m in messages[:-1] if isinstance(m, dict)]
-        reply_payload = generate_chat_reply(user_text, history, request.user if request.user.is_authenticated else None)
-        reply_text = (reply_payload.get("reply") or "").strip() or "Сервис временно недоступен. Попробуйте позже."
+        reply_text = "Сервис временно недоступен. Попробуйте позже."
+        try:
+            reply_payload = generate_chat_reply(
+                user_text,
+                history,
+                request.user if request.user.is_authenticated else None,
+            )
+            reply_text = (reply_payload.get("reply") or reply_text).strip()
+        except Exception as exc:  # pragma: no cover - внешние сервисы
+            logger.warning("Chat reply failed", exc_info=exc)
 
         def stream():
             for token in reply_text.split():
