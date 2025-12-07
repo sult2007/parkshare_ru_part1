@@ -1,5 +1,9 @@
-from datetime import datetime, timedelta
+from __future__ import annotations
+
+from datetime import timedelta
 from collections import defaultdict
+from typing import Dict
+
 from django.utils import timezone
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
@@ -10,7 +14,7 @@ from parking.models import Booking
 User = get_user_model()
 
 
-def variant_for_user(user):
+def variant_for_user(user) -> str:
     return "B" if (hash(str(user.id)) % 2) else "A"
 
 
@@ -20,7 +24,7 @@ def _daterange(days: int):
     return start, end
 
 
-def compute_funnel(days: int = 7):
+def compute_funnel(days: int = 7) -> Dict:
     cache_key = f"analytics:funnel:{days}"
     cached = cache.get(cache_key)
     if cached:
@@ -70,5 +74,5 @@ def compute_funnel(days: int = 7):
         "assistant_sessions": assistant_sessions,
         "variants": variant_counts,
     }
-    cache.set(cache_key, payload, 300)  # 5 minutes cache
+    cache.set(cache_key, payload, 300)
     return payload

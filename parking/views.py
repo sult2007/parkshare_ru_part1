@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Iterable, List
 import uuid
+import logging
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.cache import cache
@@ -25,6 +26,8 @@ from ai import tools as ai_tools
 from ai.models import DeviceProfile, UiEvent
 from parking.models_notification import NotificationSettings
 from parking import analytics
+
+logger = logging.getLogger(__name__)
 from accounts.models import UserLevel, UserBadge, PromoReward
 
 from .models import (
@@ -594,6 +597,7 @@ class BookingConfirmView(LoginRequiredMixin, TemplateView):
 
         # Статус оплаты — заглушка: интеграция с провайдером может обновить позже
         success_msg = f"Бронь #{booking.id} создана. Сумма: {booking.total_price} ₽."
+        logger.info("Booking created", extra={"booking_id": booking.id, "user": user.id, "billing_mode": billing_mode})
         return self.render_to_response(
             self.get_context_data(
                 success=success_msg,
@@ -669,6 +673,7 @@ class PaymentMethodsPageView(LoginRequiredMixin, TemplateView):
             PaymentMethod.objects.filter(user=user, id=request.POST.get("delete_id")).delete()
             if wants_json(request):
                 return Response({"message": "Метод оплаты удалён"}, status=status.HTTP_200_OK)
+            logger.info("Payment method deleted", extra={"user": user.id})
             return self.render_to_response(self.get_context_data(success="Метод оплаты удалён"))
 
         card = (request.POST.get("card_number") or "").replace(" ", "")
@@ -696,6 +701,7 @@ class PaymentMethodsPageView(LoginRequiredMixin, TemplateView):
             is_default=is_default,
             token_masked=f"stub_{last4}_{timezone.now().timestamp()}",
         )
+        logger.info("Payment method added", extra={"user": user.id, "brand": brand, "last4": last4})
         if wants_json(request):
             return Response({"message": "Метод оплаты добавлен"}, status=status.HTTP_200_OK)
         return self.render_to_response(self.get_context_data(success="Метод оплаты добавлен"))
@@ -723,6 +729,7 @@ class PromoActivateView(LoginRequiredMixin, TemplateView):
             if wants_json(request):
                 return api_error("invalid_promo", "Промокод недействителен или исчерпан.", status.HTTP_400_BAD_REQUEST)
             message = "Промокод недействителен или исчерпан."
+            logger.warning("Promo activation failed", extra={"user": request.user.id, "code": code})
         if wants_json(request):
             return Response({"message": message}, status=status.HTTP_200_OK)
         return self.render_to_response({"message": message})

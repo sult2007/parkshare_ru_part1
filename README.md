@@ -18,6 +18,10 @@ python manage.py migrate
 python manage.py runserver
 ```
 
+### Настройки
+- Используйте `DJANGO_SETTINGS_MODULE` (`backend.backend.settings.local`/`production`) для выбора профиля.
+- Общие параметры лежат в `backend/backend/settings/base.py`; dev/prod наследуют.
+
 ## Уведомления
 - Включение флагов: профиль → уведомления.
 - Отправка напоминаний: `python manage.py send_expiry_notifications --minutes 30`
@@ -26,6 +30,17 @@ python manage.py runserver
 ```bash
 python manage.py test
 ```
+
+## Линт/типизация
+```bash
+ruff check .
+mypy ai parking
+```
+
+## Полезные команды
+- `make test` — все тесты
+- `make lint` — ruff
+- `make typecheck` — mypy на основных пакетах
 
 ## Конфигурация (env)
 - MAP_PROVIDER / YANDEX_MAP_API_KEY
