@@ -6,8 +6,12 @@ from typing import List
 import environ
 
 from .regions import REGION_PROFILES
+from dotenv import load_dotenv
+import os
 
+# Project root (repo root) for consistent path handling and .env discovery.
 BASE_DIR = Path(__file__).resolve().parents[3]
+load_dotenv(BASE_DIR / ".env")
 PROJECT_ROOT = BASE_DIR
 
 env = environ.Env(

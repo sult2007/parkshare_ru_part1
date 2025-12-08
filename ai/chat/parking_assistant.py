@@ -390,7 +390,7 @@ def generate_chat_reply(message: str, history: Optional[List[dict]], user: Optio
     logger.info(
         "Incoming parking chat message",
         extra={
-            "message": text[:200],
+            "user_message": text[:200],
             "history_len": len(history or []),
             "user": getattr(user, "id", None),
         },
