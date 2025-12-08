@@ -51,6 +51,10 @@ logger = logging.getLogger("parkshare.llm_service")
 logging.basicConfig(level=logging.INFO)
 
 
+# Env vars for GPT-3.5 (env_prefix LLM_):
+# LLM_OPENAI_API_KEY, LLM_DEFAULT_MODEL, LLM_FALLBACK_MODELS,
+# LLM_CACHE_ENABLED, LLM_CACHE_TTL_SECONDS, LLM_REQUESTS_PER_MINUTE,
+# LLM_REQUEST_TIMEOUT, LLM_OPENAI_BASE_URL, LLM_CACHE_URL (optional).
 class Settings(BaseSettings):
     """Service configuration loaded from environment/.env."""
 
@@ -64,8 +68,8 @@ class Settings(BaseSettings):
     openai_base_url: str = "https://api.openai.com/v1"
     anthropic_api_key: str = ""
     groq_api_key: str = ""
-    default_model: str = "gpt-4o-mini"
-    fallback_models: list[str] = ["gpt-4o-mini"]
+    default_model: str = "gpt-3.5-turbo"
+    fallback_models: list[str] = ["gpt-3.5-turbo"]
 
     # Service features
     cache_enabled: bool = True
@@ -94,17 +98,28 @@ class Settings(BaseSettings):
         if value is None:
             return []
         if isinstance(value, list):
-            return value
+            return [str(item).strip() for item in value if str(item).strip()]
         if isinstance(value, str):
             text = value.strip()
+            if not text:
+                return []
             # Попробуем JSON
             try:
                 parsed = json.loads(text)
                 if isinstance(parsed, list):
-                    return parsed
+                    cleaned = [str(item).strip() for item in parsed if str(item).strip()]
+                    if cleaned:
+                        return cleaned
+            except json.JSONDecodeError:
+                if text.startswith("["):
+                    return [text]
             except Exception:
-                pass
-            return [item.strip() for item in text.split(",") if item.strip()]
+                return [text]
+            if "," in text:
+                items = [item.strip() for item in text.split(",") if item.strip()]
+                if items:
+                    return items
+            return [text]
         return [str(value)]
 
     @field_validator("requests_per_minute", mode="before")
@@ -303,7 +318,7 @@ def get_history(settings: Settings = Depends(get_settings)) -> ConversationMemor
 
 
 app = FastAPI(title="ParkShare LLM Gateway", version="1.0.0")
-_settings = Settings()
+_settings = get_settings()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=_settings.cors_allow_origins or ["*"],
@@ -316,6 +331,28 @@ if AsyncLimiter:
     limiter = AsyncLimiter(_settings.requests_per_minute, time_period=60)
 else:
     limiter = None
+
+
+def _matches_exc(exc: Exception, names: tuple[str, ...]) -> bool:
+    """Return True if exception is instance of any litellm-provided error classes."""
+
+    for name in names:
+        cls = getattr(litellm, name, None)
+        if cls and isinstance(exc, cls):
+            return True
+    return False
+
+
+def _extract_status_code(exc: Exception) -> int | None:
+    """Try to pull an HTTP status code off a litellm/httpx-style exception."""
+
+    for attr in ("status_code", "http_status"):
+        value = getattr(exc, attr, None)
+        if isinstance(value, int):
+            return value
+    response = getattr(exc, "response", None)
+    status_code = getattr(response, "status_code", None)
+    return status_code if isinstance(status_code, int) else None
 
 
 async def _call_litellm(model: str, request: ChatCompletionRequest, settings: Settings) -> Dict[str, Any]:
@@ -336,7 +373,12 @@ async def _call_litellm(model: str, request: ChatCompletionRequest, settings: Se
     if model.startswith("claude") and settings.anthropic_api_key:
         common_kwargs["api_key"] = settings.anthropic_api_key
         common_kwargs["base_url"] = "https://api.anthropic.com"
-    elif model.startswith("gpt") and settings.openai_api_key:
+    elif model.startswith("gpt"):
+        if not settings.openai_api_key:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="LLM is not configured",
+            )
         common_kwargs["api_key"] = settings.openai_api_key
         common_kwargs["base_url"] = settings.openai_base_url.rstrip("/")
     elif settings.groq_api_key and model.startswith("groq"):
@@ -346,12 +388,27 @@ async def _call_litellm(model: str, request: ChatCompletionRequest, settings: Se
     try:
         response = await litellm.acompletion(**common_kwargs)
     except litellm.RateLimitError as exc:  # pragma: no cover - network-specific
-        raise HTTPException(status_code=429, detail=str(exc)) from exc
+        logger.warning("LLM rate limited", exc_info=exc)
+        raise HTTPException(status_code=status.HTTP_429_TOO_MANY_REQUESTS, detail=str(exc)) from exc
     except litellm.BadRequestError as exc:  # pragma: no cover
-        raise HTTPException(status_code=400, detail=str(exc)) from exc
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
     except Exception as exc:  # pragma: no cover
-        logger.exception("LLM provider error")
-        raise HTTPException(status_code=502, detail="LLM upstream error") from exc
+        status_code = _extract_status_code(exc)
+        if status_code in {401, 403}:
+            logger.exception("LLM authentication failed", exc_info=exc)
+            raise HTTPException(
+                status_code=status.HTTP_502_BAD_GATEWAY,
+                detail="LLM upstream authentication failed",
+            ) from exc
+        if _matches_exc(exc, ("APIConnectionError", "APITimeoutError", "Timeout")) or isinstance(
+            exc, (asyncio.TimeoutError, TimeoutError, ConnectionError)
+        ):
+            logger.exception("LLM upstream unavailable", exc_info=exc)
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="LLM upstream unavailable"
+            ) from exc
+        logger.exception("LLM provider error", exc_info=exc)
+        raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail="LLM upstream error") from exc
 
     return response  # type: ignore[no-any-return]
 
@@ -390,6 +447,27 @@ def _cache_key(request: ChatCompletionRequest) -> str:
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 
+def _health_payload(settings: Settings) -> dict[str, Any]:
+    base = {
+        "provider": "litellm",
+        "default_model": settings.default_model,
+        "fallbacks": settings.fallback_models,
+    }
+    if not settings.openai_api_key:
+        return {
+            **base,
+            "status": "degraded",
+            "reason": "OpenAI API key is not configured",
+        }
+    if not settings.default_model:
+        return {
+            **base,
+            "status": "degraded",
+            "reason": "Default model is not configured",
+        }
+    return {**base, "status": "ok"}
+
+
 async def _with_history(request: ChatCompletionRequest, history: ConversationMemory) -> ChatCompletionRequest:
     if not request.conversation_id:
         return request
@@ -409,18 +487,13 @@ async def guard_rate_limit(request: Request, call_next):
 
 
 @app.get("/health", tags=["health"])
-async def health() -> dict[str, Any]:
-    return {
-        "status": "ok",
-        "provider": "litellm",
-        "default_model": _settings.default_model,
-        "fallbacks": _settings.fallback_models,
-    }
+async def health(settings: Settings = Depends(get_settings)) -> dict[str, Any]:
+    return _health_payload(settings)
 
 
 @app.get("/healthz", tags=["health"])
-async def healthz() -> dict[str, Any]:
-    return await health()
+async def healthz(settings: Settings = Depends(get_settings)) -> dict[str, Any]:
+    return _health_payload(settings)
 
 
 @app.get("/v1/models")
@@ -437,6 +510,26 @@ async def chat_completions(
     history: ConversationMemory = Depends(get_history),
     limiter_dep: RateLimiter = Depends(get_rate_limiter),
 ) -> ChatCompletionResponse:
+    models_chain = [
+        payload.model or settings.default_model,
+        *settings.fallback_models,
+    ]
+    models_chain = [m for m in models_chain if m]
+    if not models_chain:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="LLM is not configured",
+        )
+    if any(m.startswith("gpt") for m in models_chain) and not settings.openai_api_key:
+        logger.warning(
+            "Rejecting chat request: OpenAI key is missing",
+            extra={"models": models_chain},
+        )
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="LLM is not configured",
+        )
+
     await limiter_dep.acquire()
     payload = await _with_history(payload, history)
     cache_key = _cache_key(payload)
@@ -447,7 +540,6 @@ async def chat_completions(
         except Exception:
             pass
 
-    models_chain = [payload.model or settings.default_model, *settings.fallback_models]
     last_error: Optional[Exception] = None
     for model in models_chain:
         try:

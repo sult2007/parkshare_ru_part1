@@ -21,6 +21,7 @@ CONNECT_TIMEOUT = 3.0
 # 2) с хоста: localhost:8002
 DEFAULT_LLM_URLS: List[str] = [
     "http://llm_service:8002",
+    "http://127.0.0.1:8002",
     "http://localhost:8002",
 ]
 
@@ -73,6 +74,7 @@ async def parse_search_query(query: str) -> Dict[str, Any]:
     timeout = httpx.Timeout(timeout_value, connect=CONNECT_TIMEOUT)
 
     last_error: Exception | None = None
+    last_error_message: str | None = None
 
     for base_url in _candidate_endpoints():
         for path in LEGACY_ENDPOINTS:
@@ -113,28 +115,39 @@ async def parse_search_query(query: str) -> Dict[str, Any]:
                         except httpx.TimeoutException as exc:
                             logger.warning(
                                 "LLM request timeout",
-                                extra={"endpoint": endpoint, "attempt": attempt},
+                                extra={"endpoint": endpoint, "attempt": attempt, "event": "llm_service_unavailable"},
                             )
                             last_error = exc
+                            last_error_message = "timeout"
                         except httpx.HTTPStatusError as exc:
-                            logger.warning(
+                            status_code = exc.response.status_code
+                            log_level = logging.ERROR if status_code >= 500 else logging.WARNING
+                            logger.log(
+                                log_level,
                                 "LLM service returned HTTP error",
                                 extra={
-                                    "status": exc.response.status_code,
+                                    "status": status_code,
                                     "endpoint": endpoint,
                                     "attempt": attempt,
                                     "body": exc.response.text[:500],
+                                    "event": "llm_service_http_error",
                                 },
                             )
                             last_error = exc
+                            last_error_message = f"HTTP {status_code}"
                             break
                         except httpx.RequestError as exc:
-                            logger.warning(
+                            logger.error(
                                 "LLM request error",
-                                extra={"endpoint": endpoint, "attempt": attempt},
+                                extra={
+                                    "endpoint": endpoint,
+                                    "attempt": attempt,
+                                    "event": "llm_service_unavailable",
+                                },
                                 exc_info=exc,
                             )
                             last_error = exc
+                            last_error_message = "network_error"
                         except ValueError as exc:
                             logger.warning(
                                 "LLM service returned invalid JSON",
@@ -142,6 +155,7 @@ async def parse_search_query(query: str) -> Dict[str, Any]:
                                 exc_info=exc,
                             )
                             last_error = exc
+                            last_error_message = "invalid_json"
                             break
             except Exception as exc:
                 last_error = exc
@@ -150,7 +164,8 @@ async def parse_search_query(query: str) -> Dict[str, Any]:
                 )
 
     if last_error:
-        raise LLMClientError(f"LLM service unreachable: {last_error}") from last_error
+        message = last_error_message or str(last_error)
+        raise LLMClientError(f"LLM service unreachable: {message}") from last_error
 
     raise LLMClientError("LLM service unreachable: no endpoints configured")
 
