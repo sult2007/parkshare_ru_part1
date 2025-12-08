@@ -352,7 +352,10 @@
       try {
         const resp = await fetch('/api/v1/assistant/chat/', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken(),
+          },
           credentials: 'include',
           body: JSON.stringify({ messages: payload, structured: true })
         });

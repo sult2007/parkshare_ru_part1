@@ -4,6 +4,9 @@
 
 {% block content %}
 <section class="ps-section ps-section--flush-top" data-route="assistant">
+    <form style="display:none;">
+        {% csrf_token %}
+    </form>
     <div class="ps-landing__head">
         <div>
             <h1 class="ps-landing__title">Ассистент</h1>
