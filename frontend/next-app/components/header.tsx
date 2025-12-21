@@ -16,14 +16,17 @@ export function Header() {
             <Bars3Icon className="h-6 w-6" />
           </div>
           <div className="leading-tight">
-            <p className="text-lg font-semibold tracking-tight">ParkShare Concierge</p>
-            <p className="text-xs text-[var(--text-muted)]">Премиальный ассистент для партнёров</p>
+            <p className="text-lg font-semibold tracking-tight">ParkShare Planner</p>
+            <p className="text-xs text-[var(--text-muted)]">Премиальный планировщик и аналитика</p>
           </div>
         </div>
-        <nav className="hidden items-center gap-4 text-sm font-medium text-[var(--text-muted)] sm:flex">
-          <a className="rounded-full px-3 py-1 transition hover:text-[var(--text-primary)] hover:shadow-sm" href="/">Чат</a>
-          <a className="rounded-full px-3 py-1 transition hover:text-[var(--text-primary)] hover:shadow-sm" href="/auth">Вход</a>
+        <nav className="hidden items-center gap-3 text-sm font-medium text-[var(--text-muted)] sm:flex">
+          <a className="rounded-full px-3 py-1 transition hover:text-[var(--text-primary)] hover:shadow-sm" href="/">Главная</a>
+          <a className="rounded-full px-3 py-1 transition hover:text-[var(--text-primary)] hover:shadow-sm" href="/planner">Планировщик</a>
           <a className="rounded-full px-3 py-1 transition hover:text-[var(--text-primary)] hover:shadow-sm" href="#features">Особенности</a>
+          {isAuthenticated ? (
+            <a className="rounded-full px-3 py-1 transition hover:text-[var(--text-primary)] hover:shadow-sm" href="/личный-кабинет/">Мои брони</a>
+          ) : null}
         </nav>
         <div className="flex items-center gap-3">
           <ThemeToggle />

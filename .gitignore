@@ -2,6 +2,11 @@ db.sqlite3
 __pycache__/
 *.pyc
 .env
+.env.local
+.env.*.local
+.env.dev
+.env.prod.local
+.env.testing
 staticfiles/
 frontend/next-app/node_modules/
 .next/

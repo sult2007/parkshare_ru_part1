@@ -5,6 +5,7 @@ import datetime as dt
 import re
 from pathlib import Path
 from typing import Any, Dict, List, Optional
+import os
 
 import joblib
 import numpy as np
@@ -35,12 +36,26 @@ LOT_FEATURES: pd.DataFrame = rec_bundle["lot_features"]
 
 app = FastAPI(title="ParkShare Local AI", version="1.0.0")
 
+DEFAULT_ORIGINS = ["http://localhost:3000", "http://127.0.0.1:3000"]
+
+
+def _split_env_list(value: Optional[str]) -> List[str]:
+    if not value:
+        return []
+    return [item.strip() for item in value.split(",") if item.strip()]
+
+
+AI_CORS_ALLOW_ORIGINS = _split_env_list(os.getenv("AI_CORS_ALLOW_ORIGINS"))
+AI_CORS_ALLOW_METHODS = _split_env_list(os.getenv("AI_CORS_ALLOW_METHODS")) or ["GET", "POST", "OPTIONS"]
+AI_CORS_ALLOW_HEADERS = _split_env_list(os.getenv("AI_CORS_ALLOW_HEADERS")) or ["*"]
+AI_CORS_ALLOW_CREDENTIALS = os.getenv("AI_CORS_ALLOW_CREDENTIALS", "false").lower() == "true"
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # при желании ограничить доменом PWA
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=AI_CORS_ALLOW_ORIGINS or DEFAULT_ORIGINS,
+    allow_credentials=AI_CORS_ALLOW_CREDENTIALS,
+    allow_methods=AI_CORS_ALLOW_METHODS,
+    allow_headers=AI_CORS_ALLOW_HEADERS,
 )
 
 

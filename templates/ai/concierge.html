@@ -80,7 +80,9 @@
 {% endblock %}
 
 {% block extra_scripts %}
-    {% load static %}
-    {% static 'js/chat.js' as chat_static %}
-    <script src="{{ chat_static }}?v=2"></script>
+    {% if ENABLE_AI_CHAT %}
+        {% load static %}
+        {% static 'js/chat.js' as chat_static %}
+        <script src="{{ chat_static }}?v=2"></script>
+    {% endif %}
 {% endblock %}

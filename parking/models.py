@@ -646,3 +646,68 @@ class PushSubscription(TimeStampedModel):
 
     def __str__(self) -> str:
         return f"{self.user or 'guest'} {self.endpoint[:32]}"
+
+
+class PlannerProfile(TimeStampedModel):
+    """Профиль для быстрого планирования парковки."""
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="planner_profiles",
+    )
+    name = models.CharField("Название профиля", max_length=160)
+    destination_lat = models.FloatField("Широта назначения")
+    destination_lon = models.FloatField("Долгота назначения")
+    preferred_arrival_time = models.TimeField("Предпочтительное время прибытия", null=True, blank=True)
+    near_metro = models.BooleanField("Рядом с метро", default=False)
+    max_price_level = models.PositiveSmallIntegerField(
+        "Допустимый уровень цены", default=0, help_text="0 — любой, 1..5 — ограничение по бюджету"
+    )
+    requires_ev_charging = models.BooleanField("Нужна зарядка", default=False)
+    requires_covered = models.BooleanField("Требуется крытое место", default=False)
+    vehicle_type = models.CharField("Тип транспорта", max_length=16, default="car", blank=True)
+    notes = models.CharField("Заметки", max_length=255, blank=True)
+    last_used_at = models.DateTimeField("Последний запуск", null=True, blank=True)
+
+    class Meta:
+        verbose_name = "Профиль планировщика"
+        verbose_name_plural = "Профили планировщика"
+        ordering = ("-updated_at", "-created_at")
+
+    def __str__(self) -> str:
+        return f"{self.name} → ({self.destination_lat}, {self.destination_lon})"
+
+
+class PlannerRun(TimeStampedModel):
+    """История выполненных планирований."""
+
+    profile = models.ForeignKey(
+        PlannerProfile,
+        on_delete=models.CASCADE,
+        related_name="runs",
+        null=True,
+        blank=True,
+    )
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="planner_runs",
+    )
+    run_at = models.DateTimeField("Когда запущено", default=timezone.now)
+    arrival_at = models.DateTimeField("Запрошенное время прибытия", null=True, blank=True)
+    destination_lat = models.FloatField("Широта назначения")
+    destination_lon = models.FloatField("Долгота назначения")
+    selected_lot_id = models.CharField("Выбранный лот", max_length=64, blank=True)
+    predicted_occupancy = models.FloatField("Прогноз занятости", null=True, blank=True)
+    walk_time_minutes = models.PositiveIntegerField("Время пешком, мин", null=True, blank=True)
+    confidence = models.FloatField("Уверенность", null=True, blank=True)
+    response = models.JSONField("Ответ сервиса", default=dict, blank=True)
+
+    class Meta:
+        verbose_name = "Запуск планировщика"
+        verbose_name_plural = "Запуски планировщика"
+        ordering = ("-run_at",)
+
+    def __str__(self) -> str:
+        return f"Planner run {self.run_at.isoformat()}"

@@ -62,6 +62,9 @@ class Settings(BaseSettings):
     host: str = "0.0.0.0"
     port: int = 8002
     cors_allow_origins: list[str] = []
+    cors_allow_credentials: bool = False
+    cors_allow_methods: list[str] = ["GET", "POST", "OPTIONS"]
+    cors_allow_headers: list[str] = ["*"]
 
     # Provider configuration
     openai_api_key: str = ""
@@ -321,10 +324,10 @@ app = FastAPI(title="ParkShare LLM Gateway", version="1.0.0")
 _settings = get_settings()
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=_settings.cors_allow_origins or ["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=_settings.cors_allow_origins or ["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_credentials=_settings.cors_allow_credentials,
+    allow_methods=_settings.cors_allow_methods,
+    allow_headers=_settings.cors_allow_headers,
 )
 
 if AsyncLimiter:

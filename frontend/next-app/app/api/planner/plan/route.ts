@@ -1,16 +1,11 @@
 import type { NextRequest } from 'next/server';
-import { chatEnabled } from '@/lib/featureFlags';
+
+const apiBase =
+  process.env.NEXT_PUBLIC_API_BASE || process.env.API_BASE || 'http://localhost:8000/api/v1';
 
 export const runtime = 'nodejs';
 
 export async function POST(req: NextRequest) {
-  if (!chatEnabled) {
-    return new Response(JSON.stringify({ error: 'AI chat is disabled' }), {
-      status: 410,
-      headers: { 'Content-Type': 'application/json' }
-    });
-  }
-
   let body: any = {};
   try {
     body = await req.json();
@@ -21,8 +16,7 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  const apiBase = process.env.NEXT_PUBLIC_API_BASE || process.env.API_BASE || 'http://localhost:8000/api/v1';
-  const endpoint = `${apiBase.replace(/\/$/, '')}/assistant/chat/`;
+  const endpoint = `${apiBase.replace(/\/$/, '')}/planner/plan/`;
   const resp = await fetch(endpoint, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -37,5 +31,12 @@ export async function POST(req: NextRequest) {
       'Content-Type': resp.headers.get('content-type') || 'application/json',
       'Cache-Control': 'no-store'
     }
+  });
+}
+
+export function GET() {
+  return new Response(JSON.stringify({ error: 'Method not allowed' }), {
+    status: 405,
+    headers: { 'Content-Type': 'application/json' }
   });
 }

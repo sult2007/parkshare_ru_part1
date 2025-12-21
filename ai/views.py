@@ -7,6 +7,7 @@ import uuid
 from typing import Any
 
 from asgiref.sync import async_to_sync
+from django.conf import settings
 from django.http import StreamingHttpResponse
 from django.utils import timezone
 from rest_framework import status
@@ -284,6 +285,13 @@ class ChatStreamAPIView(APIView):
     throttle_classes = [UserRateThrottle, AnonRateThrottle]
 
     def post(self, request, *args, **kwargs):
+        if not getattr(settings, "ENABLE_AI_CHAT", False):
+            return api_error(
+                "chat_disabled",
+                "AI chat is disabled",
+                status_code=status.HTTP_410_GONE,
+            )
+
         data = request.data or {}
         messages = data.get("messages") or []
         if not isinstance(messages, list) or not messages:

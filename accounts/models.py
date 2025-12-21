@@ -78,6 +78,14 @@ class User(AbstractUser):
         default=False,
         help_text=_("Пользователь подал заявку на роль владельца парковки."),
     )
+    display_name = models.CharField(
+        _("Отображаемое имя"),
+        max_length=255,
+        blank=True,
+        help_text=_("Используется в UI вместо username, если указано."),
+    )
+    created_at = models.DateTimeField(_("Создан"), auto_now_add=True)
+    updated_at = models.DateTimeField(_("Обновлён"), auto_now=True)
 
     class MFAMethod(models.TextChoices):
         NONE = "none", _("Без MFA")
@@ -276,6 +284,66 @@ class SocialAccount(models.Model):
 
     def __str__(self) -> str:
         return f"{self.get_provider_display()}:{self.external_id} → {self.user_id}"
+
+
+class AuthIdentity(models.Model):
+    """
+    Унифицированная связь пользователя с провайдером аутентификации
+    (email_magic, phone_sms, vk, yandex, google и т.п.).
+    """
+
+    class Provider(models.TextChoices):
+        EMAIL_MAGIC = "email_magic", "Email magic link/code"
+        PHONE_SMS = "phone_sms", "Phone SMS"
+        VK = "vk", "VK"
+        YANDEX = "yandex", "Yandex"
+        GOOGLE = "google", "Google"
+
+    id = models.BigAutoField(primary_key=True)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="auth_identities",
+        verbose_name=_("Пользователь"),
+    )
+    provider = models.CharField(_("Провайдер"), max_length=32, choices=Provider.choices)
+    provider_user_id = models.CharField(
+        _("ID пользователя у провайдера"),
+        max_length=255,
+        help_text=_("Например email/телефон или внешний id"),
+    )
+    access_token = encrypt(
+        models.TextField(
+            _("Access token"),
+            blank=True,
+            null=True,
+            help_text=_("Минимально необходимый токен; хранится шифрованно."),
+        )
+    )
+    refresh_token = encrypt(
+        models.TextField(
+            _("Refresh token"),
+            blank=True,
+            null=True,
+            help_text=_("Опционально, хранится шифрованно."),
+        )
+    )
+    expires_at = models.DateTimeField(_("Истекает"), blank=True, null=True)
+    metadata = models.JSONField(_("Доп. данные"), default=dict, blank=True)
+    created_at = models.DateTimeField(_("Создано"), auto_now_add=True)
+    updated_at = models.DateTimeField(_("Обновлено"), auto_now=True)
+
+    class Meta:
+        verbose_name = _("Auth identity")
+        verbose_name_plural = _("Auth identities")
+        unique_together = [("provider", "provider_user_id")]
+        indexes = [
+            models.Index(fields=["provider", "provider_user_id"]),
+            models.Index(fields=["user", "provider"]),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.provider}:{self.provider_user_id} → {self.user_id}"
 
 
 class UserLevel(TimeStampedUUIDModel):

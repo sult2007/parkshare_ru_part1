@@ -34,7 +34,7 @@ from core.permissions import IsSelfOrAdmin
 from core.sms import get_sms_provider
 from .auth import find_user_by_identifier
 from .forms import LoginForm, ProfileForm, RegisterForm
-from .models import LoginCode, SocialAccount, User
+from .models import AuthIdentity, LoginCode, SocialAccount, User
 from .oauth import build_authorize_url, fetch_profile
 from .serializers import (
     ChangePasswordSerializer,
@@ -163,6 +163,38 @@ def _otp_satisfies_mfa(user: User, channel: str) -> bool:
     if user.mfa_method == User.MFAMethod.EMAIL and channel == LoginCode.Channel.EMAIL:
         return True
     return False
+
+
+def _ensure_auth_identity(
+    user: User,
+    provider: str,
+    provider_user_id: str,
+    *,
+    access_token: str | None = None,
+    refresh_token: str | None = None,
+    expires_at=None,
+    metadata: Optional[dict] = None,
+) -> AuthIdentity:
+    """
+    Создаёт или обновляет запись AuthIdentity для указанного пользователя.
+    """
+    metadata = metadata or {}
+    defaults = {
+        "user": user,
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+        "expires_at": expires_at,
+        "metadata": metadata,
+    }
+    identity, _ = AuthIdentity.objects.update_or_create(
+        provider=provider,
+        provider_user_id=str(provider_user_id),
+        defaults=defaults,
+    )
+    if identity.user_id != user.id:
+        identity.user = user
+        identity.save(update_fields=["user", "updated_at"])
+    return identity
 
 
 def _get_pre_auth_user(request: HttpRequest) -> Optional[User]:
@@ -841,6 +873,19 @@ class AuthOTPVerifyView(APIView):
         code_obj.status = "used"
         code_obj.save(update_fields=["is_used", "status", "attempts", "updated_at"])
 
+        # Обновляем контактные данные и привязываем AuthIdentity
+        provider = AuthIdentity.Provider.EMAIL_MAGIC if channel == LoginCode.Channel.EMAIL else AuthIdentity.Provider.PHONE_SMS
+        provider_user_id = identifier
+        if channel == LoginCode.Channel.EMAIL:
+            if not user.email_plain:
+                user.email_plain = identifier
+                user.save(update_fields=["email_encrypted", "email_hash", "updated_at"])
+        else:
+            if not user.phone_plain:
+                user.phone_plain = identifier
+                user.save(update_fields=["phone_encrypted", "phone_hash", "updated_at"])
+        _ensure_auth_identity(user, provider, provider_user_id, metadata={"purpose": purpose})
+
         if user.mfa_enabled and not _otp_satisfies_mfa(user, channel):
             request.session["post_auth_redirect"] = request.data.get("next")
             challenge = _require_mfa(request, user, reason="otp_login")
@@ -1053,6 +1098,13 @@ class SocialOAuthCallbackView(APIView):
             },
         )
         social_account.save()
+        provider_user_id = profile.get("external_id") or profile.get("email") or ""
+        _ensure_auth_identity(
+            user,
+            provider,
+            provider_user_id,
+            metadata={"raw": profile.get("raw") or {}, "email": profile.get("email")},
+        )
 
         next_url = request.session.get("oauth_next") or request.GET.get("next")
         expects_json = "application/json" in (request.headers.get("Accept") or "").lower()

@@ -9,6 +9,8 @@ from .models import (
     Booking,
     Complaint,
     FavoriteParkingSpot,
+    PlannerProfile,
+    PlannerRun,
     ParkingLot,
     ParkingSpot,
     PushSubscription,
@@ -408,3 +410,59 @@ class PushSubscriptionSerializer(serializers.ModelSerializer):
             if request.user.is_authenticated:
                 validated_data.setdefault("user", request.user)
         return super().create(validated_data)
+
+
+class PlannerProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PlannerProfile
+        fields = (
+            "id",
+            "name",
+            "destination_lat",
+            "destination_lon",
+            "preferred_arrival_time",
+            "near_metro",
+            "max_price_level",
+            "requires_ev_charging",
+            "requires_covered",
+            "vehicle_type",
+            "notes",
+            "last_used_at",
+            "created_at",
+            "updated_at",
+        )
+        read_only_fields = ("id", "last_used_at", "created_at", "updated_at")
+
+    def create(self, validated_data):
+        request = self.context.get("request")
+        if request and request.user.is_authenticated:
+            validated_data["user"] = request.user
+        return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        validated_data.pop("user", None)
+        return super().update(instance, validated_data)
+
+
+class PlannerPlanRequestSerializer(serializers.Serializer):
+    destination_lat = serializers.FloatField()
+    destination_lon = serializers.FloatField()
+    arrival_at = serializers.DateTimeField(required=False, allow_null=True)
+    near_metro = serializers.BooleanField(required=False, default=False)
+    max_price_level = serializers.IntegerField(required=False, default=0, min_value=0)
+    requires_ev_charging = serializers.BooleanField(required=False, default=False)
+    requires_covered = serializers.BooleanField(required=False, default=False)
+    vehicle_type = serializers.CharField(required=False, allow_blank=True, default="car")
+    profile_id = serializers.IntegerField(required=False, allow_null=True)
+
+    def validate_profile_id(self, value):
+        if not value:
+            return None
+        request = self.context.get("request")
+        user = getattr(request, "user", None)
+        if not user or not user.is_authenticated:
+            raise serializers.ValidationError("Требуется авторизация для профилей.")
+        exists = PlannerProfile.objects.filter(id=value, user=user).exists()
+        if not exists:
+            raise serializers.ValidationError("Профиль не найден.")
+        return value

@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Smart Parking Planner — ParkShare{% endblock %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'css/planner.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="ps-section ps-section--flush-top">
+    <div class="planner-hero">
+        <p class="ps-kicker">Smart Planner</p>
+        <h1 class="ps-landing__title">Маршрут, прогноз загруженности и лучшие места</h1>
+        <p class="ps-landing__subtitle">Премиальный режим планирования: учитываем EV/крытые места, бюджет и предлагаем ближайшие споты с прогнозом занятости.</p>
+    </div>
+
+    <div class="planner-shell">
+        <div class="planner-card">
+            <div class="planner-card__header">
+                <h2 class="ps-section-title">Настройки маршрута</h2>
+                <span class="ps-badge">β</span>
+            </div>
+            <form class="planner-form" data-planner-form>
+                <div class="planner-inline">
+                    <label class="ps-form-row">
+                        <span class="ps-form-label">Широта назначения</span>
+                        <input class="ps-input" type="number" name="destination_lat" step="0.0001" placeholder="55.7558" required>
+                    </label>
+                    <label class="ps-form-row">
+                        <span class="ps-form-label">Долгота назначения</span>
+                        <input class="ps-input" type="number" name="destination_lon" step="0.0001" placeholder="37.6176" required>
+                    </label>
+                </div>
+                <label class="ps-form-row">
+                    <span class="ps-form-label">Желаемое время прибытия</span>
+                    <input class="ps-input" type="datetime-local" name="arrival_at">
+                </label>
+                <div class="planner-inline">
+                    <label class="ps-checkbox">
+                        <input type="checkbox" name="requires_ev_charging">
+                        <span>Нужна зарядка</span>
+                    </label>
+                    <label class="ps-checkbox">
+                        <input type="checkbox" name="requires_covered">
+                        <span>Крытое место</span>
+                    </label>
+                </div>
+                <label class="ps-form-row">
+                    <span class="ps-form-label">Макс. уровень цены (0-5)</span>
+                    <input class="ps-input" type="number" name="max_price_level" min="0" max="5" step="1" value="0">
+                </label>
+                <div class="ps-form-actions">
+                    <button type="submit" class="ps-btn ps-btn-primary">Получить план</button>
+                    <span class="ps-hint" data-planner-status></span>
+                </div>
+            </form>
+        </div>
+
+        <div class="planner-card">
+            <div class="planner-card__header">
+                <h2 class="ps-section-title">Рекомендации</h2>
+            </div>
+            <div class="planner-results" data-planner-results></div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+    {{ planner_bootstrap|json_script:"planner-config" }}
+    <script src="{% static 'js/planner.js' %}"></script>
+{% endblock %}

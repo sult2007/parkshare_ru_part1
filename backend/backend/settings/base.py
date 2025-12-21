@@ -220,6 +220,7 @@ LOGGING = {
 }
 
 MAINTENANCE_MODE = env.bool("MAINTENANCE_MODE", default=False)
+ENABLE_AI_CHAT = env.bool("ENABLE_AI_CHAT", default=False)
 ENABLE_EXPERIMENTAL_ASSISTANT = env.bool("ENABLE_EXPERIMENTAL_ASSISTANT", default=True)
 ENABLE_AB_VARIANTS = env.bool("ENABLE_AB_VARIANTS", default=True)
 

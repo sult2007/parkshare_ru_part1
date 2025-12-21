@@ -12,6 +12,7 @@ import {
   ExclamationTriangleIcon
 } from '@heroicons/react/24/outline';
 import { ChatMessage } from '@/lib/aiProvider';
+import { chatEnabled } from '@/lib/featureFlags';
 import { Conversation, MessageWithId } from './types';
 import { ConversationList } from './conversation-list';
 import { SuggestedPrompts } from './suggested-prompts';
@@ -51,6 +52,14 @@ const createConversation = (title = 'New conversation'): Conversation => ({
 const storageKeyForUser = (userId?: string | null) => `${STORAGE_KEY_BASE}:${userId ?? 'guest'}`;
 
 export function ChatPanel() {
+  if (!chatEnabled) {
+    return (
+      <div className="flex min-h-[50vh] items-center justify-center rounded-3xl border border-[var(--border-subtle)]/70 bg-[var(--bg-elevated)] p-6 text-sm text-[var(--text-muted)] shadow-sm">
+        AI чат отключён.
+      </div>
+    );
+  }
+
   const { user, isAuthenticated } = useAuth();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);

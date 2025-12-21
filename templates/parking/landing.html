@@ -144,19 +144,35 @@
 
 
     <div class="ps-section">
-        <div class="ps-card ps-card--elevated ps-assistant-card">
-            <div class="ps-card-header">
-                <div>
-                    <p class="ps-kicker">AI Concierge</p>
-                    <div class="ps-card-title">Ассистент на связи</div>
-                    <p class="ps-card-line ps-card-line--muted">Диалог, поиск вдоль маршрута, быстрые брони и продление парковки.</p>
+        {% if ENABLE_AI_CHAT %}
+            <div class="ps-card ps-card--elevated ps-assistant-card">
+                <div class="ps-card-header">
+                    <div>
+                        <p class="ps-kicker">AI Concierge</p>
+                        <div class="ps-card-title">Ассистент на связи</div>
+                        <p class="ps-card-line ps-card-line--muted">Диалог, поиск вдоль маршрута, быстрые брони и продление парковки.</p>
+                    </div>
+                    <span class="ps-badge ps-badge--neutral">Потоковый чат</span>
                 </div>
-                <span class="ps-badge ps-badge--neutral">Потоковый чат</span>
+                <div class="ps-card-body">
+                    <a class="ps-btn ps-btn-full" href="{% url 'ai_chat' %}">Открыть ассистента</a>
+                </div>
             </div>
-            <div class="ps-card-body">
-                <a class="ps-btn ps-btn-full" href="{% url 'ai_chat' %}">Открыть ассистента</a>
+        {% else %}
+            <div class="ps-card ps-card--elevated ps-assistant-card">
+                <div class="ps-card-header">
+                    <div>
+                        <p class="ps-kicker">Smart Planner</p>
+                        <div class="ps-card-title">Флагманский планировщик</div>
+                        <p class="ps-card-line ps-card-line--muted">AI-чат отключён. Используйте новый Smart Parking Planner с прогнозом занятости и маршрутами.</p>
+                    </div>
+                    <span class="ps-badge ps-badge--neutral">Доступно</span>
+                </div>
+                <div class="ps-card-body">
+                    <a class="ps-btn ps-btn-full" href="{% url 'planner_page' %}">Открыть планировщик</a>
+                </div>
             </div>
-        </div>
+        {% endif %}
     </div>
 </section>
 {% endblock %}

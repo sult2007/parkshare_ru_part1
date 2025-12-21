@@ -17,12 +17,14 @@ from accounts import views as accounts_api
 from ai import views as ai_api
 from core.metrics import metrics_view
 from parking import views as parking_views
+from parking import views_planner
 from payments import views as payments_api
 from vehicles import views as vehicles_api
 
 from ..health import healthz, readyz
 
 ENABLE_LABS = getattr(settings, "ENABLE_LAB_ENDPOINTS", False)
+ENABLE_AI_CHAT = getattr(settings, "ENABLE_AI_CHAT", False)
 router = routers.DefaultRouter()
 
 router.register(r"accounts/users", accounts_api.UserViewSet, basename="user")
@@ -50,6 +52,9 @@ router.register(
 router.register(
     r"payments/methods", payments_api.PaymentMethodViewSet, basename="payment-method-nested"
 )
+router.register(
+    r"planner/profiles", views_planner.PlannerProfileViewSet, basename="planner-profile"
+)
 
 api_v1_patterns = [
     path("", include(router.urls)),
@@ -59,7 +64,6 @@ api_v1_patterns = [
     path("booking/extend/", parking_views.BookingExtendAPIView.as_view(), name="v1_booking_extend"),
     path("booking/stop/", parking_views.BookingStopAPIView.as_view(), name="v1_booking_stop"),
     path("booking/active/", parking_views.ActiveBookingAPIView.as_view(), name="v1_booking_active"),
-    path("assistant/chat/", ai_api.ChatStreamAPIView.as_view(), name="v1_assistant_chat"),
     path("auth/token/", accounts_api.TokenObtainPairView.as_view(), name="v1_token_obtain_pair"),
     path("auth/token/refresh/", accounts_api.TokenRefreshSlidingView.as_view(), name="v1_token_refresh"),
     path("auth/register/", accounts_api.UserViewSet.as_view({"post": "register"}), name="v1_auth_register"),
@@ -71,11 +75,17 @@ api_v1_patterns = [
     path("auth/mfa/disable/", accounts_api.AuthMFADisableView.as_view(), name="v1_auth_mfa_disable"),
     path("auth/otp/request/", accounts_api.AuthOTPRequestView.as_view(), name="v1_auth_otp_request"),
     path("auth/otp/verify/", accounts_api.AuthOTPVerifyView.as_view(), name="v1_auth_otp_verify"),
-    path("ai/chat/", ai_api.ChatStreamAPIView.as_view(), name="v1_ai_chat_stream"),
     path("ai/parkmate/config/", ai_api.ParkMateConfigAPIView.as_view(), name="v1_parkmate_config"),
     path("parking/map/", parking_views.ParkingMapAPIView.as_view(), name="v1_parking_map"),
     path("geocode/", parking_views.GeocodeAPIView.as_view(), name="v1_geocode"),
+    path("planner/plan/", views_planner.PlannerPlanAPIView.as_view(), name="v1_planner_plan"),
 ]
+
+if ENABLE_AI_CHAT:
+    api_v1_patterns += [
+        path("assistant/chat/", ai_api.ChatStreamAPIView.as_view(), name="v1_assistant_chat"),
+        path("ai/chat/", ai_api.ChatStreamAPIView.as_view(), name="v1_ai_chat_stream"),
+    ]
 
 
 @never_cache
@@ -117,10 +127,9 @@ urlpatterns = [
     path("profile/settings/", parking_views.ProfileSettingsView.as_view(), name="profile_settings"),
     path("promos/activate/", parking_views.PromoActivateView.as_view(), name="promo_activate"),
     path("business/reports/", parking_views.BusinessReportsView.as_view(), name="business_reports"),
+    path("planner/", views_planner.PlannerPageView.as_view(), name="planner_page"),
     path("admin/metrics-lite/", parking_views.MetricsDashboardView.as_view(), name="metrics_dashboard"),
     path("offline/", TemplateView.as_view(template_name="offline.html"), name="offline"),
-    path("assistant/", TemplateView.as_view(template_name="ai/concierge.html"), name="ai_chat"),
-    path("ai/", TemplateView.as_view(template_name="ai/concierge.html")),
 
     path("accounts/", include("accounts.urls")),
 
@@ -167,6 +176,7 @@ urlpatterns = [
         name="api-docs-redoc",
     ),
 
+    path("api/planner/plan/", views_planner.PlannerPlanAPIView.as_view(), name="planner_plan"),
     path("api/parking/map/", parking_views.ParkingMapAPIView.as_view(), name="parking_map"),
     path("api/geocode/", parking_views.GeocodeAPIView.as_view(), name="geocode"),
 
@@ -176,6 +186,12 @@ urlpatterns = [
     path("api-auth/", include("rest_framework.urls")),
 ]
 
+if ENABLE_AI_CHAT:
+    urlpatterns += [
+        path("assistant/", TemplateView.as_view(template_name="ai/concierge.html"), name="ai_chat"),
+        path("ai/", TemplateView.as_view(template_name="ai/concierge.html")),
+    ]
+
 if ENABLE_LABS:
     urlpatterns += [
         path("api/ai/recommendations/", ai_api.RecommendationsAPIView.as_view(), name="ai_recommendations"),
@@ -183,9 +199,12 @@ if ENABLE_LABS:
         path("api/ai/departure-assistant/", ai_api.DepartureAssistantAPIView.as_view(), name="ai_departure_assistant"),
         path("api/ai/parkmate/config/", ai_api.ParkMateConfigAPIView.as_view(), name="parkmate_config"),
         path("api/ai/parkmate/price-forecast/", ai_api.ParkMatePriceForecastAPIView.as_view(), name="parkmate_price_forecast"),
-        path("api/chat/", ai_api.ChatStreamAPIView.as_view(), name="ai_chat_stream"),
         path("api/ai/llm/health/", ai_api.LLMServiceHealthAPIView.as_view(), name="ai_llm_health"),
     ]
+    if ENABLE_AI_CHAT:
+        urlpatterns += [
+            path("api/chat/", ai_api.ChatStreamAPIView.as_view(), name="ai_chat_stream"),
+        ]
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

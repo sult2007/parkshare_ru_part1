@@ -6,49 +6,29 @@
   :root {
     color-scheme: light;
     --font-sans: 'SF Pro Display', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    --font-mono: 'SFMono-Regular', 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
-    --bg-surface: #f4f7fb;
+    --font-mono: 'JetBrains Mono', 'SFMono-Regular', ui-monospace, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+    --bg-surface: #f4f6fb;
     --bg-elevated: #ffffff;
     --bg-soft: #eef2f8;
-    --text-primary: #0f172a;
-    --text-muted: #5f6a7a;
+    --text-primary: #0b1628;
+    --text-muted: #6b7280;
     --accent: #4fc3ff;
     --accent-strong: #1c64f2;
-    --border-subtle: #e5e7eb;
-    --radius-lg: 20px;
+    --border-subtle: rgba(12, 18, 32, 0.08);
     --shadow-soft: 0 18px 38px rgba(15, 23, 42, 0.08);
-    --ps-bg: var(--bg-surface);
-    --ps-bg-elevated: var(--bg-elevated);
-    --ps-bg-card: #ffffff;
-    --ps-text-primary: var(--text-primary);
-    --ps-text-muted: var(--text-muted);
-    --ps-border-subtle: var(--border-subtle);
-    --ps-accent: var(--accent);
-    --ps-accent-strong: var(--accent-strong);
-    --ps-radius-card: 22px;
   }
 
   :root.dark {
     color-scheme: dark;
-    --bg-surface: #0b1220;
-    --bg-elevated: #0f172a;
+    --bg-surface: #050910;
+    --bg-elevated: #0a0f19;
     --bg-soft: #0c1424;
-    --text-primary: #e5e7eb;
-    --text-muted: #94a3b8;
+    --text-primary: #e9edf5;
+    --text-muted: #9aa3b8;
     --accent: #5dd6ff;
     --accent-strong: #8fc8ff;
-    --border-subtle: #1f2937;
-    --radius-lg: 20px;
+    --border-subtle: rgba(255, 255, 255, 0.08);
     --shadow-soft: 0 18px 38px rgba(0, 0, 0, 0.45);
-    --ps-bg: var(--bg-surface);
-    --ps-bg-elevated: var(--bg-elevated);
-    --ps-bg-card: var(--bg-elevated);
-    --ps-text-primary: var(--text-primary);
-    --ps-text-muted: var(--text-muted);
-    --ps-border-subtle: var(--border-subtle);
-    --ps-accent: var(--accent);
-    --ps-accent-strong: var(--accent-strong);
-    --ps-radius-card: 22px;
   }
 
   * {
@@ -76,7 +56,8 @@
   }
 
   input,
-  textarea {
+  textarea,
+  select {
     @apply w-full rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-4 py-3 text-sm text-[var(--text-primary)] shadow-sm outline-none transition focus:-translate-y-[1px] focus:border-[var(--accent)] focus:shadow-[0_10px_30px_rgba(79,70,229,0.06)];
     font-family: var(--font-sans);
   }
@@ -85,16 +66,21 @@
     @apply rounded-2xl px-4 py-2 text-sm font-medium transition duration-200 ease-out;
   }
 
-  h1, h2, h3, h4, h5 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5 {
     font-family: var(--font-sans);
     @apply tracking-tight text-[var(--text-primary)];
   }
 
-  code, pre {
+  code,
+  pre {
     font-family: var(--font-mono);
   }
 
   ::selection {
     background: rgba(63, 125, 244, 0.15);
   }
-  }
+}

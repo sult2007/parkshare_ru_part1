@@ -1,10 +1,15 @@
 'use client';
 import { useState } from 'react';
 import { ChatPanel } from '@/components/chat/chat-panel';
+import { chatEnabled } from '@/lib/featureFlags';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 
 export function ChatWidget() {
   const [open, setOpen] = useState(false);
+
+  if (!chatEnabled) {
+    return null;
+  }
 
   return (
     <>

@@ -10,8 +10,25 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        surface: '#f5f5f5',
-        'surface-dark': '#0f172a'
+        surface: 'var(--bg-surface)',
+        'surface-dark': 'var(--bg-elevated)',
+        accent: 'var(--accent)',
+        'accent-strong': 'var(--accent-strong)',
+        'text-primary': 'var(--text-primary)',
+        'text-muted': 'var(--text-muted)',
+        border: 'var(--border-subtle)'
+      },
+      fontFamily: {
+        sans: ['"Inter"', '"SF Pro Display"', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+        mono: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace']
+      },
+      borderRadius: {
+        xl: '20px',
+        '2xl': '24px',
+        pill: '999px'
+      },
+      boxShadow: {
+        card: 'var(--shadow-soft)'
       }
     }
   },

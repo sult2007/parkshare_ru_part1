@@ -23,4 +23,5 @@ def global_settings(request):
             [55.75, 37.61],
         ),
         "MAP_DEFAULT_ZOOM": getattr(settings, "MAP_DEFAULT_ZOOM", 11),
+        "ENABLE_AI_CHAT": getattr(settings, "ENABLE_AI_CHAT", False),
     }
